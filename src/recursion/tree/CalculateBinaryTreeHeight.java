@@ -1,4 +1,4 @@
-package recursion;
+package recursion.tree;
 
 import tree.BinaryTree;
 
@@ -23,7 +23,6 @@ public class CalculateBinaryTreeHeight {
     }
 
     public static <E> int calHieght(BinaryTree<E> tree) {
-
         if (tree == null) {
             return 0;
         }

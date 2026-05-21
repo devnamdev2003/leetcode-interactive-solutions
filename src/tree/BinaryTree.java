@@ -5,6 +5,12 @@ public class BinaryTree<T> {
     private BinaryTree<T> left;
     private BinaryTree<T> right;
 
+    public BinaryTree() {
+        this.data = null;
+        this.left = null;
+        this.right = null;
+    }
+
     public BinaryTree(T data) {
         this.data = data;
         this.left = null;

@@ -1,10 +1,10 @@
-package recursion;
+package recursion.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SortAList {
+public class SortList {
     public static void main(String[] args) {
         Integer[] arr = { 13, 2, 5 };
         ArrayList<Integer> l = new ArrayList<>(Arrays.asList(arr));
