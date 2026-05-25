@@ -34,7 +34,7 @@ public class BFSTraversal {
         n3.left = new IntBinaryTree(6);
         n3.right = new IntBinaryTree(7);
 
-        System.out.println(fun(root));
+        System.out.println(zigzagTraversal(root));
         System.out.println(fun2(root));
     }
 
@@ -68,6 +68,33 @@ public class BFSTraversal {
             if (q.peek().right != null)
                 q.offer(q.peek().right);
             l.add(q.poll().data);
+        }
+        return l;
+    }
+
+    public static List<List<Integer>> zigzagTraversal(IntBinaryTree root) {
+        Queue<IntBinaryTree> q = new ArrayDeque<>();
+        List<List<Integer>> l = new ArrayList<>();
+        q.offer(root);
+        boolean flag = false;
+        while (q.size() != 0) {
+            List<Integer> temp = new ArrayList<>();
+            int size = q.size();
+
+            for (int i = 0; i < size; i++) {
+                IntBinaryTree node = q.poll();
+                if (node.left != null)
+                    q.offer(node.left);
+                if (node.right != null)
+                    q.offer(node.right);
+                temp.add(node.data);
+            }
+            if (flag) {
+                Collections.reverse(temp);
+            }
+            l.add(temp);
+
+            flag = !flag;
         }
         return l;
     }
