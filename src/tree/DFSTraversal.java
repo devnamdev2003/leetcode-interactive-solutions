@@ -7,25 +7,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
-class IntBinaryTree {
-    int data;
-    IntBinaryTree left;
-    IntBinaryTree right;
-
-    public IntBinaryTree() {
-        this.data = 0;
-        this.left = null;
-        this.right = null;
-    }
-
-    public IntBinaryTree(int data) {
-        this.data = data;
-        this.left = null;
-        this.right = null;
-    }
-
-}
-
 public class DFSTraversal {
 
     public static void main(String[] args) {
@@ -54,7 +35,8 @@ public class DFSTraversal {
         // preorderTraversal(root);
         // System.out.println();
         // postorderTraversal(root);
-        System.out.println(checkTwoTreeIndentical(root, root2));
+        System.out.println();
+        rootToNode(root, n3.left);
 
     }
 
@@ -244,5 +226,33 @@ public class DFSTraversal {
         }
         return root1.data == root2.data && checkTwoTreeIndentical(root1.left, root2.left)
                 && checkTwoTreeIndentical(root1.right, root2.right);
+    }
+
+    public static boolean flag = false;
+
+    public static void rootToNode(IntBinaryTree root, IntBinaryTree Node) {
+        if (root == null) {
+            return;
+        }
+        if (root == Node) {
+            flag = true;
+            System.out.println(Node.data);
+            return;
+        }
+        if (flag == true) {
+            System.out.println(root.data);
+            return;
+        }
+        rootToNode(root.left, Node);
+        if (flag == true) {
+            System.out.println(root.data);
+            return;
+        }
+        rootToNode(root.right, Node);
+        if (flag == true) {
+            System.out.println(root.data);
+            return;
+        }
+
     }
 }

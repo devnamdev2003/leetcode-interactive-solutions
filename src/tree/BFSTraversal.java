@@ -2,25 +2,6 @@ package tree;
 
 import java.util.*;
 
-class IntBinaryTree {
-    int data;
-    IntBinaryTree left;
-    IntBinaryTree right;
-
-    public IntBinaryTree() {
-        this.data = 0;
-        this.left = null;
-        this.right = null;
-    }
-
-    public IntBinaryTree(int data) {
-        this.data = data;
-        this.left = null;
-        this.right = null;
-    }
-
-}
-
 public class BFSTraversal {
 
     public static void main(String[] args) {
