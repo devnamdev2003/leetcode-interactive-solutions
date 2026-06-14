@@ -116,5 +116,16 @@
         ],
         "leetcodeUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
         "algovizUrl": "array/how-many-numbers-are-smaller-than-the-current-number.html"
+    },
+    {
+        "id": "448",
+        "title": "Find All Numbers Disappeared in an Array",
+        "difficulty": "Easy",
+        "tags": [
+            "Array",
+            "Hash Table"
+        ],
+        "leetcodeUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
+        "algovizUrl": "array/find-all-numbers-disappeared-in-an-array.html"
     }
 ]
