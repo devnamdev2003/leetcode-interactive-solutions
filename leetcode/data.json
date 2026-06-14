@@ -102,5 +102,19 @@
         ],
         "leetcodeUrl": "#",
         "algovizUrl": "algorithm/moores-voting.html"
+    },
+    {
+        "id": "1365",
+        "title": "How Many Numbers Are Smaller Than the Current Number",
+        "difficulty": "Easy",
+        "tags": [
+            "Mid Level",
+            "Array",
+            "Hash Table",
+            "Sorting",
+            "Counting Sort"
+        ],
+        "leetcodeUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
+        "algovizUrl": "array/how-many-numbers-are-smaller-than-the-current-number.html"
     }
 ]
