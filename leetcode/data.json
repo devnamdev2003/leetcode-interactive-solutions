@@ -24,5 +24,83 @@
         ],
         "leetcodeUrl": "https://leetcode.com/problems/robot-collisions/description/",
         "algovizUrl": "array/robot-collisions.html"
+    },
+    {
+        "id": "15",
+        "title": "3Sum",
+        "difficulty": "Medium",
+        "tags": [
+            "Array",
+            "Two Pointers",
+            "Sorting"
+        ],
+        "leetcodeUrl": "https://leetcode.com/problems/3sum/description/",
+        "algovizUrl": "algorithm/3sum.html"
+    },
+    {
+        "id": "a-12",
+        "title": "Binary Tree Boundary Traversal",
+        "difficulty": "Hard",
+        "tags": [
+            "Algorithm"
+        ],
+        "leetcodeUrl": "#",
+        "algovizUrl": "algorithm/binary-tree-boundary-traversal.html"
+    },
+    {
+        "id": "987",
+        "title": "Vertical Order Traversal of a Binary Tree",
+        "difficulty": "Hard",
+        "tags": [
+            "Staff",
+            "Hash Table",
+            "Tree",
+            "Depth-First Search",
+            "Breadth-First Search",
+            "Sorting",
+            "Binary Tree"
+        ],
+        "leetcodeUrl": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/",
+        "algovizUrl": "algorithm/vertical-order-traversal-of-a-binary-tree.html"
+    },
+    {
+        "id": "a-4",
+        "title": "Dutch National Flag",
+        "difficulty": "Hard",
+        "tags": [
+            "Algorithm"
+        ],
+        "leetcodeUrl": "#",
+        "algovizUrl": "algorithm/dutch-national-flag.html"
+    },
+    {
+        "id": "a-5",
+        "title": "Inversion Count",
+        "difficulty": "Hard",
+        "tags": [
+            "Algorithm"
+        ],
+        "leetcodeUrl": "#",
+        "algovizUrl": "algorithm/inversion-count.html"
+    },
+    {
+        "id": "a-6",
+        "title": "Kadane's Algorithm",
+        "difficulty": "Hard",
+        "tags": [
+            "Algorithm"
+        ],
+        "leetcodeUrl": "#",
+        "algovizUrl": "algorithm/kadanes-algorithm.html"
+    },
+    {
+        "id": "a-7",
+        "title": "Moore's Voting",
+        "difficulty": "Hard",
+        "tags": [
+            "Algorithm"
+        ],
+        "leetcodeUrl": "#",
+        "algovizUrl": "algorithm/moores-voting.html"
     }
 ]

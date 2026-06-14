@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Order Traversal | Interactive DSA Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Code Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0f172a', panelbg: '#1e293b', compbg: '#334155', bordercolor: '#475569', textcolor: '#f8fafc', muted: '#94a3b8',
+                        accent: '#a855f7', // Violet
+                        bfsVisit: '#0ea5e9', // Blue
+                        mapGroup: '#10b981', // Emerald
+                        colHighlight: 'rgba(168, 85, 247, 0.15)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .tree-node {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            background-color: #1e293b;
+            border: 2.5px solid #475569;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            position: absolute;
+            z-index: 20;
+            transform: translate(-50%, -50%);
+        }
+
+        .tree-node:hover {
+            transform: translate(-50%, -50%) scale(1.12);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            border-color: #a855f7;
+        }
+
+        .hd-badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background: #a855f7;
+            color: white;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 1px 4px;
+            border-radius: 6px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1.5px solid #0f172a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .hd-badge.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .node-bfs-active {
+            border-color: #0ea5e9 !important;
+            background-color: #0369a1 !important;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.6) !important;
+            color: #ffffff !important;
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        .node-grouped {
+            border-color: #10b981 !important;
+            background-color: #065f46 !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+            color: #ffffff !important;
+        }
+
+        .node-selected-edit {
+            border-color: #a855f7 !important;
+            background-color: #4c1d95 !important;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.7) !important;
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        svg.tree-svg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .tree-branch-path {
+            fill: none;
+            stroke: #475569;
+            stroke-width: 2.5;
+            transition: all 0.3s ease;
+        }
+
+        .tree-branch-path.highlight-active {
+            stroke: #0ea5e9;
+            stroke-width: 3.5;
+            stroke-dasharray: 6, 6;
+            animation: dashFlow 1s linear infinite;
+        }
+
+        .hd-column-line {
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 40;
+            /* Thick logical columns */
+            stroke-linecap: round;
+            transition: all 0.4s ease;
+        }
+
+        .hd-column-line.highlight {
+            stroke: var(--tw-colors-colHighlight);
+        }
+
+        @keyframes dashFlow {
+            from {
+                stroke-dashoffset: 20;
+            }
+
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .packet-cursor {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #0ea5e9;
+            z-index: 30;
+            display: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px #0ea5e9, inset 0 0 4px rgba(255, 255, 255, 0.8);
+            border: 2px solid #0f172a;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #a855f7;
+            color: #f8fafc;
+        }
+
+        .code-lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .code-lang-btn.active {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .step-pill {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+
+        .step-pill.active {
+            background-color: #a855f7;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #a855f7;
+        }
+    </style>
+</head>
+
+<body class="antialiased h-screen flex flex-col overflow-hidden text-textcolor bg-darkbg">
+
+    <header class="bg-panelbg border-b border-bordercolor z-40 shadow-lg">
+        <div class="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i
+                    class="fa-solid fa-arrows-up-down text-accent text-2xl drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"></i>
+                <h1 class="text-xl font-bold tracking-wide">Vertical Order Traversal</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                    <button id="tab-visual" class="tab-btn active text-sm">Visual Flow</button>
+                    <button id="tab-principles" class="tab-btn text-sm">Principles & Code</button>
+                </div>
+            </div>
+            <div class="flex gap-2" id="sim-controls">
+                <button id="btn-full-sim"
+                    class="px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white rounded font-medium transition shadow-sm text-sm flex items-center border border-violet-400">
+                    <i class="fa-solid fa-play mr-2"></i> Run Algorithm
+                </button>
+                <button id="btn-toggle-pause"
+                    class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center opacity-50 cursor-not-allowed"
+                    disabled>
+                    <i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause
+                </button>
+                <button id="btn-reset"
+                    class="px-3 py-1.5 bg-compbg hover:bg-slate-600 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- VISUAL TRAVERSAL VIEW -->
+        <div id="view-visual" class="flex w-full h-full">
+
+            <!-- Sidebar / Instruction Log -->
+            <div
+                class="w-[380px] bg-panelbg border-r border-bordercolor flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+
+                <!-- Custom Presets Panel -->
+                <div class="p-3 border-b border-bordercolor bg-darkbg/90">
+                    <h3
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Tree Layout Presets
+                    </h3>
+                    <div class="grid grid-cols-3 gap-1">
+                        <button id="preset-standard"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Standard</button>
+                        <button id="preset-overlap"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">HD
+                            Overlap</button>
+                        <button id="preset-zigzag"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Zig
+                            Zag</button>
+                    </div>
+                </div>
+
+                <!-- Simulation Tracker & Map State -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/30">
+                    <h2
+                        class="text-xs font-bold text-accent uppercase tracking-widest flex items-center justify-between mb-3">
+                        <span><i class="fa-solid fa-microchip mr-2"></i>Algorithm Stages</span>
+                        <div class="flex gap-1">
+                            <div class="step-pill active" id="pill-step-1"></div>
+                            <div class="step-pill" id="pill-step-2"></div>
+                        </div>
+                    </h2>
+                    <div id="stage-info" class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-bfs-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-water text-bfsVisit mr-2"></i>1.
+                                Breadth-First Search (Queue)</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-bfs-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-map-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-layer-group text-mapGroup mr-2"></i>2.
+                                Map Projection & Grouping</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-map-status">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hash Map State Output -->
+                <div
+                    class="p-4 border-b border-bordercolor bg-darkbg/80 flex flex-col gap-2 max-h-[220px] overflow-y-auto">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-table-list"></i> TreeMap Output Grouping
+                    </h3>
+                    <div id="result-map"
+                        class="flex flex-col gap-2 p-2 bg-panelbg rounded-lg border border-bordercolor">
+                        <span class="text-slate-500 italic text-xs text-center py-2">Map is empty. Run algorithm to
+                            populate.</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Explanation / Property Panel -->
+                <div class="p-4 flex-1 overflow-y-auto" id="info-panel">
+                    <div id="default-info" class="h-full flex flex-col items-center justify-center text-muted">
+                        <i class="fa-solid fa-hand-pointer text-4xl mb-4 text-slate-600 animate-bounce"></i>
+                        <p class="text-center text-xs px-2 leading-relaxed">
+                            <span class="text-white font-semibold">Coordinate-Mapped Nodes</span><br>
+                            Click a node to modify it. Notice how nodes snap mathematically into vertical columns based
+                            on their <strong class="text-accent">HD (Horizontal Distance)</strong>!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step Description Console -->
+                <div class="border-t border-bordercolor bg-darkbg p-4 h-[140px] flex flex-col">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>Live Console Log</span>
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                    </h3>
+                    <div id="console-output"
+                        class="flex-1 font-mono text-[11px] overflow-y-auto space-y-1 text-slate-300 bg-black/40 p-2.5 rounded border border-white/5 scrollbar-thin">
+                        <div class="italic text-slate-500">Waiting for actions...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Traversal Canvas (Tree Render) -->
+            <div class="flex-1 overflow-hidden relative bg-darkbg p-8" id="canvas-container">
+                <div class="relative w-full h-full" id="tree-container">
+                    <!-- SVG lines representing tree edges and HD columns -->
+                    <svg class="tree-svg-canvas" id="tree-svg"></svg>
+                    <!-- Travel tracker cursor -->
+                    <div id="packet-cursor" class="packet-cursor"></div>
+                    <!-- Nodes populated dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINCIPLES & CODE VIEW -->
+        <div id="view-principles" class="hidden w-full h-full overflow-y-auto bg-darkbg p-8">
+            <div class="max-w-5xl mx-auto text-slate-300 markdown-body pb-16">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b border-bordercolor pb-4">Vertical Order Traversal
+                </h1>
+
+                <p class="text-base leading-relaxed mb-6">
+                    Vertical Order Traversal is a tree layout algorithm that groups nodes by their <strong>Horizontal
+                        Distance (HD)</strong> from the root. Imagine drawing vertical lines down through the tree:
+                    nodes lying on the same vertical line are grouped together.
+                </p>
+
+                <!-- Core concepts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-l-4 border-l-bfsVisit">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Horizontal Distance (HD)</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            The Root node starts at <code>HD = 0</code>.<br>
+                            A Left Child's HD = <code>Parent's HD - 1</code>.<br>
+                            A Right Child's HD = <code>Parent's HD + 1</code>.
+                        </p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-l-4 border-l-accent">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Map & Queue (BFS)</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            A Breadth-First Search (Queue) guarantees we visit higher levels first. We use a
+                            <code>TreeMap</code> (sorted map) to group nodes by HD, ensuring left-most vertical columns
+                            are printed first.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Code Block View -->
+                <div class="bg-panelbg rounded-xl border border-bordercolor p-6">
+                    <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                        <h3 class="text-lg font-semibold text-white">Algorithm Implementation</h3>
+                        <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                            <button id="lang-java" class="code-lang-btn active">Java</button>
+                            <button id="lang-cpp" class="code-lang-btn">C++</button>
+                            <button id="lang-python" class="code-lang-btn">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Code blocks -->
+                    <div id="code-container">
+                        <!-- Java Code -->
+                        <div id="code-block-java" class="block">
+                            <pre><code class="language-java">import java.util.*;
+
+class Node {
+    int data;
+    Node left, right;
+    Node(int data) { this.data = data; }
+}
+
+class Pair {
+    Node node;
+    int hd; // Horizontal Distance
+    Pair(Node node, int hd) {
+        this.node = node;
+        this.hd = hd;
+    }
+}
+
+public class VerticalTraversal {
+    public List&lt;List&lt;Integer&gt;&gt; verticalOrder(Node root) {
+        List&lt;List&lt;Integer&gt;&gt; ans = new ArrayList&lt;&gt;();
+        if (root == null) return ans;
+
+        // TreeMap automatically sorts keys (Horizontal Distances)
+        Map&lt;Integer, List&lt;Integer&gt;&gt; map = new TreeMap&lt;&gt;();
+        
+        // BFS Queue guarantees level-order (top-to-bottom) per column
+        Queue&lt;Pair&gt; q = new LinkedList&lt;&gt;();
+        q.offer(new Pair(root, 0));
+
+        while (!q.isEmpty()) {
+            Pair curr = q.poll();
+            Node node = curr.node;
+            int hd = curr.hd;
+
+            // Add node value to the corresponding vertical column
+            map.putIfAbsent(hd, new ArrayList&lt;&gt;());
+            map.get(hd).add(node.data);
+
+            if (node.left != null) {
+                q.offer(new Pair(node.left, hd - 1));
+            }
+            if (node.right != null) {
+                q.offer(new Pair(node.right, hd + 1));
+            }
+        }
+
+        // Compile final answer from sorted map
+        for (Map.Entry&lt;Integer, List&lt;Integer&gt;&gt; entry : map.entrySet()) {
+            ans.add(entry.getValue());
+        }
+
+        return ans;
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- C++ Code -->
+                        <div id="code-block-cpp" class="hidden block">
+                            <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;map&gt;
+#include &lt;queue&gt;
+using namespace std;
+
+struct Node {
+    int data;
+    Node *left, *right;
+    Node(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; verticalOrder(Node* root) {
+        vector&lt;vector&lt;int&gt;&gt; ans;
+        if (!root) return ans;
+
+        // map automatically sorts by key (HD)
+        map&lt;int, vector&lt;int&gt;&gt; m;
+        queue&lt;pair&lt;Node*, int&gt;&gt; q; // pair of (Node, HD)
+        
+        q.push({root, 0});
+
+        while (!q.empty()) {
+            auto curr = q.front();
+            q.pop();
+            
+            Node* node = curr.first;
+            int hd = curr.second;
+
+            m[hd].push_back(node->data);
+
+            if (node->left) q.push({node->left, hd - 1});
+            if (node->right) q.push({node->right, hd + 1});
+        }
+
+        for (auto it : m) {
+            ans.push_back(it.second);
+        }
+
+        return ans;
+    }
+};</code></pre>
+                        </div>
+
+                        <!-- Python Code -->
+                        <div id="code-block-python" class="hidden block">
+                            <pre><code class="language-python">from collections import deque, defaultdict
+
+class Node:
+    def __init__(self, val):
+        self.data = val
+        self.left = None
+        self.right = None
+
+class Solution:
+    def verticalOrder(self, root):
+        if not root:
+            return []
+            
+        columnTable = defaultdict(list)
+        queue = deque([(root, 0)]) # Queue stores tuples of (Node, HD)
+        
+        min_hd = float('inf')
+        max_hd = float('-inf')
+
+        while queue:
+            node, hd = queue.popleft()
+            
+            # Group by Horizontal Distance
+            columnTable[hd].append(node.data)
+            
+            # Track bounds to avoid needing a sorted dictionary
+            min_hd = min(min_hd, hd)
+            max_hd = max(max_hd, hd)
+
+            if node.left:
+                queue.append((node.left, hd - 1))
+            if node.right:
+                queue.append((node.right, hd + 1))
+
+        # Compile result iterating from leftmost HD to rightmost HD
+        return [columnTable[x] for x in range(min_hd, max_hd + 1)]</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            // Tabs Logic
+            const tabVisual = document.getElementById('tab-visual');
+            const tabPrinciples = document.getElementById('tab-principles');
+            const viewVisual = document.getElementById('view-visual');
+            const viewPrinciples = document.getElementById('view-principles');
+            const simControls = document.getElementById('sim-controls');
+
+            tabVisual.addEventListener('click', () => {
+                tabVisual.classList.add('active'); tabPrinciples.classList.remove('active');
+                viewVisual.classList.remove('hidden'); viewPrinciples.classList.add('hidden');
+                simControls.style.display = 'flex';
+                setTimeout(drawConnectionsAndColumns, 50);
+            });
+
+            tabPrinciples.addEventListener('click', () => {
+                tabPrinciples.classList.add('active'); tabVisual.classList.remove('active');
+                viewPrinciples.classList.remove('hidden'); viewVisual.classList.add('hidden');
+                simControls.style.display = 'none';
+            });
+
+            // Lang Logic
+            const codeBlocks = { java: document.getElementById('code-block-java'), cpp: document.getElementById('code-block-cpp'), python: document.getElementById('code-block-python') };
+            const langBtns = { java: document.getElementById('lang-java'), cpp: document.getElementById('lang-cpp'), python: document.getElementById('lang-python') };
+
+            function selectLanguage(lang) {
+                Object.keys(codeBlocks).forEach(k => {
+                    if (k === lang) { codeBlocks[k].classList.remove('hidden'); langBtns[k].classList.add('active'); }
+                    else { codeBlocks[k].classList.add('hidden'); langBtns[k].classList.remove('active'); }
+                });
+            }
+            Object.keys(langBtns).forEach(k => langBtns[k].addEventListener('click', () => selectLanguage(k)));
+
+            // === Data Model & Layout Engine ===
+            class BinaryTreeNode {
+                constructor(id, value) {
+                    this.id = id; this.value = value;
+                    this.left = null; this.right = null;
+                    this.x = 50; this.y = 10;
+                    this.hd = 0; this.depth = 0;
+                }
+            }
+
+            let rootNode = null;
+            let nodeIdCounter = 1;
+            let activeSelectedNodeId = null;
+
+            let globalMinHD = 0;
+            let globalMaxHD = 0;
+
+            const svgCanvas = document.getElementById('tree-svg');
+            const treeContainer = document.getElementById('tree-container');
+            const packetCursor = document.getElementById('packet-cursor');
+            const consoleOutput = document.getElementById('console-output');
+            const infoPanel = document.getElementById('info-panel');
+            const resultMap = document.getElementById('result-map');
+
+            const btnFullSim = document.getElementById('btn-full-sim');
+            const btnTogglePause = document.getElementById('btn-toggle-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            let isSimulating = false; let isPaused = false; let abortController = null;
+            let currentPacketAnimation = null; let pauseLock = null; let pauseResolve = null;
+            let sleepTimer = null; let sleepResolveFn = null; let sleepRemaining = 0; let sleepStartTime = 0;
+
+            function createNewNode(value) { return new BinaryTreeNode(`n_${nodeIdCounter++}`, value); }
+
+            // Step 1: Assign logical HD and Depth to all nodes
+            function computeNodeMetrics(node, hd = 0, depth = 0) {
+                if (!node) return;
+                node.hd = hd;
+                node.depth = depth;
+                if (hd < globalMinHD) globalMinHD = hd;
+                if (hd > globalMaxHD) globalMaxHD = hd;
+                computeNodeMetrics(node.left, hd - 1, depth + 1);
+                computeNodeMetrics(node.right, hd + 1, depth + 1);
+            }
+
+            // Step 2: Coordinate snapping based entirely on HD
+            function computeLayoutCoords() {
+                if (!rootNode) return;
+                globalMinHD = 0; globalMaxHD = 0;
+                computeNodeMetrics(rootNode);
+
+                // Add padding to ends so nodes aren't cut off by container bounds
+                const totalColumns = (globalMaxHD - globalMinHD) + 1;
+
+                // Calculate percentage width for each HD column to perfectly align them visually
+                const columnWidth = 80 / Math.max(1, (totalColumns - 1));
+
+                let collisionMap = {}; // Track nodes falling into the same HD & Depth
+
+                function assignCoords(node) {
+                    if (!node) return;
+
+                    // Center the layout logically
+                    const columnOffset = node.hd - globalMinHD;
+
+                    const key = `${node.hd}-${node.depth}`;
+                    if (!collisionMap[key]) collisionMap[key] = 0;
+
+                    // Prevent perfect overlap by cascading colliding nodes vertically
+                    const stackOffsetY = collisionMap[key] * 9; // 9% shift down per collision
+                    collisionMap[key]++;
+
+                    if (totalColumns === 1) {
+                        node.x = 50; // Centered if only 1 column
+                    } else {
+                        node.x = 10 + (columnOffset * columnWidth);
+                    }
+
+                    node.y = 12 + (node.depth * 20) + stackOffsetY;
+
+                    // Depth limit trim
+                    if (node.depth >= 4) { node.left = null; node.right = null; }
+                    else { assignCoords(node.left); assignCoords(node.right); }
+                }
+
+                assignCoords(rootNode);
+            }
+
+            function collectEdges(node, edges = []) {
+                if (!node) return edges;
+                if (node.left) { edges.push({ p: node.id, c: node.left.id }); collectEdges(node.left, edges); }
+                if (node.right) { edges.push({ p: node.id, c: node.right.id }); collectEdges(node.right, edges); }
+                return edges;
+            }
+
+            function collectNodes(node, list = []) {
+                if (!node) return list;
+                list.push(node); collectNodes(node.left, list); collectNodes(node.right, list);
+                return list;
+            }
+
+            function findNodeById(node, id) {
+                if (!node) return null;
+                if (node.id === id) return node;
+                return findNodeById(node.left, id) || findNodeById(node.right, id);
+            }
+
+            function findParentNode(curr, childId) {
+                if (!curr) return null;
+                if ((curr.left && curr.left.id === childId) || (curr.right && curr.right.id === childId)) return curr;
+                return findParentNode(curr.left, childId) || findParentNode(curr.right, childId);
+            }
+
+            function deleteSubtree(parentId, childId) {
+                if (!rootNode) return;
+                if (rootNode.id === childId) return;
+                const parent = findParentNode(rootNode, childId);
+                if (parent) {
+                    if (parent.left && parent.left.id === childId) parent.left = null;
+                    else if (parent.right && parent.right.id === childId) parent.right = null;
+                    activeSelectedNodeId = null;
+                    rebuildWorkspace();
+                }
+            }
+
+            function rebuildWorkspace() {
+                computeLayoutCoords();
+                const list = collectNodes(rootNode);
+
+                const cursor = document.getElementById('packet-cursor');
+                treeContainer.innerHTML = '';
+                treeContainer.appendChild(cursor);
+                treeContainer.appendChild(svgCanvas);
+
+                list.forEach(node => {
+                    const nodeDiv = document.createElement('div');
+                    nodeDiv.className = 'tree-node';
+                    nodeDiv.id = `node-${node.id}`;
+                    nodeDiv.style.left = `${node.x}%`;
+                    nodeDiv.style.top = `${node.y}%`;
+                    nodeDiv.innerHTML = `
+                        <span>${node.value}</span>
+                        <div class="hd-badge" id="badge-${node.id}">HD:${node.hd}</div>
+                    `;
+
+                    nodeDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!isSimulating) {
+                            activeSelectedNodeId = node.id;
+                            highlightSelectedNode(node.id);
+                            renderEditor(node);
+                        }
+                    });
+
+                    treeContainer.appendChild(nodeDiv);
+                });
+
+                drawConnectionsAndColumns();
+            }
+
+            function highlightSelectedNode(id) {
+                document.querySelectorAll('.tree-node').forEach(div => div.classList.remove('node-selected-edit'));
+                const el = document.getElementById(`node-${id}`);
+                if (el) el.classList.add('node-selected-edit');
+            }
+
+            function drawConnectionsAndColumns() {
+                svgCanvas.innerHTML = '';
+                const containerRect = treeContainer.getBoundingClientRect();
+
+                // Draw Background HD Columns
+                if (rootNode) {
+                    const totalCols = globalMaxHD - globalMinHD + 1;
+                    const colWidth = 80 / Math.max(1, (totalCols - 1));
+
+                    for (let hd = globalMinHD; hd <= globalMaxHD; hd++) {
+                        const offset = hd - globalMinHD;
+                        const xPercent = totalCols === 1 ? 50 : (10 + offset * colWidth);
+
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("id", `col-line-${hd}`);
+                        line.setAttribute("class", "hd-column-line");
+                        line.setAttribute("x1", `${xPercent}%`);
+                        line.setAttribute("y1", "0");
+                        line.setAttribute("x2", `${xPercent}%`);
+                        line.setAttribute("y2", "100%");
+                        svgCanvas.appendChild(line);
+                    }
+                }
+
+                // Draw Tree Edges
+                const edges = collectEdges(rootNode);
+                edges.forEach(edge => {
+                    const p = getCenterCoords(edge.p);
+                    const c = getCenterCoords(edge.c);
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("id", `branch-${edge.p}-${edge.c}`);
+                    path.setAttribute("class", "tree-branch-path");
+                    path.setAttribute("d", `M ${p.x} ${p.y} L ${c.x} ${c.y}`);
+                    svgCanvas.appendChild(path);
+                });
+            }
+
+            function getCenterCoords(id) {
+                const el = document.getElementById(`node-${id}`);
+                if (!el) return { x: 0, y: 0 };
+                const elRect = el.getBoundingClientRect();
+                const containerRect = treeContainer.getBoundingClientRect();
+                return {
+                    x: (elRect.left - containerRect.left) + (elRect.width / 2),
+                    y: (elRect.top - containerRect.top) + (elRect.height / 2)
+                };
+            }
+
+            // Editor Panel
+            function renderEditor(node) {
+                const parent = findParentNode(rootNode, node.id);
+                infoPanel.innerHTML = `
+                    <div class="space-y-4 animate-[fadeIn_0.2s_ease-out]">
+                        <div class="border-b border-bordercolor pb-2 flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-accent uppercase tracking-wider"><i class="fa-solid fa-pen-to-square mr-1"></i> Configurator</h3>
+                            <button id="btn-close-editor" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-semibold uppercase mb-1">Value</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="edit-val" value="${node.value}" class="bg-darkbg text-white border border-bordercolor rounded px-2 py-1 text-sm w-full outline-none focus:border-accent">
+                                <button id="btn-save-val" class="px-3 bg-accent/20 text-accent font-semibold text-xs border border-accent/40 rounded">Save</button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-darkbg/40 rounded border border-bordercolor/40 text-xs space-y-1">
+                            <div class="flex justify-between"><span class="text-slate-400">Calculated HD:</span> <span class="font-bold text-accent">${node.hd}</span></div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] text-slate-400 font-semibold uppercase mb-1">Add Children</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button id="btn-add-l" ${node.left ? 'disabled class="opacity-40 bg-compbg py-1.5 text-xs text-slate-500 rounded font-semibold border border-transparent"' : 'class="bg-compbg hover:bg-slate-600 text-slate-200 py-1.5 text-xs rounded font-semibold border border-bordercolor transition"'}>+ Left</button>
+                                <button id="btn-add-r" ${node.right ? 'disabled class="opacity-40 bg-compbg py-1.5 text-xs text-slate-500 rounded font-semibold border border-transparent"' : 'class="bg-compbg hover:bg-slate-600 text-slate-200 py-1.5 text-xs rounded font-semibold border border-bordercolor transition"'}>+ Right</button>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <button id="btn-del" ${parent ? 'class="w-full bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-900/80 py-1.5 text-xs rounded font-semibold transition"' : 'disabled class="w-full bg-slate-800 text-slate-600 py-1.5 text-xs rounded font-semibold cursor-not-allowed"'}>Delete Node</button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('btn-close-editor').addEventListener('click', resetEditor);
+                document.getElementById('btn-save-val').addEventListener('click', () => {
+                    node.value = parseInt(document.getElementById('edit-val').value) || 0;
+                    rebuildWorkspace(); highlightSelectedNode(node.id); renderEditor(node);
+                });
+                document.getElementById('btn-add-l').addEventListener('click', () => {
+                    node.left = createNewNode(node.value - 2); rebuildWorkspace(); highlightSelectedNode(node.id); renderEditor(node);
+                });
+                document.getElementById('btn-add-r').addEventListener('click', () => {
+                    node.right = createNewNode(node.value + 3); rebuildWorkspace(); highlightSelectedNode(node.id); renderEditor(node);
+                });
+                if (parent) {
+                    document.getElementById('btn-del').addEventListener('click', () => {
+                        deleteSubtree(parent.id, node.id); resetEditor();
+                    });
+                }
+            }
+
+            function resetEditor() {
+                activeSelectedNodeId = null;
+                document.querySelectorAll('.tree-node').forEach(div => div.classList.remove('node-selected-edit'));
+                infoPanel.innerHTML = document.getElementById('default-info').outerHTML;
+            }
+
+            // Presets
+            document.getElementById('preset-standard').addEventListener('click', () => {
+                if (isSimulating) return; nodeIdCounter = 1;
+                rootNode = createNewNode(1);
+                rootNode.left = createNewNode(2); rootNode.right = createNewNode(3);
+                rootNode.left.left = createNewNode(4); rootNode.left.right = createNewNode(5);
+                rootNode.right.left = createNewNode(6); rootNode.right.right = createNewNode(7);
+                resetEditor(); rebuildWorkspace();
+            });
+
+            document.getElementById('preset-overlap').addEventListener('click', () => {
+                if (isSimulating) return; nodeIdCounter = 1;
+                rootNode = createNewNode(3);
+                rootNode.left = createNewNode(9); rootNode.right = createNewNode(20);
+                rootNode.right.left = createNewNode(15); rootNode.right.right = createNewNode(7);
+                // Node 9 (HD -1) and Node 15 (HD +1 -1 = 0). Node 15 will fall on Root's column!
+                resetEditor(); rebuildWorkspace();
+            });
+
+            document.getElementById('preset-zigzag').addEventListener('click', () => {
+                if (isSimulating) return; nodeIdCounter = 1;
+                rootNode = createNewNode(10);
+                rootNode.left = createNewNode(20);
+                rootNode.left.right = createNewNode(30);
+                rootNode.left.right.left = createNewNode(40);
+                resetEditor(); rebuildWorkspace();
+            });
+
+            // === SIMULATION ENGINE ===
+            let animSequence = [];
+
+            function compileVerticalTraversal() {
+                animSequence = [];
+                if (!rootNode) return;
+
+                let queue = [];
+                let map = {};
+
+                animSequence.push({ type: 'stage', name: 'bfs', active: true });
+
+                // Init BFS
+                queue.push({ node: rootNode, hd: 0, parentId: null });
+
+                while (queue.length > 0) {
+                    const curr = queue.shift();
+                    const n = curr.node;
+                    const hd = curr.hd;
+
+                    if (curr.parentId) {
+                        animSequence.push({ type: 'highlightEdge', parent: curr.parentId, child: n.id });
+                    }
+
+                    animSequence.push({ type: 'visit', id: n.id, hd: hd, val: n.value, comment: `BFS Queue pop: Visiting Node <strong>${n.value}</strong> at HD ${hd}.` });
+
+                    if (!map[hd]) map[hd] = [];
+                    map[hd].push(n.value);
+
+                    animSequence.push({ type: 'mapAdd', hd: hd, val: n.value, comment: `Adding ${n.value} to Map grouping for HD ${hd}.` });
+
+                    if (n.left) queue.push({ node: n.left, hd: hd - 1, parentId: n.id });
+                    if (n.right) queue.push({ node: n.right, hd: hd + 1, parentId: n.id });
+                }
+
+                animSequence.push({ type: 'stage', name: 'bfs', active: false });
+                animSequence.push({ type: 'stage', name: 'map', active: true });
+
+                // Read from Map
+                for (let i = globalMinHD; i <= globalMaxHD; i++) {
+                    if (map[i]) {
+                        animSequence.push({ type: 'colHighlight', hd: i, comment: `Compiling result for Vertical Line HD <strong>${i}</strong>.` });
+                        animSequence.push({ type: 'groupResult', hd: i, vals: map[i] });
+                    }
+                }
+
+                animSequence.push({ type: 'stage', name: 'map', active: false });
+            }
+
+            // Pause/Sleep Utils
+            function togglePause() {
+                if (!isSimulating) return;
+                isPaused = !isPaused;
+                if (isPaused) {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-play text-green-400 mr-2"></i> Resume';
+                    if (currentPacketAnimation) currentPacketAnimation.pause();
+                    pauseLock = new Promise(r => pauseResolve = r);
+                    if (sleepTimer) { clearTimeout(sleepTimer); sleepTimer = null; sleepRemaining -= (Date.now() - sleepStartTime); }
+                } else {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                    if (currentPacketAnimation) currentPacketAnimation.play();
+                    if (pauseResolve) { pauseResolve(); pauseResolve = null; pauseLock = null; }
+                    if (sleepRemaining > 0 && sleepResolveFn) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { let res = sleepResolveFn; sleepResolveFn = null; sleepRemaining = 0; if (res) res(); }, sleepRemaining);
+                    }
+                }
+            }
+
+            function waitIfPaused() { return pauseLock ? pauseLock : Promise.resolve(); }
+            function pausableSleep(ms) {
+                return new Promise((resolve, reject) => {
+                    if (abortController?.signal.aborted) return reject(new Error("Aborted"));
+                    sleepRemaining = ms; sleepResolveFn = resolve;
+                    if (!isPaused) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { sleepResolveFn = null; sleepRemaining = 0; resolve(); }, sleepRemaining);
+                    }
+                    abortController.signal.addEventListener('abort', () => { clearTimeout(sleepTimer); reject(new Error("Aborted")); }, { once: true });
+                });
+            }
+
+            function writeToConsole(html) {
+                if (consoleOutput.innerText.includes('Waiting')) consoleOutput.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = "py-0.5 border-b border-white/5"; item.innerHTML = html;
+                consoleOutput.appendChild(item);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            function updateStageUI(stage, active) {
+                const w = document.getElementById(`stage-${stage}-wrapper`);
+                const s = document.getElementById(`stage-${stage}-status`);
+                const p = document.getElementById(`pill-step-${stage === 'bfs' ? 1 : 2}`);
+
+                if (active) {
+                    w.classList.add('border-accent', 'bg-accent/10');
+                    s.textContent = 'Running...'; s.className = 'text-[10px] text-amber-400 font-bold uppercase tracking-wider';
+                    p.classList.add('active');
+                } else {
+                    w.classList.remove('border-accent', 'bg-accent/10');
+                    s.textContent = 'Completed'; s.className = 'text-[10px] text-emerald-400 font-bold uppercase tracking-wider';
+                    p.classList.remove('active');
+                }
+            }
+
+            async function moveToNode(id, duration = 500) {
+                await waitIfPaused();
+                if (abortController?.signal.aborted) throw new Error("Aborted");
+                const coords = getCenterCoords(id);
+                packetCursor.style.display = 'block';
+                const startLeft = packetCursor.style.left || `${coords.x}px`;
+                const startTop = packetCursor.style.top || `${coords.y}px`;
+
+                currentPacketAnimation = packetCursor.animate([
+                    { left: startLeft, top: startTop },
+                    { left: `${coords.x}px`, top: `${coords.y}px` }
+                ], { duration: duration, easing: 'ease-in-out', fill: 'forwards' });
+
+                if (isPaused) currentPacketAnimation.pause();
+
+                return new Promise((resolve, reject) => {
+                    currentPacketAnimation.onfinish = () => {
+                        packetCursor.style.left = `${coords.x}px`; packetCursor.style.top = `${coords.y}px`;
+                        currentPacketAnimation = null; resolve();
+                    };
+                    abortController.signal.addEventListener('abort', () => {
+                        if (currentPacketAnimation) currentPacketAnimation.cancel();
+                        reject(new Error("Aborted"));
+                    }, { once: true });
+                });
+            }
+
+            // Map UI State Management
+            let currentVisualMap = {};
+
+            function resetSimulationUI() {
+                if (abortController) abortController.abort();
+                isSimulating = false; isPaused = false; pauseLock = null; pauseResolve = null;
+                if (sleepTimer) clearTimeout(sleepTimer);
+                if (currentPacketAnimation) { currentPacketAnimation.cancel(); currentPacketAnimation = null; }
+
+                btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed'); btnTogglePause.disabled = true;
+
+                packetCursor.style.display = 'none';
+                currentVisualMap = {};
+
+                document.querySelectorAll('.tree-node').forEach(n => n.className = 'tree-node');
+                document.querySelectorAll('.hd-badge').forEach(b => b.classList.remove('visible'));
+                document.querySelectorAll('.tree-branch-path').forEach(p => p.classList.remove('highlight-active'));
+                document.querySelectorAll('.hd-column-line').forEach(l => l.classList.remove('highlight'));
+
+                resultMap.innerHTML = '<span class="text-slate-500 italic text-xs text-center py-2">Map is empty. Run algorithm to populate.</span>';
+                consoleOutput.innerHTML = '<div class="italic text-slate-500">Waiting for actions...</div>';
+
+                document.getElementById('stage-bfs-status').textContent = 'Pending';
+                document.getElementById('stage-bfs-status').className = 'text-[10px] text-slate-400 font-bold uppercase tracking-wider';
+                document.getElementById('stage-map-status').textContent = 'Pending';
+                document.getElementById('stage-map-status').className = 'text-[10px] text-slate-400 font-bold uppercase tracking-wider';
+
+                resetEditor();
+            }
+
+            async function runFullSimulation() {
+                resetSimulationUI();
+                compileVerticalTraversal();
+
+                abortController = new AbortController();
+                isSimulating = true;
+                btnTogglePause.classList.remove('opacity-50', 'cursor-not-allowed'); btnTogglePause.disabled = false;
+
+                try {
+                    const rCoords = getCenterCoords(rootNode.id);
+                    packetCursor.style.left = `${rCoords.x}px`; packetCursor.style.top = `${rCoords.y - 50}px`;
+                    packetCursor.style.display = 'block';
+
+                    writeToConsole(`<span class="text-accent font-bold">[START]</span> Commencing BFS Queue Traversal...`);
+                    await pausableSleep(600);
+
+                    for (let step of animSequence) {
+                        await waitIfPaused();
+                        if (abortController?.signal.aborted) throw new Error("Aborted");
+
+                        if (step.type === 'stage') {
+                            updateStageUI(step.name, step.active);
+                        } else if (step.type === 'visit') {
+                            await moveToNode(step.id);
+
+                            // Highlight node
+                            document.querySelectorAll('.tree-node').forEach(div => div.classList.remove('node-bfs-active'));
+                            document.getElementById(`node-${step.id}`).classList.add('node-bfs-active');
+
+                            // Pop HD Badge
+                            document.getElementById(`badge-${step.id}`).classList.add('visible');
+                            writeToConsole(step.comment);
+                            await pausableSleep(500);
+                        } else if (step.type === 'highlightEdge') {
+                            const p = document.getElementById(`branch-${step.parent}-${step.child}`);
+                            if (p) p.classList.add('highlight-active');
+                        } else if (step.type === 'mapAdd') {
+                            // Update Map UI
+                            if (Object.keys(currentVisualMap).length === 0) resultMap.innerHTML = '';
+
+                            if (!currentVisualMap[step.hd]) {
+                                currentVisualMap[step.hd] = [];
+                                const row = document.createElement('div');
+                                row.id = `map-row-${step.hd}`;
+                                row.className = 'flex items-center gap-3 bg-darkbg p-2 border border-bordercolor rounded text-xs animate-[fadeIn_0.3s_ease]';
+                                row.innerHTML = `<span class="font-bold text-accent w-12 border-r border-bordercolor pr-2">HD ${step.hd}</span><div class="flex flex-wrap gap-1" id="map-vals-${step.hd}"></div>`;
+
+                                // Insert sorted by HD (simulating TreeMap property visual)
+                                const rows = Array.from(resultMap.children);
+                                let inserted = false;
+                                for (let r of rows) {
+                                    const rHd = parseInt(r.id.split('-').pop());
+                                    if (step.hd < rHd) { resultMap.insertBefore(row, r); inserted = true; break; }
+                                }
+                                if (!inserted) resultMap.appendChild(row);
+                            }
+
+                            currentVisualMap[step.hd].push(step.val);
+                            const valBox = document.createElement('span');
+                            valBox.className = 'w-6 h-6 rounded bg-mapGroup text-white flex items-center justify-center font-bold text-[10px] animate-[fadeIn_0.3s_ease]';
+                            valBox.textContent = step.val;
+                            document.getElementById(`map-vals-${step.hd}`).appendChild(valBox);
+
+                            writeToConsole(step.comment);
+                            await pausableSleep(600);
+                        } else if (step.type === 'colHighlight') {
+                            document.querySelectorAll('.hd-column-line').forEach(l => l.classList.remove('highlight'));
+                            const line = document.getElementById(`col-line-${step.hd}`);
+                            if (line) line.classList.add('highlight');
+                            writeToConsole(step.comment);
+                            await pausableSleep(600);
+                        } else if (step.type === 'groupResult') {
+                            // Highlight mapped nodes visually as grouped
+                            document.querySelectorAll('.tree-node').forEach(div => div.classList.remove('node-bfs-active', 'node-grouped'));
+
+                            collectNodes(rootNode).forEach(n => {
+                                if (n.hd === step.hd) {
+                                    document.getElementById(`node-${n.id}`).classList.add('node-grouped');
+                                }
+                            });
+
+                            const row = document.getElementById(`map-row-${step.hd}`);
+                            if (row) {
+                                row.classList.remove('border-bordercolor');
+                                row.classList.add('border-mapGroup', 'bg-mapGroup/10', 'scale-[1.02]', 'transition');
+                                setTimeout(() => {
+                                    row.classList.remove('scale-[1.02]');
+                                }, 300);
+                            }
+
+                            writeToConsole(`Appended <strong>[${step.vals.join(', ')}]</strong> to final result array.`);
+                            await pausableSleep(800);
+                        }
+                    }
+
+                    packetCursor.style.display = 'none';
+                    document.querySelectorAll('.hd-column-line').forEach(l => l.classList.remove('highlight'));
+                    writeToConsole(`<span class="text-emerald-400 font-bold">[COMPLETE]</span> Vertical Order Traversal grouped successfully!`);
+
+                } catch (e) {
+                    if (e.message !== "Aborted") console.error(e);
+                } finally {
+                    if (!abortController?.signal.aborted) {
+                        isSimulating = false;
+                        btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed'); btnTogglePause.disabled = true;
+                    }
+                }
+            }
+
+            btnFullSim.addEventListener('click', runFullSimulation);
+            btnTogglePause.addEventListener('click', togglePause);
+            btnReset.addEventListener('click', resetSimulationUI);
+
+            window.addEventListener('resize', () => { if (!viewVisual.classList.contains('hidden')) drawConnectionsAndColumns(); });
+
+            // Init
+            document.getElementById('preset-standard').click();
+        });
+    </script>
+</body>
+
+</html>

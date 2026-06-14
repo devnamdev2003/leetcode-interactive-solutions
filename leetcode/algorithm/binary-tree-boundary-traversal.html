@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tree Boundary Traversal | Interactive DSA Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Code Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0f172a', panelbg: '#1e293b', compbg: '#334155', bordercolor: '#475569', textcolor: '#f8fafc', muted: '#94a3b8',
+                        accent: '#38bdf8', // Sky Blue
+                        boundaryLeft: '#0ea5e9', // Blue
+                        boundaryLeaf: '#10b981', // Emerald Green
+                        boundaryRight: '#d946ef' // Fuchsia
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .tree-node {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            background-color: #1e293b;
+            border: 2.5px solid #475569;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            position: absolute;
+            z-index: 20;
+            transform: translate(-50%, -50%);
+        }
+
+        .tree-node:hover {
+            transform: translate(-50%, -50%) scale(1.12);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .node-root-active {
+            border-color: #fbbf24 !important;
+            background-color: #78350f !important;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6) !important;
+            color: #ffffff !important;
+        }
+
+        .node-left-active {
+            border-color: #0ea5e9 !important;
+            background-color: #0369a1 !important;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.6) !important;
+            color: #ffffff !important;
+        }
+
+        .node-leaf-active {
+            border-color: #10b981 !important;
+            background-color: #065f46 !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+            color: #ffffff !important;
+        }
+
+        .node-staged {
+            border-color: #fb7185 !important;
+            background-color: #9f1239 !important;
+            box-shadow: 0 0 20px rgba(251, 113, 133, 0.6) !important;
+            color: #ffffff !important;
+        }
+
+        .node-right-active {
+            border-color: #d946ef !important;
+            background-color: #86198f !important;
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.6) !important;
+            color: #ffffff !important;
+        }
+
+        .node-checking {
+            border-color: #f59e0b !important;
+            background-color: #1e293b !important;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5) !important;
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        .node-selected-edit {
+            border-color: #38bdf8 !important;
+            background-color: #0c4a6e !important;
+            box-shadow: 0 0 25px #38bdf8 !important;
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        svg.tree-svg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .tree-branch-path {
+            fill: none;
+            stroke: #475569;
+            stroke-width: 2.5;
+            transition: all 0.3s ease;
+        }
+
+        .tree-branch-path.highlight-active {
+            stroke: #38bdf8;
+            stroke-width: 3.5;
+            stroke-dasharray: 6, 6;
+            animation: dashFlow 1s linear infinite;
+        }
+
+        @keyframes dashFlow {
+            from {
+                stroke-dashoffset: 20;
+            }
+
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .packet-cursor {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #38bdf8;
+            z-index: 30;
+            display: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px #38bdf8, inset 0 0 4px rgba(255, 255, 255, 0.8);
+            border: 2px solid #0f172a;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #38bdf8;
+            color: #f8fafc;
+        }
+
+        .code-lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .code-lang-btn.active {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .step-pill {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+
+        .step-pill.active {
+            background-color: #38bdf8;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #38bdf8;
+        }
+    </style>
+</head>
+
+<body class="antialiased h-screen flex flex-col overflow-hidden text-textcolor bg-darkbg">
+
+    <header class="bg-panelbg border-b border-bordercolor z-40 shadow-lg">
+        <div class="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-code-branch text-accent text-2xl drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]"></i>
+                <h1 class="text-xl font-bold tracking-wide">Boundary Traversal of Binary Tree</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                    <button id="tab-visual" class="tab-btn active text-sm">Visual Flow</button>
+                    <button id="tab-principles" class="tab-btn text-sm">Principles & Code</button>
+                </div>
+            </div>
+            <div class="flex gap-2" id="sim-controls">
+                <button id="btn-full-sim"
+                    class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded font-medium transition shadow-sm text-sm flex items-center border border-sky-400">
+                    <i class="fa-solid fa-play mr-2"></i> Full Traversal
+                </button>
+                <button id="btn-toggle-pause"
+                    class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center opacity-50 cursor-not-allowed"
+                    disabled>
+                    <i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause
+                </button>
+                <button id="btn-reset"
+                    class="px-3 py-1.5 bg-compbg hover:bg-slate-600 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- VISUAL TRAVERSAL VIEW -->
+        <div id="view-visual" class="flex w-full h-full">
+
+            <!-- Sidebar / Instruction Log -->
+            <div
+                class="w-[380px] bg-panelbg border-r border-bordercolor flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+
+                <!-- Custom Presets Panel -->
+                <div class="p-3 border-b border-bordercolor bg-darkbg/90">
+                    <h3
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Tree Shape Presets
+                    </h3>
+                    <div class="grid grid-cols-3 gap-1">
+                        <button id="preset-standard"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Standard</button>
+                        <button id="preset-skewed-left"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Left
+                            Skewed</button>
+                        <button id="preset-perfect"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Perfect</button>
+                    </div>
+                </div>
+
+                <!-- Traversal Output Panel -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/80 flex flex-col gap-2">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-rectangle-list"></i> Traversal Result
+                    </h3>
+                    <div id="result-array"
+                        class="flex flex-wrap gap-1.5 p-3 min-h-[52px] bg-panelbg rounded-lg border border-bordercolor items-center">
+                        <span class="text-slate-500 italic text-xs">Awaiting traversal simulation...</span>
+                    </div>
+                </div>
+
+                <!-- Simulation Tracker & Logs -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/30">
+                    <h2
+                        class="text-xs font-bold text-accent uppercase tracking-widest flex items-center justify-between mb-3">
+                        <span><i class="fa-solid fa-microchip mr-2"></i>Traversal Stages</span>
+                        <div class="flex gap-1">
+                            <div class="step-pill active" id="pill-step-1"></div>
+                            <div class="step-pill" id="pill-step-2"></div>
+                            <div class="step-pill" id="pill-step-3"></div>
+                            <div class="step-pill" id="pill-step-4"></div>
+                        </div>
+                    </h2>
+                    <div id="stage-info" class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-root-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-dot-circle text-amber-400 mr-2"></i>Root Node</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-root-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-left-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-arrow-turn-down text-boundaryLeft rotate-90 mr-2"></i>Left
+                                Boundary</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-left-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-leaves-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-seedling text-boundaryLeaf mr-2"></i>Leaf Nodes (L to R)</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-leaves-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-right-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-arrow-turn-up text-boundaryRight -rotate-90 mr-2"></i>Right
+                                Boundary</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-right-status">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Explanation / Property Panel -->
+                <div class="p-5 flex-1 overflow-y-auto" id="info-panel">
+                    <!-- Default instructional content -->
+                    <div id="default-info" class="h-full flex flex-col items-center justify-center text-muted">
+                        <i class="fa-solid fa-hand-pointer text-4xl mb-4 text-slate-600 animate-bounce"></i>
+                        <p class="text-center text-xs px-2 leading-relaxed">
+                            <span class="text-white font-semibold">Build Your Custom Tree!</span><br>
+                            Click any node on the tree diagram to modify its numeric value, add left/right children, or
+                            delete elements.
+                        </p>
+
+                        <div class="mt-6 border border-bordercolor rounded-lg p-3.5 bg-darkbg w-full text-[11px]">
+                            <p
+                                class="font-bold text-slate-300 mb-1.5 border-b border-bordercolor pb-1 flex items-center gap-1">
+                                <i class="fa-solid fa-info-circle text-accent"></i> Traversal Formula
+                            </p>
+                            <p class="text-slate-400 leading-relaxed">
+                                Traversal traces anti-clockwise:
+                                <br>1. Root node
+                                <br>2. Left boundary (down left-child or right-child if left-child is absent; excludes
+                                leaf nodes)
+                                <br>3. Leaves from left-to-right
+                                <br>4. Right boundary in reverse (bottom-up stack structure)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Description Console -->
+                <div class="border-t border-bordercolor bg-darkbg p-4 h-1/4 min-h-[160px] flex flex-col">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>Live Console Log</span>
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                    </h3>
+                    <div id="console-output"
+                        class="flex-1 font-mono text-[11px] overflow-y-auto space-y-1 text-slate-300 bg-black/40 p-2.5 rounded border border-white/5 scrollbar-thin">
+                        <div class="italic text-slate-500">Waiting for actions...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Traversal Canvas (Tree Render) -->
+            <div class="flex-1 overflow-hidden relative bg-darkbg p-8" id="canvas-container">
+                <div class="relative w-full h-full" id="tree-container">
+
+                    <!-- SVG lines representing tree edges -->
+                    <svg class="tree-svg-canvas" id="tree-svg"></svg>
+
+                    <!-- Travel tracker cursor -->
+                    <div id="packet-cursor" class="packet-cursor"></div>
+
+                    <!-- Nodes are dynamically populated here by renderTree() -->
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINCIPLES & CODE VIEW -->
+        <div id="view-principles" class="hidden w-full h-full overflow-y-auto bg-darkbg p-8">
+            <div class="max-w-5xl mx-auto text-slate-300 markdown-body pb-16">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b border-bordercolor pb-4">Boundary Traversal
+                    Algorithm</h1>
+
+                <p class="text-base leading-relaxed mb-6">
+                    The **Boundary Traversal** of a Binary Tree is a popular interview algorithm (e.g., LeetCode 545).
+                    It visits all the boundary nodes in an **anti-clockwise** path, starting from the root.
+                </p>
+
+                <!-- 4 Stages Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-amber-400">
+                        <div class="text-amber-400 font-bold text-xs mb-1">PART 1</div>
+                        <h4 class="font-bold text-white mb-1.5 text-sm">The Root Node</h4>
+                        <p class="text-xs text-slate-400">The traversal always starts by visiting the Root node, which
+                            serves as the origin.</p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-boundaryLeft">
+                        <div class="text-boundaryLeft font-bold text-xs mb-1">PART 2</div>
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Left Boundary</h4>
+                        <p class="text-xs text-slate-400">Traverse down using `node.left` (or `node.right` if left is
+                            empty). **Exclude leaf nodes** to avoid duplicates.</p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-boundaryLeaf">
+                        <div class="text-boundaryLeaf font-bold text-xs mb-1">PART 3</div>
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Leaf Nodes</h4>
+                        <p class="text-xs text-slate-400">Collect all leaves from **left to right** using a recursive
+                            standard pre-order/in-order depth-first traversal.</p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-boundaryRight">
+                        <div class="text-boundaryRight font-bold text-xs mb-1">PART 4</div>
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Right Boundary</h4>
+                        <p class="text-xs text-slate-400">Traverse down the right side (excluding leaves), but **reverse
+                            them** (bottom-up) before adding to result.</p>
+                    </div>
+                </div>
+
+                <!-- Code Block View with languages -->
+                <div class="bg-panelbg rounded-xl border border-bordercolor p-6 mt-8">
+                    <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                        <h3 class="text-lg font-semibold text-white">Algorithm Implementation</h3>
+                        <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                            <button id="lang-java" class="code-lang-btn active">Java</button>
+                            <button id="lang-cpp" class="code-lang-btn">C++</button>
+                            <button id="lang-python" class="code-lang-btn">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Code blocks -->
+                    <div id="code-container">
+                        <!-- Java Code -->
+                        <div id="code-block-java" class="block">
+                            <pre><code class="language-java">import java.util.*;
+
+class Node {
+    int data;
+    Node left, right;
+    Node(int data) {
+        this.data = data;
+    }
+}
+
+public class BoundaryTraversal {
+    public List&lt;Integer&gt; boundary(Node root) {
+        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
+        if (root == null) return result;
+        
+        // Part 1: Root Node
+        if (!isLeaf(root)) result.add(root.data);
+        
+        // Part 2: Left Boundary
+        addLeftBoundary(root.left, result);
+        
+        // Part 3: Leaf Nodes
+        addLeaves(root, result);
+        
+        // Part 4: Right Boundary
+        addRightBoundary(root.right, result);
+        
+        return result;
+    }
+    
+    private boolean isLeaf(Node node) {
+        return node != null && node.left == null && node.right == null;
+    }
+    
+    private void addLeftBoundary(Node curr, List&lt;Integer&gt; res) {
+        while (curr != null) {
+            if (!isLeaf(curr)) res.add(curr.data);
+            curr = (curr.left != null) ? curr.left : curr.right;
+        }
+    }
+    
+    private void addLeaves(Node curr, List&lt;Integer&gt; res) {
+        if (curr == null) return;
+        if (isLeaf(curr)) {
+            res.add(curr.data);
+            return;
+        }
+        addLeaves(curr.left, res);
+        addLeaves(curr.right, res);
+    }
+    
+    private void addRightBoundary(Node curr, List&lt;Integer&gt; res) {
+        List&lt;Integer&gt; temp = new ArrayList&lt;&gt;();
+        while (curr != null) {
+            if (!isLeaf(curr)) temp.add(curr.data);
+            curr = (curr.right != null) ? curr.right : curr.left;
+        }
+        // Add elements to result in reverse order (bottom-up)
+        for (int i = temp.size() - 1; i &gt;= 0; i--) {
+            res.add(temp.get(i));
+        }
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- C++ Code -->
+                        <div id="code-block-cpp" class="hidden block">
+                            <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct Node {
+    int data;
+    Node *left, *right;
+    Node(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+class Solution {
+    bool isLeaf(Node* node) {
+        return node != nullptr && node->left == nullptr && node->right == nullptr;
+    }
+
+    void addLeftBoundary(Node* curr, vector&lt;int&gt;& res) {
+        while (curr) {
+            if (!isLeaf(curr)) res.push_back(curr->data);
+            curr = (curr->left) ? curr->left : curr->right;
+        }
+    }
+
+    void addLeaves(Node* curr, vector&lt;int&gt;& res) {
+        if (!curr) return;
+        if (isLeaf(curr)) {
+            res.push_back(curr->data);
+            return;
+        }
+        addLeaves(curr->left, res);
+        addLeaves(curr->right, res);
+    }
+
+    void addRightBoundary(Node* curr, vector&lt;int&gt;& res) {
+        vector&lt;int&gt; temp;
+        while (curr) {
+            if (!isLeaf(curr)) temp.push_back(curr->data);
+            curr = (curr->right) ? curr->right : curr->left;
+        }
+        // Reverse order push
+        for (int i = temp.size() - 1; i >= 0; --i) {
+            res.push_back(temp[i]);
+        }
+    }
+
+public:
+    vector&lt;int&gt; boundary(Node* root) {
+        vector&lt;int&gt; result;
+        if (!root) return result;
+
+        // Part 1: Root Node
+        if (!isLeaf(root)) result.push_back(root->data);
+
+        // Part 2: Left Boundary
+        addLeftBoundary(root->left, result);
+
+        // Part 3: Leaves (L to R)
+        addLeaves(root, result);
+
+        // Part 4: Right Boundary (Bottom-up)
+        addRightBoundary(root->right, result);
+
+        return result;
+    }
+};</code></pre>
+                        </div>
+
+                        <!-- Python Code -->
+                        <div id="code-block-python" class="hidden block">
+                            <pre><code class="language-python">class Node:
+    def __init__(self, val):
+        self.data = val
+        self.left = None
+        self.right = None
+
+class Solution:
+    def isLeaf(self, node):
+        return node is not None and node.left is None and node.right is None
+
+    def addLeftBoundary(self, root, res):
+        curr = root.left
+        while curr:
+            if not self.isLeaf(curr):
+                res.append(curr.data)
+            curr = curr.left if curr.left else curr.right
+
+    def addLeaves(self, curr, res):
+        if not curr:
+            return
+        if self.isLeaf(curr):
+            res.append(curr.data)
+            return
+        self.addLeaves(curr.left, res)
+        self.addLeaves(curr.right, res)
+
+    def addRightBoundary(self, root, res):
+        curr = root.right
+        temp = []
+        while curr:
+            if not self.isLeaf(curr):
+                temp.append(curr.data)
+            curr = curr.right if curr.right else curr.left
+        # Reverse to get bottom-up
+        res.extend(temp[::-1])
+
+    def boundary(self, root):
+        res = []
+        if not root:
+            return res
+        
+        # Part 1: Root Node
+        if not self.isLeaf(root):
+            res.append(root.data)
+            
+        # Part 2: Left Boundary
+        self.addLeftBoundary(root, res)
+        
+        # Part 3: Leaves (L to R)
+        self.addLeaves(root, res)
+        
+        # Part 4: Right Boundary (Bottom-up)
+        self.addRightBoundary(root, res)
+        
+        return res</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripting for dynamic tree building & traversal compilation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            // Navigation Tabs
+            const tabVisual = document.getElementById('tab-visual');
+            const tabPrinciples = document.getElementById('tab-principles');
+            const viewVisual = document.getElementById('view-visual');
+            const viewPrinciples = document.getElementById('view-principles');
+            const simControls = document.getElementById('sim-controls');
+
+            tabVisual.addEventListener('click', () => {
+                tabVisual.classList.add('active'); tabPrinciples.classList.remove('active');
+                viewVisual.classList.remove('hidden'); viewPrinciples.classList.add('hidden');
+                simControls.style.display = 'flex';
+                setTimeout(drawConnections, 50);
+            });
+
+            tabPrinciples.addEventListener('click', () => {
+                tabPrinciples.classList.add('active'); tabVisual.classList.remove('active');
+                viewPrinciples.classList.remove('hidden'); viewVisual.classList.add('hidden');
+                simControls.style.display = 'none';
+            });
+
+            // Language Selector for Code
+            const codeBlocks = {
+                java: document.getElementById('code-block-java'),
+                cpp: document.getElementById('code-block-cpp'),
+                python: document.getElementById('code-block-python')
+            };
+
+            const langButtons = {
+                java: document.getElementById('lang-java'),
+                cpp: document.getElementById('lang-cpp'),
+                python: document.getElementById('lang-python')
+            };
+
+            function selectLanguage(lang) {
+                Object.keys(codeBlocks).forEach(k => {
+                    if (k === lang) {
+                        codeBlocks[k].classList.remove('hidden');
+                        langButtons[k].classList.add('active');
+                    } else {
+                        codeBlocks[k].classList.add('hidden');
+                        langButtons[k].classList.remove('active');
+                    }
+                });
+            }
+
+            Object.keys(langButtons).forEach(k => {
+                langButtons[k].addEventListener('click', () => selectLanguage(k));
+            });
+
+            // === Data Model & Interactive Tree State ===
+            class BinaryTreeNode {
+                constructor(id, value) {
+                    this.id = id;
+                    this.value = value;
+                    this.left = null;
+                    this.right = null;
+                    this.x = 50; // visual layout %
+                    this.y = 10; // visual layout %
+                }
+            }
+
+            let rootNode = null;
+            let activeSelectedNodeId = null;
+            let nodeIdCounter = 1;
+
+            // DOM Hooks
+            const svgCanvas = document.getElementById('tree-svg');
+            const treeContainer = document.getElementById('tree-container');
+            const packetCursor = document.getElementById('packet-cursor');
+            const consoleOutput = document.getElementById('console-output');
+            const infoPanel = document.getElementById('info-panel');
+            const resultArray = document.getElementById('result-array');
+
+            // Controls
+            const btnFullSim = document.getElementById('btn-full-sim');
+            const btnTogglePause = document.getElementById('btn-toggle-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            let isSimulating = false;
+            let isPaused = false;
+            let abortController = null;
+            let currentPacketAnimation = null;
+            let pauseLock = null;
+            let pauseResolve = null;
+            let sleepTimer = null;
+            let sleepResolveFn = null;
+            let sleepRemaining = 0;
+            let sleepStartTime = 0;
+
+            // Preset loaders
+            document.getElementById('preset-standard').addEventListener('click', () => { if (!isSimulating) loadStandardPreset(); });
+            document.getElementById('preset-skewed-left').addEventListener('click', () => { if (!isSimulating) loadSkewedLeftPreset(); });
+            document.getElementById('preset-perfect').addEventListener('click', () => { if (!isSimulating) loadPerfectPreset(); });
+
+            // Node Creation utility
+            function createNewNode(value) {
+                const node = new BinaryTreeNode(`n_${nodeIdCounter++}`, value);
+                return node;
+            }
+
+            // Depth calculation to prevent clipping
+            function getTreeDepth(node) {
+                if (!node) return 0;
+                return 1 + Math.max(getTreeDepth(node.left), getTreeDepth(node.right));
+            }
+
+            // Visual Coordinate Assignment Engine
+            function computeLayoutCoords(node, depth = 0, leftB = 5, rightB = 95) {
+                if (!node) return;
+                const midX = (leftB + rightB) / 2;
+                node.x = midX;
+                node.y = 8 + (depth * 22); // Distribute vertically uniformly
+
+                // Constraint: Maximum depth level 4 (5 levels deep) to guarantee fitting
+                if (depth < 4) {
+                    computeLayoutCoords(node.left, depth + 1, leftB, midX);
+                    computeLayoutCoords(node.right, depth + 1, midX, rightB);
+                } else {
+                    node.left = null;
+                    node.right = null;
+                }
+            }
+
+            // Gather flat array of active structural branches/edges
+            function collectEdges(node, edges = []) {
+                if (!node) return edges;
+                if (node.left) {
+                    edges.push({ parent: node.id, child: node.left.id });
+                    collectEdges(node.left, edges);
+                }
+                if (node.right) {
+                    edges.push({ parent: node.id, child: node.right.id });
+                    collectEdges(node.right, edges);
+                }
+                return edges;
+            }
+
+            // Gather list of nodes for DOM binding
+            function collectNodes(node, nodesList = []) {
+                if (!node) return nodesList;
+                nodesList.push(node);
+                collectNodes(node.left, nodesList);
+                collectNodes(node.right, nodesList);
+                return nodesList;
+            }
+
+            function findNodeById(node, id) {
+                if (!node) return null;
+                if (node.id === id) return node;
+                return findNodeById(node.left, id) || findNodeById(node.right, id);
+            }
+
+            // Node deletion utility (deletes selected node and its children)
+            function deleteSubtree(parentId, childId) {
+                if (!rootNode) return;
+                if (rootNode.id === childId) {
+                    writeToConsole(`<span class="text-rose-400 font-semibold">[ERROR]</span> Cannot delete the root node.`);
+                    return;
+                }
+                const parent = findNodeById(rootNode, parentId);
+                if (parent) {
+                    if (parent.left && parent.left.id === childId) parent.left = null;
+                    else if (parent.right && parent.right.id === childId) parent.right = null;
+                    activeSelectedNodeId = null;
+                    rebuildWorkspace();
+                    writeToConsole(`<span class="text-amber-400">Node Deleted</span> Subtree removed from workspace.`);
+                }
+            }
+
+            // Find parent pointer
+            function findParentNode(curr, childId) {
+                if (!curr) return null;
+                if ((curr.left && curr.left.id === childId) || (curr.right && curr.right.id === childId)) return curr;
+                return findParentNode(curr.left, childId) || findParentNode(curr.right, childId);
+            }
+
+            // Rebuild tree container elements and connections dynamically
+            function rebuildWorkspace() {
+                // Determine layout coordinates
+                computeLayoutCoords(rootNode);
+
+                // Collect list of elements
+                const list = collectNodes(rootNode);
+
+                // Preserve cursor
+                const cursor = document.getElementById('packet-cursor');
+                treeContainer.innerHTML = '';
+                treeContainer.appendChild(cursor);
+                treeContainer.appendChild(svgCanvas);
+
+                // Draw tree nodes
+                list.forEach(node => {
+                    const nodeDiv = document.createElement('div');
+                    nodeDiv.className = 'tree-node';
+                    nodeDiv.id = `node-${node.id}`;
+                    nodeDiv.setAttribute('data-id', node.id);
+                    nodeDiv.style.left = `${node.x}%`;
+                    nodeDiv.style.top = `${node.y}%`;
+                    nodeDiv.textContent = node.value;
+
+                    // Click event to edit node properties
+                    nodeDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!isSimulating) {
+                            activeSelectedNodeId = node.id;
+                            highlightSelectedNodeInDOM(node.id);
+                            renderNodeEditorPanel(node);
+                        }
+                    });
+
+                    treeContainer.appendChild(nodeDiv);
+                });
+
+                drawConnections();
+            }
+
+            function highlightSelectedNodeInDOM(id) {
+                document.querySelectorAll('.tree-node').forEach(div => {
+                    div.classList.remove('node-selected-edit', 'node-checking');
+                });
+                const el = document.getElementById(`node-${id}`);
+                if (el) el.classList.add('node-selected-edit');
+            }
+
+            function drawConnections() {
+                svgCanvas.innerHTML = '';
+                const edges = collectEdges(rootNode);
+                edges.forEach(edge => {
+                    const p = getCenterCoords(edge.parent);
+                    const c = getCenterCoords(edge.child);
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("id", `branch-${edge.parent}-${edge.child}`);
+                    path.setAttribute("class", "tree-branch-path");
+                    path.setAttribute("d", `M ${p.x} ${p.y} L ${c.x} ${c.y}`);
+                    svgCanvas.appendChild(path);
+                });
+            }
+
+            function getCenterCoords(id) {
+                const el = document.getElementById(`node-${id}`);
+                if (!el) return { x: 0, y: 0 };
+                const elRect = el.getBoundingClientRect();
+                const containerRect = treeContainer.getBoundingClientRect();
+                return {
+                    x: (elRect.left - containerRect.left) + (elRect.width / 2),
+                    y: (elRect.top - containerRect.top) + (elRect.height / 2)
+                };
+            }
+
+            // Node Editing Panel Rendering
+            function renderNodeEditorPanel(node) {
+                const parent = findParentNode(rootNode, node.id);
+                const parentInfoStr = parent ? `Node ${parent.value}` : 'None (Root Node)';
+                const leavesCount = getTreeDepth(rootNode);
+
+                infoPanel.innerHTML = `
+                    <div class="space-y-4 animate-[fadeIn_0.2s_ease-out]">
+                        <div class="border-b border-bordercolor pb-2 flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen-to-square"></i> Node Configurator
+                            </h3>
+                            <button id="btn-close-editor" class="text-slate-400 hover:text-white transition text-xs">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <!-- Modify Value Field -->
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-semibold uppercase mb-1">Value (Integer)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="edit-node-val-input" value="${node.value}" 
+                                    class="bg-darkbg text-white border border-bordercolor rounded px-2.5 py-1 text-sm w-full focus:outline-none focus:border-accent">
+                                <button id="btn-save-node-val" class="px-3 py-1 bg-accent/20 hover:bg-accent/30 text-accent font-semibold text-xs border border-accent/40 rounded transition">
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Children details -->
+                        <div class="p-3 bg-darkbg/40 rounded border border-bordercolor/40 text-xs space-y-1">
+                            <div class="flex justify-between"><span class="text-slate-400">Parent:</span> <span class="font-bold text-slate-200">${parentInfoStr}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Left Child:</span> <span class="font-bold text-slate-200">${node.left ? 'Node ' + node.left.value : 'None'}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Right Child:</span> <span class="font-bold text-slate-200">${node.right ? 'Node ' + node.right.value : 'None'}</span></div>
+                        </div>
+
+                        <!-- Add Children Buttons -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] text-slate-400 font-semibold uppercase mb-1">Structural Actions</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button id="btn-add-left-child" ${node.left ? 'disabled class="opacity-40 cursor-not-allowed bg-compbg py-1.5 text-xs text-slate-500 rounded font-semibold border border-transparent"' : 'class="bg-compbg hover:bg-slate-600 text-slate-200 py-1.5 text-xs rounded font-semibold border border-bordercolor transition"'}>
+                                    <i class="fa-solid fa-plus text-emerald-400 mr-1"></i> Left Child
+                                </button>
+                                <button id="btn-add-right-child" ${node.right ? 'disabled class="opacity-40 cursor-not-allowed bg-compbg py-1.5 text-xs text-slate-500 rounded font-semibold border border-transparent"' : 'class="bg-compbg hover:bg-slate-600 text-slate-200 py-1.5 text-xs rounded font-semibold border border-bordercolor transition"'}>
+                                    <i class="fa-solid fa-plus text-emerald-400 mr-1"></i> Right Child
+                                </button>
+                            </div>
+                            <p class="text-[9px] text-slate-500 italic text-center">Depth limit is 4. Deeper subtrees are auto-trimmed.</p>
+                        </div>
+
+                        <!-- Delete button -->
+                        <div class="pt-2">
+                            <button id="btn-delete-node" ${parent ? 'class="w-full bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-900/80 py-1.5 text-xs rounded font-semibold transition flex items-center justify-center gap-1"' : 'disabled class="w-full bg-slate-800 text-slate-600 border border-transparent py-1.5 text-xs rounded font-semibold cursor-not-allowed flex items-center justify-center gap-1"'}>
+                                <i class="fa-solid fa-trash-can"></i> Delete Node & Subtree
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Hook Editor Handlers
+                document.getElementById('btn-close-editor').addEventListener('click', resetEditorToDefault);
+                document.getElementById('btn-save-node-val').addEventListener('click', () => {
+                    const inputVal = parseInt(document.getElementById('edit-node-val-input').value) || 0;
+                    node.value = inputVal;
+                    rebuildWorkspace();
+                    renderNodeEditorPanel(node);
+                    highlightSelectedNodeInDOM(node.id);
+                    writeToConsole(`Updated node value to <span class="text-accent font-semibold">${inputVal}</span>.`);
+                });
+
+                document.getElementById('btn-add-left-child').addEventListener('click', () => {
+                    const defaultVal = node.value - 3;
+                    node.left = createNewNode(defaultVal);
+                    rebuildWorkspace();
+                    renderNodeEditorPanel(node);
+                    highlightSelectedNodeInDOM(node.id);
+                    writeToConsole(`Created left child <span class="text-emerald-400 font-bold">${defaultVal}</span> under Parent Node ${node.value}.`);
+                });
+
+                document.getElementById('btn-add-right-child').addEventListener('click', () => {
+                    const defaultVal = node.value + 5;
+                    node.right = createNewNode(defaultVal);
+                    rebuildWorkspace();
+                    renderNodeEditorPanel(node);
+                    highlightSelectedNodeInDOM(node.id);
+                    writeToConsole(`Created right child <span class="text-emerald-400 font-bold">${defaultVal}</span> under Parent Node ${node.value}.`);
+                });
+
+                if (parent) {
+                    document.getElementById('btn-delete-node').addEventListener('click', () => {
+                        deleteSubtree(parent.id, node.id);
+                        resetEditorToDefault();
+                    });
+                }
+            }
+
+            function resetEditorToDefault() {
+                activeSelectedNodeId = null;
+                document.querySelectorAll('.tree-node').forEach(div => div.classList.remove('node-selected-edit'));
+                infoPanel.innerHTML = document.getElementById('default-info').outerHTML;
+            }
+
+            // === Default Tree Structures ===
+            function loadStandardPreset() {
+                nodeIdCounter = 1;
+                rootNode = createNewNode(20);
+                rootNode.left = createNewNode(8);
+                rootNode.right = createNewNode(22);
+
+                rootNode.left.left = createNewNode(4);
+                rootNode.left.right = createNewNode(12);
+                rootNode.right.right = createNewNode(25);
+
+                rootNode.left.right.left = createNewNode(10);
+                rootNode.left.right.right = createNewNode(14);
+
+                rootNode.right.right.left = createNewNode(18);
+                rootNode.right.right.right = createNewNode(30);
+
+                resetEditorToDefault();
+                rebuildWorkspace();
+                writeToConsole(`<span class="text-emerald-400">Preset Loaded</span> Standard tree preset.`);
+            }
+
+            function loadSkewedLeftPreset() {
+                nodeIdCounter = 1;
+                rootNode = createNewNode(50);
+                rootNode.left = createNewNode(40);
+                rootNode.left.left = createNewNode(30);
+                rootNode.left.left.left = createNewNode(20);
+                rootNode.left.left.left.left = createNewNode(10);
+
+                resetEditorToDefault();
+                rebuildWorkspace();
+                writeToConsole(`<span class="text-emerald-400">Preset Loaded</span> Left Skewed tree preset.`);
+            }
+
+            function loadPerfectPreset() {
+                nodeIdCounter = 1;
+                rootNode = createNewNode(15);
+
+                rootNode.left = createNewNode(10);
+                rootNode.right = createNewNode(20);
+
+                rootNode.left.left = createNewNode(5);
+                rootNode.left.right = createNewNode(12);
+                rootNode.right.left = createNewNode(18);
+                rootNode.right.right = createNewNode(25);
+
+                resetEditorToDefault();
+                rebuildWorkspace();
+                writeToConsole(`<span class="text-emerald-400">Preset Loaded</span> Perfect Binary tree preset.`);
+            }
+
+            // === PROGRAMMATIC DYNAMIC TRAVERSAL LOGIC ===
+            let animSequence = [];
+
+            function compileBoundaryTraversal() {
+                animSequence = [];
+                if (!rootNode) return;
+
+                const isLeaf = (node) => node && !node.left && !node.right;
+
+                // 1. Root Node
+                animSequence.push({ type: 'stage', name: 'root', status: 'Running...', active: true });
+                animSequence.push({ type: 'visit', id: rootNode.id, comment: `Visiting root Node <strong>${rootNode.value}</strong>.` });
+                if (!isLeaf(rootNode)) {
+                    animSequence.push({ type: 'addResult', id: rootNode.id, val: rootNode.value, role: 'root', comment: `Node <strong>${rootNode.value}</strong> is not a leaf. Adding to final boundary output.` });
+                } else {
+                    animSequence.push({ type: 'comment', comment: `Root Node <strong>${rootNode.value}</strong> is a leaf. We skip root phase to collect it during leaf traversal.` });
+                }
+                animSequence.push({ type: 'stage', name: 'root', status: 'Completed', active: false });
+
+                // 2. Left Boundary (anti-clockwise)
+                animSequence.push({ type: 'stage', name: 'left', status: 'Running...', active: true });
+                if (rootNode.left) {
+                    let curr = rootNode.left;
+                    let prevId = rootNode.id;
+                    while (curr) {
+                        animSequence.push({ type: 'highlightEdge', parent: prevId, child: curr.id });
+                        animSequence.push({ type: 'visit', id: curr.id, comment: `Evaluating Node <strong>${curr.value}</strong> on Left boundary path.` });
+                        if (!isLeaf(curr)) {
+                            animSequence.push({ type: 'addResult', id: curr.id, val: curr.value, role: 'left', comment: `Node <strong>${curr.value}</strong> is not a leaf. Appending to Left boundary sequence.` });
+                        } else {
+                            animSequence.push({ type: 'comment', comment: `Encountered leaf Node <strong>${curr.value}</strong>. Discontinuing Left Boundary traversal.` });
+                        }
+                        prevId = curr.id;
+                        curr = curr.left ? curr.left : curr.right;
+                    }
+                } else {
+                    animSequence.push({ type: 'comment', comment: 'Root has no left child. Skipping Left Boundary phase.' });
+                }
+                animSequence.push({ type: 'stage', name: 'left', status: 'Completed', active: false });
+
+                // 3. Leaf Nodes (L to R Depth-First Search)
+                animSequence.push({ type: 'stage', name: 'leaves', status: 'Running...', active: true });
+
+                function dfsCollectLeaves(curr, parentId = null) {
+                    if (!curr) return;
+                    if (parentId) {
+                        animSequence.push({ type: 'highlightEdge', parent: parentId, child: curr.id });
+                    }
+                    animSequence.push({ type: 'visit', id: curr.id, comment: `DFS scan checking node <strong>${curr.value}</strong>.` });
+                    if (isLeaf(curr)) {
+                        if (curr === rootNode) {
+                            animSequence.push({ type: 'addResult', id: curr.id, val: curr.value, role: 'leaf', comment: `Root Node <strong>${curr.value}</strong> is a leaf. Added to final list.` });
+                        } else {
+                            animSequence.push({ type: 'addResult', id: curr.id, val: curr.value, role: 'leaf', comment: `Leaf node <strong>${curr.value}</strong> discovered. Appending to final list.` });
+                        }
+                    } else {
+                        animSequence.push({ type: 'comment', comment: `Internal node <strong>${curr.value}</strong> has children. Continuing search...` });
+                    }
+
+                    dfsCollectLeaves(curr.left, curr.id);
+                    if (curr.left && curr.right) {
+                        animSequence.push({ type: 'visit', id: curr.id, comment: `Finished left subtree scan for node <strong>${curr.value}</strong>, proceeding right.` });
+                    }
+                    dfsCollectLeaves(curr.right, curr.id);
+                }
+
+                dfsCollectLeaves(rootNode);
+                animSequence.push({ type: 'stage', name: 'leaves', status: 'Completed', active: false });
+
+                // 4. Right Boundary (In reverse bottom-up order)
+                animSequence.push({ type: 'stage', name: 'right', status: 'Running...', active: true });
+                if (rootNode.right) {
+                    let curr = rootNode.right;
+                    let prevId = rootNode.id;
+                    let rightStack = [];
+                    while (curr) {
+                        animSequence.push({ type: 'highlightEdge', parent: prevId, child: curr.id });
+                        animSequence.push({ type: 'visit', id: curr.id, comment: `Evaluating Node <strong>${curr.value}</strong> on Right boundary path.` });
+                        if (!isLeaf(curr)) {
+                            animSequence.push({ type: 'pushStack', id: curr.id, val: curr.value, comment: `Node <strong>${curr.value}</strong> is an boundary node. Pushing onto temporary stack.` });
+                            rightStack.push(curr);
+                        } else {
+                            animSequence.push({ type: 'comment', comment: `Encountered leaf Node <strong>${curr.value}</strong>. Terminating Right Boundary search.` });
+                        }
+                        prevId = curr.id;
+                        curr = curr.right ? curr.right : curr.left;
+                    }
+
+                    // Process stack in reverse
+                    for (let i = rightStack.length - 1; i >= 0; i--) {
+                        const targetNode = rightStack[i];
+                        animSequence.push({ type: 'visit', id: targetNode.id, comment: `Popping bottom-up stack element: Node <strong>${targetNode.value}</strong>.` });
+                        animSequence.push({ type: 'addResult', id: targetNode.id, val: targetNode.value, role: 'right', comment: `Adding Right Boundary Node <strong>${targetNode.value}</strong> to output sequence.` });
+                    }
+                } else {
+                    animSequence.push({ type: 'comment', comment: 'Root has no right child. Skipping Right Boundary phase.' });
+                }
+                animSequence.push({ type: 'stage', name: 'right', status: 'Completed', active: false });
+            }
+
+            // === Pause/Resume Logic ===
+            function togglePause() {
+                if (!isSimulating) return;
+                isPaused = !isPaused;
+
+                if (isPaused) {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-play text-green-400 mr-2"></i> Resume';
+                    if (currentPacketAnimation) currentPacketAnimation.pause();
+                    document.querySelectorAll('.tree-branch-path.highlight-active').forEach(p => p.style.animationPlayState = 'paused');
+                    pauseLock = new Promise(r => pauseResolve = r);
+                    if (sleepTimer) {
+                        clearTimeout(sleepTimer);
+                        sleepTimer = null;
+                        sleepRemaining -= (Date.now() - sleepStartTime);
+                    }
+                    writeToConsole(`<span class="text-amber-400 font-bold">[PAUSED]</span> Traversal simulation paused.`);
+                } else {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                    if (currentPacketAnimation) currentPacketAnimation.play();
+                    document.querySelectorAll('.tree-branch-path.highlight-active').forEach(p => p.style.animationPlayState = 'running');
+                    if (pauseResolve) { pauseResolve(); pauseResolve = null; pauseLock = null; }
+                    if (sleepRemaining > 0 && sleepResolveFn) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => {
+                            let res = sleepResolveFn; sleepResolveFn = null; sleepRemaining = 0; if (res) res();
+                        }, sleepRemaining);
+                    }
+                    writeToConsole(`<span class="text-sky-400 font-bold">[RESUMED]</span> Traversal simulation resumed.`);
+                }
+            }
+
+            function waitIfPaused() { return pauseLock ? pauseLock : Promise.resolve(); }
+
+            function pausableSleep(ms) {
+                return new Promise((resolve, reject) => {
+                    if (abortController?.signal.aborted) return reject(new Error("Aborted"));
+                    sleepRemaining = ms; sleepResolveFn = resolve;
+                    if (!isPaused) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { sleepResolveFn = null; sleepRemaining = 0; resolve(); }, sleepRemaining);
+                    }
+                    abortController.signal.addEventListener('abort', () => {
+                        clearTimeout(sleepTimer); reject(new Error("Aborted"));
+                    }, { once: true });
+                });
+            }
+
+            function writeToConsole(htmlString) {
+                if (consoleOutput.innerText.includes('Waiting')) consoleOutput.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = "py-0.5 border-b border-white/5";
+                item.innerHTML = htmlString;
+                consoleOutput.appendChild(item);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            function appendToResult(val, typeClass) {
+                if (resultArray.innerText.includes('Awaiting')) resultArray.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = `w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white ${typeClass} shadow-[0_4px_10px_rgba(0,0,0,0.3)] animate-[fadeIn_0.3s_ease]`;
+                item.textContent = val;
+                resultArray.appendChild(item);
+            }
+
+            function updateStageUI(stage, status, active = false) {
+                const wrapper = document.getElementById(`stage-${stage}-wrapper`);
+                const text = document.getElementById(`stage-${stage}-status`);
+                const pill = document.getElementById(`pill-step-${stage === 'root' ? '1' : stage === 'left' ? '2' : stage === 'leaves' ? '3' : '4'}`);
+
+                text.textContent = status;
+
+                if (active) {
+                    wrapper.classList.add('border-accent', 'bg-accent/10');
+                    pill.classList.add('active');
+                } else {
+                    wrapper.classList.remove('border-accent', 'bg-accent/10');
+                    pill.classList.remove('active');
+                }
+
+                if (status === 'Completed') {
+                    text.classList.remove('text-slate-400', 'text-amber-400');
+                    text.classList.add('text-emerald-400');
+                } else if (status === 'Running...') {
+                    text.classList.remove('text-slate-400', 'text-emerald-400');
+                    text.classList.add('text-amber-400');
+                } else {
+                    text.classList.remove('text-emerald-400', 'text-amber-400');
+                    text.classList.add('text-slate-400');
+                }
+            }
+
+            async function moveToNode(id, duration = 550) {
+                await waitIfPaused();
+                if (abortController?.signal.aborted) throw new Error("Aborted");
+
+                const coords = getCenterCoords(id);
+                packetCursor.style.display = 'block';
+
+                const currentLeft = packetCursor.style.left || `${coords.x}px`;
+                const currentTop = packetCursor.style.top || `${coords.y}px`;
+
+                currentPacketAnimation = packetCursor.animate([
+                    { left: currentLeft, top: currentTop },
+                    { left: `${coords.x}px`, top: `${coords.y}px` }
+                ], { duration: duration, easing: 'ease-in-out', fill: 'forwards' });
+
+                if (isPaused) currentPacketAnimation.pause();
+
+                return new Promise((resolve, reject) => {
+                    currentPacketAnimation.onfinish = () => {
+                        packetCursor.style.left = `${coords.x}px`; packetCursor.style.top = `${coords.y}px`;
+                        currentPacketAnimation = null; resolve();
+                    };
+                    abortController.signal.addEventListener('abort', () => {
+                        if (currentPacketAnimation) currentPacketAnimation.cancel();
+                        reject(new Error("Aborted"));
+                    }, { once: true });
+                });
+            }
+
+            function highlightBranch(parent, child, active = true) {
+                const path = document.getElementById(`branch-${parent}-${child}`);
+                if (path) {
+                    if (active) {
+                        path.classList.add('highlight-active');
+                    } else {
+                        path.classList.remove('highlight-active');
+                    }
+                }
+            }
+
+            function clearNodeClasses() {
+                document.querySelectorAll('.tree-node').forEach(n => {
+                    n.className = 'tree-node';
+                });
+            }
+
+            function clearHighlights() {
+                document.querySelectorAll('.tree-branch-path').forEach(p => p.classList.remove('highlight-active'));
+            }
+
+            function resetSimulation() {
+                if (abortController) abortController.abort();
+                isSimulating = false; isPaused = false; pauseLock = null; pauseResolve = null;
+                if (sleepTimer) clearTimeout(sleepTimer);
+                if (currentPacketAnimation) { currentPacketAnimation.cancel(); currentPacketAnimation = null; }
+
+                btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = true;
+
+                packetCursor.style.display = 'none';
+
+                clearNodeClasses();
+                clearHighlights();
+
+                resultArray.innerHTML = '<span class="text-slate-500 italic text-xs">Awaiting traversal simulation...</span>';
+                consoleOutput.innerHTML = '<div class="italic text-slate-500">Waiting for actions...</div>';
+
+                updateStageUI('root', 'Pending', false);
+                updateStageUI('left', 'Pending', false);
+                updateStageUI('leaves', 'Pending', false);
+                updateStageUI('right', 'Pending', false);
+
+                resetEditorToDefault();
+                rebuildWorkspace();
+            }
+
+            async function runFullSimulation() {
+                resetSimulation();
+                compileBoundaryTraversal();
+
+                abortController = new AbortController();
+                isSimulating = true;
+
+                btnTogglePause.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = false;
+
+                try {
+                    // Set starting location slightly above root node
+                    const rootNodeCoords = getCenterCoords(rootNode.id);
+                    packetCursor.style.left = `${rootNodeCoords.x}px`;
+                    packetCursor.style.top = `${rootNodeCoords.y - 50}px`;
+                    packetCursor.style.display = 'block';
+
+                    writeToConsole(`<span class="text-sky-400 font-bold">[START]</span> Initiating custom anti-clockwise traversal logic.`);
+                    await pausableSleep(500);
+
+                    // Execute each programmatic compilation step sequentially
+                    for (let step of animSequence) {
+                        await waitIfPaused();
+                        if (abortController?.signal.aborted) throw new Error("Aborted");
+
+                        switch (step.type) {
+                            case 'stage':
+                                updateStageUI(step.name, step.status, step.active);
+                                break;
+                            case 'visit':
+                                highlightNodeCheck(step.id);
+                                writeToConsole(step.comment);
+                                await moveToNode(step.id, 500);
+                                break;
+                            case 'addResult':
+                                markNodeStageClass(step.id, step.role);
+                                appendToResult(step.val, getResultColorClass(step.role));
+                                writeToConsole(step.comment);
+                                await pausableSleep(800);
+                                break;
+                            case 'pushStack':
+                                markNodeStaged(step.id);
+                                writeToConsole(step.comment);
+                                await pausableSleep(800);
+                                break;
+                            case 'highlightEdge':
+                                highlightBranch(step.parent, step.child, true);
+                                break;
+                            case 'comment':
+                                writeToConsole(step.comment);
+                                await pausableSleep(600);
+                                break;
+                        }
+                    }
+
+                    // Complete
+                    packetCursor.style.display = 'none';
+                    clearHighlights();
+                    writeToConsole(`<span class="text-emerald-400 font-bold">[COMPLETE]</span> Anti-clockwise Boundary Traversal succeeded!`);
+
+                    // Display static summary
+                    infoPanel.innerHTML = `
+                        <div class="h-full flex flex-col items-center justify-center animate-[fadeIn_0.5s_ease-out]">
+                            <i class="fa-solid fa-trophy text-4xl text-amber-400 mb-4 animate-bounce"></i>
+                            <h3 class="text-base font-bold text-white mb-2">Traversal Complete</h3>
+                            <p class="text-xs text-slate-400 text-center px-2 leading-relaxed">
+                                The custom configuration successfully parsed. Review the generated list on the output bar. Click "Reset" to edit the structure again.
+                            </p>
+                        </div>
+                    `;
+
+                } catch (e) {
+                    if (e.message !== "Aborted") console.error(e);
+                } finally {
+                    if (!abortController?.signal.aborted) {
+                        isSimulating = false;
+                        btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                        btnTogglePause.disabled = true;
+                    }
+                }
+            }
+
+            function highlightNodeCheck(nodeId) {
+                document.querySelectorAll('.tree-node').forEach(div => {
+                    if (!div.classList.contains('node-root-active') &&
+                        !div.classList.contains('node-left-active') &&
+                        !div.classList.contains('node-leaf-active') &&
+                        !div.classList.contains('node-right-active') &&
+                        !div.classList.contains('node-staged')) {
+                        div.className = 'tree-node';
+                    }
+                });
+                const el = document.getElementById(`node-${nodeId}`);
+                if (el && !el.classList.contains('node-root-active') &&
+                    !el.classList.contains('node-left-active') &&
+                    !el.classList.contains('node-leaf-active') &&
+                    !el.classList.contains('node-right-active')) {
+                    el.classList.add('node-checking');
+                }
+            }
+
+            function markNodeStageClass(nodeId, role) {
+                const el = document.getElementById(`node-${nodeId}`);
+                if (el) {
+                    el.classList.remove('node-checking', 'node-staged');
+                    if (role === 'root') el.classList.add('node-root-active');
+                    else if (role === 'left') el.classList.add('node-left-active');
+                    else if (role === 'leaf') el.classList.add('node-leaf-active');
+                    else if (role === 'right') el.classList.add('node-right-active');
+                }
+            }
+
+            function markNodeStaged(nodeId) {
+                const el = document.getElementById(`node-${nodeId}`);
+                if (el) {
+                    el.classList.remove('node-checking');
+                    el.classList.add('node-staged');
+                }
+            }
+
+            function getResultColorClass(role) {
+                if (role === 'root') return 'bg-amber-500';
+                if (role === 'left') return 'bg-boundaryLeft';
+                if (role === 'leaf') return 'bg-boundaryLeaf';
+                return 'bg-boundaryRight';
+            }
+
+            btnFullSim.addEventListener('click', runFullSimulation);
+            btnTogglePause.addEventListener('click', togglePause);
+            btnReset.addEventListener('click', resetSimulation);
+
+            window.addEventListener('resize', () => {
+                if (viewVisual.classList.contains('hidden') === false) drawConnections();
+            });
+
+            // Initialize default tree on first load
+            loadStandardPreset();
+        });
+    </script>
+</body>
+
+</html>

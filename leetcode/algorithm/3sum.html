@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Sum Algorithm | Interactive DSA Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Code Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0f172a', panelbg: '#1e293b', compbg: '#334155', bordercolor: '#475569', textcolor: '#f8fafc', muted: '#94a3b8',
+                        accent: '#d946ef', // Fuchsia 500
+                        ptrI: '#d946ef', // Fuchsia
+                        ptrL: '#10b981', // Emerald
+                        ptrR: '#0ea5e9', // Sky Blue
+                        foundMatch: '#f59e0b' // Amber
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Array and blocks */
+        .array-container {
+            position: relative;
+            height: 120px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .array-item {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            z-index: 20;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .array-item.fixed-i {
+            border-color: #d946ef;
+            background-color: #701a75;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.5);
+            transform: translateY(-60%) scale(1.1);
+        }
+
+        .array-item.active-l {
+            border-color: #10b981;
+            background-color: #064e3b;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+            transform: translateY(-60%) scale(1.1);
+        }
+
+        .array-item.active-r {
+            border-color: #0ea5e9;
+            background-color: #0c4a6e;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+            transform: translateY(-60%) scale(1.1);
+        }
+
+        .array-item.match-found {
+            border-color: #f59e0b;
+            background-color: #78350f;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.8);
+            transform: translateY(-60%) scale(1.15);
+            z-index: 25;
+            animation: match-pulse 0.6s ease-in-out;
+        }
+
+        .array-item.skipped {
+            opacity: 0.3;
+            border-color: #334155;
+            background-color: #0f172a;
+        }
+
+        /* Pointers */
+        .scan-ptr {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .scan-ptr .ptr-label {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #fff;
+        }
+
+        /* i pointer (top down) */
+        .ptr-i {
+            flex-direction: column-reverse;
+            top: calc(50% - 75px);
+        }
+
+        .ptr-i .ptr-arrow {
+            color: #d946ef;
+            transform: rotate(180deg);
+            margin-top: 4px;
+        }
+
+        .ptr-i .ptr-label {
+            background: #701a75;
+            border: 1px solid #d946ef;
+        }
+
+        /* L pointer (bottom up) */
+        .ptr-l {
+            flex-direction: column;
+            top: calc(50% + 35px);
+        }
+
+        .ptr-l .ptr-arrow {
+            color: #10b981;
+            margin-bottom: 2px;
+        }
+
+        .ptr-l .ptr-label {
+            background: #064e3b;
+            border: 1px solid #10b981;
+        }
+
+        /* R pointer (bottom up) */
+        .ptr-r {
+            flex-direction: column;
+            top: calc(50% + 35px);
+        }
+
+        .ptr-r .ptr-arrow {
+            color: #0ea5e9;
+            margin-bottom: 2px;
+        }
+
+        .ptr-r .ptr-label {
+            background: #0c4a6e;
+            border: 1px solid #0ea5e9;
+        }
+
+
+        @keyframes match-pulse {
+            0% {
+                transform: translateY(-60%) scale(1.15);
+            }
+
+            50% {
+                transform: translateY(-60%) scale(1.3);
+            }
+
+            100% {
+                transform: translateY(-60%) scale(1.15);
+            }
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #d946ef;
+            color: #f8fafc;
+        }
+
+        .code-lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .code-lang-btn.active {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .step-pill {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+
+        .step-pill.active {
+            background-color: #d946ef;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #d946ef;
+        }
+    </style>
+</head>
+
+<body class="antialiased h-screen flex flex-col overflow-hidden text-textcolor bg-darkbg">
+
+    <header class="bg-panelbg border-b border-bordercolor z-40 shadow-lg">
+        <div class="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-people-group text-accent text-2xl drop-shadow-[0_0_8px_rgba(217,70,239,0.5)]"></i>
+                <h1 class="text-xl font-bold tracking-wide">3 Sum Algorithm</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                    <button id="tab-visual" class="tab-btn active text-sm">Visual Flow</button>
+                    <button id="tab-principles" class="tab-btn text-sm">Principles & Code</button>
+                </div>
+            </div>
+            <div class="flex gap-2" id="sim-controls">
+                <button id="btn-full-sim"
+                    class="px-3 py-1.5 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded font-medium transition shadow-sm text-sm flex items-center border border-fuchsia-400">
+                    <i class="fa-solid fa-play mr-2"></i> Run Algorithm
+                </button>
+                <button id="btn-toggle-pause"
+                    class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center opacity-50 cursor-not-allowed"
+                    disabled>
+                    <i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause
+                </button>
+                <button id="btn-reset"
+                    class="px-3 py-1.5 bg-compbg hover:bg-slate-600 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- VISUAL TRAVERSAL VIEW -->
+        <div id="view-visual" class="flex w-full h-full">
+
+            <!-- Sidebar / Instruction Log -->
+            <div
+                class="w-[380px] bg-panelbg border-r border-bordercolor flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+
+                <!-- Custom Presets Panel -->
+                <div class="p-3 border-b border-bordercolor bg-darkbg/90">
+                    <h3
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Array Presets (Auto-Sorted)
+                    </h3>
+                    <div class="grid grid-cols-2 gap-1 mb-1">
+                        <button id="preset-standard"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Standard
+                            Case</button>
+                        <button id="preset-zeros"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">All
+                            Zeros</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button id="preset-no-sol"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">No
+                            Solution</button>
+                        <button id="preset-dups"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Many
+                            Duplicates</button>
+                    </div>
+                </div>
+
+                <!-- Simulation Tracker & Logs -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/30">
+                    <h2
+                        class="text-xs font-bold text-accent uppercase tracking-widest flex items-center justify-between mb-3">
+                        <span><i class="fa-solid fa-microchip mr-2"></i>Algorithm Loop</span>
+                        <div class="flex gap-1">
+                            <div class="step-pill active" id="pill-step-1"></div>
+                            <div class="step-pill" id="pill-step-2"></div>
+                            <div class="step-pill" id="pill-step-3"></div>
+                        </div>
+                    </h2>
+                    <div id="stage-info" class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-anchor-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-anchor text-fuchsia-400 mr-2"></i>1.
+                                Anchor 'i'</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-anchor-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-search-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-left-right text-emerald-400 mr-2"></i>2. Two-Pointer
+                                Search</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-search-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-skip-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-forward-step text-slate-400 mr-2"></i>3. Skip Duplicates</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-skip-status">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Found Triplets Panel -->
+                <div
+                    class="p-4 border-b border-bordercolor bg-darkbg/80 flex flex-col gap-2 max-h-[160px] overflow-y-auto">
+                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-box-open"></i> Found Triplets
+                    </h3>
+                    <div id="result-triplets" class="flex flex-col gap-1.5">
+                        <span class="text-slate-500 italic text-xs">No triplets found yet...</span>
+                    </div>
+                </div>
+
+                <!-- Step Description Console -->
+                <div class="bg-darkbg p-4 flex-1 flex flex-col min-h-[160px]">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>Live Console Log</span>
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                    </h3>
+                    <div id="console-output"
+                        class="flex-1 font-mono text-[11px] overflow-y-auto space-y-1 text-slate-300 bg-black/40 p-2.5 rounded border border-white/5 scrollbar-thin">
+                        <div class="italic text-slate-500">Waiting for actions...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Traversal Canvas (Array Render) -->
+            <div class="flex-1 overflow-hidden relative bg-darkbg p-8 flex flex-col items-center justify-center"
+                id="canvas-container">
+
+                <!-- State Dashboard -->
+                <div class="w-full max-w-3xl bg-panelbg border border-bordercolor rounded-xl p-4 mb-12 shadow-xl flex flex-col items-center gap-4"
+                    id="state-board">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest"><i
+                            class="fa-solid fa-calculator text-fuchsia-400 mr-2"></i>Live Sum Calculation</h3>
+
+                    <div class="flex items-center gap-4 text-2xl font-bold font-mono">
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] text-fuchsia-400 mb-1">arr[i]</span>
+                            <div id="val-i"
+                                class="w-16 h-16 bg-darkbg border border-fuchsia-500/50 rounded flex items-center justify-center text-white">
+                                ?</div>
+                        </div>
+                        <span class="text-slate-500">+</span>
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] text-emerald-400 mb-1">arr[left]</span>
+                            <div id="val-l"
+                                class="w-16 h-16 bg-darkbg border border-emerald-500/50 rounded flex items-center justify-center text-white">
+                                ?</div>
+                        </div>
+                        <span class="text-slate-500">+</span>
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] text-sky-400 mb-1">arr[right]</span>
+                            <div id="val-r"
+                                class="w-16 h-16 bg-darkbg border border-sky-500/50 rounded flex items-center justify-center text-white">
+                                ?</div>
+                        </div>
+                        <span class="text-slate-500 mx-2">=</span>
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] text-amber-400 mb-1">SUM</span>
+                            <div id="val-sum"
+                                class="w-20 h-16 bg-darkbg border-2 border-bordercolor rounded flex items-center justify-center text-white transition-colors duration-300">
+                                ?</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full max-w-4xl flex flex-col items-center justify-center relative">
+                    <div id="array-container" class="array-container">
+                        <!-- Array elements will be injected here via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINCIPLES & CODE VIEW -->
+        <div id="view-principles" class="hidden w-full h-full overflow-y-auto bg-darkbg p-8">
+            <div class="max-w-5xl mx-auto text-slate-300 markdown-body pb-16">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b border-bordercolor pb-4">3 Sum Algorithm</h1>
+
+                <p class="text-base leading-relaxed mb-6">
+                    The <strong>3 Sum</strong> problem requires finding all unique triplets in an array that sum up to
+                    zero: <code>nums[i] + nums[j] + nums[k] == 0</code>. While a brute-force approach takes $O(N^3)$
+                    time, we can optimize it to <strong>$O(N^2)$ Time</strong> and <strong>$O(1)$ Space</strong> by
+                    sorting the array and using the Two-Pointer technique.
+                </p>
+
+                <!-- Core concepts -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-fuchsia-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">1. Sort & Anchor</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            First, sort the array. Then, iterate through with pointer <code>i</code>. This acts as our
+                            fixed "anchor". For each <code>i</code>, the problem reduces to finding a 2-Sum equal to
+                            <code>-nums[i]</code>.
+                        </p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-emerald-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">2. Two Pointers</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Set <code>left = i + 1</code> and <code>right = n - 1</code>. If the sum is too low (< 0),
+                                increment <code>left</code>. If it's too high (> 0), decrement <code>right</code>. If it
+                                equals 0, we found a triplet!
+                        </p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-slate-400">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">3. Skip Duplicates</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            To ensure unique triplets, we must aggressively skip duplicate values. We check
+                            <code>nums[i] == nums[i-1]</code>, and when a match is found, we bypass adjacent identical
+                            values for <code>left</code> and <code>right</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Code Block View -->
+                <div class="bg-panelbg rounded-xl border border-bordercolor p-6 mt-8">
+                    <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                        <h3 class="text-lg font-semibold text-white">Algorithm Implementation</h3>
+                        <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                            <button id="lang-java" class="code-lang-btn active">Java</button>
+                            <button id="lang-cpp" class="code-lang-btn">C++</button>
+                            <button id="lang-python" class="code-lang-btn">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Code blocks -->
+                    <div id="code-container">
+                        <!-- Java Code -->
+                        <div id="code-block-java" class="block">
+                            <pre><code class="language-java">class Solution {
+    public List&lt;List&lt;Integer&gt;&gt; threeSum(int[] nums) {
+        List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+        // 1. Sort the array
+        Arrays.sort(nums);
+        
+        for (int i = 0; i < nums.length - 2; i++) {
+            // Skip duplicate anchors
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+            
+            int left = i + 1;
+            int right = nums.length - 1;
+            
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                
+                if (sum == 0) {
+                    res.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                    
+                    // Skip duplicates for left and right
+                    while (left < right && nums[left] == nums[left + 1]) left++;
+                    while (left < right && nums[right] == nums[right - 1]) right--;
+                    
+                    left++;
+                    right--;
+                } else if (sum < 0) {
+                    left++; // Need a larger sum
+                } else {
+                    right--; // Need a smaller sum
+                }
+            }
+        }
+        return res;
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- C++ Code -->
+                        <div id="code-block-cpp" class="hidden block">
+                            <pre><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; threeSum(vector&lt;int&gt;& nums) {
+        vector&lt;vector&lt;int&gt;&gt; res;
+        sort(nums.begin(), nums.end());
+        
+        for (int i = 0; i < nums.size(); i++) {
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+            
+            int left = i + 1;
+            int right = nums.size() - 1;
+            
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                
+                if (sum == 0) {
+                    res.push_back({nums[i], nums[left], nums[right]});
+                    
+                    while (left < right && nums[left] == nums[left + 1]) left++;
+                    while (left < right && nums[right] == nums[right - 1]) right--;
+                    
+                    left++;
+                    right--;
+                } else if (sum < 0) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+        }
+        return res;
+    }
+};</code></pre>
+                        </div>
+
+                        <!-- Python Code -->
+                        <div id="code-block-python" class="hidden block">
+                            <pre><code class="language-python">class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        res = []
+        nums.sort()
+        
+        for i in range(len(nums) - 2):
+            if i > 0 and nums[i] == nums[i - 1]:
+                continue
+                
+            left, right = i + 1, len(nums) - 1
+            
+            while left < right:
+                s = nums[i] + nums[left] + nums[right]
+                
+                if s == 0:
+                    res.append([nums[i], nums[left], nums[right]])
+                    
+                    while left < right and nums[left] == nums[left + 1]:
+                        left += 1
+                    while left < right and nums[right] == nums[right - 1]:
+                        right -= 1
+                        
+                    left += 1
+                    right -= 1
+                elif s < 0:
+                    left += 1
+                else:
+                    right -= 1
+                    
+        return res</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            // Navigation Tabs
+            const tabVisual = document.getElementById('tab-visual');
+            const tabPrinciples = document.getElementById('tab-principles');
+            const viewVisual = document.getElementById('view-visual');
+            const viewPrinciples = document.getElementById('view-principles');
+            const simControls = document.getElementById('sim-controls');
+
+            tabVisual.addEventListener('click', () => {
+                tabVisual.classList.add('active'); tabPrinciples.classList.remove('active');
+                viewVisual.classList.remove('hidden'); viewPrinciples.classList.add('hidden');
+                simControls.style.display = 'flex';
+            });
+
+            tabPrinciples.addEventListener('click', () => {
+                tabPrinciples.classList.add('active'); tabVisual.classList.remove('active');
+                viewPrinciples.classList.remove('hidden'); viewVisual.classList.add('hidden');
+                simControls.style.display = 'none';
+            });
+
+            // Language Selector for Code
+            const codeBlocks = {
+                java: document.getElementById('code-block-java'),
+                cpp: document.getElementById('code-block-cpp'),
+                python: document.getElementById('code-block-python')
+            };
+
+            const langButtons = {
+                java: document.getElementById('lang-java'),
+                cpp: document.getElementById('lang-cpp'),
+                python: document.getElementById('lang-python')
+            };
+
+            function selectLanguage(lang) {
+                Object.keys(codeBlocks).forEach(k => {
+                    if (k === lang) {
+                        codeBlocks[k].classList.remove('hidden');
+                        langButtons[k].classList.add('active');
+                    } else {
+                        codeBlocks[k].classList.add('hidden');
+                        langButtons[k].classList.remove('active');
+                    }
+                });
+            }
+
+            Object.keys(langButtons).forEach(k => {
+                langButtons[k].addEventListener('click', () => selectLanguage(k));
+            });
+
+            // === Simulation State & Layout ===
+            const arrayContainer = document.getElementById('array-container');
+            const consoleOutput = document.getElementById('console-output');
+            const resultTriplets = document.getElementById('result-triplets');
+
+            const btnFullSim = document.getElementById('btn-full-sim');
+            const btnTogglePause = document.getElementById('btn-toggle-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            let currentArray = [];
+            let domItems = [];
+
+            // Visual config
+            const ITEM_WIDTH = 56; // 48px width + 8px gap
+
+            // Simulation Control
+            let isSimulating = false;
+            let isPaused = false;
+            let abortController = null;
+            let pauseLock = null;
+            let pauseResolve = null;
+            let sleepTimer = null;
+            let sleepResolveFn = null;
+            let sleepRemaining = 0;
+            let sleepStartTime = 0;
+
+            // Initialize DOM
+            function initArray(arr) {
+                // For 3Sum, the array must be sorted first!
+                currentArray = [...arr].sort((a, b) => a - b);
+                renderWorkspace();
+            }
+
+            function renderWorkspace() {
+                arrayContainer.innerHTML = '';
+                domItems = [];
+
+                const totalWidth = currentArray.length * ITEM_WIDTH;
+                arrayContainer.style.width = `${totalWidth}px`;
+
+                // Render array items
+                currentArray.forEach((val, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'array-item';
+                    item.id = `item-${index}`;
+                    item.textContent = val;
+                    item.style.left = `${index * ITEM_WIDTH}px`;
+
+                    arrayContainer.appendChild(item);
+                    domItems.push(item);
+                });
+
+                // Render Pointers
+                createPointer('i', 'i', 0);
+                createPointer('l', 'L', 1);
+                createPointer('r', 'R', currentArray.length - 1);
+
+                hidePointers(); // hide initially
+
+                // Reset State Board
+                updateStateBoard('?', '?', '?', '?');
+                resultTriplets.innerHTML = '<span class="text-slate-500 italic text-xs">No triplets found yet...</span>';
+            }
+
+            function createPointer(type, label, index) {
+                const ptr = document.createElement('div');
+                ptr.className = `scan-ptr ptr-${type}`;
+                ptr.id = `ptr-${type}`;
+                ptr.innerHTML = `
+                    <i class="fa-solid fa-arrow-up ptr-arrow text-xl"></i>
+                    <div class="ptr-label">${label}</div>
+                `;
+                ptr.style.left = `${(index * ITEM_WIDTH) + 24}px`; // Center of 48px item
+                ptr.style.transform = 'translateX(-50%)';
+                arrayContainer.appendChild(ptr);
+            }
+
+            function hidePointers() {
+                ['i', 'l', 'r'].forEach(p => {
+                    const el = document.getElementById(`ptr-${p}`);
+                    if (el) el.style.opacity = '0';
+                });
+            }
+
+            function showPointer(type) {
+                const el = document.getElementById(`ptr-${type}`);
+                if (el) el.style.opacity = '1';
+            }
+
+            // Presets
+            document.getElementById('preset-standard').addEventListener('click', () => {
+                if (!isSimulating) initArray([-1, 0, 1, 2, -1, -4]); // Standard Leetcode example
+            });
+            document.getElementById('preset-zeros').addEventListener('click', () => {
+                if (!isSimulating) initArray([0, 0, 0, 0]);
+            });
+            document.getElementById('preset-no-sol').addEventListener('click', () => {
+                if (!isSimulating) initArray([1, 2, 3, 4, 5]);
+            });
+            document.getElementById('preset-dups').addEventListener('click', () => {
+                if (!isSimulating) initArray([-2, -2, -2, 0, 2, 2, 2]);
+            });
+
+            // Core Utilities
+            function writeToConsole(htmlString) {
+                if (consoleOutput.innerText.includes('Waiting')) consoleOutput.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = "py-0.5 border-b border-white/5";
+                item.innerHTML = htmlString;
+                consoleOutput.appendChild(item);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            function updateStateBoard(valI, valL, valR, sum) {
+                document.getElementById('val-i').textContent = valI;
+                document.getElementById('val-l').textContent = valL;
+                document.getElementById('val-r').textContent = valR;
+
+                const sumEl = document.getElementById('val-sum');
+                sumEl.textContent = sum;
+
+                sumEl.className = "w-20 h-16 bg-darkbg border-2 rounded flex items-center justify-center text-white transition-colors duration-300";
+                if (sum === 0) {
+                    sumEl.classList.add('border-amber-500', 'bg-amber-900/30', 'text-amber-400');
+                } else if (sum !== '?') {
+                    sumEl.classList.add('border-bordercolor');
+                } else {
+                    sumEl.classList.add('border-bordercolor');
+                }
+            }
+
+            function appendTriplet(triplet) {
+                if (resultTriplets.innerText.includes('No triplets')) resultTriplets.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = 'bg-darkbg border border-amber-500/30 rounded px-3 py-1.5 font-mono text-amber-400 text-sm font-bold animate-[fadeIn_0.3s_ease]';
+                item.textContent = `[${triplet.join(', ')}]`;
+                resultTriplets.appendChild(item);
+            }
+
+            function updateStageUI(stage, status, active = false) {
+                const wrapper = document.getElementById(`stage-${stage}-wrapper`);
+                const text = document.getElementById(`stage-${stage}-status`);
+                const pill = document.getElementById(`pill-step-${stage === 'anchor' ? '1' : stage === 'search' ? '2' : '3'}`);
+
+                text.textContent = status;
+
+                if (active) {
+                    wrapper.classList.add('border-accent', 'bg-accent/10');
+                    pill.classList.add('active');
+                } else {
+                    wrapper.classList.remove('border-accent', 'bg-accent/10');
+                    pill.classList.remove('active');
+                }
+
+                if (status === 'Completed') {
+                    text.classList.remove('text-slate-400', 'text-amber-400');
+                    text.classList.add('text-emerald-400');
+                } else if (status === 'Running...') {
+                    text.classList.remove('text-slate-400', 'text-emerald-400');
+                    text.classList.add('text-amber-400');
+                } else {
+                    text.classList.remove('text-emerald-400', 'text-amber-400');
+                    text.classList.add('text-slate-400');
+                }
+            }
+
+            // Sleep & Pause Handlers
+            function togglePause() {
+                if (!isSimulating) return;
+                isPaused = !isPaused;
+
+                if (isPaused) {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-play text-green-400 mr-2"></i> Resume';
+                    pauseLock = new Promise(r => pauseResolve = r);
+                    if (sleepTimer) {
+                        clearTimeout(sleepTimer);
+                        sleepTimer = null;
+                        sleepRemaining -= (Date.now() - sleepStartTime);
+                    }
+                    writeToConsole(`<span class="text-amber-400 font-bold">[PAUSED]</span> Simulation paused.`);
+                } else {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                    if (pauseResolve) { pauseResolve(); pauseResolve = null; pauseLock = null; }
+                    if (sleepRemaining > 0 && sleepResolveFn) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => {
+                            let res = sleepResolveFn; sleepResolveFn = null; sleepRemaining = 0; if (res) res();
+                        }, sleepRemaining);
+                    }
+                    writeToConsole(`<span class="text-fuchsia-400 font-bold">[RESUMED]</span> Simulation resumed.`);
+                }
+            }
+
+            function waitIfPaused() { return pauseLock ? pauseLock : Promise.resolve(); }
+
+            function pausableSleep(ms) {
+                return new Promise((resolve, reject) => {
+                    if (abortController?.signal.aborted) return reject(new Error("Aborted"));
+                    sleepRemaining = ms; sleepResolveFn = resolve;
+                    if (!isPaused) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { sleepResolveFn = null; sleepRemaining = 0; resolve(); }, sleepRemaining);
+                    }
+                    abortController.signal.addEventListener('abort', () => {
+                        clearTimeout(sleepTimer); reject(new Error("Aborted"));
+                    }, { once: true });
+                });
+            }
+
+            function resetSimulation() {
+                if (abortController) abortController.abort();
+                isSimulating = false; isPaused = false; pauseLock = null; pauseResolve = null;
+                if (sleepTimer) clearTimeout(sleepTimer);
+
+                btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = true;
+
+                consoleOutput.innerHTML = '<div class="italic text-slate-500">Waiting for actions...</div>';
+
+                updateStageUI('anchor', 'Pending', false);
+                updateStageUI('search', 'Pending', false);
+                updateStageUI('skip', 'Pending', false);
+
+                // Re-render
+                renderWorkspace();
+            }
+
+            // Animations
+            async function movePointer(type, targetIdx) {
+                await waitIfPaused();
+                const ptr = document.getElementById(`ptr-${type}`);
+                if (!ptr) return;
+                ptr.style.left = `${(targetIdx * ITEM_WIDTH) + 24}px`;
+            }
+
+            function resetItemClasses() {
+                domItems.forEach(el => el.className = 'array-item');
+            }
+
+            // Main Algorithm Execution
+            async function runAlgorithm() {
+                resetSimulation();
+
+                abortController = new AbortController();
+                isSimulating = true;
+
+                btnTogglePause.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = false;
+
+                const n = currentArray.length;
+                let foundAny = false;
+
+                try {
+                    writeToConsole(`<span class="text-accent font-bold">[START]</span> Array is sorted. Starting 3 Sum Algorithm...`);
+                    await pausableSleep(800);
+
+                    for (let i = 0; i < n - 2; i++) {
+                        resetItemClasses();
+
+                        // --- STAGE 1: Anchor ---
+                        updateStageUI('anchor', 'Running...', true);
+                        updateStageUI('search', 'Pending', false);
+                        updateStageUI('skip', 'Pending', false);
+
+                        showPointer('i');
+                        await movePointer('i', i);
+                        domItems[i].classList.add('fixed-i');
+
+                        // Early break optimization
+                        if (currentArray[i] > 0) {
+                            writeToConsole(`Anchor arr[i]=${currentArray[i]} is > 0. Since array is sorted, no sum can equal 0. <span class="text-rose-400">Stopping early.</span>`);
+                            await pausableSleep(1500);
+                            break;
+                        }
+
+                        // Skip Duplicate Anchor
+                        if (i > 0 && currentArray[i] === currentArray[i - 1]) {
+                            updateStageUI('anchor', 'Completed', false);
+                            updateStageUI('skip', 'Running...', true);
+                            writeToConsole(`Anchor <span class="text-fuchsia-400">${currentArray[i]}</span> is a duplicate of previous. Skipping to prevent duplicate triplets.`);
+                            domItems[i].classList.replace('fixed-i', 'skipped');
+                            await pausableSleep(1000);
+                            continue;
+                        }
+
+                        writeToConsole(`Fixed Anchor 'i' at index ${i} (Value: <span class="text-fuchsia-400">${currentArray[i]}</span>).`);
+                        await pausableSleep(800);
+                        updateStageUI('anchor', 'Completed', false);
+
+                        // --- STAGE 2: Search ---
+                        let left = i + 1;
+                        let right = n - 1;
+
+                        showPointer('l');
+                        showPointer('r');
+
+                        while (left < right) {
+                            updateStageUI('search', 'Running...', true);
+                            updateStageUI('skip', 'Pending', false);
+
+                            await movePointer('l', left);
+                            await movePointer('r', right);
+
+                            // Cleanup old active l/r
+                            domItems.forEach((el, idx) => {
+                                if (idx !== i && !el.classList.contains('skipped') && !el.classList.contains('match-found')) {
+                                    el.className = 'array-item';
+                                }
+                            });
+
+                            domItems[left].classList.add('active-l');
+                            domItems[right].classList.add('active-r');
+
+                            const sum = currentArray[i] + currentArray[left] + currentArray[right];
+                            updateStateBoard(currentArray[i], currentArray[left], currentArray[right], sum);
+
+                            writeToConsole(`Checking Sum: ${currentArray[i]} + ${currentArray[left]} + ${currentArray[right]} = <strong>${sum}</strong>`);
+                            await pausableSleep(1200);
+
+                            if (sum === 0) {
+                                foundAny = true;
+                                writeToConsole(`<span class="text-amber-400 font-bold">MATCH FOUND!</span> Sum is 0. Adding triplet to results.`);
+                                domItems[i].classList.add('match-found');
+                                domItems[left].classList.add('match-found');
+                                domItems[right].classList.add('match-found');
+                                appendTriplet([currentArray[i], currentArray[left], currentArray[right]]);
+
+                                await pausableSleep(1200);
+
+                                // Reset match pulse
+                                domItems[i].classList.remove('match-found');
+                                domItems[left].classList.remove('match-found');
+                                domItems[right].classList.remove('match-found');
+
+                                // --- STAGE 3: Skip Duplicates ---
+                                updateStageUI('search', 'Completed', false);
+                                updateStageUI('skip', 'Running...', true);
+
+                                while (left < right && currentArray[left] === currentArray[left + 1]) {
+                                    writeToConsole(`Skipping duplicate for left pointer: ${currentArray[left]}`);
+                                    domItems[left].classList.replace('active-l', 'skipped');
+                                    left++;
+                                    await movePointer('l', left);
+                                    await pausableSleep(500);
+                                }
+                                while (left < right && currentArray[right] === currentArray[right - 1]) {
+                                    writeToConsole(`Skipping duplicate for right pointer: ${currentArray[right]}`);
+                                    domItems[right].classList.replace('active-r', 'skipped');
+                                    right--;
+                                    await movePointer('r', right);
+                                    await pausableSleep(500);
+                                }
+
+                                left++;
+                                right--;
+                                writeToConsole(`Moving pointers inward. L -> ${left}, R -> ${right}`);
+                                await pausableSleep(500);
+
+                            } else if (sum < 0) {
+                                writeToConsole(`Sum (<span class="text-rose-400">${sum}</span>) is too small. Moving left pointer rightwards.`);
+                                left++;
+                            } else {
+                                writeToConsole(`Sum (<span class="text-sky-400">${sum}</span>) is too large. Moving right pointer leftwards.`);
+                                right--;
+                            }
+                        }
+
+                        document.getElementById('ptr-l').style.opacity = '0';
+                        document.getElementById('ptr-r').style.opacity = '0';
+                    }
+
+                    // --- CONCLUSION ---
+                    resetItemClasses();
+                    hidePointers();
+                    updateStateBoard('?', '?', '?', '?');
+                    updateStageUI('anchor', 'Completed', false);
+                    updateStageUI('search', 'Completed', false);
+                    updateStageUI('skip', 'Completed', false);
+
+                    if (foundAny) {
+                        writeToConsole(`<span class="text-emerald-400 font-bold">[DONE]</span> Algorithm complete. All unique triplets collected.`);
+                    } else {
+                        writeToConsole(`<span class="text-amber-400 font-bold">[DONE]</span> Algorithm complete. No valid triplets summing to 0 were found.`);
+                    }
+
+                } catch (e) {
+                    if (e.message !== "Aborted") console.error(e);
+                } finally {
+                    if (!abortController?.signal.aborted) {
+                        isSimulating = false;
+                        btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                        btnTogglePause.disabled = true;
+                    }
+                }
+            }
+
+
+            btnFullSim.addEventListener('click', runAlgorithm);
+            btnTogglePause.addEventListener('click', togglePause);
+            btnReset.addEventListener('click', resetSimulation);
+
+            // Initialize default array on first load
+            initArray([-1, 0, 1, 2, -1, -4]);
+        });
+    </script>
+</body>
+
+</html>

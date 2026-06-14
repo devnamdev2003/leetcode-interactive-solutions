@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inversion Count (Merge Sort) | Interactive DSA Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Code Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0f172a', panelbg: '#1e293b', compbg: '#334155', bordercolor: '#475569', textcolor: '#f8fafc', muted: '#94a3b8',
+                        accent: '#06b6d4', // Cyan 500
+                        valL: '#10b981', // Emerald 500
+                        valR: '#3b82f6', // Blue 500
+                        invColor: '#f43f5e' // Rose 500
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Arrays */
+        .array-container {
+            position: relative;
+            height: 70px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .array-item,
+        .temp-item {
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            z-index: 20;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .temp-item {
+            border-style: dashed;
+            border-color: #64748b;
+            background-color: rgba(30, 41, 59, 0.5);
+            color: #94a3b8;
+        }
+
+        .temp-item.filled {
+            border-style: solid;
+            border-color: #06b6d4;
+            background-color: #164e63;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Status Classes */
+        .array-item.dimmed {
+            opacity: 0.2;
+            border-color: #334155;
+            box-shadow: none;
+        }
+
+        .array-item.picked {
+            opacity: 0.1;
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .array-item.compare-l {
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        }
+
+        .array-item.compare-r {
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .array-item.inversion-highlight {
+            border-color: #f43f5e;
+            background-color: #881337;
+            color: #fff;
+            transform: translateY(-60%) scale(1.1);
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.6);
+            z-index: 30;
+        }
+
+        .array-item.copy-flash {
+            border-color: #06b6d4;
+            background-color: #0891b2;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+        }
+
+        /* Pointers */
+        .scan-ptr {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .scan-ptr .ptr-label {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #fff;
+        }
+
+        .ptr-i {
+            top: calc(50% + 28px);
+        }
+
+        .ptr-i .ptr-arrow {
+            color: #10b981;
+            margin-bottom: 2px;
+        }
+
+        .ptr-i .ptr-label {
+            background: #064e3b;
+            border: 1px solid #10b981;
+        }
+
+        .ptr-j {
+            top: calc(50% + 28px);
+        }
+
+        .ptr-j .ptr-arrow {
+            color: #3b82f6;
+            margin-bottom: 2px;
+        }
+
+        .ptr-j .ptr-label {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+        }
+
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #06b6d4;
+            color: #f8fafc;
+        }
+
+        .code-lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .code-lang-btn.active {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .step-pill {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+
+        .step-pill.active {
+            background-color: #06b6d4;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #06b6d4;
+        }
+
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 24px;
+            color: #f43f5e;
+            pointer-events: none;
+            z-index: 50;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.5);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.2);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased h-screen flex flex-col overflow-hidden text-textcolor bg-darkbg">
+
+    <header class="bg-panelbg border-b border-bordercolor z-40 shadow-lg">
+        <div class="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-code-merge text-accent text-2xl drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]"></i>
+                <h1 class="text-xl font-bold tracking-wide">Inversion Count (Merge Sort)</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                    <button id="tab-visual" class="tab-btn active text-sm">Visual Flow</button>
+                    <button id="tab-principles" class="tab-btn text-sm">Principles & Code</button>
+                </div>
+            </div>
+            <div class="flex gap-2" id="sim-controls">
+                <button id="btn-full-sim"
+                    class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-medium transition shadow-sm text-sm flex items-center border border-cyan-400">
+                    <i class="fa-solid fa-play mr-2"></i> Run Algorithm
+                </button>
+                <button id="btn-toggle-pause"
+                    class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center opacity-50 cursor-not-allowed"
+                    disabled>
+                    <i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause
+                </button>
+                <button id="btn-reset"
+                    class="px-3 py-1.5 bg-compbg hover:bg-slate-600 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- VISUAL TRAVERSAL VIEW -->
+        <div id="view-visual" class="flex w-full h-full">
+
+            <!-- Sidebar / Instruction Log -->
+            <div
+                class="w-[380px] bg-panelbg border-r border-bordercolor flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+
+                <!-- Custom Presets Panel -->
+                <div class="p-3 border-b border-bordercolor bg-darkbg/90">
+                    <h3
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Array Presets
+                    </h3>
+                    <div class="grid grid-cols-2 gap-1 mb-1">
+                        <button id="preset-reversed"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Reversed
+                            (Worst)</button>
+                        <button id="preset-random"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Random</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button id="preset-sorted"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Sorted
+                            (Best)</button>
+                        <button id="preset-almost"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Almost
+                            Sorted</button>
+                    </div>
+                </div>
+
+                <!-- Simulation Tracker & Logs -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/30">
+                    <h2
+                        class="text-xs font-bold text-accent uppercase tracking-widest flex items-center justify-between mb-3">
+                        <span><i class="fa-solid fa-microchip mr-2"></i>Algorithm Loop</span>
+                        <div class="flex gap-1">
+                            <div class="step-pill active" id="pill-step-1"></div>
+                            <div class="step-pill" id="pill-step-2"></div>
+                            <div class="step-pill" id="pill-step-3"></div>
+                        </div>
+                    </h2>
+                    <div id="stage-info" class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-divide-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-scissors text-slate-400 mr-2"></i>1.
+                                Divide Subarrays</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-divide-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-compare-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-code-compare text-emerald-400 mr-2"></i>2. Compare & Count</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-compare-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-merge-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-layer-group text-cyan-400 mr-2"></i>3.
+                                Merge & Copy</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-merge-status">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Explanation / Property Panel -->
+                <div class="p-4 flex-1 overflow-y-auto" id="info-panel">
+                    <div id="default-info" class="h-full flex flex-col items-center justify-center text-muted">
+                        <i class="fa-solid fa-bolt text-4xl mb-4 text-slate-600"></i>
+                        <p class="text-center text-xs px-2 leading-relaxed">
+                            <span class="text-white font-semibold">The Merge Trick</span><br><br>
+                            Both the left and right halves are already sorted. If we find that
+                            <strong class="text-emerald-400">arr[i]</strong> > <strong
+                                class="text-blue-400">arr[j]</strong>,
+                            then every element from <strong class="text-emerald-400">i</strong> to the end of the left
+                            half
+                            is <em>also</em> greater than <strong class="text-blue-400">arr[j]</strong>.<br><br>
+                            We instantly count all of them: <strong class="text-rose-400">+(mid - i + 1)</strong>
+                            inversions!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step Description Console -->
+                <div class="border-t border-bordercolor bg-darkbg p-4 h-1/4 min-h-[160px] flex flex-col">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>Live Console Log</span>
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                    </h3>
+                    <div id="console-output"
+                        class="flex-1 font-mono text-[11px] overflow-y-auto space-y-1 text-slate-300 bg-black/40 p-2.5 rounded border border-white/5 scrollbar-thin">
+                        <div class="italic text-slate-500">Waiting for actions...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Traversal Canvas (Array Render) -->
+            <div class="flex-1 overflow-hidden relative bg-darkbg p-8 flex flex-col items-center justify-start pt-16"
+                id="canvas-container">
+
+                <!-- Global Counter -->
+                <div
+                    class="bg-panelbg border border-bordercolor rounded-xl p-4 shadow-xl flex flex-col items-center mb-10 w-64 relative z-40">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+                        <i class="fa-solid fa-calculator text-rose-400 mr-1"></i> Total Inversions
+                    </h3>
+                    <div id="total-inversions-container" class="relative transition-transform duration-300">
+                        <span id="total-inversions"
+                            class="text-5xl font-bold font-mono text-white tracking-tighter">0</span>
+                    </div>
+                </div>
+
+                <!-- Arrays Layout -->
+                <div class="w-full max-w-4xl flex flex-col items-center justify-center relative">
+
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-widest w-full text-center mb-2">
+                        Original / Main Array</div>
+                    <div id="array-container" class="array-container mb-12">
+                        <!-- Main array items -->
+                    </div>
+
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-widest w-full text-center mb-2">Temp
+                        Array (Merging)</div>
+                    <div id="temp-container" class="array-container">
+                        <!-- Temp array placeholders -->
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINCIPLES & CODE VIEW -->
+        <div id="view-principles" class="hidden w-full h-full overflow-y-auto bg-darkbg p-8">
+            <div class="max-w-5xl mx-auto text-slate-300 markdown-body pb-16">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b border-bordercolor pb-4">Inversion Count via
+                    Merge Sort</h1>
+
+                <p class="text-base leading-relaxed mb-6">
+                    An inversion is a pair of elements <code>(i, j)</code> such that <code>i < j</code> and
+                    <code>arr[i] > arr[j]</code>. A brute-force approach checks every pair, taking
+                    <strong>$O(N^2)$</strong> time. By modifying the Merge Sort algorithm, we can count inversions in
+                    <strong>$O(N \log N)$ Time</strong> and <strong>$O(N)$ Space</strong>.
+                </p>
+
+                <!-- Core concepts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-emerald-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Divide & Conquer</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            We divide the array into two halves, recursively counting inversions in the left half, right
+                            half, and <em>cross-inversions</em> that span across the two halves during the merge step.
+                            Total inversions = <code>inv_left + inv_right + inv_merge</code>.
+                        </p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-rose-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">The Merge Counting Logic</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            While merging two sorted subarrays (left: <code>i</code> to <code>mid</code>, right:
+                            <code>j</code> to <code>end</code>), if <code>arr[i] > arr[j]</code>, we have found an
+                            inversion. Crucially, because the left subarray is sorted, <em>all</em> remaining elements
+                            from <code>i</code> to <code>mid</code> are also greater than <code>arr[j]</code>. We
+                            immediately add <code>(mid - i + 1)</code> to our inversion count.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Code Block View -->
+                <div class="bg-panelbg rounded-xl border border-bordercolor p-6 mt-8">
+                    <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                        <h3 class="text-lg font-semibold text-white">Algorithm Implementation</h3>
+                        <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                            <button id="lang-java" class="code-lang-btn active">Java</button>
+                            <button id="lang-cpp" class="code-lang-btn">C++</button>
+                            <button id="lang-python" class="code-lang-btn">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Code blocks -->
+                    <div id="code-container">
+                        <!-- Java Code -->
+                        <div id="code-block-java" class="block">
+                            <pre><code class="language-java">class Solution {
+    // Note: Use 'long' for return type if array size is very large.
+    static int inversionCount(int arr[]) {
+        if (arr == null || arr.length < 2) return 0;
+        int[] temp = new int[arr.length];
+        return mergeSortAndCount(arr, temp, 0, arr.length - 1);
+    }
+
+    private static int mergeSortAndCount(int[] arr, int[] temp, int left, int right) {
+        int count = 0;
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+
+            count += mergeSortAndCount(arr, temp, left, mid);
+            count += mergeSortAndCount(arr, temp, mid + 1, right);
+            count += mergeAndCount(arr, temp, left, mid, right);
+        }
+        return count;
+    }
+
+    private static int mergeAndCount(int[] arr, int[] temp, int left, int mid, int right) {
+        int i = left;      // Left subarray index
+        int j = mid + 1;   // Right subarray index
+        int k = left;      // Temp array index
+        int count = 0;
+
+        while (i <= mid && j <= right) {
+            if (arr[i] <= arr[j]) {
+                temp[k++] = arr[i++];
+            } else {
+                temp[k++] = arr[j++];
+                // Core logic: arr[i] > arr[j], so all remaining 
+                // left elements are > arr[j].
+                count += (mid - i + 1);
+            }
+        }
+
+        while (i <= mid) temp[k++] = arr[i++];
+        while (j <= right) temp[k++] = arr[j++];
+
+        for (i = left; i <= right; i++) {
+            arr[i] = temp[i];
+        }
+
+        return count;
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- C++ Code -->
+                        <div id="code-block-cpp" class="hidden block">
+                            <pre><code class="language-cpp">#include &lt;vector&gt;
+using namespace std;
+
+class Solution {
+public:
+    long long int inversionCount(long long arr[], long long N) {
+        long long temp[N];
+        return mergeSortAndCount(arr, temp, 0, N - 1);
+    }
+
+private:
+    long long int mergeSortAndCount(long long arr[], long long temp[], int left, int right) {
+        long long int count = 0;
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            count += mergeSortAndCount(arr, temp, left, mid);
+            count += mergeSortAndCount(arr, temp, mid + 1, right);
+            count += mergeAndCount(arr, temp, left, mid, right);
+        }
+        return count;
+    }
+
+    long long int mergeAndCount(long long arr[], long long temp[], int left, int mid, int right) {
+        int i = left, j = mid + 1, k = left;
+        long long int count = 0;
+
+        while (i <= mid && j <= right) {
+            if (arr[i] <= arr[j]) {
+                temp[k++] = arr[i++];
+            } else {
+                temp[k++] = arr[j++];
+                count += (mid - i + 1);
+            }
+        }
+
+        while (i <= mid) temp[k++] = arr[i++];
+        while (j <= right) temp[k++] = arr[j++];
+
+        for (i = left; i <= right; i++) arr[i] = temp[i];
+
+        return count;
+    }
+};</code></pre>
+                        </div>
+
+                        <!-- Python Code -->
+                        <div id="code-block-python" class="hidden block">
+                            <pre><code class="language-python">class Solution:
+    def inversionCount(self, arr, n):
+        temp = [0] * n
+        return self._mergeSortAndCount(arr, temp, 0, n - 1)
+
+    def _mergeSortAndCount(self, arr, temp, left, right):
+        count = 0
+        if left < right:
+            mid = (left + right) // 2
+            count += self._mergeSortAndCount(arr, temp, left, mid)
+            count += self._mergeSortAndCount(arr, temp, mid + 1, right)
+            count += self._mergeAndCount(arr, temp, left, mid, right)
+        return count
+
+    def _mergeAndCount(self, arr, temp, left, mid, right):
+        i = left
+        j = mid + 1
+        k = left
+        count = 0
+
+        while i <= mid and j <= right:
+            if arr[i] <= arr[j]:
+                temp[k] = arr[i]
+                i += 1
+            else:
+                temp[k] = arr[j]
+                count += (mid - i + 1)
+                j += 1
+            k += 1
+
+        while i <= mid:
+            temp[k] = arr[i]
+            k += 1
+            i += 1
+
+        while j <= right:
+            temp[k] = arr[j]
+            k += 1
+            j += 1
+
+        for idx in range(left, right + 1):
+            arr[idx] = temp[idx]
+
+        return count</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            // Navigation Tabs
+            const tabVisual = document.getElementById('tab-visual');
+            const tabPrinciples = document.getElementById('tab-principles');
+            const viewVisual = document.getElementById('view-visual');
+            const viewPrinciples = document.getElementById('view-principles');
+            const simControls = document.getElementById('sim-controls');
+
+            tabVisual.addEventListener('click', () => {
+                tabVisual.classList.add('active'); tabPrinciples.classList.remove('active');
+                viewVisual.classList.remove('hidden'); viewPrinciples.classList.add('hidden');
+                simControls.style.display = 'flex';
+            });
+
+            tabPrinciples.addEventListener('click', () => {
+                tabPrinciples.classList.add('active'); tabVisual.classList.remove('active');
+                viewPrinciples.classList.remove('hidden'); viewVisual.classList.add('hidden');
+                simControls.style.display = 'none';
+            });
+
+            // Language Selector for Code
+            const codeBlocks = { java: document.getElementById('code-block-java'), cpp: document.getElementById('code-block-cpp'), python: document.getElementById('code-block-python') };
+            const langButtons = { java: document.getElementById('lang-java'), cpp: document.getElementById('lang-cpp'), python: document.getElementById('lang-python') };
+
+            function selectLanguage(lang) {
+                Object.keys(codeBlocks).forEach(k => {
+                    if (k === lang) { codeBlocks[k].classList.remove('hidden'); langButtons[k].classList.add('active'); }
+                    else { codeBlocks[k].classList.add('hidden'); langButtons[k].classList.remove('active'); }
+                });
+            }
+            Object.keys(langButtons).forEach(k => langButtons[k].addEventListener('click', () => selectLanguage(k)));
+
+            // === Simulation Engine ===
+            const arrayContainer = document.getElementById('array-container');
+            const tempContainer = document.getElementById('temp-container');
+            const consoleOutput = document.getElementById('console-output');
+            const totalInversionsEl = document.getElementById('total-inversions');
+            const totalInversionsContainer = document.getElementById('total-inversions-container');
+
+            const btnFullSim = document.getElementById('btn-full-sim');
+            const btnTogglePause = document.getElementById('btn-toggle-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            let originalArray = [];
+            let domItems = [];
+            let tempDomItems = {}; // Map of index to temp slot element
+            const ITEM_WIDTH = 54; // 46px + 8px gap
+
+            // Playback state
+            let isSimulating = false; let isPaused = false;
+            let abortController = null; let pauseLock = null; let pauseResolve = null;
+            let sleepTimer = null; let sleepResolveFn = null; let sleepRemaining = 0; let sleepStartTime = 0;
+
+            function initArray(arr) {
+                originalArray = [...arr];
+                renderWorkspace();
+            }
+
+            function renderWorkspace() {
+                arrayContainer.innerHTML = '';
+                tempContainer.innerHTML = '';
+                domItems = [];
+                tempDomItems = {};
+
+                const totalWidth = originalArray.length * ITEM_WIDTH;
+                arrayContainer.style.width = `${totalWidth}px`;
+                tempContainer.style.width = `${totalWidth}px`;
+
+                originalArray.forEach((val, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'array-item';
+                    item.id = `item-${idx}`;
+                    item.textContent = val;
+                    item.style.left = `${idx * ITEM_WIDTH}px`;
+                    arrayContainer.appendChild(item);
+                    domItems.push(item);
+                });
+
+                createPointer('i', 'i');
+                createPointer('j', 'j');
+                hidePointers();
+
+                totalInversionsEl.textContent = '0';
+                updateStageUI('divide', 'Pending', false);
+                updateStageUI('compare', 'Pending', false);
+                updateStageUI('merge', 'Pending', false);
+            }
+
+            function createPointer(type, label) {
+                const ptr = document.createElement('div');
+                ptr.className = `scan-ptr ptr-${type}`;
+                ptr.id = `ptr-${type}`;
+                ptr.innerHTML = `
+                    <i class="fa-solid fa-arrow-up ptr-arrow text-xl"></i>
+                    <div class="ptr-label">${label}</div>
+                `;
+                ptr.style.opacity = '0';
+                arrayContainer.appendChild(ptr);
+            }
+
+            function hidePointers() {
+                document.getElementById('ptr-i').style.opacity = '0';
+                document.getElementById('ptr-j').style.opacity = '0';
+            }
+
+            function movePointer(type, idx) {
+                const ptr = document.getElementById(`ptr-${type}`);
+                if (!ptr) return;
+                ptr.style.opacity = '1';
+                ptr.style.left = `${(idx * ITEM_WIDTH) + 23}px`;
+            }
+
+            // UI Actions
+            function writeToConsole(htmlString) {
+                if (consoleOutput.innerText.includes('Waiting')) consoleOutput.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = "py-0.5 border-b border-white/5"; item.innerHTML = htmlString;
+                consoleOutput.appendChild(item);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            function updateStageUI(stage, status, active = false) {
+                const w = document.getElementById(`stage-${stage}-wrapper`);
+                const s = document.getElementById(`stage-${stage}-status`);
+                const pillId = stage === 'divide' ? '1' : stage === 'compare' ? '2' : '3';
+                const p = document.getElementById(`pill-step-${pillId}`);
+
+                s.textContent = status;
+                if (active) {
+                    w.classList.add('border-accent', 'bg-accent/10'); p.classList.add('active');
+                } else {
+                    w.classList.remove('border-accent', 'bg-accent/10'); p.classList.remove('active');
+                }
+
+                if (status === 'Completed') s.className = 'text-[10px] text-emerald-400 font-bold uppercase tracking-wider';
+                else if (status === 'Running...') s.className = 'text-[10px] text-amber-400 font-bold uppercase tracking-wider';
+                else s.className = 'text-[10px] text-slate-400 font-bold uppercase tracking-wider';
+            }
+
+            function showFloatingText(text, x, y) {
+                const el = document.createElement('div');
+                el.className = 'floating-text';
+                el.textContent = text;
+                el.style.left = `${x}px`;
+                el.style.top = `${y}px`;
+                arrayContainer.appendChild(el);
+                setTimeout(() => el.remove(), 1000);
+            }
+
+            // Playback Controls
+            function togglePause() {
+                if (!isSimulating) return;
+                isPaused = !isPaused;
+                if (isPaused) {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-play text-green-400 mr-2"></i> Resume';
+                    pauseLock = new Promise(r => pauseResolve = r);
+                    if (sleepTimer) { clearTimeout(sleepTimer); sleepTimer = null; sleepRemaining -= (Date.now() - sleepStartTime); }
+                    writeToConsole(`<span class="text-amber-400 font-bold">[PAUSED]</span>`);
+                } else {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                    if (pauseResolve) { pauseResolve(); pauseResolve = null; pauseLock = null; }
+                    if (sleepRemaining > 0 && sleepResolveFn) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { let res = sleepResolveFn; sleepResolveFn = null; sleepRemaining = 0; if (res) res(); }, sleepRemaining);
+                    }
+                    writeToConsole(`<span class="text-cyan-400 font-bold">[RESUMED]</span>`);
+                }
+            }
+
+            function waitIfPaused() { return pauseLock ? pauseLock : Promise.resolve(); }
+            function pausableSleep(ms) {
+                return new Promise((resolve, reject) => {
+                    if (abortController?.signal.aborted) return reject(new Error("Aborted"));
+                    sleepRemaining = ms; sleepResolveFn = resolve;
+                    if (!isPaused) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { sleepResolveFn = null; sleepRemaining = 0; resolve(); }, sleepRemaining);
+                    }
+                    abortController.signal.addEventListener('abort', () => { clearTimeout(sleepTimer); reject(new Error("Aborted")); }, { once: true });
+                });
+            }
+
+            function resetSimulation() {
+                if (abortController) abortController.abort();
+                isSimulating = false; isPaused = false; pauseLock = null; pauseResolve = null;
+                if (sleepTimer) clearTimeout(sleepTimer);
+
+                btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed'); btnTogglePause.disabled = true;
+                consoleOutput.innerHTML = '<div class="italic text-slate-500">Waiting for actions...</div>';
+
+                renderWorkspace();
+            }
+
+            // Compiler Engine
+            let animSequence = [];
+
+            function compileMergeSortAndCount(arr) {
+                animSequence = [];
+                let workArr = [...arr];
+                let temp = new Array(arr.length).fill(0);
+
+                function mergeSort(left, right) {
+                    if (left < right) {
+                        let mid = Math.floor((left + right) / 2);
+                        animSequence.push({ type: 'divide', left, right, mid });
+                        mergeSort(left, mid);
+                        mergeSort(mid + 1, right);
+                        merge(left, mid, right);
+                    }
+                }
+
+                function merge(left, mid, right) {
+                    animSequence.push({ type: 'merge_start', left, mid, right });
+                    let i = left, j = mid + 1, k = left;
+
+                    while (i <= mid && j <= right) {
+                        animSequence.push({ type: 'compare', i, j, vI: workArr[i], vJ: workArr[j] });
+                        if (workArr[i] <= workArr[j]) {
+                            animSequence.push({ type: 'pick', idx: i, targetK: k, val: workArr[i] });
+                            temp[k++] = workArr[i++];
+                        } else {
+                            let added = (mid - i + 1);
+                            animSequence.push({ type: 'inversion', i, mid, j, added, vI: workArr[i], vJ: workArr[j] });
+                            animSequence.push({ type: 'pick', idx: j, targetK: k, val: workArr[j] });
+                            temp[k++] = workArr[j++];
+                        }
+                    }
+                    while (i <= mid) {
+                        animSequence.push({ type: 'compare_rem', i });
+                        animSequence.push({ type: 'pick', idx: i, targetK: k, val: workArr[i] });
+                        temp[k++] = workArr[i++];
+                    }
+                    while (j <= right) {
+                        animSequence.push({ type: 'compare_rem', j: j });
+                        animSequence.push({ type: 'pick', idx: j, targetK: k, val: workArr[j] });
+                        temp[k++] = workArr[j++];
+                    }
+
+                    let sortedVals = [];
+                    for (let idx = left; idx <= right; idx++) {
+                        workArr[idx] = temp[idx];
+                        sortedVals.push(temp[idx]);
+                    }
+                    animSequence.push({ type: 'copy_back', left, right, vals: sortedVals });
+                }
+
+                mergeSort(0, workArr.length - 1);
+            }
+
+            // Playback Engine
+            async function runAnimation() {
+                resetSimulation();
+                compileMergeSortAndCount(originalArray);
+
+                abortController = new AbortController();
+                isSimulating = true;
+                btnTogglePause.classList.remove('opacity-50', 'cursor-not-allowed'); btnTogglePause.disabled = false;
+
+                let globalInversions = 0;
+
+                try {
+                    writeToConsole(`<span class="text-accent font-bold">[START]</span> Beginning Merge Sort execution tree.`);
+                    await pausableSleep(600);
+
+                    for (let step of animSequence) {
+                        await waitIfPaused();
+
+                        if (step.type === 'divide') {
+                            updateStageUI('divide', 'Running...', true); updateStageUI('compare', 'Pending', false); updateStageUI('merge', 'Pending', false);
+                            writeToConsole(`Dividing subarray <strong>[${step.left} ... ${step.right}]</strong> at mid <strong>${step.mid}</strong>.`);
+
+                            // Dim outside
+                            domItems.forEach((el, idx) => {
+                                el.className = 'array-item';
+                                if (idx < step.left || idx > step.right) el.classList.add('dimmed');
+                            });
+                            await pausableSleep(500);
+
+                        } else if (step.type === 'merge_start') {
+                            updateStageUI('divide', 'Completed', false); updateStageUI('compare', 'Running...', true); updateStageUI('merge', 'Pending', false);
+                            writeToConsole(`Preparing to Merge Left <strong>[${step.left}...${step.mid}]</strong> with Right <strong>[${step.mid + 1}...${step.right}]</strong>.`);
+
+                            // Build temp slots visually
+                            tempContainer.innerHTML = '';
+                            tempDomItems = {};
+                            for (let idx = step.left; idx <= step.right; idx++) {
+                                const tItem = document.createElement('div');
+                                tItem.className = 'temp-item';
+                                tItem.id = `temp-${idx}`;
+                                tItem.style.left = `${idx * ITEM_WIDTH}px`;
+                                tempContainer.appendChild(tItem);
+                                tempDomItems[idx] = tItem;
+                            }
+
+                            // Focus on active range
+                            domItems.forEach((el, idx) => {
+                                el.className = 'array-item';
+                                if (idx < step.left || idx > step.right) el.classList.add('dimmed');
+                            });
+
+                            movePointer('i', step.left);
+                            movePointer('j', step.mid + 1);
+                            await pausableSleep(800);
+
+                        } else if (step.type === 'compare') {
+                            movePointer('i', step.i); movePointer('j', step.j);
+
+                            // Highlight compared items
+                            domItems.forEach(el => el.classList.remove('compare-l', 'compare-r'));
+                            domItems[step.i].classList.add('compare-l');
+                            domItems[step.j].classList.add('compare-r');
+
+                            writeToConsole(`Comparing: is arr[i]=<span class="text-emerald-400">${step.vI}</span> &le; arr[j]=<span class="text-blue-400">${step.vJ}</span>?`);
+                            await pausableSleep(800);
+
+                        } else if (step.type === 'compare_rem') {
+                            if (step.i !== undefined) {
+                                movePointer('i', step.i);
+                                domItems.forEach(el => el.classList.remove('compare-l', 'compare-r'));
+                                domItems[step.i].classList.add('compare-l');
+                                writeToConsole(`Right exhausted. Taking remaining from left: <span class="text-emerald-400">${domItems[step.i].textContent}</span>.`);
+                            } else {
+                                movePointer('j', step.j);
+                                domItems.forEach(el => el.classList.remove('compare-l', 'compare-r'));
+                                domItems[step.j].classList.add('compare-r');
+                                writeToConsole(`Left exhausted. Taking remaining from right: <span class="text-blue-400">${domItems[step.j].textContent}</span>.`);
+                            }
+                            await pausableSleep(600);
+
+                        } else if (step.type === 'inversion') {
+                            writeToConsole(`No! <span class="text-emerald-400">${step.vI}</span> &gt; <span class="text-blue-400">${step.vJ}</span>. <strong class="text-rose-400">INVERSION!</strong>`);
+
+                            // Flash inversion range
+                            for (let x = step.i; x <= step.mid; x++) {
+                                domItems[x].classList.add('inversion-highlight');
+                            }
+                            domItems[step.j].classList.add('inversion-highlight');
+
+                            writeToConsole(`All ${step.added} elements from index ${step.i} to ${step.mid} are &gt; ${step.vJ}. Adding <strong class="text-rose-400">+${step.added}</strong>.`);
+
+                            globalInversions += step.added;
+
+                            // Animation effects
+                            totalInversionsEl.textContent = globalInversions;
+                            totalInversionsContainer.classList.add('scale-125', 'text-rose-400');
+
+                            const rect = totalInversionsEl.getBoundingClientRect();
+                            showFloatingText(`+${step.added}`, (step.i * ITEM_WIDTH) + 20, -20);
+
+                            await pausableSleep(1200);
+
+                            for (let x = step.i; x <= step.mid; x++) {
+                                domItems[x].classList.remove('inversion-highlight');
+                            }
+                            domItems[step.j].classList.remove('inversion-highlight');
+                            totalInversionsContainer.classList.remove('scale-125', 'text-rose-400');
+
+                        } else if (step.type === 'pick') {
+                            // Move to temp visual
+                            domItems[step.idx].classList.add('picked');
+                            const tSlot = tempDomItems[step.targetK];
+                            if (tSlot) {
+                                tSlot.textContent = step.val;
+                                tSlot.classList.add('filled');
+                            }
+                            await pausableSleep(400);
+
+                        } else if (step.type === 'copy_back') {
+                            updateStageUI('compare', 'Completed', false); updateStageUI('merge', 'Running...', true);
+                            hidePointers();
+                            writeToConsole(`Merge complete for subarray. Copying sorted elements back...`);
+
+                            let valIdx = 0;
+                            for (let idx = step.left; idx <= step.right; idx++) {
+                                const el = domItems[idx];
+                                el.className = 'array-item copy-flash'; // Reset picked, add flash
+                                el.textContent = step.vals[valIdx++];
+                            }
+
+                            tempContainer.innerHTML = ''; // clear temp
+                            await pausableSleep(800);
+
+                            // Remove flash
+                            for (let idx = step.left; idx <= step.right; idx++) {
+                                domItems[idx].classList.remove('copy-flash');
+                            }
+                            updateStageUI('merge', 'Completed', false);
+                            await pausableSleep(300);
+                        }
+                    }
+
+                    // Complete
+                    domItems.forEach(el => el.className = 'array-item border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]');
+                    writeToConsole(`<span class="text-emerald-400 font-bold">[DONE]</span> Array fully sorted. Total Inversions found: <strong class="text-rose-400">${globalInversions}</strong>.`);
+
+                } catch (e) {
+                    if (e.message !== "Aborted") console.error(e);
+                } finally {
+                    if (!abortController?.signal.aborted) {
+                        isSimulating = false;
+                        btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed'); btnTogglePause.disabled = true;
+                    }
+                }
+            }
+
+            // Presets mapping
+            document.getElementById('preset-reversed').addEventListener('click', () => { if (!isSimulating) initArray([8, 6, 4, 2, 1]); });
+            document.getElementById('preset-random').addEventListener('click', () => { if (!isSimulating) initArray([5, 3, 2, 4, 1]); });
+            document.getElementById('preset-sorted').addEventListener('click', () => { if (!isSimulating) initArray([1, 2, 3, 4, 5]); });
+            document.getElementById('preset-almost').addEventListener('click', () => { if (!isSimulating) initArray([2, 1, 3, 5, 4]); });
+
+            // Event Listeners
+            btnFullSim.addEventListener('click', runAnimation);
+            btnTogglePause.addEventListener('click', togglePause);
+            btnReset.addEventListener('click', resetSimulation);
+
+            // Init
+            initArray([8, 4, 2, 1]);
+        });
+    </script>
+</body>
+
+</html>

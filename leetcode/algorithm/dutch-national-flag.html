@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dutch National Flag Algorithm | Interactive DSA Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Code Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0f172a', panelbg: '#1e293b', compbg: '#334155', bordercolor: '#475569', textcolor: '#f8fafc', muted: '#94a3b8',
+                        accent: '#f43f5e', // Rose
+                        val0: '#e11d48', // Rose 600
+                        val1: '#94a3b8', // Slate 400
+                        val2: '#0284c7'  // Light Blue 600
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Array and blocks */
+        .array-container {
+            position: relative;
+            height: 120px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .array-item {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            z-index: 20;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .array-item.val-0 {
+            border-color: #f43f5e;
+            background-color: #881337;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+        }
+
+        .array-item.val-1 {
+            border-color: #cbd5e1;
+            background-color: #334155;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(203, 213, 225, 0.2);
+        }
+
+        .array-item.val-2 {
+            border-color: #0ea5e9;
+            background-color: #0c4a6e;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+        }
+
+        .array-item.highlight-inspect {
+            transform: translateY(-60%) scale(1.15);
+            border-width: 3px;
+            border-color: #fbbf24;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
+            z-index: 30;
+        }
+
+        /* Pointers */
+        .ptr-marker {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .ptr-label {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ptr-low {
+            top: calc(50% + 35px);
+        }
+
+        .ptr-low .ptr-arrow {
+            color: #f43f5e;
+        }
+
+        .ptr-low .ptr-label {
+            background: #881337;
+            color: #fff;
+            border: 1px solid #f43f5e;
+        }
+
+        .ptr-mid {
+            top: calc(50% + 75px);
+        }
+
+        .ptr-mid .ptr-arrow {
+            color: #cbd5e1;
+        }
+
+        .ptr-mid .ptr-label {
+            background: #334155;
+            color: #fff;
+            border: 1px solid #cbd5e1;
+        }
+
+        .ptr-high {
+            top: calc(50% - 75px);
+            flex-direction: column-reverse;
+        }
+
+        .ptr-high .ptr-arrow {
+            color: #0ea5e9;
+            transform: rotate(180deg);
+        }
+
+        .ptr-high .ptr-label {
+            background: #0c4a6e;
+            color: #fff;
+            border: 1px solid #0ea5e9;
+            margin-top: 0;
+            margin-bottom: 4px;
+        }
+
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #f43f5e;
+            color: #f8fafc;
+        }
+
+        .code-lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .code-lang-btn.active {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .step-pill {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+
+        .step-pill.active {
+            background-color: #f43f5e;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #f43f5e;
+        }
+    </style>
+</head>
+
+<body class="antialiased h-screen flex flex-col overflow-hidden text-textcolor bg-darkbg">
+
+    <header class="bg-panelbg border-b border-bordercolor z-40 shadow-lg">
+        <div class="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-flag text-accent text-2xl drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]"></i>
+                <h1 class="text-xl font-bold tracking-wide">Dutch National Flag Algorithm</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                    <button id="tab-visual" class="tab-btn active text-sm">Visual Flow</button>
+                    <button id="tab-principles" class="tab-btn text-sm">Principles & Code</button>
+                </div>
+            </div>
+            <div class="flex gap-2" id="sim-controls">
+                <button id="btn-full-sim"
+                    class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded font-medium transition shadow-sm text-sm flex items-center border border-rose-400">
+                    <i class="fa-solid fa-play mr-2"></i> Run Sort
+                </button>
+                <button id="btn-toggle-pause"
+                    class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center opacity-50 cursor-not-allowed"
+                    disabled>
+                    <i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause
+                </button>
+                <button id="btn-reset"
+                    class="px-3 py-1.5 bg-compbg hover:bg-slate-600 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- VISUAL TRAVERSAL VIEW -->
+        <div id="view-visual" class="flex w-full h-full">
+
+            <!-- Sidebar / Instruction Log -->
+            <div
+                class="w-[380px] bg-panelbg border-r border-bordercolor flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+
+                <!-- Custom Presets Panel -->
+                <div class="p-3 border-b border-bordercolor bg-darkbg/90">
+                    <h3
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Array Layout Presets
+                    </h3>
+                    <div class="grid grid-cols-2 gap-1 mb-1">
+                        <button id="preset-random"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Random
+                            Mix</button>
+                        <button id="preset-worst"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Reverse
+                            Sorted</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button id="preset-two-colors"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">0s
+                            and 2s Only</button>
+                        <button id="preset-all-ones"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Mostly
+                            1s</button>
+                    </div>
+                </div>
+
+                <!-- Live Pointer Status -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/80 flex flex-col gap-2">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-crosshairs"></i> Pointer Tracking
+                    </h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-panelbg border border-rose-500/30 rounded p-2 text-center">
+                            <div class="text-[10px] text-slate-400 font-bold mb-1">LOW</div>
+                            <div id="tracker-low" class="text-rose-400 font-mono text-lg font-bold">0</div>
+                        </div>
+                        <div class="bg-panelbg border border-slate-400/30 rounded p-2 text-center">
+                            <div class="text-[10px] text-slate-400 font-bold mb-1">MID</div>
+                            <div id="tracker-mid" class="text-slate-300 font-mono text-lg font-bold">0</div>
+                        </div>
+                        <div class="bg-panelbg border border-sky-500/30 rounded p-2 text-center">
+                            <div class="text-[10px] text-slate-400 font-bold mb-1">HIGH</div>
+                            <div id="tracker-high" class="text-sky-400 font-mono text-lg font-bold">N-1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Tracker & Logs -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/30">
+                    <h2
+                        class="text-xs font-bold text-accent uppercase tracking-widest flex items-center justify-between mb-3">
+                        <span><i class="fa-solid fa-microchip mr-2"></i>Algorithm Loop</span>
+                        <div class="flex gap-1">
+                            <div class="step-pill active" id="pill-step-1"></div>
+                            <div class="step-pill" id="pill-step-2"></div>
+                            <div class="step-pill" id="pill-step-3"></div>
+                        </div>
+                    </h2>
+                    <div id="stage-info" class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-inspect-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-eye text-amber-400 mr-2"></i>1.
+                                Inspect arr[mid]</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-inspect-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-swap-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-right-left text-sky-400 mr-2"></i>2.
+                                Swap Elements</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-swap-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-move-wrapper">
+                            <span class="flex items-center"><i
+                                    class="fa-solid fa-arrows-left-right-to-line text-rose-400 mr-2"></i>3. Adjust
+                                Pointers</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-move-status">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Explanation / Property Panel -->
+                <div class="p-5 flex-1 overflow-y-auto" id="info-panel">
+                    <div id="default-info" class="h-full flex flex-col items-center justify-center text-muted">
+                        <i class="fa-solid fa-lightbulb text-4xl mb-4 text-slate-600 animate-pulse"></i>
+                        <p class="text-center text-xs px-2 leading-relaxed">
+                            <span class="text-white font-semibold">The 3-Pointer Trick</span><br><br>
+                            <span class="text-rose-400 font-bold">LOW</span> tracks the boundary for 0s.<br>
+                            <span class="text-sky-400 font-bold">HIGH</span> tracks the boundary for 2s.<br>
+                            <span class="text-slate-300 font-bold">MID</span> scans the array from left to right.<br>
+                        </p>
+                        <div
+                            class="mt-4 text-[10px] text-slate-500 border border-bordercolor/50 rounded bg-darkbg/50 p-2">
+                            When <code class="text-slate-300">mid > high</code>, sorting is mathematically complete in
+                            $O(N)$ time.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Description Console -->
+                <div class="border-t border-bordercolor bg-darkbg p-4 h-1/4 min-h-[160px] flex flex-col">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>Live Console Log</span>
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                    </h3>
+                    <div id="console-output"
+                        class="flex-1 font-mono text-[11px] overflow-y-auto space-y-1 text-slate-300 bg-black/40 p-2.5 rounded border border-white/5 scrollbar-thin">
+                        <div class="italic text-slate-500">Waiting for actions...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Traversal Canvas (Array Render) -->
+            <div class="flex-1 overflow-hidden relative bg-darkbg p-8 flex flex-col items-center justify-center"
+                id="canvas-container">
+                <div class="w-full max-w-4xl flex items-center justify-center">
+                    <div id="array-container" class="array-container">
+                        <!-- Array elements will be injected here via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINCIPLES & CODE VIEW -->
+        <div id="view-principles" class="hidden w-full h-full overflow-y-auto bg-darkbg p-8">
+            <div class="max-w-5xl mx-auto text-slate-300 markdown-body pb-16">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b border-bordercolor pb-4">Dutch National Flag
+                    Algorithm</h1>
+
+                <p class="text-base leading-relaxed mb-6">
+                    The <strong>Dutch National Flag Algorithm</strong> (proposed by Edsger W. Dijkstra) is a classic
+                    computer science problem. The goal is to sort an array containing exclusively three distinct values
+                    (e.g., 0, 1, and 2) in linear time <strong>$O(N)$</strong> and constant space
+                    <strong>$O(1)$</strong> in a single pass.
+                </p>
+
+                <!-- 3 pointers Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-rose-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Low Pointer (0s)</h4>
+                        <p class="text-xs text-slate-400">Everything to the left of <code>low</code> is guaranteed to be
+                            <code>0</code>. Points to the location where the next 0 should be placed.</p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-slate-400">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Mid Pointer (1s)</h4>
+                        <p class="text-xs text-slate-400">The current element being evaluated. Elements between
+                            <code>low</code> and <code>mid-1</code> are guaranteed to be <code>1</code>.</p>
+                    </div>
+                    <div class="bg-bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-sky-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">High Pointer (2s)</h4>
+                        <p class="text-xs text-slate-400">Everything to the right of <code>high</code> is guaranteed to
+                            be <code>2</code>. Points to the location where the next 2 should go.</p>
+                    </div>
+                </div>
+
+                <!-- Code Block View -->
+                <div class="bg-panelbg rounded-xl border border-bordercolor p-6 mt-8">
+                    <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                        <h3 class="text-lg font-semibold text-white">Algorithm Implementation</h3>
+                        <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                            <button id="lang-java" class="code-lang-btn active">Java</button>
+                            <button id="lang-cpp" class="code-lang-btn">C++</button>
+                            <button id="lang-python" class="code-lang-btn">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Code blocks -->
+                    <div id="code-container">
+                        <!-- Java Code -->
+                        <div id="code-block-java" class="block">
+                            <pre><code class="language-java">class Solution {
+    public void sortColors(int[] nums) {
+        int low = 0;
+        int mid = 0;
+        int high = nums.length - 1;
+        
+        while (mid <= high) {
+            if (nums[mid] == 0) {
+                // Swap mid and low, then increment both
+                swap(nums, low, mid);
+                low++;
+                mid++;
+            } else if (nums[mid] == 1) {
+                // 1 is in the correct middle section, just move mid
+                mid++;
+            } else {
+                // nums[mid] == 2
+                // Swap mid and high, decrement high. Do NOT increment mid yet!
+                swap(nums, mid, high);
+                high--;
+            }
+        }
+    }
+    
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- C++ Code -->
+                        <div id="code-block-cpp" class="hidden block">
+                            <pre><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+class Solution {
+public:
+    void sortColors(vector&lt;int&gt;& nums) {
+        int low = 0;
+        int mid = 0;
+        int high = nums.size() - 1;
+
+        while (mid <= high) {
+            if (nums[mid] == 0) {
+                swap(nums[low], nums[mid]);
+                low++;
+                mid++;
+            } else if (nums[mid] == 1) {
+                mid++;
+            } else {
+                // nums[mid] == 2
+                swap(nums[mid], nums[high]);
+                high--;
+            }
+        }
+    }
+};</code></pre>
+                        </div>
+
+                        <!-- Python Code -->
+                        <div id="code-block-python" class="hidden block">
+                            <pre><code class="language-python">class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        low = 0
+        mid = 0
+        high = len(nums) - 1
+        
+        while mid <= high:
+            if nums[mid] == 0:
+                nums[low], nums[mid] = nums[mid], nums[low]
+                low += 1
+                mid += 1
+            elif nums[mid] == 1:
+                mid += 1
+            else:
+                # nums[mid] == 2
+                nums[mid], nums[high] = nums[high], nums[mid]
+                high -= 1</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            // Navigation Tabs
+            const tabVisual = document.getElementById('tab-visual');
+            const tabPrinciples = document.getElementById('tab-principles');
+            const viewVisual = document.getElementById('view-visual');
+            const viewPrinciples = document.getElementById('view-principles');
+            const simControls = document.getElementById('sim-controls');
+
+            tabVisual.addEventListener('click', () => {
+                tabVisual.classList.add('active'); tabPrinciples.classList.remove('active');
+                viewVisual.classList.remove('hidden'); viewPrinciples.classList.add('hidden');
+                simControls.style.display = 'flex';
+            });
+
+            tabPrinciples.addEventListener('click', () => {
+                tabPrinciples.classList.add('active'); tabVisual.classList.remove('active');
+                viewPrinciples.classList.remove('hidden'); viewVisual.classList.add('hidden');
+                simControls.style.display = 'none';
+            });
+
+            // Language Selector for Code
+            const codeBlocks = {
+                java: document.getElementById('code-block-java'),
+                cpp: document.getElementById('code-block-cpp'),
+                python: document.getElementById('code-block-python')
+            };
+
+            const langButtons = {
+                java: document.getElementById('lang-java'),
+                cpp: document.getElementById('lang-cpp'),
+                python: document.getElementById('lang-python')
+            };
+
+            function selectLanguage(lang) {
+                Object.keys(codeBlocks).forEach(k => {
+                    if (k === lang) {
+                        codeBlocks[k].classList.remove('hidden');
+                        langButtons[k].classList.add('active');
+                    } else {
+                        codeBlocks[k].classList.add('hidden');
+                        langButtons[k].classList.remove('active');
+                    }
+                });
+            }
+
+            Object.keys(langButtons).forEach(k => {
+                langButtons[k].addEventListener('click', () => selectLanguage(k));
+            });
+
+            // === Simulation State & Layout ===
+            const arrayContainer = document.getElementById('array-container');
+            const consoleOutput = document.getElementById('console-output');
+
+            const btnFullSim = document.getElementById('btn-full-sim');
+            const btnTogglePause = document.getElementById('btn-toggle-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            let currentArray = [];
+            let originalArray = [];
+            let domItems = []; // Stores the physical HTML elements matching current indices
+
+            // Visual config
+            const ITEM_WIDTH = 56; // 48px width + 8px gap
+
+            // Simulation Control
+            let isSimulating = false;
+            let isPaused = false;
+            let abortController = null;
+            let pauseLock = null;
+            let pauseResolve = null;
+            let sleepTimer = null;
+            let sleepResolveFn = null;
+            let sleepRemaining = 0;
+            let sleepStartTime = 0;
+
+            // Initialize DOM
+            function initArray(arr) {
+                originalArray = [...arr];
+                currentArray = [...arr];
+                renderWorkspace();
+            }
+
+            function renderWorkspace() {
+                arrayContainer.innerHTML = '';
+                domItems = [];
+
+                const totalWidth = currentArray.length * ITEM_WIDTH;
+                arrayContainer.style.width = `${totalWidth}px`;
+
+                // Render array items
+                currentArray.forEach((val, index) => {
+                    const item = document.createElement('div');
+                    item.className = `array-item val-${val}`;
+                    item.id = `item-${index}`;
+                    item.textContent = val;
+                    // Position absolute using left offset
+                    item.style.left = `${index * ITEM_WIDTH}px`;
+
+                    arrayContainer.appendChild(item);
+                    domItems.push(item);
+                });
+
+                // Render Pointers
+                createPointer('low', 'L', 0);
+                createPointer('mid', 'M', 0);
+                createPointer('high', 'H', currentArray.length - 1);
+
+                updateTrackers(0, 0, currentArray.length - 1);
+            }
+
+            function createPointer(type, label, index) {
+                const ptr = document.createElement('div');
+                ptr.className = `ptr-marker ptr-${type}`;
+                ptr.id = `ptr-${type}`;
+                ptr.innerHTML = `
+                    <i class="fa-solid fa-arrow-up ptr-arrow text-xl drop-shadow-md"></i>
+                    <div class="ptr-label">${label}</div>
+                `;
+                ptr.style.left = `${(index * ITEM_WIDTH) + 24}px`; // Center of 48px item
+                ptr.style.transform = 'translateX(-50%)';
+                arrayContainer.appendChild(ptr);
+            }
+
+            // Presets
+            document.getElementById('preset-random').addEventListener('click', () => {
+                if (!isSimulating) initArray([2, 0, 2, 1, 1, 0, 2, 1, 0, 1]);
+            });
+            document.getElementById('preset-worst').addEventListener('click', () => {
+                if (!isSimulating) initArray([2, 2, 2, 1, 1, 1, 0, 0, 0]);
+            });
+            document.getElementById('preset-two-colors').addEventListener('click', () => {
+                if (!isSimulating) initArray([2, 0, 2, 0, 0, 2, 2, 0]);
+            });
+            document.getElementById('preset-all-ones').addEventListener('click', () => {
+                if (!isSimulating) initArray([1, 1, 0, 1, 2, 1, 1, 1]);
+            });
+
+            // Core Utilities
+            function writeToConsole(htmlString) {
+                if (consoleOutput.innerText.includes('Waiting')) consoleOutput.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = "py-0.5 border-b border-white/5";
+                item.innerHTML = htmlString;
+                consoleOutput.appendChild(item);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            function updateTrackers(low, mid, high) {
+                document.getElementById('tracker-low').textContent = low;
+                document.getElementById('tracker-mid').textContent = mid;
+                document.getElementById('tracker-high').textContent = high;
+            }
+
+            function updateStageUI(stage, status, active = false) {
+                const wrapper = document.getElementById(`stage-${stage}-wrapper`);
+                const text = document.getElementById(`stage-${stage}-status`);
+                const pill = document.getElementById(`pill-step-${stage === 'inspect' ? '1' : stage === 'swap' ? '2' : '3'}`);
+
+                text.textContent = status;
+
+                if (active) {
+                    wrapper.classList.add('border-accent', 'bg-accent/10');
+                    pill.classList.add('active');
+                } else {
+                    wrapper.classList.remove('border-accent', 'bg-accent/10');
+                    pill.classList.remove('active');
+                }
+
+                if (status === 'Completed') {
+                    text.classList.remove('text-slate-400', 'text-amber-400');
+                    text.classList.add('text-emerald-400');
+                } else if (status === 'Running...') {
+                    text.classList.remove('text-slate-400', 'text-emerald-400');
+                    text.classList.add('text-amber-400');
+                } else {
+                    text.classList.remove('text-emerald-400', 'text-amber-400');
+                    text.classList.add('text-slate-400');
+                }
+            }
+
+            // Sleep & Pause Handlers
+            function togglePause() {
+                if (!isSimulating) return;
+                isPaused = !isPaused;
+
+                if (isPaused) {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-play text-green-400 mr-2"></i> Resume';
+                    pauseLock = new Promise(r => pauseResolve = r);
+                    if (sleepTimer) {
+                        clearTimeout(sleepTimer);
+                        sleepTimer = null;
+                        sleepRemaining -= (Date.now() - sleepStartTime);
+                    }
+                    writeToConsole(`<span class="text-amber-400 font-bold">[PAUSED]</span> Simulation paused.`);
+                } else {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                    if (pauseResolve) { pauseResolve(); pauseResolve = null; pauseLock = null; }
+                    if (sleepRemaining > 0 && sleepResolveFn) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => {
+                            let res = sleepResolveFn; sleepResolveFn = null; sleepRemaining = 0; if (res) res();
+                        }, sleepRemaining);
+                    }
+                    writeToConsole(`<span class="text-rose-400 font-bold">[RESUMED]</span> Simulation resumed.`);
+                }
+            }
+
+            function waitIfPaused() { return pauseLock ? pauseLock : Promise.resolve(); }
+
+            function pausableSleep(ms) {
+                return new Promise((resolve, reject) => {
+                    if (abortController?.signal.aborted) return reject(new Error("Aborted"));
+                    sleepRemaining = ms; sleepResolveFn = resolve;
+                    if (!isPaused) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { sleepResolveFn = null; sleepRemaining = 0; resolve(); }, sleepRemaining);
+                    }
+                    abortController.signal.addEventListener('abort', () => {
+                        clearTimeout(sleepTimer); reject(new Error("Aborted"));
+                    }, { once: true });
+                });
+            }
+
+            function resetSimulation() {
+                if (abortController) abortController.abort();
+                isSimulating = false; isPaused = false; pauseLock = null; pauseResolve = null;
+                if (sleepTimer) clearTimeout(sleepTimer);
+
+                btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = true;
+
+                consoleOutput.innerHTML = '<div class="italic text-slate-500">Waiting for actions...</div>';
+
+                updateStageUI('inspect', 'Pending', false);
+                updateStageUI('swap', 'Pending', false);
+                updateStageUI('move', 'Pending', false);
+
+                // Re-render original
+                initArray(originalArray);
+            }
+
+            // Animations
+            async function movePointer(type, targetIdx) {
+                await waitIfPaused();
+                const ptr = document.getElementById(`ptr-${type}`);
+                if (!ptr) return;
+
+                // CSS transition handles smooth sliding
+                ptr.style.left = `${(targetIdx * ITEM_WIDTH) + 24}px`;
+            }
+
+            async function swapElements(i, j) {
+                await waitIfPaused();
+
+                if (i === j) return; // No visual swap needed
+
+                const el1 = domItems[i];
+                const el2 = domItems[j];
+
+                // Temporarily bump z-index so they slide over others
+                el1.style.zIndex = '35';
+                el2.style.zIndex = '35';
+
+                // Swap CSS Left properties
+                const tempLeft = el1.style.left;
+                el1.style.left = el2.style.left;
+                el2.style.left = tempLeft;
+
+                // Wait for CSS transition (0.5s)
+                await pausableSleep(550);
+
+                el1.style.zIndex = '20';
+                el2.style.zIndex = '20';
+
+                // Swap in logical DOM reference array
+                domItems[i] = el2;
+                domItems[j] = el1;
+
+                // Keep IDs in sync with current indices
+                domItems[i].id = `item-${i}`;
+                domItems[j].id = `item-${j}`;
+            }
+
+            async function highlightInspect(idx, highlight) {
+                await waitIfPaused();
+                const el = domItems[idx];
+                if (!el) return;
+                if (highlight) el.classList.add('highlight-inspect');
+                else el.classList.remove('highlight-inspect');
+            }
+
+
+            // Main Algorithm Execution
+            async function runSortingAlgorithm() {
+                resetSimulation();
+
+                abortController = new AbortController();
+                isSimulating = true;
+
+                btnTogglePause.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = false;
+
+                let low = 0;
+                let mid = 0;
+                let high = currentArray.length - 1;
+
+                let steps = 0;
+
+                try {
+                    writeToConsole(`<span class="text-accent font-bold">[START]</span> Initiating Dutch National Flag Sort.`);
+                    await pausableSleep(500);
+
+                    while (mid <= high) {
+                        steps++;
+                        updateTrackers(low, mid, high);
+
+                        // STAGE 1: Inspect
+                        updateStageUI('inspect', 'Running...', true);
+                        updateStageUI('swap', 'Pending', false);
+                        updateStageUI('move', 'Pending', false);
+
+                        await highlightInspect(mid, true);
+                        const val = currentArray[mid];
+
+                        let colorName = val === 0 ? '<span class="text-rose-400 font-bold">0 (Red)</span>' :
+                            val === 1 ? '<span class="text-slate-300 font-bold">1 (White)</span>' :
+                                '<span class="text-sky-400 font-bold">2 (Blue)</span>';
+
+                        writeToConsole(`Inspecting <strong class="text-slate-100">arr[mid=${mid}]</strong> -> Found ${colorName}.`);
+                        await pausableSleep(1000);
+
+                        updateStageUI('inspect', 'Completed', false);
+
+                        if (val === 0) {
+                            // STAGE 2: SWAP
+                            updateStageUI('swap', 'Running...', true);
+                            if (low !== mid) {
+                                writeToConsole(`Swapping <strong class="text-slate-100">arr[low=${low}]</strong> and <strong class="text-slate-100">arr[mid=${mid}]</strong>.`);
+                                await swapElements(low, mid);
+                                // Swap in underlying logic array
+                                [currentArray[low], currentArray[mid]] = [currentArray[mid], currentArray[low]];
+                            } else {
+                                writeToConsole(`low and mid point to the same index (${low}). No swap needed.`);
+                                await pausableSleep(500);
+                            }
+                            updateStageUI('swap', 'Completed', false);
+
+                            // STAGE 3: MOVE
+                            updateStageUI('move', 'Running...', true);
+                            await highlightInspect(mid, false); // Remove highlight before moving
+
+                            low++;
+                            mid++;
+
+                            writeToConsole(`Incrementing both <span class="text-rose-400">low</span> and <span class="text-slate-300">mid</span> pointers.`);
+                            await movePointer('low', low);
+                            await movePointer('mid', mid);
+                            updateTrackers(low, mid, high);
+
+                            await pausableSleep(600);
+                            updateStageUI('move', 'Completed', false);
+
+                        } else if (val === 1) {
+                            // Element is already in the middle, just move mid
+                            updateStageUI('swap', 'Skipped', false);
+                            updateStageUI('move', 'Running...', true);
+
+                            await highlightInspect(mid, false);
+                            mid++;
+
+                            writeToConsole(`Value is 1. Already in the correct zone. Incrementing <span class="text-slate-300">mid</span> only.`);
+                            await movePointer('mid', mid);
+                            updateTrackers(low, mid, high);
+
+                            await pausableSleep(600);
+                            updateStageUI('move', 'Completed', false);
+
+                        } else {
+                            // val === 2
+                            // STAGE 2: SWAP
+                            updateStageUI('swap', 'Running...', true);
+                            if (mid !== high) {
+                                writeToConsole(`Swapping <strong class="text-slate-100">arr[mid=${mid}]</strong> and <strong class="text-slate-100">arr[high=${high}]</strong>.`);
+                                await swapElements(mid, high);
+                                // Swap in underlying logic array
+                                [currentArray[mid], currentArray[high]] = [currentArray[high], currentArray[mid]];
+                            } else {
+                                writeToConsole(`mid and high point to the same index (${mid}). No swap needed.`);
+                                await pausableSleep(500);
+                            }
+                            updateStageUI('swap', 'Completed', false);
+
+                            // STAGE 3: MOVE
+                            updateStageUI('move', 'Running...', true);
+                            await highlightInspect(mid, false); // Wait, mid does NOT move here. Highlight stays on mid? We remove it to reset loop.
+
+                            high--;
+
+                            writeToConsole(`Decrementing <span class="text-sky-400">high</span> pointer. <span class="text-slate-300">mid</span> stays to re-evaluate swapped item.`);
+                            await movePointer('high', high);
+                            updateTrackers(low, mid, high);
+
+                            await pausableSleep(600);
+                            updateStageUI('move', 'Completed', false);
+                        }
+                    }
+
+                    // Complete
+                    writeToConsole(`<span class="text-emerald-400 font-bold">[COMPLETE]</span> Array successfully sorted in ${steps} steps!`);
+
+                    // Cleanup visual trackers
+                    document.getElementById('tracker-mid').classList.add('opacity-50');
+
+                } catch (e) {
+                    if (e.message !== "Aborted") console.error(e);
+                } finally {
+                    if (!abortController?.signal.aborted) {
+                        isSimulating = false;
+                        btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                        btnTogglePause.disabled = true;
+                    }
+                }
+            }
+
+
+            btnFullSim.addEventListener('click', runSortingAlgorithm);
+            btnTogglePause.addEventListener('click', togglePause);
+            btnReset.addEventListener('click', resetSimulation);
+
+            // Initialize default array on first load
+            initArray([2, 0, 2, 1, 1, 0, 2, 1, 0, 1]);
+        });
+    </script>
+</body>
+
+</html>

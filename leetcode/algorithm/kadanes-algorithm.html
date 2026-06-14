@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kadane's Algorithm | Interactive DSA Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Code Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0f172a', panelbg: '#1e293b', compbg: '#334155', bordercolor: '#475569', textcolor: '#f8fafc', muted: '#94a3b8',
+                        accent: '#f97316', // Orange 500
+                        valPos: '#10b981', // Emerald 500
+                        valNeg: '#f43f5e', // Rose 500
+                        bestSub: '#fbbf24' // Amber 400
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Array and blocks */
+        .array-container {
+            position: relative;
+            height: 100px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .array-item {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            z-index: 20;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .text-pos {
+            color: #34d399;
+        }
+
+        .text-neg {
+            color: #fb7185;
+        }
+
+        .array-item.active-scan {
+            border-color: #f97316;
+            background-color: #7c2d12;
+            transform: translateY(-60%) scale(1.15);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+            z-index: 30;
+        }
+
+        .array-item.in-curr-subarray {
+            border-bottom-width: 4px;
+            border-bottom-color: #f97316;
+            background-color: rgba(249, 115, 22, 0.15);
+        }
+
+        .array-item.best-subarray {
+            border-color: #fbbf24;
+            background-color: rgba(251, 191, 36, 0.25);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+            color: #fff;
+            z-index: 25;
+        }
+
+        .array-item.reset-fade {
+            opacity: 0.4;
+            border-bottom-width: 2px;
+            border-bottom-color: #475569;
+        }
+
+        /* Pointer */
+        .scan-ptr {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            top: calc(50% + 40px);
+        }
+
+        .scan-ptr .ptr-arrow {
+            color: #f97316;
+            font-size: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .scan-ptr .ptr-label {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 2px;
+            background: #7c2d12;
+            color: #fff;
+            border: 1px solid #f97316;
+        }
+
+        /* State Board Animations */
+        @keyframes pulse-update-max {
+            0% {
+                transform: scale(1);
+                background-color: #1e293b;
+                border-color: #475569;
+            }
+
+            50% {
+                transform: scale(1.1);
+                background-color: #78350f;
+                border-color: #fbbf24;
+                box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+            }
+
+            100% {
+                transform: scale(1);
+                background-color: #1e293b;
+                border-color: #475569;
+            }
+        }
+
+        @keyframes pulse-reset-curr {
+            0% {
+                transform: scale(1);
+                background-color: #1e293b;
+            }
+
+            50% {
+                transform: scale(0.95);
+                background-color: #881337;
+                border-color: #f43f5e;
+            }
+
+            100% {
+                transform: scale(1);
+                background-color: #1e293b;
+            }
+        }
+
+        .animate-update-max {
+            animation: pulse-update-max 0.6s ease-out;
+        }
+
+        .animate-reset-curr {
+            animation: pulse-reset-curr 0.6s ease-out;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #f97316;
+            color: #f8fafc;
+        }
+
+        .code-lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .code-lang-btn.active {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .step-pill {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+
+        .step-pill.active {
+            background-color: #f97316;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #f97316;
+        }
+    </style>
+</head>
+
+<body class="antialiased h-screen flex flex-col overflow-hidden text-textcolor bg-darkbg">
+
+    <header class="bg-panelbg border-b border-bordercolor z-40 shadow-lg">
+        <div class="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i
+                    class="fa-solid fa-arrow-trend-up text-accent text-2xl drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]"></i>
+                <h1 class="text-xl font-bold tracking-wide">Kadane's Algorithm</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                    <button id="tab-visual" class="tab-btn active text-sm">Visual Flow</button>
+                    <button id="tab-principles" class="tab-btn text-sm">Principles & Code</button>
+                </div>
+            </div>
+            <div class="flex gap-2" id="sim-controls">
+                <button id="btn-full-sim"
+                    class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded font-medium transition shadow-sm text-sm flex items-center border border-orange-400">
+                    <i class="fa-solid fa-play mr-2"></i> Run Algorithm
+                </button>
+                <button id="btn-toggle-pause"
+                    class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center opacity-50 cursor-not-allowed"
+                    disabled>
+                    <i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause
+                </button>
+                <button id="btn-reset"
+                    class="px-3 py-1.5 bg-compbg hover:bg-slate-600 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- VISUAL TRAVERSAL VIEW -->
+        <div id="view-visual" class="flex w-full h-full">
+
+            <!-- Sidebar / Instruction Log -->
+            <div
+                class="w-[380px] bg-panelbg border-r border-bordercolor flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+
+                <!-- Custom Presets Panel -->
+                <div class="p-3 border-b border-bordercolor bg-darkbg/90">
+                    <h3
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Array Presets
+                    </h3>
+                    <div class="grid grid-cols-2 gap-1 mb-1">
+                        <button id="preset-standard"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Standard
+                            Mixed</button>
+                        <button id="preset-all-neg"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">All
+                            Negative</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button id="preset-large-mid"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Huge
+                            Negative Trap</button>
+                        <button id="preset-all-pos"
+                            class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">All
+                            Positive</button>
+                    </div>
+                </div>
+
+                <!-- Simulation Tracker & Logs -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/30">
+                    <h2
+                        class="text-xs font-bold text-accent uppercase tracking-widest flex items-center justify-between mb-3">
+                        <span><i class="fa-solid fa-microchip mr-2"></i>Algorithm Loop</span>
+                        <div class="flex gap-1">
+                            <div class="step-pill active" id="pill-step-1"></div>
+                            <div class="step-pill" id="pill-step-2"></div>
+                            <div class="step-pill" id="pill-step-3"></div>
+                        </div>
+                    </h2>
+                    <div id="stage-info" class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-add-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-plus text-sky-400 mr-2"></i>1. Add to
+                                Current Sum</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-add-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-max-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-trophy text-amber-400 mr-2"></i>2.
+                                Update Max Sum</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-max-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30"
+                            id="stage-reset-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-power-off text-rose-400 mr-2"></i>3.
+                                Reset if Negative</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                                id="stage-reset-status">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Explanation / Property Panel -->
+                <div class="p-5 flex-1 overflow-y-auto" id="info-panel">
+                    <div id="default-info" class="h-full flex flex-col items-center justify-center text-muted">
+                        <i class="fa-solid fa-bolt text-4xl mb-4 text-slate-600"></i>
+                        <p class="text-center text-xs px-2 leading-relaxed">
+                            <span class="text-white font-semibold">The Power of O(N)</span><br><br>
+                            We maintain a running <strong class="text-sky-400">Current Sum</strong>. If it ever drops
+                            below <strong class="text-rose-400">0</strong>, the contiguous subarray is "dragging us
+                            down", so we reset it back to 0 and start fresh from the next element.<br><br>
+                            Meanwhile, <strong class="text-amber-400">Max Sum</strong> blindly tracks the highest peak
+                            we ever reach!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step Description Console -->
+                <div class="border-t border-bordercolor bg-darkbg p-4 h-1/4 min-h-[160px] flex flex-col">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>Live Console Log</span>
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                    </h3>
+                    <div id="console-output"
+                        class="flex-1 font-mono text-[11px] overflow-y-auto space-y-1 text-slate-300 bg-black/40 p-2.5 rounded border border-white/5 scrollbar-thin">
+                        <div class="italic text-slate-500">Waiting for actions...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Traversal Canvas (Array Render) -->
+            <div class="flex-1 overflow-hidden relative bg-darkbg p-8 flex flex-col items-center justify-center"
+                id="canvas-container">
+
+                <!-- State Dashboard -->
+                <div class="w-full max-w-2xl bg-panelbg border border-bordercolor rounded-xl p-6 mb-12 shadow-xl flex justify-around items-center"
+                    id="state-board">
+
+                    <div class="flex flex-col items-center relative">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3"><i
+                                class="fa-solid fa-wave-square text-sky-400 mr-2"></i>Current Sum</h3>
+                        <div id="curr-display-container"
+                            class="w-24 h-24 bg-darkbg border-2 border-bordercolor rounded-xl flex items-center justify-center relative shadow-inner transition-colors duration-300">
+                            <span id="curr-display" class="text-4xl font-bold text-white">0</span>
+                        </div>
+                    </div>
+
+                    <div class="h-16 w-px bg-bordercolor/50"></div>
+
+                    <div class="flex flex-col items-center relative">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3"><i
+                                class="fa-solid fa-crown text-amber-400 mr-2"></i>Max Sum</h3>
+                        <div id="max-display-container"
+                            class="w-24 h-24 bg-darkbg border-2 border-bordercolor rounded-xl flex items-center justify-center relative shadow-inner transition-colors duration-300">
+                            <span id="max-display" class="text-4xl font-bold text-white">-&infin;</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="w-full max-w-4xl flex flex-col items-center justify-center relative">
+                    <div id="array-container" class="array-container">
+                        <!-- Array elements will be injected here via JS -->
+                    </div>
+                    <!-- Range highlighting box logic is applied directly to array items via classes -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINCIPLES & CODE VIEW -->
+        <div id="view-principles" class="hidden w-full h-full overflow-y-auto bg-darkbg p-8">
+            <div class="max-w-5xl mx-auto text-slate-300 markdown-body pb-16">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b border-bordercolor pb-4">Kadane's Algorithm</h1>
+
+                <p class="text-base leading-relaxed mb-6">
+                    <strong>Kadane's Algorithm</strong> is an elegant Dynamic Programming algorithm used to find the
+                    contiguous subarray with the largest sum within a one-dimensional numeric array. It achieves this in
+                    <strong>$O(N)$ Time</strong> and <strong>$O(1)$ Space</strong>.
+                </p>
+
+                <!-- Core concepts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-sky-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">The Local Maximum</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            At each step, we calculate the <code>current_sum</code>. The core intuition is: if the
+                            current accumulated sum ever drops below zero, the entire prefix is a net negative. It is
+                            better to discard the prefix completely and start a new subarray from the next element
+                            (resetting <code>current_sum</code> to 0).
+                        </p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-amber-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">The Global Maximum</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            We blindly maintain a <code>max_sum</code> variable. At every single element, regardless of
+                            whether <code>current_sum</code> is positive or negative, we check if
+                            <code>current_sum > max_sum</code>. If it is, we update our global record. This ensures we
+                            don't miss the peak before a reset occurs.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Code Block View -->
+                <div class="bg-panelbg rounded-xl border border-bordercolor p-6 mt-8">
+                    <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                        <h3 class="text-lg font-semibold text-white">Algorithm Implementation</h3>
+                        <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                            <button id="lang-java" class="code-lang-btn active">Java</button>
+                            <button id="lang-cpp" class="code-lang-btn">C++</button>
+                            <button id="lang-python" class="code-lang-btn">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Code blocks -->
+                    <div id="code-container">
+                        <!-- Java Code -->
+                        <div id="code-block-java" class="block">
+                            <pre><code class="language-java">class Solution {
+    public int maxSubArray(int[] nums) {
+        int maxSum = Integer.MIN_VALUE;
+        int currentSum = 0;
+        
+        for (int i = 0; i < nums.length; i++) {
+            // Step 1: Add current element to running sum
+            currentSum += nums[i];
+            
+            // Step 2: Did we hit a new global maximum?
+            if (currentSum > maxSum) {
+                maxSum = currentSum;
+            }
+            
+            // Step 3: If running sum is negative, discard it
+            if (currentSum < 0) {
+                currentSum = 0;
+            }
+        }
+        
+        return maxSum;
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- C++ Code -->
+                        <div id="code-block-cpp" class="hidden block">
+                            <pre><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+class Solution {
+public:
+    int maxSubArray(vector&lt;int&gt;& nums) {
+        int maxSum = INT_MIN;
+        int currentSum = 0;
+
+        for (int i = 0; i < nums.size(); i++) {
+            currentSum += nums[i];
+            
+            maxSum = max(maxSum, currentSum);
+            
+            if (currentSum < 0) {
+                currentSum = 0;
+            }
+        }
+
+        return maxSum;
+    }
+};</code></pre>
+                        </div>
+
+                        <!-- Python Code -->
+                        <div id="code-block-python" class="hidden block">
+                            <pre><code class="language-python">class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        max_sum = float('-inf')
+        current_sum = 0
+        
+        for num in nums:
+            current_sum += num
+            
+            if current_sum > max_sum:
+                max_sum = current_sum
+                
+            if current_sum < 0:
+                current_sum = 0
+                
+        return max_sum</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            // Navigation Tabs
+            const tabVisual = document.getElementById('tab-visual');
+            const tabPrinciples = document.getElementById('tab-principles');
+            const viewVisual = document.getElementById('view-visual');
+            const viewPrinciples = document.getElementById('view-principles');
+            const simControls = document.getElementById('sim-controls');
+
+            tabVisual.addEventListener('click', () => {
+                tabVisual.classList.add('active'); tabPrinciples.classList.remove('active');
+                viewVisual.classList.remove('hidden'); viewPrinciples.classList.add('hidden');
+                simControls.style.display = 'flex';
+            });
+
+            tabPrinciples.addEventListener('click', () => {
+                tabPrinciples.classList.add('active'); tabVisual.classList.remove('active');
+                viewPrinciples.classList.remove('hidden'); viewVisual.classList.add('hidden');
+                simControls.style.display = 'none';
+            });
+
+            // Language Selector for Code
+            const codeBlocks = {
+                java: document.getElementById('code-block-java'),
+                cpp: document.getElementById('code-block-cpp'),
+                python: document.getElementById('code-block-python')
+            };
+
+            const langButtons = {
+                java: document.getElementById('lang-java'),
+                cpp: document.getElementById('lang-cpp'),
+                python: document.getElementById('lang-python')
+            };
+
+            function selectLanguage(lang) {
+                Object.keys(codeBlocks).forEach(k => {
+                    if (k === lang) {
+                        codeBlocks[k].classList.remove('hidden');
+                        langButtons[k].classList.add('active');
+                    } else {
+                        codeBlocks[k].classList.add('hidden');
+                        langButtons[k].classList.remove('active');
+                    }
+                });
+            }
+
+            Object.keys(langButtons).forEach(k => {
+                langButtons[k].addEventListener('click', () => selectLanguage(k));
+            });
+
+            // === Simulation State & Layout ===
+            const arrayContainer = document.getElementById('array-container');
+            const consoleOutput = document.getElementById('console-output');
+
+            const btnFullSim = document.getElementById('btn-full-sim');
+            const btnTogglePause = document.getElementById('btn-toggle-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            let currentArray = [];
+            let domItems = [];
+
+            // Visual config
+            const ITEM_WIDTH = 58; // 50px width + 8px gap
+
+            // Simulation Control
+            let isSimulating = false;
+            let isPaused = false;
+            let abortController = null;
+            let pauseLock = null;
+            let pauseResolve = null;
+            let sleepTimer = null;
+            let sleepResolveFn = null;
+            let sleepRemaining = 0;
+            let sleepStartTime = 0;
+
+            // Initialize DOM
+            function initArray(arr) {
+                currentArray = [...arr];
+                renderWorkspace();
+            }
+
+            function renderWorkspace() {
+                arrayContainer.innerHTML = '';
+                domItems = [];
+
+                const totalWidth = currentArray.length * ITEM_WIDTH;
+                arrayContainer.style.width = `${totalWidth}px`;
+
+                // Render array items
+                currentArray.forEach((val, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'array-item';
+                    item.id = `item-${index}`;
+
+                    // Format numbers with sign
+                    const sign = val > 0 ? '+' : '';
+                    item.innerHTML = `<span class="${val >= 0 ? 'text-pos' : 'text-neg'}">${sign}${val}</span>`;
+
+                    item.style.left = `${index * ITEM_WIDTH}px`;
+
+                    arrayContainer.appendChild(item);
+                    domItems.push(item);
+                });
+
+                // Render Pointer
+                createPointer('scan', 'i', 0);
+
+                // Reset State Board
+                updateStateBoard(0, '-∞');
+            }
+
+            function createPointer(type, label, index) {
+                const ptr = document.createElement('div');
+                ptr.className = `scan-ptr`;
+                ptr.id = `ptr-${type}`;
+                ptr.innerHTML = `
+                    <i class="fa-solid fa-arrow-up ptr-arrow"></i>
+                    <div class="ptr-label">${label}</div>
+                `;
+                ptr.style.left = `${(index * ITEM_WIDTH) + 25}px`; // Center of 50px item
+                ptr.style.transform = 'translateX(-50%)';
+                arrayContainer.appendChild(ptr);
+            }
+
+            // Presets
+            document.getElementById('preset-standard').addEventListener('click', () => {
+                if (!isSimulating) initArray([-2, 1, -3, 4, -1, 2, 1, -5, 4]);
+            });
+            document.getElementById('preset-all-neg').addEventListener('click', () => {
+                if (!isSimulating) initArray([-5, -2, -9, -1, -4]);
+            });
+            document.getElementById('preset-large-mid').addEventListener('click', () => {
+                if (!isSimulating) initArray([2, 3, -8, 5, 1, 2]);
+            });
+            document.getElementById('preset-all-pos').addEventListener('click', () => {
+                if (!isSimulating) initArray([1, 4, 2, 5, 3]);
+            });
+
+            // Core Utilities
+            function writeToConsole(htmlString) {
+                if (consoleOutput.innerText.includes('Waiting')) consoleOutput.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = "py-0.5 border-b border-white/5";
+                item.innerHTML = htmlString;
+                consoleOutput.appendChild(item);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            function updateStateBoard(currVal, maxVal, animateTarget = null) {
+                const currContainer = document.getElementById('curr-display-container');
+                const currDiv = document.getElementById('curr-display');
+
+                const maxContainer = document.getElementById('max-display-container');
+                const maxDiv = document.getElementById('max-display');
+
+                currDiv.textContent = currVal;
+                maxDiv.textContent = maxVal;
+
+                if (animateTarget === 'max') {
+                    maxContainer.classList.remove('animate-update-max');
+                    void maxContainer.offsetWidth; // trigger reflow
+                    maxContainer.classList.add('animate-update-max');
+                } else if (animateTarget === 'reset') {
+                    currContainer.classList.remove('animate-reset-curr');
+                    void currContainer.offsetWidth; // trigger reflow
+                    currContainer.classList.add('animate-reset-curr');
+                }
+            }
+
+            function showFloatingAdd(text, val, containerId) {
+                const container = document.getElementById(containerId);
+                const floatEl = document.createElement('div');
+                floatEl.textContent = text;
+                floatEl.style.color = val >= 0 ? '#34d399' : '#fb7185';
+                floatEl.className = 'absolute font-bold text-xl drop-shadow-md z-50 pointer-events-none transition-all duration-700 ease-out';
+
+                // Start center
+                floatEl.style.top = '50%';
+                floatEl.style.left = '50%';
+                floatEl.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                floatEl.style.opacity = '1';
+
+                container.appendChild(floatEl);
+
+                // Animate
+                requestAnimationFrame(() => {
+                    floatEl.style.top = val >= 0 ? '-20px' : '100px';
+                    floatEl.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                    floatEl.style.opacity = '0';
+                });
+
+                setTimeout(() => floatEl.remove(), 700);
+            }
+
+            function updateStageUI(stage, status, active = false) {
+                const wrapper = document.getElementById(`stage-${stage}-wrapper`);
+                const text = document.getElementById(`stage-${stage}-status`);
+                const pill = document.getElementById(`pill-step-${stage === 'add' ? '1' : stage === 'max' ? '2' : '3'}`);
+
+                text.textContent = status;
+
+                if (active) {
+                    wrapper.classList.add('border-accent', 'bg-accent/10');
+                    pill.classList.add('active');
+                } else {
+                    wrapper.classList.remove('border-accent', 'bg-accent/10');
+                    pill.classList.remove('active');
+                }
+
+                if (status === 'Completed') {
+                    text.classList.remove('text-slate-400', 'text-amber-400');
+                    text.classList.add('text-emerald-400');
+                } else if (status === 'Running...') {
+                    text.classList.remove('text-slate-400', 'text-emerald-400');
+                    text.classList.add('text-amber-400');
+                } else {
+                    text.classList.remove('text-emerald-400', 'text-amber-400');
+                    text.classList.add('text-slate-400');
+                }
+            }
+
+            // Subarray tracking visuals
+            function highlightSubarray(startIdx, endIdx) {
+                domItems.forEach((el, idx) => {
+                    el.classList.remove('in-curr-subarray');
+                    if (idx >= startIdx && idx <= endIdx) {
+                        el.classList.add('in-curr-subarray');
+                    }
+                });
+            }
+
+            function applyFinalBestSubarray(startIdx, endIdx) {
+                domItems.forEach((el, idx) => {
+                    el.classList.remove('in-curr-subarray', 'active-scan');
+                    if (idx >= startIdx && idx <= endIdx) {
+                        el.classList.add('best-subarray');
+                    } else {
+                        el.classList.add('reset-fade');
+                    }
+                });
+            }
+
+            // Sleep & Pause Handlers
+            function togglePause() {
+                if (!isSimulating) return;
+                isPaused = !isPaused;
+
+                if (isPaused) {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-play text-green-400 mr-2"></i> Resume';
+                    pauseLock = new Promise(r => pauseResolve = r);
+                    if (sleepTimer) {
+                        clearTimeout(sleepTimer);
+                        sleepTimer = null;
+                        sleepRemaining -= (Date.now() - sleepStartTime);
+                    }
+                    writeToConsole(`<span class="text-amber-400 font-bold">[PAUSED]</span> Simulation paused.`);
+                } else {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                    if (pauseResolve) { pauseResolve(); pauseResolve = null; pauseLock = null; }
+                    if (sleepRemaining > 0 && sleepResolveFn) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => {
+                            let res = sleepResolveFn; sleepResolveFn = null; sleepRemaining = 0; if (res) res();
+                        }, sleepRemaining);
+                    }
+                    writeToConsole(`<span class="text-orange-400 font-bold">[RESUMED]</span> Simulation resumed.`);
+                }
+            }
+
+            function waitIfPaused() { return pauseLock ? pauseLock : Promise.resolve(); }
+
+            function pausableSleep(ms) {
+                return new Promise((resolve, reject) => {
+                    if (abortController?.signal.aborted) return reject(new Error("Aborted"));
+                    sleepRemaining = ms; sleepResolveFn = resolve;
+                    if (!isPaused) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { sleepResolveFn = null; sleepRemaining = 0; resolve(); }, sleepRemaining);
+                    }
+                    abortController.signal.addEventListener('abort', () => {
+                        clearTimeout(sleepTimer); reject(new Error("Aborted"));
+                    }, { once: true });
+                });
+            }
+
+            function resetSimulation() {
+                if (abortController) abortController.abort();
+                isSimulating = false; isPaused = false; pauseLock = null; pauseResolve = null;
+                if (sleepTimer) clearTimeout(sleepTimer);
+
+                btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = true;
+
+                consoleOutput.innerHTML = '<div class="italic text-slate-500">Waiting for actions...</div>';
+
+                updateStageUI('add', 'Pending', false);
+                updateStageUI('max', 'Pending', false);
+                updateStageUI('reset', 'Pending', false);
+
+                // Re-render
+                renderWorkspace();
+            }
+
+            // Animations
+            async function movePointer(type, targetIdx) {
+                await waitIfPaused();
+                const ptr = document.getElementById(`ptr-${type}`);
+                if (!ptr) return;
+                ptr.style.left = `${(targetIdx * ITEM_WIDTH) + 25}px`;
+            }
+
+            // Main Algorithm Execution
+            async function runAlgorithm() {
+                resetSimulation();
+
+                abortController = new AbortController();
+                isSimulating = true;
+
+                btnTogglePause.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = false;
+
+                let maxSum = -Infinity;
+                let currentSum = 0;
+
+                let subStart = 0;
+                let bestStart = 0;
+                let bestEnd = 0;
+
+                try {
+                    writeToConsole(`<span class="text-accent font-bold">[START]</span> Running Kadane's Algorithm...`);
+                    await pausableSleep(600);
+
+                    for (let i = 0; i < currentArray.length; i++) {
+                        const val = currentArray[i];
+                        const signStr = val >= 0 ? `+${val}` : `${val}`;
+                        const colorClass = val >= 0 ? "text-emerald-400" : "text-rose-400";
+
+                        // Move Pointer & Highlight Element
+                        await movePointer('scan', i);
+                        domItems[i].classList.add('active-scan');
+
+                        // New subarray tracking logic
+                        if (currentSum === 0) {
+                            subStart = i;
+                        }
+
+                        // --- STAGE 1: ADD TO CURRENT SUM ---
+                        updateStageUI('add', 'Running...', true);
+                        updateStageUI('max', 'Pending', false);
+                        updateStageUI('reset', 'Pending', false);
+
+                        highlightSubarray(subStart, i);
+                        writeToConsole(`Adding <span class="${colorClass} font-bold">${signStr}</span> to Current Sum.`);
+
+                        showFloatingAdd(signStr, val, 'curr-display-container');
+                        currentSum += val;
+                        updateStateBoard(currentSum, maxSum === -Infinity ? '-∞' : maxSum);
+                        await pausableSleep(1000);
+                        updateStageUI('add', 'Completed', false);
+
+                        // --- STAGE 2: UPDATE MAX SUM ---
+                        updateStageUI('max', 'Running...', true);
+                        if (currentSum > maxSum) {
+                            maxSum = currentSum;
+                            bestStart = subStart;
+                            bestEnd = i;
+                            writeToConsole(`New Record! <strong class="text-amber-400">${currentSum}</strong> > previous Max. Updating Max Sum.`);
+                            updateStateBoard(currentSum, maxSum, 'max');
+                        } else {
+                            writeToConsole(`Current Sum (${currentSum}) is not greater than Max Sum (${maxSum}).`);
+                        }
+                        await pausableSleep(1000);
+                        updateStageUI('max', 'Completed', false);
+
+                        // --- STAGE 3: RESET IF NEGATIVE ---
+                        updateStageUI('reset', 'Running...', true);
+                        if (currentSum < 0) {
+                            writeToConsole(`<span class="text-rose-400">Current Sum dropped to ${currentSum}.</span> Discarding prefix & resetting to 0.`);
+                            currentSum = 0;
+                            updateStateBoard(currentSum, maxSum, 'reset');
+                            domItems.forEach(el => el.classList.remove('in-curr-subarray')); // visually break the chain
+                        } else {
+                            writeToConsole(`Current Sum is &ge; 0. Continuing the subarray.`);
+                        }
+                        await pausableSleep(1000);
+                        updateStageUI('reset', 'Completed', false);
+
+                        // Cleanup visual for next loop
+                        domItems[i].classList.remove('active-scan');
+                    }
+
+                    // --- CONCLUSION ---
+                    writeToConsole(`<span class="text-emerald-400 font-bold">[DONE]</span> Final Maximum Subarray Sum is <strong class="text-amber-400">${maxSum}</strong>.`);
+                    applyFinalBestSubarray(bestStart, bestEnd);
+                    document.getElementById('ptr-scan').style.opacity = '0';
+
+                } catch (e) {
+                    if (e.message !== "Aborted") console.error(e);
+                } finally {
+                    if (!abortController?.signal.aborted) {
+                        isSimulating = false;
+                        btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                        btnTogglePause.disabled = true;
+                    }
+                }
+            }
+
+
+            btnFullSim.addEventListener('click', runAlgorithm);
+            btnTogglePause.addEventListener('click', togglePause);
+            btnReset.addEventListener('click', resetSimulation);
+
+            // Initialize default array on first load
+            initArray([-2, 1, -3, 4, -1, 2, 1, -5, 4]);
+        });
+    </script>
+</body>
+
+</html>

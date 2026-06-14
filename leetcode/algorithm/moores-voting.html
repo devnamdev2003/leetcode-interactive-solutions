@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moore's Voting Algorithm | Interactive DSA Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Code Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0f172a', panelbg: '#1e293b', compbg: '#334155', bordercolor: '#475569', textcolor: '#f8fafc', muted: '#94a3b8',
+                        accent: '#6366f1', // Indigo 500
+                        voteUp: '#10b981', // Emerald 500
+                        voteDown: '#f43f5e', // Rose 500
+                        verifyHighlight: '#f59e0b' // Amber 500
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Array and blocks */
+        .array-container {
+            position: relative;
+            height: 100px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .array-item {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            color: #cbd5e1;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            z-index: 20;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .array-item.active-scan {
+            border-color: #6366f1;
+            background-color: #3730a3;
+            color: #fff;
+            transform: translateY(-60%) scale(1.15);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+            z-index: 30;
+        }
+
+        .array-item.match {
+            border-color: #10b981;
+            background-color: #064e3b;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .array-item.mismatch {
+            border-color: #f43f5e;
+            background-color: #881337;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+        }
+
+        .array-item.verify-scan {
+            border-color: #f59e0b;
+            background-color: #78350f;
+            color: #fff;
+            transform: translateY(-60%) scale(1.15);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+            z-index: 30;
+        }
+
+        /* Pointer */
+        .scan-ptr {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            top: calc(50% + 40px);
+        }
+
+        .scan-ptr .ptr-arrow {
+            color: #6366f1;
+            font-size: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        
+        .scan-ptr.verify-mode .ptr-arrow {
+            color: #f59e0b;
+        }
+
+        .scan-ptr .ptr-label {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 2px;
+            background: #3730a3;
+            color: #fff;
+            border: 1px solid #6366f1;
+        }
+        
+        .scan-ptr.verify-mode .ptr-label {
+            background: #78350f;
+            border-color: #f59e0b;
+        }
+
+        /* Candidate Board Animations */
+        @keyframes pulse-vote-up {
+            0% { transform: scale(1); background-color: #1e293b; border-color: #475569; }
+            50% { transform: scale(1.05); background-color: #064e3b; border-color: #10b981; }
+            100% { transform: scale(1); background-color: #1e293b; border-color: #475569; }
+        }
+
+        @keyframes pulse-vote-down {
+            0% { transform: scale(1); background-color: #1e293b; border-color: #475569; }
+            50% { transform: scale(0.95); background-color: #881337; border-color: #f43f5e; }
+            100% { transform: scale(1); background-color: #1e293b; border-color: #475569; }
+        }
+
+        @keyframes new-candidate {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; color: #6366f1; }
+            100% { transform: scale(1); opacity: 1; color: #f8fafc; }
+        }
+
+        .animate-vote-up { animation: pulse-vote-up 0.6s ease-out; }
+        .animate-vote-down { animation: pulse-vote-down 0.6s ease-out; }
+        .animate-new-candidate { animation: new-candidate 0.6s ease-out; }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #6366f1;
+            color: #f8fafc;
+        }
+
+        .code-lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .code-lang-btn.active {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .step-pill {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+
+        .step-pill.active {
+            background-color: #6366f1;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #6366f1;
+        }
+    </style>
+</head>
+
+<body class="antialiased h-screen flex flex-col overflow-hidden text-textcolor bg-darkbg">
+
+    <header class="bg-panelbg border-b border-bordercolor z-40 shadow-lg">
+        <div class="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-check-to-slot text-accent text-2xl drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]"></i>
+                <h1 class="text-xl font-bold tracking-wide">Moore's Voting Algorithm</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                    <button id="tab-visual" class="tab-btn active text-sm">Visual Flow</button>
+                    <button id="tab-principles" class="tab-btn text-sm">Principles & Code</button>
+                </div>
+            </div>
+            <div class="flex gap-2" id="sim-controls">
+                <button id="btn-full-sim"
+                    class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-medium transition shadow-sm text-sm flex items-center border border-indigo-400">
+                    <i class="fa-solid fa-play mr-2"></i> Run Algorithm
+                </button>
+                <button id="btn-toggle-pause"
+                    class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center opacity-50 cursor-not-allowed"
+                    disabled>
+                    <i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause
+                </button>
+                <button id="btn-reset"
+                    class="px-3 py-1.5 bg-compbg hover:bg-slate-600 text-slate-200 border border-bordercolor rounded font-medium transition shadow-sm text-sm flex items-center">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative w-full h-full">
+        <!-- VISUAL TRAVERSAL VIEW -->
+        <div id="view-visual" class="flex w-full h-full">
+
+            <!-- Sidebar / Instruction Log -->
+            <div class="w-[380px] bg-panelbg border-r border-bordercolor flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.5)]">
+
+                <!-- Custom Presets Panel -->
+                <div class="p-3 border-b border-bordercolor bg-darkbg/90">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-sliders"></i> Array Presets
+                    </h3>
+                    <div class="grid grid-cols-2 gap-1 mb-1">
+                        <button id="preset-clear" class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Clear Majority (7s)</button>
+                        <button id="preset-no-majority" class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">No Majority</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button id="preset-late" class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Late Majority</button>
+                        <button id="preset-alternating" class="px-1.5 py-1 text-[10px] bg-compbg hover:bg-slate-600 text-white font-medium rounded transition">Tug of War</button>
+                    </div>
+                </div>
+
+                <!-- Simulation Tracker & Logs -->
+                <div class="p-4 border-b border-bordercolor bg-darkbg/30">
+                    <h2 class="text-xs font-bold text-accent uppercase tracking-widest flex items-center justify-between mb-3">
+                        <span><i class="fa-solid fa-microchip mr-2"></i>Algorithm Phases</span>
+                        <div class="flex gap-1">
+                            <div class="step-pill active" id="pill-step-1"></div>
+                            <div class="step-pill" id="pill-step-2"></div>
+                        </div>
+                    </h2>
+                    <div id="stage-info" class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30" id="stage-phase1-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-magnifying-glass-chart text-indigo-400 mr-2"></i>1. Find Candidate</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider" id="stage-phase1-status">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-darkbg/50 border border-bordercolor/30" id="stage-phase2-wrapper">
+                            <span class="flex items-center"><i class="fa-solid fa-shield-check text-amber-400 mr-2"></i>2. Verify Majority</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider" id="stage-phase2-status">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Explanation / Property Panel -->
+                <div class="p-5 flex-1 overflow-y-auto" id="info-panel">
+                    <div id="default-info" class="h-full flex flex-col items-center justify-center text-muted">
+                        <i class="fa-solid fa-scale-balanced text-4xl mb-4 text-slate-600"></i>
+                        <p class="text-center text-xs px-2 leading-relaxed">
+                            <span class="text-white font-semibold">Tug of War Mechanics</span><br><br>
+                            If the element matches our <strong class="text-indigo-400">Candidate</strong>, we cast a <strong class="text-emerald-400">+1 Vote</strong>.<br>
+                            If it's different, we cast a <strong class="text-rose-400">-1 Vote</strong>.<br>
+                            If votes drop to <strong class="text-white">0</strong>, the next element becomes the new candidate!
+                        </p>
+                        <div class="mt-4 text-[10px] text-slate-500 border border-bordercolor/50 rounded bg-darkbg/50 p-2 text-center">
+                            A majority element (appears > N/2 times) will always survive this cancellation process.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Description Console -->
+                <div class="border-t border-bordercolor bg-darkbg p-4 h-1/4 min-h-[160px] flex flex-col">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>Live Console Log</span>
+                        <i class="fa-solid fa-terminal text-accent"></i>
+                    </h3>
+                    <div id="console-output" class="flex-1 font-mono text-[11px] overflow-y-auto space-y-1 text-slate-300 bg-black/40 p-2.5 rounded border border-white/5 scrollbar-thin">
+                        <div class="italic text-slate-500">Waiting for actions...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Traversal Canvas (Array Render) -->
+            <div class="flex-1 overflow-hidden relative bg-darkbg p-8 flex flex-col items-center justify-center" id="canvas-container">
+                
+                <!-- State Dashboard -->
+                <div class="w-full max-w-2xl bg-panelbg border border-bordercolor rounded-xl p-6 mb-12 shadow-xl flex justify-around items-center" id="state-board">
+                    
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-user-tie text-indigo-400 mr-2"></i>Current Candidate</h3>
+                        <div id="candidate-display" class="w-20 h-20 bg-darkbg border-2 border-bordercolor rounded-xl flex items-center justify-center text-4xl font-bold text-slate-500 shadow-inner">
+                            ?
+                        </div>
+                    </div>
+
+                    <div class="h-16 w-px bg-bordercolor/50"></div>
+
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-ticket text-amber-400 mr-2"></i>Vote Count</h3>
+                        <div id="count-display-container" class="w-20 h-20 bg-darkbg border-2 border-bordercolor rounded-xl flex items-center justify-center relative shadow-inner transition-colors duration-300">
+                            <span id="count-display" class="text-4xl font-bold text-white">0</span>
+                            <!-- Floating indicators injected via JS -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="w-full max-w-4xl flex flex-col items-center justify-center relative">
+                    <div id="array-container" class="array-container">
+                        <!-- Array elements will be injected here via JS -->
+                    </div>
+                    <!-- Target line for N/2 required -->
+                    <div id="threshold-indicator" class="mt-12 text-sm font-semibold text-slate-400 hidden animate-[fadeIn_0.5s_ease]">
+                        Required for Majority (N/2): <span id="threshold-val" class="text-amber-400">0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINCIPLES & CODE VIEW -->
+        <div id="view-principles" class="hidden w-full h-full overflow-y-auto bg-darkbg p-8">
+            <div class="max-w-5xl mx-auto text-slate-300 markdown-body pb-16">
+                <h1 class="text-3xl font-bold text-white mb-4 border-b border-bordercolor pb-4">Moore's Voting Algorithm</h1>
+
+                <p class="text-base leading-relaxed mb-6">
+                    <strong>Moore's Voting Algorithm</strong> (or Boyer-Moore Majority Vote) is an optimal algorithm to find the majority element in an array. A majority element is defined as an element that appears strictly more than <code>⌊N / 2⌋</code> times. It operates in <strong>$O(N)$ Time</strong> and <strong>$O(1)$ Space</strong>.
+                </p>
+
+                <!-- Core concepts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-indigo-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Phase 1: Finding a Candidate</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Maintain a <code>candidate</code> and a <code>count</code>. If count is 0, the current element becomes the new candidate and count is set to 1. If the current element matches the candidate, increment count. Otherwise, decrement it. The surviving candidate is the <em>only possible</em> majority element.
+                        </p>
+                    </div>
+                    <div class="bg-panelbg border border-bordercolor p-4 rounded-xl border-t-4 border-t-amber-500">
+                        <h4 class="font-bold text-white mb-1.5 text-sm">Phase 2: Verifying Majority</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Phase 1 only guarantees we find the majority element <strong>if one exists</strong>. If an array might not have a majority (e.g., <code>[1, 2, 3]</code>), the surviving candidate is just a false positive. We must do a second pass to count its actual occurrences and verify <code>count > N/2</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Code Block View -->
+                <div class="bg-panelbg rounded-xl border border-bordercolor p-6 mt-8">
+                    <div class="flex justify-between items-center mb-4 border-b border-bordercolor pb-3">
+                        <h3 class="text-lg font-semibold text-white">Algorithm Implementation</h3>
+                        <div class="flex bg-darkbg rounded-lg p-1 border border-bordercolor">
+                            <button id="lang-java" class="code-lang-btn active">Java</button>
+                            <button id="lang-cpp" class="code-lang-btn">C++</button>
+                            <button id="lang-python" class="code-lang-btn">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Code blocks -->
+                    <div id="code-container">
+                        <!-- Java Code -->
+                        <div id="code-block-java" class="block">
+                            <pre><code class="language-java">class Solution {
+    public int majorityElement(int[] nums) {
+        // Phase 1: Find Candidate
+        int candidate = 0;
+        int count = 0;
+        
+        for (int num : nums) {
+            if (count == 0) {
+                candidate = num;
+            }
+            if (num == candidate) {
+                count++;
+            } else {
+                count--;
+            }
+        }
+        
+        // Phase 2: Verify Candidate
+        // Note: LeetCode 169 assumes a majority element ALWAYS exists, 
+        // making Phase 2 optional. For LeetCode 229 (Majority Element II) 
+        // or standard problems without that guarantee, you MUST verify.
+        int verifyCount = 0;
+        for (int num : nums) {
+            if (num == candidate) {
+                verifyCount++;
+            }
+        }
+        
+        if (verifyCount > nums.length / 2) {
+            return candidate;
+        }
+        return -1; // No majority element found
+    }
+}</code></pre>
+                        </div>
+
+                        <!-- C++ Code -->
+                        <div id="code-block-cpp" class="hidden block">
+                            <pre><code class="language-cpp">#include &lt;vector&gt;
+using namespace std;
+
+class Solution {
+public:
+    int majorityElement(vector&lt;int&gt;& nums) {
+        // Phase 1: Find Candidate
+        int candidate = 0;
+        int count = 0;
+
+        for (int num : nums) {
+            if (count == 0) {
+                candidate = num;
+            }
+            count += (num == candidate) ? 1 : -1;
+        }
+
+        // Phase 2: Verification
+        int verifyCount = 0;
+        for (int num : nums) {
+            if (num == candidate) verifyCount++;
+        }
+
+        if (verifyCount > nums.size() / 2) return candidate;
+        return -1;
+    }
+};</code></pre>
+                        </div>
+
+                        <!-- Python Code -->
+                        <div id="code-block-python" class="hidden block">
+                            <pre><code class="language-python">class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        # Phase 1: Find Candidate
+        candidate = None
+        count = 0
+        
+        for num in nums:
+            if count == 0:
+                candidate = num
+            count += 1 if num == candidate else -1
+            
+        # Phase 2: Verify Candidate
+        verify_count = sum(1 for num in nums if num == candidate)
+        
+        if verify_count > len(nums) // 2:
+            return candidate
+        return -1</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+
+            // Navigation Tabs
+            const tabVisual = document.getElementById('tab-visual');
+            const tabPrinciples = document.getElementById('tab-principles');
+            const viewVisual = document.getElementById('view-visual');
+            const viewPrinciples = document.getElementById('view-principles');
+            const simControls = document.getElementById('sim-controls');
+
+            tabVisual.addEventListener('click', () => {
+                tabVisual.classList.add('active'); tabPrinciples.classList.remove('active');
+                viewVisual.classList.remove('hidden'); viewPrinciples.classList.add('hidden');
+                simControls.style.display = 'flex';
+            });
+
+            tabPrinciples.addEventListener('click', () => {
+                tabPrinciples.classList.add('active'); tabVisual.classList.remove('active');
+                viewPrinciples.classList.remove('hidden'); viewVisual.classList.add('hidden');
+                simControls.style.display = 'none';
+            });
+
+            // Language Selector for Code
+            const codeBlocks = {
+                java: document.getElementById('code-block-java'),
+                cpp: document.getElementById('code-block-cpp'),
+                python: document.getElementById('code-block-python')
+            };
+
+            const langButtons = {
+                java: document.getElementById('lang-java'),
+                cpp: document.getElementById('lang-cpp'),
+                python: document.getElementById('lang-python')
+            };
+
+            function selectLanguage(lang) {
+                Object.keys(codeBlocks).forEach(k => {
+                    if (k === lang) {
+                        codeBlocks[k].classList.remove('hidden');
+                        langButtons[k].classList.add('active');
+                    } else {
+                        codeBlocks[k].classList.add('hidden');
+                        langButtons[k].classList.remove('active');
+                    }
+                });
+            }
+
+            Object.keys(langButtons).forEach(k => {
+                langButtons[k].addEventListener('click', () => selectLanguage(k));
+            });
+
+            // === Simulation State & Layout ===
+            const arrayContainer = document.getElementById('array-container');
+            const consoleOutput = document.getElementById('console-output');
+            
+            const btnFullSim = document.getElementById('btn-full-sim');
+            const btnTogglePause = document.getElementById('btn-toggle-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            let currentArray = [];
+            let domItems = [];
+            
+            // Visual config
+            const ITEM_WIDTH = 58; // 50px width + 8px gap
+            
+            // Simulation Control
+            let isSimulating = false;
+            let isPaused = false;
+            let abortController = null;
+            let pauseLock = null;
+            let pauseResolve = null;
+            let sleepTimer = null;
+            let sleepResolveFn = null;
+            let sleepRemaining = 0;
+            let sleepStartTime = 0;
+
+            // Initialize DOM
+            function initArray(arr) {
+                currentArray = [...arr];
+                renderWorkspace();
+            }
+
+            function renderWorkspace() {
+                arrayContainer.innerHTML = '';
+                domItems = [];
+
+                const totalWidth = currentArray.length * ITEM_WIDTH;
+                arrayContainer.style.width = `${totalWidth}px`;
+
+                // Render array items
+                currentArray.forEach((val, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'array-item';
+                    item.id = `item-${index}`;
+                    item.textContent = val;
+                    item.style.left = `${index * ITEM_WIDTH}px`;
+                    
+                    arrayContainer.appendChild(item);
+                    domItems.push(item);
+                });
+
+                // Render Pointer
+                createPointer('scan', 'PTR', 0);
+                
+                // Reset State Board
+                updateStateBoard('?', 0);
+                document.getElementById('threshold-indicator').classList.add('hidden');
+            }
+
+            function createPointer(type, label, index) {
+                const ptr = document.createElement('div');
+                ptr.className = `scan-ptr`;
+                ptr.id = `ptr-${type}`;
+                ptr.innerHTML = `
+                    <i class="fa-solid fa-arrow-up ptr-arrow"></i>
+                    <div class="ptr-label">${label}</div>
+                `;
+                ptr.style.left = `${(index * ITEM_WIDTH) + 25}px`; // Center of 50px item
+                ptr.style.transform = 'translateX(-50%)';
+                arrayContainer.appendChild(ptr);
+            }
+
+            // Presets
+            document.getElementById('preset-clear').addEventListener('click', () => {
+                if(!isSimulating) initArray([7, 7, 5, 7, 5, 1, 7, 7]);
+            });
+            document.getElementById('preset-no-majority').addEventListener('click', () => {
+                if(!isSimulating) initArray([1, 2, 3, 1, 2, 3, 1, 2]); // Candidate will be 1 or 2, but count will fail verification
+            });
+            document.getElementById('preset-late').addEventListener('click', () => {
+                if(!isSimulating) initArray([2, 1, 2, 1, 3, 3, 3, 3, 3]); // 3 takes over at the end
+            });
+            document.getElementById('preset-alternating').addEventListener('click', () => {
+                if(!isSimulating) initArray([4, 5, 4, 5, 4, 5, 4]); // 4 barely wins
+            });
+
+            // Core Utilities
+            function writeToConsole(htmlString) {
+                if (consoleOutput.innerText.includes('Waiting')) consoleOutput.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = "py-0.5 border-b border-white/5";
+                item.innerHTML = htmlString;
+                consoleOutput.appendChild(item);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            function updateStateBoard(candidateVal, countVal, animateMode = null) {
+                const candDiv = document.getElementById('candidate-display');
+                const countContainer = document.getElementById('count-display-container');
+                const countDiv = document.getElementById('count-display');
+
+                if (candDiv.textContent !== String(candidateVal) && candidateVal !== '?') {
+                    candDiv.textContent = candidateVal;
+                    candDiv.classList.remove('animate-new-candidate');
+                    void candDiv.offsetWidth; // trigger reflow
+                    candDiv.classList.add('animate-new-candidate');
+                    candDiv.classList.remove('text-slate-500');
+                    candDiv.classList.add('text-white', 'border-indigo-500', 'bg-indigo-900/30');
+                } else if (candidateVal === '?') {
+                    candDiv.textContent = '?';
+                    candDiv.className = "w-20 h-20 bg-darkbg border-2 border-bordercolor rounded-xl flex items-center justify-center text-4xl font-bold text-slate-500 shadow-inner";
+                }
+
+                countDiv.textContent = countVal;
+                
+                countContainer.classList.remove('animate-vote-up', 'animate-vote-down');
+                void countContainer.offsetWidth; // trigger reflow
+
+                if (animateMode === 'up') {
+                    countContainer.classList.add('animate-vote-up');
+                    showFloatingVote('+1', '#10b981');
+                } else if (animateMode === 'down') {
+                    countContainer.classList.add('animate-vote-down');
+                    showFloatingVote('-1', '#f43f5e');
+                }
+            }
+
+            function showFloatingVote(text, color) {
+                const container = document.getElementById('count-display-container');
+                const floatEl = document.createElement('div');
+                floatEl.textContent = text;
+                floatEl.style.color = color;
+                floatEl.className = 'absolute font-bold text-xl drop-shadow-md z-50 pointer-events-none transition-all duration-700 ease-out';
+                
+                // Start center
+                floatEl.style.top = '50%';
+                floatEl.style.left = '50%';
+                floatEl.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                floatEl.style.opacity = '1';
+                
+                container.appendChild(floatEl);
+
+                // Animate
+                requestAnimationFrame(() => {
+                    floatEl.style.top = text === '+1' ? '-20px' : '100px';
+                    floatEl.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                    floatEl.style.opacity = '0';
+                });
+
+                setTimeout(() => floatEl.remove(), 700);
+            }
+
+            function updateStageUI(stage, status, active = false) {
+                const wrapper = document.getElementById(`stage-${stage}-wrapper`);
+                const text = document.getElementById(`stage-${stage}-status`);
+                const pill = document.getElementById(`pill-step-${stage === 'phase1' ? '1' : '2'}`);
+
+                text.textContent = status;
+
+                if (active) {
+                    wrapper.classList.add('border-accent', 'bg-accent/10');
+                    pill.classList.add('active');
+                } else {
+                    wrapper.classList.remove('border-accent', 'bg-accent/10');
+                    pill.classList.remove('active');
+                }
+
+                if (status === 'Completed') {
+                    text.classList.remove('text-slate-400', 'text-amber-400');
+                    text.classList.add('text-emerald-400');
+                } else if (status === 'Running...') {
+                    text.classList.remove('text-slate-400', 'text-emerald-400');
+                    text.classList.add('text-amber-400');
+                } else {
+                    text.classList.remove('text-emerald-400', 'text-amber-400');
+                    text.classList.add('text-slate-400');
+                }
+            }
+
+            // Sleep & Pause Handlers
+            function togglePause() {
+                if (!isSimulating) return;
+                isPaused = !isPaused;
+
+                if (isPaused) {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-play text-green-400 mr-2"></i> Resume';
+                    pauseLock = new Promise(r => pauseResolve = r);
+                    if (sleepTimer) {
+                        clearTimeout(sleepTimer);
+                        sleepTimer = null;
+                        sleepRemaining -= (Date.now() - sleepStartTime);
+                    }
+                    writeToConsole(`<span class="text-amber-400 font-bold">[PAUSED]</span> Simulation paused.`);
+                } else {
+                    btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                    if (pauseResolve) { pauseResolve(); pauseResolve = null; pauseLock = null; }
+                    if (sleepRemaining > 0 && sleepResolveFn) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => {
+                            let res = sleepResolveFn; sleepResolveFn = null; sleepRemaining = 0; if (res) res();
+                        }, sleepRemaining);
+                    }
+                    writeToConsole(`<span class="text-indigo-400 font-bold">[RESUMED]</span> Simulation resumed.`);
+                }
+            }
+
+            function waitIfPaused() { return pauseLock ? pauseLock : Promise.resolve(); }
+
+            function pausableSleep(ms) {
+                return new Promise((resolve, reject) => {
+                    if (abortController?.signal.aborted) return reject(new Error("Aborted"));
+                    sleepRemaining = ms; sleepResolveFn = resolve;
+                    if (!isPaused) {
+                        sleepStartTime = Date.now();
+                        sleepTimer = setTimeout(() => { sleepResolveFn = null; sleepRemaining = 0; resolve(); }, sleepRemaining);
+                    }
+                    abortController.signal.addEventListener('abort', () => {
+                        clearTimeout(sleepTimer); reject(new Error("Aborted"));
+                    }, { once: true });
+                });
+            }
+
+            function resetSimulation() {
+                if (abortController) abortController.abort();
+                isSimulating = false; isPaused = false; pauseLock = null; pauseResolve = null;
+                if (sleepTimer) clearTimeout(sleepTimer);
+
+                btnTogglePause.innerHTML = '<i class="fa-solid fa-pause text-amber-400 mr-2"></i> Pause';
+                btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = true;
+
+                consoleOutput.innerHTML = '<div class="italic text-slate-500">Waiting for actions...</div>';
+
+                updateStageUI('phase1', 'Pending', false);
+                updateStageUI('phase2', 'Pending', false);
+                
+                // Re-render
+                renderWorkspace();
+            }
+
+            // Animations
+            async function movePointer(type, targetIdx) {
+                await waitIfPaused();
+                const ptr = document.getElementById(`ptr-${type}`);
+                if (!ptr) return;
+                ptr.style.left = `${(targetIdx * ITEM_WIDTH) + 25}px`;
+            }
+
+            async function highlightItem(idx, mode) {
+                await waitIfPaused();
+                const el = domItems[idx];
+                if (!el) return;
+                
+                // Clear previous classes
+                el.className = `array-item ${mode}`; 
+            }
+
+            // Main Algorithm Execution
+            async function runAlgorithm() {
+                resetSimulation();
+                
+                abortController = new AbortController();
+                isSimulating = true;
+
+                btnTogglePause.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnTogglePause.disabled = false;
+
+                let candidate = '?';
+                let count = 0;
+                let steps = 0;
+
+                try {
+                    writeToConsole(`<span class="text-accent font-bold">[START]</span> Phase 1: Finding Candidate...`);
+                    updateStageUI('phase1', 'Running...', true);
+                    await pausableSleep(800);
+
+                    // PHASE 1: FIND CANDIDATE
+                    for (let i = 0; i < currentArray.length; i++) {
+                        steps++;
+                        await movePointer('scan', i);
+                        await highlightItem(i, 'active-scan');
+                        
+                        const val = currentArray[i];
+                        
+                        if (count === 0) {
+                            writeToConsole(`Count is <strong class="text-rose-400">0</strong>. Choosing new candidate: <strong class="text-indigo-400">${val}</strong>`);
+                            candidate = val;
+                            count = 1;
+                            updateStateBoard(candidate, count, 'up');
+                            await highlightItem(i, 'match');
+                            await pausableSleep(1000);
+                        } 
+                        else if (val === candidate) {
+                            writeToConsole(`Element <strong class="text-slate-100">${val}</strong> matches candidate. Voting <span class="text-emerald-400">+1</span>.`);
+                            count++;
+                            updateStateBoard(candidate, count, 'up');
+                            await highlightItem(i, 'match');
+                            await pausableSleep(1000);
+                        } 
+                        else {
+                            writeToConsole(`Element <strong class="text-slate-100">${val}</strong> does NOT match candidate (${candidate}). Voting <span class="text-rose-400">-1</span>.`);
+                            count--;
+                            updateStateBoard(candidate, count, 'down');
+                            await highlightItem(i, 'mismatch');
+                            await pausableSleep(1000);
+                        }
+                        
+                        // remove active scan for next iteration
+                        domItems[i].classList.remove('active-scan', 'match', 'mismatch');
+                    }
+                    
+                    updateStageUI('phase1', 'Completed', false);
+                    writeToConsole(`<span class="text-emerald-400 font-bold">[PHASE 1 DONE]</span> Surviving Candidate is <strong>${candidate}</strong>.`);
+                    await pausableSleep(1000);
+
+                    // PHASE 2: VERIFICATION
+                    writeToConsole(`<span class="text-amber-400 font-bold">[PHASE 2]</span> Verifying if <strong>${candidate}</strong> holds strict majority (> N/2).`);
+                    updateStageUI('phase2', 'Running...', true);
+                    
+                    // Style pointer for verify mode
+                    document.getElementById('ptr-scan').classList.add('verify-mode');
+                    await movePointer('scan', 0);
+                    
+                    const requiredVotes = Math.floor(currentArray.length / 2);
+                    document.getElementById('threshold-val').textContent = requiredVotes;
+                    document.getElementById('threshold-indicator').classList.remove('hidden');
+                    
+                    // Reset UI board for verification counting
+                    let verifyCount = 0;
+                    updateStateBoard(candidate, verifyCount, null);
+                    document.getElementById('count-display-container').classList.add('border-amber-500', 'bg-amber-900/30');
+                    document.querySelector('#state-board .fa-ticket').className = "fa-solid fa-check-double text-amber-400 mr-2";
+                    document.querySelector('#state-board h3:nth-of-type(2)').innerHTML = '<i class="fa-solid fa-check-double text-amber-400 mr-2"></i>Actual Count';
+                    
+                    await pausableSleep(1000);
+
+                    for (let i = 0; i < currentArray.length; i++) {
+                        await movePointer('scan', i);
+                        await highlightItem(i, 'verify-scan');
+                        
+                        const val = currentArray[i];
+                        
+                        if (val === candidate) {
+                            verifyCount++;
+                            updateStateBoard(candidate, verifyCount, 'up');
+                            domItems[i].classList.replace('verify-scan', 'match'); // turn green
+                            writeToConsole(`Found instance of <strong>${candidate}</strong>. Total count: <span class="text-amber-400">${verifyCount}</span>.`);
+                        } else {
+                            domItems[i].classList.remove('verify-scan');
+                            domItems[i].style.opacity = '0.3'; // dim non-matches
+                        }
+                        
+                        await pausableSleep(500);
+                    }
+
+                    // Final Check
+                    if (verifyCount > requiredVotes) {
+                        writeToConsole(`<span class="text-emerald-400 font-bold">[SUCCESS]</span> ${verifyCount} > ${requiredVotes}. <strong>${candidate}</strong> is the Majority Element!`);
+                    } else {
+                        writeToConsole(`<span class="text-rose-400 font-bold">[FAILED]</span> ${verifyCount} is NOT > ${requiredVotes}. <strong>No Majority Element exists.</strong>`);
+                    }
+                    
+                    updateStageUI('phase2', 'Completed', false);
+
+                } catch (e) {
+                    if (e.message !== "Aborted") console.error(e);
+                } finally {
+                    if (!abortController?.signal.aborted) {
+                        isSimulating = false;
+                        btnTogglePause.classList.add('opacity-50', 'cursor-not-allowed');
+                        btnTogglePause.disabled = true;
+                    }
+                }
+            }
+
+
+            btnFullSim.addEventListener('click', runAlgorithm);
+            btnTogglePause.addEventListener('click', togglePause);
+            btnReset.addEventListener('click', resetSimulation);
+
+            // Initialize default array on first load
+            initArray([7, 7, 5, 7, 5, 1, 7, 7]);
+        });
+    </script>
+</body>
+
+</html>
