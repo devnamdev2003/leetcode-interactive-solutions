@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11. Container With Most Water</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: {
+                        bgBase: '#0b1120',
+                        bgPanel: '#111827',
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6',
+                        success: '#10b981',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Form Inputs */
+        .input-field {
+            background-color: #0b1120;
+            border: 1px solid #1e293b;
+            color: #f8fafc;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            outline: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        /* Canvas Styles */
+        .dotted-bg {
+            background-size: 24px 24px;
+            background-image: radial-gradient(circle, #334155 1px, transparent 1px);
+        }
+
+        /* Algorithm Specific Canvas Elements */
+        .bar-container {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .bar {
+            width: 14px;
+            background: #334155;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.4s ease;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .bar.active-left {
+            background: #f472b6;
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.4);
+        }
+
+        .bar.active-right {
+            background: #60a5fa;
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+        }
+
+        .pointer {
+            position: absolute;
+            bottom: -28px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .pointer.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pointer-L {
+            background-color: #db2777;
+            border: 2px solid #f472b6;
+        }
+
+        .pointer-R {
+            background-color: #2563eb;
+            border: 2px solid #60a5fa;
+        }
+
+        .water-block {
+            position: absolute;
+            bottom: 40px;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border-top: 2px solid rgba(96, 165, 250, 0.8);
+            transition: all 0.5s ease;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .water-block.show {
+            opacity: 1;
+        }
+
+        .water-text {
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            font-size: 1.25rem;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .max-water-overlay {
+            position: absolute;
+            bottom: 40px;
+            border: 2px dashed #10b981;
+            background: rgba(16, 185, 129, 0.05);
+            transition: all 0.6s ease;
+            z-index: 1;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .max-water-overlay.show {
+            opacity: 1;
+        }
+
+        /* Speed Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100px;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -5px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+
+        /* Code Debugger Styles */
+        .debug-line {
+            transition: all 0.2s;
+            padding: 2px 8px;
+            border-left: 3px solid transparent;
+            display: flex;
+        }
+
+        .debug-line.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-left-color: #3b82f6;
+        }
+
+        .line-num {
+            width: 24px;
+            text-align: right;
+            margin-right: 16px;
+            color: #475569;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .code-content {
+            white-space: pre;
+        }
+    </style>
+</head>
+
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-water"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Container With Most Water (Two Pointers)</p>
+            </div>
+        </div>
+
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab"
+                class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive
+                Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab"
+                class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory &
+                Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar (Hidden on Theory Tab) -->
+    <section id="inputs-bar"
+        class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Heights Array
+                (Comma-Separated)</label>
+            <div class="flex gap-4">
+                <input type="text" id="input-heights" class="input-field flex-grow" value="1, 8, 6, 2, 5, 4, 8, 3, 7">
+                <button onclick="initSimulationFromInputs()"
+                    class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <i class="fas fa-play text-xs"></i> Start Debugging
+                </button>
+            </div>
+        </div>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i
+            class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Ensure you provide a list of positive integers.
+    </div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+
+        <!-- Tab: Interactive Debugger (Main split view) -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+
+            <!-- Left: Canvas -->
+            <div id="panel-canvas"
+                class="flex-1 relative flex flex-col border-r border-borderMain transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header"
+                    class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i>
+                        <span>Live Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvas()" class="hover:text-white transition-colors p-1 flex-shrink-0">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content"
+                    class="flex-grow relative bg-bgBase dotted-bg overflow-hidden flex flex-col transition-opacity duration-300">
+
+                    <!-- Ground Track -->
+                    <div class="absolute left-6 right-6 bottom-[38px] h-0.5 bg-slate-700 rounded-full opacity-80 z-10">
+                    </div>
+
+                    <!-- X-Axis Labels Container -->
+                    <div id="x-axis"
+                        class="absolute left-6 right-6 bottom-3 h-4 flex justify-between text-[10px] text-slate-500 font-mono">
+                    </div>
+
+                    <!-- Bars & Water Container -->
+                    <div id="viz-container" class="absolute left-6 right-6 top-10 bottom-0">
+                        <!-- Max Area Outline overlay -->
+                        <div id="max-water-overlay" class="max-water-overlay flex items-start justify-center pt-2">
+                            <span
+                                class="text-[10px] font-bold text-success uppercase tracking-widest bg-bgBase/80 px-2 rounded backdrop-blur border border-success/30"><i
+                                    class="fas fa-trophy mr-1"></i> Best Area</span>
+                        </div>
+                        <!-- Current Water overlay -->
+                        <div id="current-water" class="water-block">
+                            <span id="water-text" class="water-text">0</span>
+                        </div>
+                        <!-- Dynamic Bars injected here -->
+                        <div id="bars-layer" class="absolute inset-0"></div>
+                    </div>
+
+                    <!-- Status Overlay -->
+                    <div
+                        class="absolute top-6 left-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/80 px-3 py-1.5 rounded-lg border border-borderMain backdrop-blur shadow-lg">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right"
+                class="w-full lg:w-[450px] shrink-0 flex flex-col bg-bgBase transition-all duration-300">
+
+                <!-- Variables Watch -->
+                <div id="panel-vars"
+                    class="flex flex-col border-b border-borderMain bg-bgPanel/50 transition-all duration-300"
+                    style="flex-grow: 1; flex-basis: 0; min-height: 37px;">
+                    <!-- Vars Header -->
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables
+                            Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i
+                                id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars"
+                        class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...
+                        </div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div
+                                class="bg-bgBase border border-borderMain p-2.5 rounded-lg flex justify-between items-center">
+                                <span class="block text-[10px] text-slate-500 uppercase">left (Idx)</span>
+                                <span id="var-left" class="font-mono text-syntaxPink font-bold text-base">-</span>
+                            </div>
+                            <div
+                                class="bg-bgBase border border-borderMain p-2.5 rounded-lg flex justify-between items-center">
+                                <span class="block text-[10px] text-slate-500 uppercase">right (Idx)</span>
+                                <span id="var-right" class="font-mono text-syntaxBlue font-bold text-base">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg flex flex-col">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-0.5">currHeight = min(L,
+                                    R)</span>
+                                <span id="var-ch" class="font-mono text-slate-200 text-sm">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg flex flex-col">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-0.5">currWidth = R - L</span>
+                                <span id="var-cw" class="font-mono text-slate-200 text-sm">-</span>
+                            </div>
+                            <div
+                                class="bg-bgBase border border-borderMain p-2.5 rounded-lg flex flex-col col-span-2 shadow-inner bg-slate-900">
+                                <div class="flex justify-between w-full mb-1 border-b border-slate-700 pb-1">
+                                    <span class="block text-[10px] text-slate-400 uppercase">Current Area</span>
+                                    <span id="var-ca" class="font-mono text-white text-sm">-</span>
+                                </div>
+                                <div class="flex justify-between w-full">
+                                    <span class="block text-[10px] text-success font-bold uppercase"><i
+                                            class="fas fa-trophy"></i> Max Area</span>
+                                    <span id="var-ma" class="font-mono text-success font-bold text-lg">-</span>
+                                </div>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2.5 rounded-lg">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300"
+                    style="flex-grow: 2; flex-basis: 0; min-height: 37px;">
+                    <!-- Code Header -->
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code
+                            Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i
+                                    id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code"
+                        class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div id="line-func" class="debug-line">
+                            <div class="line-num">1</div>
+                            <div class="code-content"><span class="text-syntaxPink">public int</span> <span
+                                    class="text-syntaxBlue">maxArea</span>(<span class="text-syntaxPink">int</span>[]
+                                height) {</div>
+                        </div>
+                        <div id="line-init1" class="debug-line">
+                            <div class="line-num">2</div>
+                            <div class="code-content"> <span class="text-syntaxPink">int</span> left = <span
+                                    class="text-syntaxPink">0</span>;</div>
+                        </div>
+                        <div id="line-init2" class="debug-line">
+                            <div class="line-num">3</div>
+                            <div class="code-content"> <span class="text-syntaxPink">int</span> right = height.<span
+                                    class="text-syntaxBlue">length</span> - <span class="text-syntaxPink">1</span>;
+                            </div>
+                        </div>
+                        <div id="line-init3" class="debug-line">
+                            <div class="line-num">4</div>
+                            <div class="code-content"> <span class="text-syntaxPink">int</span> maxArea = <span
+                                    class="text-syntaxPink">0</span>;</div>
+                        </div>
+                        <div id="line-while" class="debug-line">
+                            <div class="line-num">5</div>
+                            <div class="code-content"> <span class="text-syntaxPink">while</span> (left < right) {</div>
+                            </div>
+                            <div id="line-ch" class="debug-line">
+                                <div class="line-num">6</div>
+                                <div class="code-content"> <span class="text-syntaxPink">int</span> currentHeight =
+                                    <span class="text-syntaxPink">Math</span>.<span
+                                        class="text-syntaxBlue">min</span>(height[left], height[right]);</div>
+                            </div>
+                            <div id="line-cw" class="debug-line">
+                                <div class="line-num">7</div>
+                                <div class="code-content"> <span class="text-syntaxPink">int</span> currentWidth = right
+                                    - left;</div>
+                            </div>
+                            <div id="line-ca" class="debug-line">
+                                <div class="line-num">8</div>
+                                <div class="code-content"> <span class="text-syntaxPink">int</span> currentArea =
+                                    currentHeight * currentWidth;</div>
+                            </div>
+                            <div class="debug-line">
+                                <div class="line-num">9</div>
+                                <div class="code-content"> </div>
+                            </div>
+                            <div id="line-ma" class="debug-line">
+                                <div class="line-num">10</div>
+                                <div class="code-content"> maxArea = <span class="text-syntaxPink">Math</span>.<span
+                                        class="text-syntaxBlue">max</span>(maxArea, currentArea);</div>
+                            </div>
+                            <div class="debug-line">
+                                <div class="line-num">11</div>
+                                <div class="code-content"> </div>
+                            </div>
+                            <div id="line-if" class="debug-line">
+                                <div class="line-num">12</div>
+                                <div class="code-content"> <span class="text-syntaxPink">if</span> (height[left] <
+                                        height[right]) {</div>
+                                </div>
+                                <div id="line-left" class="debug-line">
+                                    <div class="line-num">13</div>
+                                    <div class="code-content"> left++;</div>
+                                </div>
+                                <div id="line-else" class="debug-line">
+                                    <div class="line-num">14</div>
+                                    <div class="code-content"> } <span class="text-syntaxPink">else</span> {</div>
+                                </div>
+                                <div id="line-right" class="debug-line">
+                                    <div class="line-num">15</div>
+                                    <div class="code-content"> right--;</div>
+                                </div>
+                                <div id="line-endif" class="debug-line">
+                                    <div class="line-num">16</div>
+                                    <div class="code-content"> }</div>
+                                </div>
+                                <div id="line-endwhile" class="debug-line">
+                                    <div class="line-num">17</div>
+                                    <div class="code-content"> }</div>
+                                </div>
+                                <div id="line-return" class="debug-line">
+                                    <div class="line-num">18</div>
+                                    <div class="code-content"> <span class="text-syntaxPink">return</span> maxArea;
+                                    </div>
+                                </div>
+                                <div id="line-endfunc" class="debug-line">
+                                    <div class="line-num">19</div>
+                                    <div class="code-content">}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Theory & Complexity -->
+                <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+                    <div class="max-w-4xl mx-auto">
+                        <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i
+                                class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                        <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                            <p class="mb-4">The <strong>Two Pointers</strong> approach provides an elegant and highly
+                                optimized solution to finding the maximum water container without checking every
+                                possible combination.</p>
+                            <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept: Proof by Contradiction</h3>
+                            <ul class="list-disc pl-5 space-y-3 text-slate-300">
+                                <li><strong>Start Wide:</strong> We start with the widest possible container by placing
+                                    pointers at the extreme left and right ends. The area is determined by
+                                    `min(height[left], height[right]) * width`.</li>
+                                <li><strong>The Bottleneck:</strong> The height of the container is strictly limited by
+                                    the <em>shorter</em> of the two lines. Moving the pointer that points to the taller
+                                    line inwards cannot possibly increase the area, because the height is still
+                                    restricted by the shorter line, and the width is decreasing.</li>
+                                <li><strong>The Action:</strong> Therefore, the only logical move to potentially find a
+                                    larger area is to move the pointer that points to the <em>shorter</em> line. By
+                                    sacrificing width, we hope to find a much taller line that compensates for the width
+                                    loss.</li>
+                                <li><strong>Convergence:</strong> We repeat this process, updating our `maxArea`
+                                    variable whenever we find a larger container, until the two pointers meet.</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain">
+                                <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                                <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                                <p class="text-xs text-slate-400">Where N is the length of the heights array. The two
+                                    pointers traverse the array exactly once. At each step, either the left pointer
+                                    increments or the right pointer decrements until they meet.</p>
+                            </div>
+                            <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain">
+                                <span class="text-primary font-mono font-bold text-lg block mb-2">Space
+                                    Complexity</span>
+                                <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                                <p class="text-xs text-slate-400">The algorithm requires constant extra space. Only a
+                                    few integer variables (`left`, `right`, `maxArea`, `currentArea`) are maintained
+                                    regardless of the size of the input array.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+    </main>
+
+    <!-- Bottom Control Bar (Hidden on Theory Tab) -->
+    <footer id="control-bar"
+        class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn"
+                class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()"
+                class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let panelsState = {
+            canvas: true,
+            vars: true,
+            code: true
+        };
+
+        function toggleCanvas() {
+            const content = document.getElementById('panel-canvas-content');
+            const panel = document.getElementById('panel-canvas');
+            const rightPanel = document.getElementById('panel-right');
+            const icon = document.getElementById('canvas-toggle-icon');
+            const header = document.getElementById('canvas-header');
+            const titleWrapper = document.getElementById('canvas-title-wrapper');
+
+            panelsState.canvas = !panelsState.canvas;
+
+            if (panelsState.canvas) {
+                content.classList.remove('hidden');
+                panel.classList.remove('lg:w-[45px]', 'h-[37px]');
+                panel.classList.add('flex-1');
+
+                header.classList.replace('justify-center', 'justify-between');
+                header.classList.replace('px-2', 'px-4');
+                titleWrapper.style.display = 'flex';
+
+                rightPanel.classList.remove('lg:flex-1');
+                rightPanel.classList.add('lg:w-[450px]');
+                icon.className = 'fas fa-chevron-left';
+            } else {
+                content.classList.add('hidden');
+                panel.classList.remove('flex-1');
+                panel.classList.add('lg:w-[45px]', 'h-[37px]');
+
+                header.classList.replace('justify-between', 'justify-center');
+                header.classList.replace('px-4', 'px-2');
+                titleWrapper.style.display = 'none';
+
+                rightPanel.classList.remove('lg:w-[450px]');
+                rightPanel.classList.add('lg:flex-1');
+                icon.className = 'fas fa-chevron-right';
+            }
+        }
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+
+            panelsState[panelName] = !panelsState[panelName];
+
+            if (panelsState[panelName]) {
+                content.classList.remove('hidden');
+                panel.style.flexGrow = panelName === 'vars' ? '1' : '2';
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flexGrow = '0';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if (btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let heightsData = [];
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500; // ms per step
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27);
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const hStr = document.getElementById('input-heights').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                const arr = hStr.split(',').map(s => parseInt(s.trim()));
+                if (arr.some(isNaN) || arr.length < 2) throw new Error("Invalid Input");
+
+                heightsData = arr;
+                generateStates(arr);
+                pauseAnim();
+                currState = 0;
+                setupDOM();
+                renderState(0);
+
+                if (!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(height) {
+            states = [];
+            let left = 0;
+            let right = height.length - 1;
+            let maxArea = 0;
+            let bestLeft = 0;
+            let bestRight = right;
+            let bestHeight = 0;
+
+            // State 0: Init
+            states.push({
+                msg: "Initialize left and right pointers at array bounds.",
+                dryRun: { l: left, r: right, cH: '-', cW: '-', cA: '-', mA: 0, activeLine: 'line-init1', action: `left = 0, right = ${right}` },
+                visual: { l: left, r: right, wH: 0, showWater: false, bestL: -1, bestR: -1, bestH: 0 }
+            });
+
+            while (left < right) {
+                states.push({
+                    msg: `Loop Condition Valid: left (${left}) < right (${right})`,
+                    dryRun: { l: left, r: right, cH: '-', cW: '-', cA: '-', mA: maxArea, activeLine: 'line-while', action: "Check while condition" },
+                    visual: { l: left, r: right, wH: 0, showWater: false, bestL: bestLeft, bestR: bestRight, bestH: bestHeight }
+                });
+
+                let currentHeight = Math.min(height[left], height[right]);
+                states.push({
+                    msg: `Determine container height based on shorter line: min(${height[left]}, ${height[right]})`,
+                    dryRun: { l: left, r: right, cH: currentHeight, cW: '-', cA: '-', mA: maxArea, activeLine: 'line-ch', action: "Find bottleneck height" },
+                    visual: { l: left, r: right, wH: currentHeight, showWater: true, bestL: bestLeft, bestR: bestRight, bestH: bestHeight }
+                });
+
+                let currentWidth = right - left;
+                states.push({
+                    msg: `Calculate width between pointers: ${right} - ${left}`,
+                    dryRun: { l: left, r: right, cH: currentHeight, cW: currentWidth, cA: '-', mA: maxArea, activeLine: 'line-cw', action: "Calculate width" },
+                    visual: { l: left, r: right, wH: currentHeight, showWater: true, bestL: bestLeft, bestR: bestRight, bestH: bestHeight }
+                });
+
+                let currentArea = currentHeight * currentWidth;
+                states.push({
+                    msg: `Calculate area: ${currentHeight} * ${currentWidth} = ${currentArea}`,
+                    dryRun: { l: left, r: right, cH: currentHeight, cW: currentWidth, cA: currentArea, mA: maxArea, activeLine: 'line-ca', action: "Height × Width" },
+                    visual: { l: left, r: right, wH: currentHeight, showWater: true, bestL: bestLeft, bestR: bestRight, bestH: bestHeight }
+                });
+
+                let isNewMax = false;
+                if (currentArea > maxArea) {
+                    maxArea = currentArea;
+                    bestLeft = left;
+                    bestRight = right;
+                    bestHeight = currentHeight;
+                    isNewMax = true;
+                }
+
+                states.push({
+                    msg: isNewMax ? `New Maximum Area Found! Updated to ${maxArea}.` : `Area ${currentArea} is less than or equal to max (${maxArea}). No update.`,
+                    dryRun: { l: left, r: right, cH: currentHeight, cW: currentWidth, cA: currentArea, mA: maxArea, activeLine: 'line-ma', action: isNewMax ? "Update maxArea!" : "Keep maxArea" },
+                    visual: { l: left, r: right, wH: currentHeight, showWater: true, bestL: bestLeft, bestR: bestRight, bestH: bestHeight, isNewMax: isNewMax }
+                });
+
+                states.push({
+                    msg: `Determine which pointer to move by comparing heights.`,
+                    dryRun: { l: left, r: right, cH: currentHeight, cW: currentWidth, cA: currentArea, mA: maxArea, activeLine: 'line-if', action: `height[${left}] < height[${right}] ?` },
+                    visual: { l: left, r: right, wH: currentHeight, showWater: true, bestL: bestLeft, bestR: bestRight, bestH: bestHeight }
+                });
+
+                if (height[left] < height[right]) {
+                    states.push({
+                        msg: `Left line is shorter (${height[left]} < ${height[right]}). Increment left pointer.`,
+                        dryRun: { l: left, r: right, cH: currentHeight, cW: currentWidth, cA: currentArea, mA: maxArea, activeLine: 'line-left', action: "left++" },
+                        visual: { l: left, r: right, wH: currentHeight, showWater: false, bestL: bestLeft, bestR: bestRight, bestH: bestHeight }
+                    });
+                    left++;
+                } else {
+                    states.push({
+                        msg: `Right line is shorter or equal (${height[right]} <= ${height[left]}). Decrement right pointer.`,
+                        dryRun: { l: left, r: right, cH: currentHeight, cW: currentWidth, cA: currentArea, mA: maxArea, activeLine: 'line-right', action: "right--" },
+                        visual: { l: left, r: right, wH: currentHeight, showWater: false, bestL: bestLeft, bestR: bestRight, bestH: bestHeight }
+                    });
+                    right--;
+                }
+            }
+
+            states.push({
+                msg: `Pointers met. Algorithm terminates. Max Area is ${maxArea}.`,
+                dryRun: { l: left, r: right, cH: '-', cW: '-', cA: '-', mA: maxArea, activeLine: 'line-return', action: "Return Result" },
+                visual: { l: left, r: right, wH: 0, showWater: false, bestL: bestLeft, bestR: bestRight, bestH: bestHeight, done: true }
+            });
+        }
+
+        // Percentage-based geometry helper
+        function getGeom(idx, val, maxVal, n) {
+            const slotWidth = 100 / n;
+            const leftPerc = (idx * slotWidth) + (slotWidth / 2);
+            // Limit max visual height to 85% of container so labels/pointers fit
+            const heightPerc = (val / Math.max(maxVal, 1)) * 85;
+            return { l: leftPerc, h: heightPerc, w: slotWidth };
+        }
+
+        function setupDOM() {
+            const layer = document.getElementById('bars-layer');
+            const xAxis = document.getElementById('x-axis');
+
+            layer.innerHTML = '';
+            xAxis.innerHTML = '';
+
+            const n = heightsData.length;
+            const maxVal = Math.max(...heightsData);
+
+            for (let i = 0; i < n; i++) {
+                const val = heightsData[i];
+                const geom = getGeom(i, val, maxVal, n);
+
+                // Add Bar Structure
+                let container = document.createElement('div');
+                container.className = 'bar-container';
+                container.style.left = `calc(${geom.l}% - 12px)`; // 24px wide container
+                container.style.height = `${geom.h}%`;
+
+                let valLabel = document.createElement('div');
+                valLabel.className = 'text-xs text-slate-400 font-bold mb-1 font-mono';
+                valLabel.innerText = val;
+
+                let bar = document.createElement('div');
+                bar.id = `bar-${i}`;
+                bar.className = 'bar flex-grow';
+
+                let pointer = document.createElement('div');
+                pointer.id = `ptr-${i}`;
+                pointer.className = 'pointer';
+                pointer.innerHTML = 'L'; // defaults
+
+                container.appendChild(valLabel);
+                container.appendChild(bar);
+                container.appendChild(pointer);
+                layer.appendChild(container);
+
+                // Add X-Axis Label
+                let xLbl = document.createElement('div');
+                xLbl.style.position = 'absolute';
+                xLbl.style.left = `calc(${geom.l}% - 5px)`;
+                xLbl.innerText = i;
+                xAxis.appendChild(xLbl);
+            }
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+
+            if (isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // --- DOM Updates: Canvas ---
+            const n = heightsData.length;
+            const maxVal = Math.max(...heightsData);
+            const vis = state.visual;
+
+            // Reset Bars & Pointers with null checks
+            for (let i = 0; i < n; i++) {
+                let bar = document.getElementById(`bar-${i}`);
+                let ptr = document.getElementById(`ptr-${i}`);
+
+                if (bar) bar.className = 'bar flex-grow';
+                if (ptr) ptr.className = 'pointer';
+
+                if (i === vis.l && !vis.done) {
+                    if (bar) bar.classList.add('active-left');
+                    if (ptr) {
+                        ptr.classList.add('show', 'pointer-L');
+                        ptr.innerText = 'L';
+                    }
+                }
+                if (i === vis.r && !vis.done) {
+                    if (bar) bar.classList.add('active-right');
+                    if (ptr) {
+                        ptr.classList.add('show', 'pointer-R');
+                        ptr.innerText = 'R';
+                    }
+                }
+            }
+
+            // Current Water View
+            const waterBox = document.getElementById('current-water');
+            const waterText = document.getElementById('water-text');
+
+            if (waterBox && waterText) {
+                if (vis.showWater && vis.l !== vis.r) {
+                    const geomL = getGeom(vis.l, 0, maxVal, n);
+                    const geomR = getGeom(vis.r, 0, maxVal, n);
+                    const hPerc = (vis.wH / Math.max(maxVal, 1)) * 85;
+
+                    waterBox.style.left = `${geomL.l}%`;
+                    waterBox.style.width = `${geomR.l - geomL.l}%`;
+                    waterBox.style.height = `${hPerc}%`;
+                    waterBox.classList.add('show');
+                    waterText.innerText = state.dryRun.cA;
+
+                    if (vis.isNewMax) {
+                        waterBox.style.background = 'linear-gradient(180deg, rgba(16, 185, 129, 0.5) 0%, rgba(16, 185, 129, 0.1) 100%)';
+                        waterBox.style.borderTopColor = '#34d399';
+                    } else {
+                        waterBox.style.background = 'linear-gradient(180deg, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.1) 100%)';
+                        waterBox.style.borderTopColor = 'rgba(96, 165, 250, 0.8)';
+                    }
+                } else {
+                    waterBox.classList.remove('show');
+                }
+            }
+
+            // Max Water Outline View
+            const maxBox = document.getElementById('max-water-overlay');
+            if (maxBox) {
+                if (vis.bestL !== -1 && vis.bestR !== -1) {
+                    const bGeomL = getGeom(vis.bestL, 0, maxVal, n);
+                    const bGeomR = getGeom(vis.bestR, 0, maxVal, n);
+                    const bHPerc = (vis.bestH / Math.max(maxVal, 1)) * 85;
+
+                    maxBox.style.left = `${bGeomL.l}%`;
+                    maxBox.style.width = `${bGeomR.l - bGeomL.l}%`;
+                    maxBox.style.height = `${bHPerc}%`;
+                    maxBox.classList.add('show');
+                } else {
+                    maxBox.classList.remove('show');
+                }
+            }
+
+            // --- DOM Updates: Right Panel (Debugger) ---
+            if (state.dryRun) {
+                const d = state.dryRun;
+                let emptyVars = document.getElementById('empty-vars');
+                if (emptyVars) emptyVars.classList.add('hidden');
+
+                if (panelsState.vars) {
+                    let activeVars = document.getElementById('active-vars');
+                    if (activeVars) activeVars.classList.remove('hidden');
+                }
+
+                if (document.getElementById('var-left')) document.getElementById('var-left').innerText = d.l + ` (h:${heightsData[d.l] || 0})`;
+                if (document.getElementById('var-right')) document.getElementById('var-right').innerText = d.r + ` (h:${heightsData[d.r] || 0})`;
+                if (document.getElementById('var-ch')) document.getElementById('var-ch').innerText = d.cH;
+                if (document.getElementById('var-cw')) document.getElementById('var-cw').innerText = d.cW;
+                if (document.getElementById('var-ca')) document.getElementById('var-ca').innerText = d.cA;
+
+                let maEl = document.getElementById('var-ma');
+                if (maEl) {
+                    maEl.innerText = d.mA;
+                    if (vis.isNewMax) {
+                        maEl.classList.add('scale-110', 'text-emerald-400');
+                        setTimeout(() => maEl.classList.remove('scale-110', 'text-emerald-400'), 400);
+                    }
+                }
+
+                if (document.getElementById('var-action')) document.getElementById('var-action').innerHTML = d.action;
+
+                document.querySelectorAll('.debug-line').forEach(el => {
+                    el.classList.remove('active');
+                });
+
+                if (d.activeLine) {
+                    let activeEl = document.getElementById(d.activeLine);
+                    if (activeEl) {
+                        activeEl.classList.add('active');
+                        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0;
+            isPlaying = true;
+
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed);
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState);
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        // Initialize First Render
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab'); // Default to debugger layout
+        };
+    </script>
+</body>
+
+</html>
