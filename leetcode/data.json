@@ -127,5 +127,19 @@
         ],
         "leetcodeUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
         "algovizUrl": "array/find-all-numbers-disappeared-in-an-array.html"
+    },
+    {
+        "id": "295",
+        "title": "Find Median from Data Stream",
+        "difficulty": "Hard",
+        "tags": [
+            "Two Pointers",
+            "Design",
+            "Sorting",
+            "Heap (Priority Queue)",
+            "Data Stream"
+        ],
+        "leetcodeUrl": "https://leetcode.com/problems/find-median-from-data-stream/description/",
+        "algovizUrl": "two-pointers/find-median-from-data-stream.html"
     }
 ]

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Find Median from Data Stream</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; }
+        .array-box { 
+            width: 48px; height: 48px; border: 2px solid #1e293b; background: #111827; 
+            border-radius: 8px; display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; font-size: 16px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .array-box.empty-box { color: transparent; border-color: #1e293b80; }
+        .array-box.highlight-read { border-color: #f472b6; background: rgba(244, 114, 182, 0.1); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); transform: scale(1.1); z-index: 10;}
+        .array-box.highlight-write { border-color: #34d399; background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 12px rgba(52, 211, 153, 0.4); transform: scale(1.1); z-index: 10;}
+        .array-index { font-family: 'Fira Code', monospace; font-size: 10px; color: #64748b; }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+        
+        .empty-placeholder { color: #475569; font-style: italic; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; height: 48px; width: 100%; border: 2px dashed #1e293b; border-radius: 8px;}
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Find Median from Data Stream (Two Heaps)</p>
+            </div>
+        </div>
+        
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-2xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Input Data Stream (Comma-Separated Values)</label>
+            <input type="text" id="input-nums" class="input-field" value="41, 35, 62, 5, 97, 108">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Simulate Stream
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Ensure inputs are valid comma-separated integers.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-6 transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Stream Array -->
+                    <div class="mt-8">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i class="fas fa-stream text-primary mr-1"></i> Incoming Stream</h3>
+                        </div>
+                        <div id="canvas-stream" class="flex gap-2 overflow-x-auto pb-4 pt-2 px-2"></div>
+                    </div>
+
+                    <!-- Heaps Container -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                        
+                        <!-- Max Heap -->
+                        <div class="bg-bgPanel/40 border border-borderMain rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold text-syntaxPink uppercase tracking-widest">smallList</h3>
+                                    <span class="bg-syntaxPink/20 text-syntaxPink text-[10px] px-2 py-0.5 rounded-full font-bold">Max-Heap</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500">Root = Largest</span>
+                            </div>
+                            <div id="canvas-small" class="flex flex-wrap gap-2 min-h-[48px]"></div>
+                            <p class="text-[10px] text-slate-500 mt-3 text-center border-t border-borderMain pt-2">Contains the smaller half of numbers</p>
+                        </div>
+
+                        <!-- Min Heap -->
+                        <div class="bg-bgPanel/40 border border-borderMain rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold text-syntaxBlue uppercase tracking-widest">largeList</h3>
+                                    <span class="bg-syntaxBlue/20 text-syntaxBlue text-[10px] px-2 py-0.5 rounded-full font-bold">Min-Heap</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500">Root = Smallest</span>
+                            </div>
+                            <div id="canvas-large" class="flex flex-wrap gap-2 min-h-[48px]"></div>
+                            <p class="text-[10px] text-slate-500 mt-3 text-center border-t border-borderMain pt-2">Contains the larger half of numbers</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Median Box -->
+                    <div class="mt-4 flex flex-col items-center justify-center p-6 bg-[#0f1423] border border-borderMain rounded-xl relative overflow-hidden mx-auto w-full max-w-sm">
+                        <div class="absolute inset-0 bg-primary/5"></div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 z-10">Current Median</span>
+                        <span id="canvas-median" class="text-5xl font-mono text-white font-bold z-10 shadow-lg">-</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 500px; width: 500px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-4">
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Incoming num</span>
+                                <span id="var-num" class="font-mono text-slate-200 text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Calculated Median</span>
+                                <span id="var-median" class="font-mono text-primary font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">smallList.peek()</span>
+                                <span id="var-small" class="font-mono text-syntaxPink font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">largeList.peek()</span>
+                                <span id="var-large" class="font-mono text-syntaxBlue font-bold text-lg">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div id="line-class" class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> MedianFinder {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">private PriorityQueue</span>&lt;<span class="text-syntaxPink">Integer</span>&gt; smallList; <span class="text-slate-500 italic">// Max-Heap</span></div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content">    <span class="text-syntaxPink">private PriorityQueue</span>&lt;<span class="text-syntaxPink">Integer</span>&gt; largeList; <span class="text-slate-500 italic">// Min-Heap</span></div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content"></div></div>
+                        <div id="line-add-def" class="debug-line"><div class="line-num">5</div><div class="code-content">    <span class="text-syntaxPink">public void</span> addNum(<span class="text-syntaxPink">int</span> num) {</div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content text-slate-500 italic">        // 1. Add to max heap</div></div>
+                        <div id="line-add-small" class="debug-line"><div class="line-num">7</div><div class="code-content">        smallList.offer(num);</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content text-slate-500 italic">        // 2. Balance values (move largest in smallList to largeList)</div></div>
+                        <div id="line-bal-1" class="debug-line"><div class="line-num">10</div><div class="code-content">        largeList.offer(smallList.poll());</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content text-slate-500 italic">        // 3. Balance sizes (smallList size >= largeList size)</div></div>
+                        <div id="line-if-size" class="debug-line"><div class="line-num">13</div><div class="code-content">        <span class="text-syntaxPink">if</span> (largeList.size() > smallList.size()) {</div></div>
+                        <div id="line-bal-2" class="debug-line"><div class="line-num">14</div><div class="code-content">            smallList.offer(largeList.poll());</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content"></div></div>
+                        <div id="line-findMedian-def" class="debug-line"><div class="line-num">18</div><div class="code-content">    <span class="text-syntaxPink">public double</span> findMedian() {</div></div>
+                        <div id="line-if-odd" class="debug-line"><div class="line-num">19</div><div class="code-content">        <span class="text-syntaxPink">if</span> (smallList.size() > largeList.size()) {</div></div>
+                        <div id="line-ret-odd" class="debug-line"><div class="line-num">20</div><div class="code-content">            <span class="text-syntaxPink">return</span> smallList.peek();</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">        }</div></div>
+                        <div id="line-ret-even" class="debug-line"><div class="line-num">22</div><div class="code-content">        <span class="text-syntaxPink">return</span> (smallList.peek() + largeList.peek()) / <span class="text-syntaxBlue">2.0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">The <strong>Find Median from Data Stream</strong> problem asks us to design a data structure that calculates the median of a flowing sequence of numbers. Using a sorted array would take $O(N)$ to insert a number. We can optimize this dramatically using a <strong>Two Heaps (Priority Queue)</strong> pattern.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Divide the Data into Halves</strong><br>
+                            We maintain two heaps: a Max-Heap (`smallList`) to store the <em>smaller half</em> of the numbers, and a Min-Heap (`largeList`) to store the <em>larger half</em>.
+                        </li>
+                        <li>
+                            <strong>Maintain the Ordering Property</strong><br>
+                            Every time we add a number, we first throw it into the Max-Heap. But to ensure that every number in the Max-Heap is genuinely smaller than every number in the Min-Heap, we immediately poll the largest element from the Max-Heap and offer it to the Min-Heap.
+                        </li>
+                        <li>
+                            <strong>Maintain the Size Balance</strong><br>
+                            We enforce a rule: the Max-Heap (`smallList`) is allowed to have at most 1 more element than the Min-Heap (`largeList`). If the Min-Heap ever gets bigger, we poll its smallest element and push it back to the Max-Heap.
+                        </li>
+                        <li>
+                            <strong>Extracting the Answer in $O(1)$</strong><br>
+                            Because of our balancing act, the median is always readily available at the roots of our heaps. If the total number of elements is odd, the median is the root of the Max-Heap. If even, it's the average of the roots of both heaps.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">addNum: O(log N) <br> findMedian: O(1)</span>
+                        <p class="text-xs text-slate-400">Inserting a number into a heap takes $O(\log N)$ time. We do this at most three times per insertion. Finding the median just requires peeking at the roots, which takes $O(1)$ time.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the total number of elements added from the data stream. We are storing all the elements across the two Priority Queues.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State
+        let isSplitView = true;
+        let rightPanelWidth = 500; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+        let panelsState = { vars: true, code: true };
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left'; 
+            }
+        }
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizers
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // JS Heap Implementation for State Generation
+        class Heap {
+            constructor(compareFunc) {
+                this.data = [];
+                this.compare = compareFunc;
+            }
+            offer(val) {
+                this.data.push(val);
+                this.bubbleUp(this.data.length - 1);
+            }
+            poll() {
+                if (this.data.length === 0) return null;
+                if (this.data.length === 1) return this.data.pop();
+                const top = this.data[0];
+                this.data[0] = this.data.pop();
+                this.bubbleDown(0);
+                return top;
+            }
+            peek() {
+                return this.data.length > 0 ? this.data[0] : null;
+            }
+            size() {
+                return this.data.length;
+            }
+            bubbleUp(idx) {
+                while (idx > 0) {
+                    let p = Math.floor((idx - 1) / 2);
+                    if (this.compare(this.data[idx], this.data[p]) < 0) {
+                        [this.data[idx], this.data[p]] = [this.data[p], this.data[idx]];
+                        idx = p;
+                    } else break;
+                }
+            }
+            bubbleDown(idx) {
+                const len = this.data.length;
+                while (true) {
+                    let left = 2 * idx + 1;
+                    let right = 2 * idx + 2;
+                    let swapIdx = idx;
+                    if (left < len && this.compare(this.data[left], this.data[swapIdx]) < 0) swapIdx = left;
+                    if (right < len && this.compare(this.data[right], this.data[swapIdx]) < 0) swapIdx = right;
+                    if (swapIdx !== idx) {
+                        [this.data[idx], this.data[swapIdx]] = [this.data[swapIdx], this.data[idx]];
+                        idx = swapIdx;
+                    } else break;
+                }
+            }
+        }
+
+        // Core State Engine
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500; 
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const numsStr = document.getElementById('input-nums').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                const nums = numsStr.split(',').map(s => parseInt(s.trim()));
+                if (nums.some(isNaN) || nums.length === 0) {
+                    throw new Error("Invalid Input");
+                }
+
+                generateStates(nums);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(nums) {
+            states = [];
+            // Java's default is Min-Heap. Using custom logic for JS implementation.
+            let smallList = new Heap((a, b) => b - a); // Max Heap
+            let largeList = new Heap((a, b) => a - b); // Min Heap
+            let medianVal = '-';
+
+            const getSnapshot = (sIdx, smIdx, lgIdx) => {
+                return {
+                    stream: nums.map((v, i) => ({ val: v, hl: i === sIdx ? 'read' : null })),
+                    small: [...smallList.data].map((v, i) => ({ val: v, hl: i === smIdx ? 'write' : null })),
+                    large: [...largeList.data].map((v, i) => ({ val: v, hl: i === lgIdx ? 'write' : null })),
+                    median: medianVal
+                };
+            };
+
+            const pushState = (msg, line, vrs, hl) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)), 
+                    visuals: getSnapshot(hl.s, hl.sm, hl.lg)
+                });
+            };
+
+            let vrs = { num: '-', median: '-', small: '-', large: '-', action: 'Initialization' };
+            pushState("Initialize Data Structures (Max-Heap & Min-Heap).", "line-class", vrs, {s:-1, sm:-1, lg:-1});
+
+            for (let i = 0; i < nums.length; i++) {
+                let num = nums[i];
+                vrs.num = num;
+                vrs.action = `addNum(${num})`;
+                pushState(`Reading stream: Add ${num} to MedianFinder.`, "line-add-def", vrs, {s:i, sm:-1, lg:-1});
+
+                // 1. Add to max heap
+                smallList.offer(num);
+                vrs.small = smallList.peek() ?? '-';
+                vrs.action = `smallList.offer(${num})`;
+                pushState(`Step 1: Always add new number to smallList (Max-Heap) first.`, "line-add-small", vrs, {s:i, sm:0, lg:-1});
+
+                // 2. Balance Phase 1
+                let polled = smallList.poll();
+                vrs.action = `smallList.poll() -> ${polled}`;
+                pushState(`Step 2: Poll largest element from smallList to maintain ordering constraint.`, "line-bal-1", vrs, {s:i, sm:-1, lg:-1});
+
+                largeList.offer(polled);
+                vrs.small = smallList.peek() ?? '-';
+                vrs.large = largeList.peek() ?? '-';
+                vrs.action = `largeList.offer(${polled})`;
+                pushState(`Step 2: Offer polled value (${polled}) to largeList (Min-Heap).`, "line-bal-1", vrs, {s:i, sm:-1, lg:0});
+
+                // 3. Balance Sizes
+                vrs.action = `Check sizes: L(${largeList.size()}) > S(${smallList.size()})?`;
+                pushState(`Step 3: Check if largeList has more elements than smallList.`, "line-if-size", vrs, {s:i, sm:-1, lg:-1});
+
+                if (largeList.size() > smallList.size()) {
+                    let lPolled = largeList.poll();
+                    smallList.offer(lPolled);
+                    vrs.small = smallList.peek() ?? '-';
+                    vrs.large = largeList.peek() ?? '-';
+                    vrs.action = `Balance: Moved ${lPolled} back to S.`;
+                    pushState(`largeList was larger! Move its smallest element (${lPolled}) back to smallList.`, "line-bal-2", vrs, {s:i, sm:0, lg:-1});
+                }
+
+                // 4. Find Median
+                vrs.action = `findMedian()`;
+                pushState(`Numbers balanced. Time to find the current median.`, "line-findMedian-def", vrs, {s:i, sm:-1, lg:-1});
+
+                if (smallList.size() > largeList.size()) {
+                    vrs.action = `Odd Elements -> Root of smallList`;
+                    pushState(`Total elements is Odd. Median is simply the root of the Max-Heap.`, "line-if-odd", vrs, {s:i, sm:0, lg:-1});
+                    
+                    medianVal = smallList.peek();
+                    vrs.median = medianVal;
+                    vrs.action = `return ${medianVal}`;
+                    pushState(`Calculated Median: ${medianVal}`, "line-ret-odd", vrs, {s:i, sm:0, lg:-1});
+                } else {
+                    vrs.action = `Even Elements -> Average of both roots`;
+                    pushState(`Total elements is Even. Median is average of both roots.`, "line-if-odd", vrs, {s:i, sm:0, lg:0});
+                    
+                    medianVal = (smallList.peek() + largeList.peek()) / 2.0;
+                    vrs.median = medianVal;
+                    vrs.action = `(${smallList.peek()} + ${largeList.peek()}) / 2 = ${medianVal}`;
+                    pushState(`Calculated Median: ${medianVal}`, "line-ret-even", vrs, {s:i, sm:0, lg:0});
+                }
+            }
+
+            vrs.num = '-';
+            vrs.action = 'End of Stream';
+            pushState(`Stream finished processing. Final Median is ${medianVal}.`, "line-class", vrs, {s:-1, sm:-1, lg:-1});
+        }
+
+        function renderArrayDOM(containerId, dataArray, emptyText="Empty") {
+            const container = document.getElementById(containerId);
+            if(dataArray.length === 0) {
+                container.innerHTML = `<div class="empty-placeholder">${emptyText}</div>`;
+                return;
+            }
+            container.innerHTML = dataArray.map((item, index) => {
+                let hlClass = '';
+                if (item.hl === 'read') hlClass = 'highlight-read';
+                else if (item.hl === 'write') hlClass = 'highlight-write';
+                
+                return `
+                    <div class="array-box-container">
+                        <span class="array-index">${index}</span>
+                        <div class="array-box ${hlClass}">${item.val}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM
+            renderArrayDOM('canvas-stream', state.visuals.stream, "No Data");
+            renderArrayDOM('canvas-small', state.visuals.small, "Empty Heap");
+            renderArrayDOM('canvas-large', state.visuals.large, "Empty Heap");
+            
+            document.getElementById('canvas-median').innerText = state.visuals.median;
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-num').innerText = state.vars.num;
+            document.getElementById('var-median').innerText = state.vars.median;
+            document.getElementById('var-small').innerText = state.vars.small;
+            document.getElementById('var-large').innerText = state.vars.large;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
