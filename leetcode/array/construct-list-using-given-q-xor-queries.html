@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Construct List Using Queries</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: {
+                        bgBase: '#0b1120',
+                        bgPanel: '#111827',
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6',
+                        success: '#10b981',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Form Inputs */
+        .input-field {
+            background-color: #0b1120;
+            border: 1px solid #1e293b;
+            color: #f8fafc;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            outline: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        /* Canvas Styles */
+        .dotted-bg {
+            background-size: 24px 24px;
+            background-image: radial-gradient(circle, #334155 1px, transparent 1px);
+        }
+
+        .array-box-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 48px;
+        }
+
+        .array-box {
+            width: 44px;
+            height: 44px;
+            border: 2px solid #1e293b;
+            background: #111827;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #f8fafc;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .array-box.query-box {
+            width: 64px;
+            font-size: 14px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .array-box.large-box {
+            width: 80px;
+            height: 60px;
+            font-size: 20px;
+            background: #0f1423;
+        }
+
+        .array-box.empty-box {
+            color: transparent;
+            border-color: #1e293b80;
+        }
+
+        .array-box.highlight-read {
+            border-color: #f472b6;
+            background: rgba(244, 114, 182, 0.1);
+            box-shadow: 0 0 12px rgba(244, 114, 182, 0.4);
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .array-box.highlight-write {
+            border-color: #34d399;
+            background: rgba(52, 211, 153, 0.1);
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .array-box.highlight-special {
+            border-color: #fcd34d;
+            background: rgba(252, 211, 77, 0.1);
+            box-shadow: 0 0 12px rgba(252, 211, 77, 0.4);
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .array-index {
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        /* Speed Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100px;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -5px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+
+        /* Code Debugger Styles */
+        .debug-line {
+            transition: all 0.2s;
+            padding: 2px 8px;
+            border-left: 3px solid transparent;
+            display: flex;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .debug-line.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-left-color: #3b82f6;
+        }
+
+        .line-num {
+            width: 24px;
+            text-align: right;
+            margin-right: 16px;
+            color: #475569;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .code-content {
+            white-space: pre;
+        }
+
+        /* Resizer Styles */
+        .resizer-v {
+            width: 6px;
+            background-color: #1e293b;
+            cursor: col-resize;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            z-index: 30;
+        }
+
+        .resizer-v:hover,
+        .resizer-v.active {
+            background-color: #3b82f6;
+        }
+
+        .resizer-h {
+            height: 6px;
+            background-color: #1e293b;
+            cursor: row-resize;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            z-index: 30;
+        }
+
+        .resizer-h:hover,
+        .resizer-h.active {
+            background-color: #3b82f6;
+        }
+
+        /* Drag Overlay classes */
+        body.resizing,
+        body.resizing * {
+            cursor: col-resize !important;
+            user-select: none !important;
+            pointer-events: none !important;
+        }
+
+        body.resizing-h,
+        body.resizing-h * {
+            cursor: row-resize !important;
+            user-select: none !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Construct List Using Queries (Reverse Traversal)</p>
+            </div>
+        </div>
+
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab"
+                class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive
+                Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab"
+                class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory &
+                Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar"
+        class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-2xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Queries (Format:
+                type,val; type,val) | Type 0: Insert, Type 1: XOR</label>
+            <input type="text" id="input-queries" class="input-field" value="0,2; 1,3; 0,5">
+        </div>
+        <button onclick="initSimulationFromInputs()"
+            class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i
+            class="fas fa-exclamation-triangle mr-1"></i> Invalid input format. Expected format: 0,2; 1,3; 0,5</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;"
+                class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header"
+                    class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i>
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()"
+                        class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content"
+                    class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+
+                    <!-- Status Overlay -->
+                    <div
+                        class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Queries Array -->
+                    <div class="mt-12">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span
+                                    class="text-syntaxPink">int[][]</span> queries</h3>
+                            <span class="text-[10px] text-slate-500">(Processing right to left)</span>
+                        </div>
+                        <div id="canvas-queries" class="flex gap-3 overflow-x-auto pb-4 pt-2 px-2"></div>
+                    </div>
+
+                    <!-- Variables Space -->
+                    <div class="flex gap-12 items-start mt-2">
+                        <!-- totalXor Accumulator -->
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-2 mb-3">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span
+                                        class="text-syntaxPink">int</span> totalXor</h3>
+                                <span class="text-[10px] text-slate-500">(Accumulator)</span>
+                            </div>
+                            <div id="canvas-totalXor" class="flex gap-2 p-2">
+                                <div class="array-box-container">
+                                    <div id="box-totalXor" class="array-box large-box text-syntaxYellow">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ans Array -->
+                        <div class="flex flex-col flex-1 overflow-hidden">
+                            <div class="flex items-center gap-2 mb-3">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span
+                                        class="text-syntaxPink">ArrayList</span> ans</h3>
+                                <span class="text-[10px] text-slate-500">(Final List)</span>
+                            </div>
+                            <div id="canvas-ans" class="flex gap-2 overflow-x-auto pb-4 pt-2 px-2 min-h-[70px]"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;"
+                class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300"
+                    style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables
+                            Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i
+                                id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars"
+                        class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...
+                        </div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-4">
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i)</span>
+                                <span id="var-i" class="font-mono text-primary font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Total XOR</span>
+                                <span id="var-totalXor" class="font-mono text-syntaxYellow font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Query Type</span>
+                                <span id="var-type" class="font-mono text-slate-200 text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Value (val)</span>
+                                <span id="var-val" class="font-mono text-syntaxPink text-lg">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxGreen font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300"
+                    style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code
+                            Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i
+                                    id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code"
+                        class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div class="debug-line">
+                            <div class="line-num">1</div>
+                            <div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">2</div>
+                            <div class="code-content"> <span class="text-syntaxPink">public</span>
+                                ArrayList&lt;Integer&gt; constructList(<span class="text-syntaxPink">int</span>[][]
+                                queries) {</div>
+                        </div>
+                        <div id="line-init" class="debug-line">
+                            <div class="line-num">3</div>
+                            <div class="code-content"> <span class="text-syntaxPink">ArrayList</span>&lt;Integer&gt; ans
+                                = <span class="text-syntaxPink">new</span> <span
+                                    class="text-syntaxPink">ArrayList</span>&lt;&gt;();</div>
+                        </div>
+                        <div id="line-init-xor" class="debug-line">
+                            <div class="line-num">4</div>
+                            <div class="code-content"> <span class="text-syntaxPink">int</span> totalXor = <span
+                                    class="text-syntaxPink">0</span>;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">5</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">6</div>
+                            <div class="code-content text-slate-500 italic"> // Process queries in reverse order</div>
+                        </div>
+                        <div id="line-for" class="debug-line">
+                            <div class="line-num">7</div>
+                            <div class="code-content"> <span class="text-syntaxPink">for</span> (<span
+                                    class="text-syntaxPink">int</span> i = queries.length - <span
+                                    class="text-syntaxPink">1</span>; i >= <span class="text-syntaxPink">0</span>; i--)
+                                {</div>
+                        </div>
+                        <div id="line-read-type" class="debug-line">
+                            <div class="line-num">8</div>
+                            <div class="code-content"> <span class="text-syntaxPink">int</span> type = queries[i][0];
+                            </div>
+                        </div>
+                        <div id="line-read-val" class="debug-line">
+                            <div class="line-num">9</div>
+                            <div class="code-content"> <span class="text-syntaxPink">int</span> val = queries[i][1];
+                            </div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">10</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div id="line-if" class="debug-line">
+                            <div class="line-num">11</div>
+                            <div class="code-content"> <span class="text-syntaxPink">if</span> (type == <span
+                                    class="text-syntaxPink">1</span>) {</div>
+                        </div>
+                        <div id="line-xor" class="debug-line">
+                            <div class="line-num">12</div>
+                            <div class="code-content"> totalXor ^= val;</div>
+                        </div>
+                        <div id="line-else" class="debug-line">
+                            <div class="line-num">13</div>
+                            <div class="code-content"> } <span class="text-syntaxPink">else</span> {</div>
+                        </div>
+                        <div id="line-add" class="debug-line">
+                            <div class="line-num">14</div>
+                            <div class="code-content"> ans.add(val ^ totalXor);</div>
+                        </div>
+                        <div id="line-endif" class="debug-line">
+                            <div class="line-num">15</div>
+                            <div class="code-content"> }</div>
+                        </div>
+                        <div id="line-endfor" class="debug-line">
+                            <div class="line-num">16</div>
+                            <div class="code-content"> }</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">17</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">18</div>
+                            <div class="code-content text-slate-500 italic"> // Initial 0 is affected by all XOR queries
+                            </div>
+                        </div>
+                        <div id="line-add-initial" class="debug-line">
+                            <div class="line-num">19</div>
+                            <div class="code-content"> ans.add(totalXor);</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">20</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div id="line-sort" class="debug-line">
+                            <div class="line-num">21</div>
+                            <div class="code-content"> Collections.sort(ans);</div>
+                        </div>
+                        <div id="line-return" class="debug-line">
+                            <div class="line-num">22</div>
+                            <div class="code-content"> <span class="text-syntaxPink">return</span> ans;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">23</div>
+                            <div class="code-content"> }</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">24</div>
+                            <div class="code-content">}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i
+                        class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution utilizes <strong>Reverse Traversal</strong> and <strong>Lazy
+                            Propagation</strong> to optimize what would otherwise be an $O(N \times Q)$ algorithm down
+                        to $O(Q \log Q)$.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">The Problem with the Naive Approach:</h3>
+                    <p class="mb-4 text-slate-300">If we traverse queries forward, every time we encounter a Type 1
+                        query (XOR all), we must iterate through all elements currently in our list and apply the XOR.
+                        If we have $O(Q)$ insertions and $O(Q)$ XOR operations, this results in quadratic time
+                        complexity.</p>
+
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">The Optimal Approach (Reverse Iteration):</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Time Travel Context</strong><br>
+                            If we process the queries from the end to the beginning (in reverse), any Type 1 XOR query
+                            we encounter represents an operation that occurred <em>after</em> the insertions we haven't
+                            seen yet.
+                        </li>
+                        <li>
+                            <strong>Accumulating the Future</strong><br>
+                            We maintain a <code>totalXor</code> variable starting at 0. When we see a
+                            <code>type == 1</code> query, we simply accumulate it: <code>totalXor ^= val</code>. This
+                            <code>totalXor</code> now holds the combined effect of all XOR operations that happen
+                            <em>after</em> the current point in time.
+                        </li>
+                        <li>
+                            <strong>Applying to Insertions</strong><br>
+                            When we encounter a <code>type == 0</code> query (an insertion), we know this element will
+                            be subjected to all the XOR operations we have already accumulated in our reverse traversal.
+                            So, instead of inserting the raw value, we insert <code>val ^ totalXor</code>.
+                        </li>
+                        <li>
+                            <strong>The Implicit Zero</strong><br>
+                            The list implicitly starts with a <code>0</code> before any queries are run. This
+                            <code>0</code> exists for the entirety of the timeline, meaning it is affected by <em>every
+                                single</em> XOR query. Thus, after the loop, we add <code>0 ^ totalXor</code> (which is
+                            just <code>totalXor</code>) to the list. Finally, we sort the list.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div
+                        class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div
+                            class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors">
+                        </div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(Q log Q)</span>
+                        <p class="text-xs text-slate-400">Where $Q$ is the number of queries. The reverse traversal
+                            takes $O(Q)$ time as we process each query exactly once. The sorting step at the end
+                            dominates the time complexity taking $O(Q \log Q)$ time.</p>
+                    </div>
+                    <div
+                        class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div
+                            class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors">
+                        </div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(Q)</span>
+                        <p class="text-xs text-slate-400">Where $Q$ is the number of queries. The space complexity is
+                            dictated by the <code>ans</code> list which needs to store elements. In the worst case, all
+                            queries are insertions, requiring $O(Q)$ auxiliary space.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar"
+        class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn"
+                class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()"
+                class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450;
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+
+            isSplitView = !isSplitView;
+
+            if (isSplitView) {
+                // Restore split view
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right';
+            } else {
+                // Canvas fullscreen
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left';
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+
+            panelsState[panelName] = !panelsState[panelName];
+
+            if (panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if (panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if (panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if (btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500;
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27);
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const queriesStr = document.getElementById('input-queries').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                // Parse "0,2; 1,3; 0,5"
+                const queries = queriesStr.split(';').map(pair => {
+                    const parts = pair.trim().split(',');
+                    if (parts.length !== 2) throw new Error("Format error");
+                    const type = parseInt(parts[0].trim());
+                    const val = parseInt(parts[1].trim());
+                    if (isNaN(type) || isNaN(val) || (type !== 0 && type !== 1)) throw new Error("Invalid types");
+                    return [type, val];
+                });
+
+                if (queries.length === 0) throw new Error("Empty input");
+
+                generateStates(queries);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+
+                if (!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(queries) {
+            states = [];
+            let ans = [];
+            let totalXor = 0;
+
+            const getSnapshot = (hlQIdx, hlAnsIdx, xorHlType) => {
+                return {
+                    queries: queries.map((q, idx) => ({ val: `[${q[0]},${q[1]}]`, hl: idx === hlQIdx ? 'read' : null })),
+                    totalXor: { val: totalXor, hl: xorHlType }, // 'read' or 'write' or null
+                    ans: ans.map((a, idx) => ({ val: a, hl: idx === hlAnsIdx ? 'write' : null }))
+                };
+            };
+
+            const pushState = (msg, line, vrs, visualMap) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: getSnapshot(visualMap.q, visualMap.a, visualMap.x)
+                });
+            };
+
+            let vrs = { i: '-', type: '-', val: '-', totalXor: '-', action: 'Initialization' };
+
+            // Initializing
+            pushState(`Initialize empty ans list.`, "line-init", vrs, { q: -1, a: -1, x: null });
+
+            vrs.totalXor = 0;
+            vrs.action = `Set totalXor = 0`;
+            pushState(`Initialize totalXor accumulator to 0.`, "line-init-xor", vrs, { q: -1, a: -1, x: 'write' });
+
+            // Reverse Traversal Loop
+            for (let i = queries.length - 1; i >= 0; i--) {
+                vrs.i = i;
+                vrs.type = '-';
+                vrs.val = '-';
+                vrs.action = `Looping query index ${i}`;
+                pushState(`Iterate backwards at index ${i}`, "line-for", vrs, { q: i, a: -1, x: null });
+
+                let type = queries[i][0];
+                vrs.type = type;
+                vrs.action = `Read type: ${type}`;
+                pushState(`Extract query type: ${type}`, "line-read-type", vrs, { q: i, a: -1, x: null });
+
+                let val = queries[i][1];
+                vrs.val = val;
+                vrs.action = `Read val: ${val}`;
+                pushState(`Extract query value: ${val}`, "line-read-val", vrs, { q: i, a: -1, x: null });
+
+                pushState(`Check if type == 1`, "line-if", vrs, { q: i, a: -1, x: null });
+
+                if (type === 1) {
+                    vrs.action = `XOR accumulate: totalXor ^= ${val}`;
+                    let oldTotal = totalXor;
+                    totalXor ^= val;
+                    vrs.totalXor = totalXor;
+                    pushState(`Type is 1. Accumulate XOR: ${oldTotal} ^ ${val} = ${totalXor}`, "line-xor", vrs, { q: i, a: -1, x: 'write' });
+                } else {
+                    pushState(`Type is 0. Branch to else.`, "line-else", vrs, { q: i, a: -1, x: null });
+
+                    let newVal = val ^ totalXor;
+                    vrs.action = `Append to list: ${val} ^ ${totalXor} = ${newVal}`;
+                    ans.push(newVal);
+                    pushState(`Apply future XORs to val and add to list: ${val} ^ ${totalXor} = ${newVal}`, "line-add", vrs, { q: i, a: ans.length - 1, x: 'read' });
+                    pushState(`End if/else block`, "line-endif", vrs, { q: i, a: -1, x: null });
+                }
+
+                pushState(`End loop iteration`, "line-endfor", vrs, { q: i, a: -1, x: null });
+            }
+
+            // Add Initial Element (0 ^ totalXor = totalXor)
+            vrs.i = '-';
+            vrs.type = '-';
+            vrs.val = '-';
+            vrs.action = `Add implicit 0 element`;
+            ans.push(totalXor);
+            pushState(`Add the implicit initial 0, which is affected by all XORs: 0 ^ ${totalXor} = ${totalXor}`, "line-add-initial", vrs, { q: -1, a: ans.length - 1, x: 'read' });
+
+            // Sort
+            vrs.action = `Sort the list`;
+            ans.sort((a, b) => a - b);
+            // Re-map to trigger highlights on the whole sorted array
+            const finalAnsSnapshot = ans.map(a => ({ val: a, hl: 'special' }));
+
+            let sortVisuals = getSnapshot(-1, -1, null);
+            sortVisuals.ans = finalAnsSnapshot; // override to highlight all
+
+            states.push({
+                msg: `Sort the final list in ascending order.`,
+                activeLine: "line-sort",
+                vars: JSON.parse(JSON.stringify(vrs)),
+                visuals: sortVisuals
+            });
+
+            // Return
+            vrs.action = `Algorithm Finished`;
+            pushState(`Return the final sorted list.`, "line-return", vrs, { q: -1, a: -1, x: null });
+        }
+
+        function renderArrayDOM(containerId, dataArray, boxType = 'array-box') {
+            const container = document.getElementById(containerId);
+            container.innerHTML = dataArray.map((item, index) => {
+                let hlClass = '';
+                if (item.hl === 'read') hlClass = 'highlight-read';
+                else if (item.hl === 'write') hlClass = 'highlight-write';
+                else if (item.hl === 'special') hlClass = 'highlight-special';
+
+                let val = item.val !== '' ? item.val : '';
+                let boxClass = item.val === '' ? `${boxType} empty-box` : `${boxType} ${hlClass}`;
+
+                return `
+                    <div class="array-box-container">
+                        <span class="array-index">${index}</span>
+                        <div class="${boxClass}">${val}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+
+            if (isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Arrays
+            renderArrayDOM('canvas-queries', state.visuals.queries, 'array-box query-box');
+            renderArrayDOM('canvas-ans', state.visuals.ans, 'array-box');
+
+            // Handle totalXor box
+            const txBox = document.getElementById('box-totalXor');
+            txBox.innerText = state.visuals.totalXor.val !== '-' ? state.visuals.totalXor.val : '';
+            txBox.className = 'array-box large-box text-syntaxYellow'; // reset
+            if (state.visuals.totalXor.hl === 'write') txBox.classList.add('highlight-write');
+            if (state.visuals.totalXor.hl === 'read') txBox.classList.add('highlight-read');
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if (panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-i').innerText = state.vars.i;
+            document.getElementById('var-type').innerText = state.vars.type;
+            document.getElementById('var-val').innerText = state.vars.val;
+            document.getElementById('var-totalXor').innerText = state.vars.totalXor;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if (state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if (activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0;
+            isPlaying = true;
+
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed);
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState);
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab');
+        };
+    </script>
+</body>
+
+</html>

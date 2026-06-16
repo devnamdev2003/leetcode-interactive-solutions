@@ -141,5 +141,17 @@
         ],
         "leetcodeUrl": "https://leetcode.com/problems/find-median-from-data-stream/description/",
         "algovizUrl": "two-pointers/find-median-from-data-stream.html"
+    },
+    {
+        "id": "g-1",
+        "title": "Construct List using XOR Queries",
+        "difficulty": "Medium",
+        "tags": [
+            "Array",
+            "Bit Magic",
+            "Data Structures"
+        ],
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/",
+        "algovizUrl": "array/construct-list-using-given-q-xor-queries.html"
     }
 ]
