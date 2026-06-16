@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Climbing Stairs (Recursive)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: {
+                        bgBase: '#0b1120',
+                        bgPanel: '#111827',
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6',
+                        success: '#10b981',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Form Inputs */
+        .input-field {
+            background-color: #0b1120;
+            border: 1px solid #1e293b;
+            color: #f8fafc;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            outline: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        /* Canvas Styles */
+        .dotted-bg {
+            background-size: 24px 24px;
+            background-image: radial-gradient(circle, #334155 1px, transparent 1px);
+        }
+
+        /* Recursion Tree CSS */
+        .tree-container {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+        }
+
+        .tree {
+            display: inline-flex;
+            justify-content: center;
+            min-width: max-content;
+        }
+
+        .tree ul {
+            padding-top: 24px;
+            position: relative;
+            transition: all 0.5s;
+            display: flex;
+            margin: 0;
+            padding-left: 0;
+        }
+
+        .tree li {
+            float: left;
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 24px 8px 0 8px;
+            transition: all 0.5s;
+        }
+
+        /* Connectors */
+        .tree li::before,
+        .tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 2px solid #334155;
+            width: 50%;
+            height: 24px;
+            z-index: 1;
+        }
+
+        .tree li::after {
+            right: auto;
+            left: 50%;
+            border-left: 2px solid #334155;
+        }
+
+        .tree li:only-child::after,
+        .tree li:only-child::before {
+            display: none;
+        }
+
+        .tree li:only-child {
+            padding-top: 0;
+        }
+
+        .tree li:first-child::before,
+        .tree li:last-child::after {
+            border: 0 none;
+        }
+
+        .tree li:last-child::before {
+            border-right: 2px solid #334155;
+            border-radius: 0 6px 0 0;
+        }
+
+        .tree li:first-child::after {
+            border-radius: 6px 0 0 0;
+        }
+
+        .tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid #334155;
+            width: 0;
+            height: 24px;
+            z-index: 1;
+        }
+
+        /* Node Styles */
+        .node-box {
+            border: 2px solid #1e293b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: #111827;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #f8fafc;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-width: 80px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .node-box.active {
+            border-color: #3b82f6;
+            background: #1e3a8a;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            transform: scale(1.15);
+            z-index: 20;
+        }
+
+        .node-box.returned {
+            border-color: #10b981;
+            background: #064e3b;
+            color: #a7f3d0;
+        }
+
+        .node-value {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 6px;
+            font-weight: normal;
+        }
+
+        .node-box.returned .node-value {
+            color: #34d399;
+            font-weight: bold;
+        }
+
+        .node-box.active .node-value {
+            color: #93c5fd;
+        }
+
+        /* Speed Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100px;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -5px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+
+        /* Code Debugger Styles */
+        .debug-line {
+            transition: all 0.2s;
+            padding: 2px 8px;
+            border-left: 3px solid transparent;
+            display: flex;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .debug-line.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-left-color: #3b82f6;
+        }
+
+        .line-num {
+            width: 24px;
+            text-align: right;
+            margin-right: 16px;
+            color: #475569;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .code-content {
+            white-space: pre;
+        }
+
+        /* Resizer Styles */
+        .resizer-v {
+            width: 6px;
+            background-color: #1e293b;
+            cursor: col-resize;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            z-index: 30;
+        }
+
+        .resizer-v:hover,
+        .resizer-v.active {
+            background-color: #3b82f6;
+        }
+
+        .resizer-h {
+            height: 6px;
+            background-color: #1e293b;
+            cursor: row-resize;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            z-index: 30;
+        }
+
+        .resizer-h:hover,
+        .resizer-h.active {
+            background-color: #3b82f6;
+        }
+
+        /* Drag Overlay classes for smooth resizing */
+        body.resizing,
+        body.resizing * {
+            cursor: col-resize !important;
+            user-select: none !important;
+            pointer-events: none !important;
+        }
+
+        body.resizing-h,
+        body.resizing-h * {
+            cursor: row-resize !important;
+            user-select: none !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-stairs"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Climbing Stairs (Recursive)</p>
+            </div>
+        </div>
+
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab"
+                class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive
+                Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab"
+                class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory &
+                Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar (Hidden on Theory Tab) -->
+    <section id="inputs-bar"
+        class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-xs">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Number of Stairs
+                (n) [Max: 6 for UI]</label>
+            <input type="number" id="input-n" class="input-field" value="4" min="1" max="6">
+        </div>
+        <button onclick="initSimulationFromInputs()"
+            class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i
+            class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a number between 1 and 6 to
+        prevent UI overflow.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;"
+                class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header"
+                    class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-sitemap text-primary"></i>
+                        <span>Call Stack / Recursion Tree</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()"
+                        class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content"
+                    class="flex-grow relative bg-bgBase dotted-bg overflow-hidden flex flex-col transition-opacity duration-300">
+
+                    <!-- Status Overlay -->
+                    <div
+                        class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-30 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Recursion Tree Canvas -->
+                    <div class="tree-container">
+                        <div id="canvas-tree" class="tree">
+                            <!-- Dynamic Tree rendering goes here -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;"
+                class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300"
+                    style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables
+                            Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i
+                                id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars"
+                        class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...
+                        </div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div
+                                class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm flex justify-between items-center">
+                                <span class="block text-[10px] text-slate-500 uppercase">Current Parameter (n)</span>
+                                <span id="var-n" class="font-mono text-primary font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">climbStairs(n-1)</span>
+                                <span id="var-ret1" class="font-mono text-slate-200 text-sm">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">climbStairs(n-2)</span>
+                                <span id="var-ret2" class="font-mono text-slate-200 text-sm">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Execution
+                                    Action</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300"
+                    style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code
+                            Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i
+                                    id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code"
+                        class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div class="debug-line">
+                            <div class="line-num">1</div>
+                            <div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div>
+                        </div>
+                        <div id="line-func" class="debug-line">
+                            <div class="line-num">2</div>
+                            <div class="code-content"> <span class="text-syntaxPink">public int</span> climbStairs(<span
+                                    class="text-syntaxPink">int</span> n) {</div>
+                        </div>
+                        <div id="line-comment1" class="debug-line">
+                            <div class="line-num">3</div>
+                            <div class="code-content text-slate-500 italic"> // Base cases:</div>
+                        </div>
+                        <div id="line-comment2" class="debug-line">
+                            <div class="line-num">4</div>
+                            <div class="code-content text-slate-500 italic"> // 1 way to climb 1 step, 2 ways to climb 2
+                                steps.</div>
+                        </div>
+                        <div id="line-base1" class="debug-line">
+                            <div class="line-num">5</div>
+                            <div class="code-content"> <span class="text-syntaxPink">if</span> (n == 1) <span
+                                    class="text-syntaxPink">return</span> <span class="text-syntaxPink">1</span>;</div>
+                        </div>
+                        <div id="line-base2" class="debug-line">
+                            <div class="line-num">6</div>
+                            <div class="code-content"> <span class="text-syntaxPink">if</span> (n == 2) <span
+                                    class="text-syntaxPink">return</span> <span class="text-syntaxPink">2</span>;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">7</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div id="line-comment3" class="debug-line">
+                            <div class="line-num">8</div>
+                            <div class="code-content text-slate-500 italic"> // The total ways to reach step n is the
+                                sum of the ways</div>
+                        </div>
+                        <div id="line-comment4" class="debug-line">
+                            <div class="line-num">9</div>
+                            <div class="code-content text-slate-500 italic"> // to reach the two steps immediately below
+                                it.</div>
+                        </div>
+                        <div id="line-rec" class="debug-line">
+                            <div class="line-num">10</div>
+                            <div class="code-content"> <span class="text-syntaxPink">return</span> climbStairs(n - 1) +
+                                climbStairs(n - 2);</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">11</div>
+                            <div class="code-content"> }</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">12</div>
+                            <div class="code-content">}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i
+                        class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution uses a <strong>Top-Down Recursive</strong> approach to solve the
+                        Climbing Stairs problem. It fundamentally reduces the problem into smaller, identical
+                        subproblems.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>The Recursive Leap of Faith</strong><br>
+                            To reach step <code>n</code>, you must jump from either step <code>n-1</code> (a 1-step
+                            jump) or step <code>n-2</code> (a 2-step jump). Therefore, the total number of unique ways
+                            to reach step <code>n</code> is exactly the sum of the ways to reach <code>n-1</code> and
+                            <code>n-2</code>.
+                        </li>
+                        <li>
+                            <strong>Overlapping Subproblems</strong><br>
+                            Notice in the recursion tree how many function calls are repeated. For example,
+                            <code>f(4)</code> will compute <code>f(3)</code> and <code>f(2)</code>. But inside
+                            <code>f(3)</code>, it will again compute <code>f(2)</code>. This redundancy is what makes
+                            the naive recursive approach highly inefficient for large <code>n</code>.
+                        </li>
+                        <li>
+                            <strong>Base Cases</strong><br>
+                            The recursion stops when it reaches <code>n=1</code> (1 way) or <code>n=2</code> (2 ways).
+                            These prevent infinite loops and provide the foundational values that bubble back up the
+                            tree.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div
+                        class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div
+                            class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors">
+                        </div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(2<sup>n</sup>)</span>
+                        <p class="text-xs text-slate-400">Exponential time. Every function call branches out into
+                            exactly two more function calls. The size of the recursion tree grows exponentially as $n$
+                            increases.</p>
+                    </div>
+                    <div
+                        class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div
+                            class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors">
+                        </div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(n)</span>
+                        <p class="text-xs text-slate-400">Where $n$ is the target step. Even though there are $O(2^n)$
+                            total calls, the maximum depth of the call stack (height of the recursion tree) at any given
+                            time is $n$.</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-blue-900/20 border border-blue-500/30 rounded-xl p-5 text-sm text-blue-200">
+                    <i class="fas fa-lightbulb text-yellow-400 mr-2"></i><strong>Optimization Tip:</strong> Because of
+                    the overlapping subproblems, this algorithm can be optimized drastically using
+                    <strong>Memoization</strong> (caching results) or <strong>Dynamic Programming</strong> (bottom-up
+                    array), reducing the Time Complexity from $O(2^n)$ to $O(n)$.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar (Hidden on Theory Tab) -->
+    <footer id="control-bar"
+        class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn"
+                class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()"
+                class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450;
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+
+            isSplitView = !isSplitView;
+
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right';
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left';
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+
+            panelsState[panelName] = !panelsState[panelName];
+
+            if (panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if (panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if (panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if (btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500;
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27);
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const inputN = parseInt(document.getElementById('input-n').value);
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            if (isNaN(inputN) || inputN < 1 || inputN > 6) {
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            generateStates(inputN);
+            pauseAnim();
+            currState = 0;
+            renderState(0);
+
+            if (!document.getElementById('dry-tab').classList.contains('active')) {
+                switchTab('dry-tab');
+            }
+        }
+
+        // --- Simulating Algorithm and Building Tree ---
+        function generateStates(n) {
+            states = [];
+            let nextId = 1;
+            let treeRoot = { id: nextId++, n: n, status: 'pending', value: null, left: null, right: null };
+
+            // Deep clone to capture the tree state at a specific moment
+            function cloneNode(node) {
+                if (!node) return null;
+                return {
+                    id: node.id, n: node.n, status: node.status, value: node.value,
+                    left: cloneNode(node.left), right: cloneNode(node.right)
+                };
+            }
+
+            function pushState(msg, line, activeId, vrs) {
+                states.push({
+                    msg: msg,
+                    line: line,
+                    activeId: activeId,
+                    vars: { n: '-', ret1: '-', ret2: '-', action: '-', ...vrs },
+                    tree: cloneNode(treeRoot)
+                });
+            }
+
+            function solve(node) {
+                node.status = 'active';
+                pushState(`Pushing climbStairs(${node.n}) onto call stack.`, "line-func", node.id, { n: node.n, action: `Started execution of f(${node.n})` });
+
+                pushState(`Checking base cases for n = ${node.n}.`, "line-base1", node.id, { n: node.n, action: `Eval base cases` });
+
+                if (node.n === 1) {
+                    node.value = 1;
+                    node.status = 'returned';
+                    pushState(`Base case met! climbStairs(1) returns 1.`, "line-base1", node.id, { n: node.n, action: `Return 1` });
+                    return 1;
+                }
+
+                pushState(`Check second base case for n = ${node.n}.`, "line-base2", node.id, { n: node.n, action: `Eval base cases` });
+                if (node.n === 2) {
+                    node.value = 2;
+                    node.status = 'returned';
+                    pushState(`Base case met! climbStairs(2) returns 2.`, "line-base2", node.id, { n: node.n, action: `Return 2` });
+                    return 2;
+                }
+
+                pushState(`Not a base case. We need to calculate f(${node.n}-1) and f(${node.n}-2). Branching left...`, "line-rec", node.id, { n: node.n, action: `Calculate f(${node.n - 1})` });
+
+                // Left branch execution
+                node.left = { id: nextId++, n: node.n - 1, status: 'pending', value: null, left: null, right: null };
+                pushState(`Preparing to execute left branch: f(${node.left.n})`, "line-rec", node.id, { n: node.n, action: `Calling f(${node.n - 1})` });
+                let leftVal = solve(node.left);
+
+                // Back to current node after left branch
+                node.status = 'active';
+                pushState(`Left branch f(${node.n - 1}) returned ${leftVal}. Now branching right to calculate f(${node.n - 2}).`, "line-rec", node.id, { n: node.n, ret1: leftVal, action: `Calculate f(${node.n - 2})` });
+
+                // Right branch execution
+                node.right = { id: nextId++, n: node.n - 2, status: 'pending', value: null, left: null, right: null };
+                pushState(`Preparing to execute right branch: f(${node.right.n})`, "line-rec", node.id, { n: node.n, ret1: leftVal, action: `Calling f(${node.n - 2})` });
+                let rightVal = solve(node.right);
+
+                // Back to current node, sum and return
+                node.status = 'active';
+                let total = leftVal + rightVal;
+
+                pushState(`Both branches complete. Summing results: ${leftVal} + ${rightVal} = ${total}.`, "line-rec", node.id, { n: node.n, ret1: leftVal, ret2: rightVal, action: `Summing child results` });
+
+                node.value = total;
+                node.status = 'returned';
+                pushState(`Popping climbStairs(${node.n}) from stack, returning ${total}.`, "line-rec", node.id, { n: node.n, ret1: leftVal, ret2: rightVal, action: `Returning ${total}` });
+
+                return total;
+            }
+
+            // Start simulation
+            solve(treeRoot);
+
+            // Final summary state
+            pushState(`Algorithm Finished! Total ways to climb ${n} stairs is ${treeRoot.value}.`, "line-func", null, { action: `Algorithm Terminated` });
+        }
+
+        // --- Rendering Engine ---
+        function renderTree(node, activeId) {
+            if (!node) return '';
+
+            let isActive = node.id === activeId;
+            let isReturned = node.status === 'returned';
+            let classes = `node-box ${isActive ? 'active' : ''} ${isReturned ? 'returned' : ''}`;
+
+            let valText = node.value !== null ? `ret: ${node.value}` : 'computing...';
+            if (node.status === 'pending') valText = 'waiting...';
+
+            let html = `<li><div class="${classes}" id="node-${node.id}"><span>f(${node.n})</span><span class="node-value">${valText}</span></div>`;
+
+            if (node.left || node.right) {
+                html += `<ul>`;
+                if (node.left) html += renderTree(node.left, activeId);
+                if (node.right) html += renderTree(node.right, activeId);
+                html += `</ul>`;
+            }
+            html += `</li>`;
+            return html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+
+            if (isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render Recursion Tree
+            const treeContainer = document.getElementById('canvas-tree');
+            if (state.tree) {
+                treeContainer.innerHTML = `<ul>${renderTree(state.tree, state.activeId)}</ul>`;
+            } else {
+                treeContainer.innerHTML = '';
+            }
+
+            // Scroll active node into view smoothly
+            setTimeout(() => {
+                const activeEl = document.querySelector('.node-box.active');
+                const container = document.querySelector('.tree-container');
+                if (activeEl && container) {
+                    // Try to keep the active element near the center horizontally
+                    const containerRect = container.getBoundingClientRect();
+                    const elRect = activeEl.getBoundingClientRect();
+                    const offsetLeft = elRect.left + container.scrollLeft - containerRect.left - (containerRect.width / 2) + (elRect.width / 2);
+
+                    container.scrollTo({
+                        left: offsetLeft,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 50);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if (panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-n').innerText = state.vars.n;
+            document.getElementById('var-ret1').innerText = state.vars.ret1;
+            document.getElementById('var-ret2').innerText = state.vars.ret2;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if (state.line) {
+                let activeEl = document.getElementById(state.line);
+                if (activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // --- Controls ---
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0;
+            isPlaying = true;
+
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed);
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState);
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab');
+        };
+    </script>
+</body>
+
+</html>

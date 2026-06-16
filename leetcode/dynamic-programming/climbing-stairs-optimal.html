@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Climbing Stairs</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; }
+        .array-box { 
+            width: 48px; height: 48px; border: 2px solid #1e293b; background: #111827; 
+            border-radius: 8px; display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; font-size: 16px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .array-box.empty-box { color: transparent; border-color: #1e293b80; }
+        
+        /* Custom Highlight Classes for Climbing Stairs */
+        .array-box.highlight-prev2 { border-color: #f472b6; background: rgba(244, 114, 182, 0.1); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); transform: scale(1.1); z-index: 10; color: #f472b6;}
+        .array-box.highlight-prev1 { border-color: #60a5fa; background: rgba(96, 165, 250, 0.1); box-shadow: 0 0 12px rgba(96, 165, 250, 0.4); transform: scale(1.1); z-index: 10; color: #60a5fa;}
+        .array-box.highlight-current { border-color: #34d399; background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 12px rgba(52, 211, 153, 0.4); transform: scale(1.1); z-index: 10; color: #34d399;}
+        .array-box.highlight-answer { border-color: #fcd34d; background: rgba(252, 211, 77, 0.1); box-shadow: 0 0 12px rgba(252, 211, 77, 0.4); transform: scale(1.1); z-index: 10; color: #fcd34d;}
+
+        .array-index { font-family: 'Fira Code', monospace; font-size: 10px; color: #64748b; white-space: nowrap;}
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        /* Drag Overlay classes for smooth resizing */
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-stairs"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Climbing Stairs (Space Optimized DP)</p>
+            </div>
+        </div>
+        
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar (Hidden on Theory Tab) -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-sm">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Number of Stairs 'n' (Max 15)</label>
+            <input type="number" min="1" max="15" id="input-n" class="input-field" value="5">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a number between 1 and 15.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <div class="mt-8">
+                        <!-- Legend -->
+                        <div class="flex items-center flex-wrap gap-4 text-[10px] uppercase font-bold tracking-widest text-slate-400 mb-8 px-2">
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-syntaxPink/20 border border-syntaxPink"></div> prev2 (i-2)</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-syntaxBlue/20 border border-syntaxBlue"></div> prev1 (i-1)</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-syntaxGreen/20 border border-syntaxGreen"></div> current (i)</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-syntaxYellow/20 border border-syntaxYellow"></div> Answer</div>
+                        </div>
+
+                        <!-- Computed DP Array -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest">Staircase Tracking</h3>
+                                <span class="text-[10px] text-slate-500">(Ways to reach each step)</span>
+                            </div>
+                            <div id="canvas-stairs" class="flex gap-3 overflow-x-auto pb-4 pt-2 px-2"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-4">
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Target (n)</span>
+                                <span id="var-n" class="font-mono text-white text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i)</span>
+                                <span id="var-i" class="font-mono text-primary font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">prev2</span>
+                                <span id="var-prev2" class="font-mono text-syntaxPink font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">prev1</span>
+                                <span id="var-prev1" class="font-mono text-syntaxBlue font-bold text-lg">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">current calculation</span>
+                                <span id="var-current" class="font-mono text-syntaxGreen font-bold text-lg">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div id="line-class" class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-sig" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> climbStairs(<span class="text-syntaxPink">int</span> n) {</div></div>
+                        <div id="line-if" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">if</span> (n == <span class="text-syntaxPink">1</span>) <span class="text-syntaxPink">return 1</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content">        </div></div>
+                        <div class="debug-line"><div class="line-num">5</div><div class="code-content text-slate-500 italic">        // Track only the last two calculations</div></div>
+                        <div id="line-prev2" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">int</span> prev2 = <span class="text-syntaxPink">1</span>; <span class="text-slate-500 italic">// Represents ways to reach (i-2)</span></div></div>
+                        <div id="line-prev1" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">int</span> prev1 = <span class="text-syntaxPink">2</span>; <span class="text-slate-500 italic">// Represents ways to reach (i-1)</span></div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">        </div></div>
+                        <div id="line-for" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">3</span>; i <= n; i++) {</div></div>
+                        <div class="debug-line"><div class="line-num">10</div><div class="code-content text-slate-500 italic">            // Calculate current step</div></div>
+                        <div id="line-curr" class="debug-line"><div class="line-num">11</div><div class="code-content">            <span class="text-syntaxPink">int</span> current = prev1 + prev2;</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content">            </div></div>
+                        <div class="debug-line"><div class="line-num">13</div><div class="code-content text-slate-500 italic">            // Shift our "window" of two variables forward</div></div>
+                        <div id="line-shift1" class="debug-line"><div class="line-num">14</div><div class="code-content">            prev2 = prev1;</div></div>
+                        <div id="line-shift2" class="debug-line"><div class="line-num">15</div><div class="code-content">            prev1 = current;</div></div>
+                        <div id="line-endfor" class="debug-line"><div class="line-num">16</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">        </div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content text-slate-500 italic">        // prev1 holds final answer when loop ends</div></div>
+                        <div id="line-ret" class="debug-line"><div class="line-num">19</div><div class="code-content">        <span class="text-syntaxPink">return</span> prev1;</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution effectively solves the overlapping subproblems of climbing stairs by using a bottom-up <strong>Dynamic Programming (Space Optimized)</strong> approach. It is conceptually identical to generating the <strong>Fibonacci Sequence</strong>.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>The Core Logic:</strong><br>
+                            To reach the $i^{th}$ step, you could have come from the $(i-1)^{th}$ step (by taking a 1-step) or from the $(i-2)^{th}$ step (by taking a 2-step). Therefore, the total number of ways to reach step $i$ is exactly <code>Ways(i-1) + Ways(i-2)</code>.
+                        </li>
+                        <li>
+                            <strong>Base Cases:</strong><br>
+                            There is 1 way to reach step 1. There are 2 ways to reach step 2 (two 1-steps, or one 2-step). We prime our variables with these truths.
+                        </li>
+                        <li>
+                            <strong>Space Optimization:</strong><br>
+                            A standard DP approach uses an array of size $N$ to store answers for every single step. However, to calculate the next step, we <em>only</em> need the previous two calculations. By using a sliding window of just two variables (<code>prev2</code> and <code>prev1</code>), we eliminate the need for an array, drastically dropping memory usage!
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the number of stairs. We loop from step 3 up to step $N$ exactly once, performing constant $O(1)$ additions at each iteration.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">We do not allocate an array proportional to $N$. Instead, we only keep track of a few integer variables (<code>prev1</code>, <code>prev2</code>, <code>current</code>), making the auxiliary space exactly $O(1)$.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar (Hidden on Theory Tab) -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                // Restore split view
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right';
+            } else {
+                // Canvas fullscreen
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left';
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State Simulation Logic
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500; 
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const numStr = document.getElementById('input-n').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                const n = parseInt(numStr.trim());
+                
+                if (isNaN(n) || n < 1 || n > 15) {
+                    throw new Error("Invalid Input");
+                }
+
+                generateStates(n);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(n) {
+            states = [];
+            // Visualization arrays
+            let stairs = new Array(n).fill(''); // The actual DP tracking (for visuals)
+            let hls = new Array(n).fill(null);  // Highlight pointers
+
+            const getSnapshot = () => ({
+                stairs: stairs.map((val, idx) => ({ val, hl: hls[idx] }))
+            });
+
+            const pushState = (msg, line, vrs) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: { ...vrs }, // Copy vars object
+                    visuals: getSnapshot()
+                });
+            };
+
+            let vrs = { n: n, i: '-', prev2: '-', prev1: '-', current: '-', action: 'Initialization' };
+            
+            pushState(`Start execution for n = ${n}`, "line-sig", vrs);
+            
+            vrs.action = `Check if n == 1`;
+            pushState(`Base case check: is n exactly 1?`, "line-if", vrs);
+
+            if (n === 1) {
+                stairs[0] = 1;
+                hls[0] = 'answer';
+                vrs.action = `n is 1. Return 1.`;
+                pushState(`n is 1. Return 1 directly.`, "line-if", vrs);
+                return;
+            }
+
+            // Init Variables
+            vrs.prev2 = 1;
+            stairs[0] = 1;
+            hls[0] = 'prev2';
+            vrs.action = `Set prev2 = 1 (ways to reach step 1)`;
+            pushState(`Initialize prev2 to 1.`, "line-prev2", vrs);
+
+            vrs.prev1 = 2;
+            stairs[1] = 2;
+            hls[1] = 'prev1';
+            vrs.action = `Set prev1 = 2 (ways to reach step 2)`;
+            pushState(`Initialize prev1 to 2.`, "line-prev1", vrs);
+
+            // The loop
+            for (let i = 3; i <= n; i++) {
+                vrs.i = i;
+                vrs.action = `Processing step ${i}`;
+                pushState(`Loop starts for calculating step ${i}`, "line-for", vrs);
+
+                let current = vrs.prev1 + vrs.prev2;
+                vrs.current = current;
+                stairs[i - 1] = current;
+                hls[i - 1] = 'current';
+                vrs.action = `current = ${vrs.prev1} + ${vrs.prev2} = ${current}`;
+                pushState(`Add previous two calculations together.`, "line-curr", vrs);
+
+                vrs.action = `Shift prev2 pointer to prev1's value (${vrs.prev1})`;
+                vrs.prev2 = vrs.prev1;
+                // Move Highlight
+                hls[i - 3] = null; // Clear old prev2
+                hls[i - 2] = 'prev2'; // old prev1 becomes prev2 visually
+                pushState(`Shift prev2 forward to ${vrs.prev2}`, "line-shift1", vrs);
+
+                vrs.action = `Shift prev1 pointer to current's value (${current})`;
+                vrs.prev1 = current;
+                // Move Highlight
+                hls[i - 2] = 'prev2'; 
+                hls[i - 1] = 'prev1'; // current becomes prev1 visually
+                pushState(`Shift prev1 forward to ${vrs.prev1}`, "line-shift2", vrs);
+            }
+
+            vrs.i = '-';
+            vrs.action = `Loop Condition Fails`;
+            pushState(`Loop finished processing all steps.`, "line-endfor", vrs);
+
+            vrs.action = `Algorithm Complete`;
+            hls.fill(null);
+            hls[n - 1] = 'answer';
+            pushState(`Done! Return the final accumulated answer in prev1 (${vrs.prev1}).`, "line-ret", vrs);
+        }
+
+        function renderArrayDOM(containerId, dataArray) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = dataArray.map((item, index) => {
+                let hlClass = '';
+                if (item.hl === 'prev2') hlClass = 'highlight-prev2';
+                else if (item.hl === 'prev1') hlClass = 'highlight-prev1';
+                else if (item.hl === 'current') hlClass = 'highlight-current';
+                else if (item.hl === 'answer') hlClass = 'highlight-answer';
+                
+                let val = item.val !== '' ? item.val : '';
+                let boxClass = item.val === '' ? 'array-box empty-box' : `array-box ${hlClass}`;
+                
+                return `
+                    <div class="array-box-container">
+                        <span class="array-index">Stair ${index + 1}</span>
+                        <div class="${boxClass}">${val}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderState(idx) {
+            if(!states || states.length === 0) return;
+            const state = states[idx];
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Arrays
+            renderArrayDOM('canvas-stairs', state.visuals.stairs);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-n').innerText = state.vars.n;
+            document.getElementById('var-i').innerText = state.vars.i;
+            document.getElementById('var-prev2').innerText = state.vars.prev2;
+            document.getElementById('var-prev1').innerText = state.vars.prev1;
+            document.getElementById('var-current').innerText = state.vars.current;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>

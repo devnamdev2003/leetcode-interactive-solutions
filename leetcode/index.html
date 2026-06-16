@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My LeetCode Journey</title>
+    <title>My DSA Journey</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -108,7 +108,7 @@
 
 <body class="min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
-    <div class="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
 
         <!-- Header -->
         <header class="mb-12 animate-fade-in-up">
@@ -121,26 +121,34 @@
                     </div>
                     <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-2">
                         My <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">LeetCode</span>
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Coding</span>
                         Sheet
                     </h1>
                     <p class="text-slate-400 text-lg max-w-2xl">
-                        A modern repository of my solved problems, conceptual notes, and external references to master
-                        coding interviews.
+                        A modern repository of my solved problems, conceptual notes, and multiple solution approaches
+                        across various platforms.
                     </p>
                 </div>
 
                 <!-- Stats Overview -->
-                <div class="flex gap-4">
-                    <div class="glass px-5 py-3 rounded-2xl border-t border-t-emerald-500/30">
+                <div class="flex flex-wrap gap-3 sm:gap-4">
+                    <div
+                        class="glass px-5 py-3 rounded-2xl border-t border-t-indigo-500/30 flex flex-col justify-center text-center">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total</p>
+                        <p class="text-2xl font-bold text-indigo-400" id="count-total">0</p>
+                    </div>
+                    <div
+                        class="glass px-5 py-3 rounded-2xl border-t border-t-emerald-500/30 flex flex-col justify-center text-center">
                         <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Easy</p>
                         <p class="text-2xl font-bold text-emerald-400" id="count-easy">0</p>
                     </div>
-                    <div class="glass px-5 py-3 rounded-2xl border-t border-t-amber-500/30">
+                    <div
+                        class="glass px-5 py-3 rounded-2xl border-t border-t-amber-500/30 flex flex-col justify-center text-center">
                         <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Medium</p>
                         <p class="text-2xl font-bold text-amber-400" id="count-medium">0</p>
                     </div>
-                    <div class="glass px-5 py-3 rounded-2xl border-t border-t-rose-500/30">
+                    <div
+                        class="glass px-5 py-3 rounded-2xl border-t border-t-rose-500/30 flex flex-col justify-center text-center">
                         <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Hard</p>
                         <p class="text-2xl font-bold text-rose-400" id="count-hard">0</p>
                     </div>
@@ -148,36 +156,81 @@
             </div>
         </header>
 
-        <!-- Controls (Search & Filter) -->
-        <div class="mb-8 flex flex-col md:flex-row gap-4 animate-fade-in-up relative z-30"
+        <!-- Controls (Search & Filters) -->
+        <div class="mb-8 flex flex-col lg:flex-row gap-4 animate-fade-in-up relative z-30"
             style="animation-delay: 0.1s;">
             <!-- Search Bar -->
             <div class="relative flex-grow">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search by ID, problems, tags, or topics..."
+                <input type="text" id="searchInput" placeholder="Search by ID, problems, tags, or platform..."
                     class="block w-full pl-10 pr-3 py-3 border border-slate-700 rounded-xl leading-5 bg-slate-800/50 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all sm:text-sm glass">
             </div>
 
             <!-- Custom Dropdowns & Reset -->
-            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full lg:w-auto">
+
+                <!-- Sort Dropdown -->
+                <div class="relative w-full sm:w-48">
+                    <button onclick="toggleSortMenu(event)" id="sort-btn"
+                        class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
+                        <span id="sort-selected-text" class="truncate">Sort: Default</span>
+                        <i data-lucide="arrow-up-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
+                            id="sort-chevron"></i>
+                    </button>
+                    <div id="sort-menu"
+                        class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden transition-all duration-200 glass origin-top">
+                        <ul class="max-h-60 overflow-y-auto py-1.5 custom-scrollbar outline-none">
+                            <li onclick="selectSort(event, 'default', 'Sort: Default')"
+                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
+                                data-value="default">
+                                <span>Default</span> <i data-lucide="check"
+                                    class="w-4 h-4 text-indigo-400 check-icon"></i>
+                            </li>
+                            <li onclick="selectSort(event, 'idAsc', 'ID: Low to High')"
+                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
+                                data-value="idAsc">
+                                <span>ID: Low to High</span> <i data-lucide="check"
+                                    class="w-4 h-4 text-transparent check-icon"></i>
+                            </li>
+                            <li onclick="selectSort(event, 'titleAsc', 'Title: A to Z')"
+                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
+                                data-value="titleAsc">
+                                <span>Title: A to Z</span> <i data-lucide="check"
+                                    class="w-4 h-4 text-transparent check-icon"></i>
+                            </li>
+                            <li onclick="selectSort(event, 'diffAsc', 'Difficulty: Asc')"
+                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
+                                data-value="diffAsc">
+                                <span>Difficulty: Asc</span> <i data-lucide="check"
+                                    class="w-4 h-4 text-transparent check-icon"></i>
+                            </li>
+                            <li onclick="selectSort(event, 'diffDesc', 'Difficulty: Desc')"
+                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
+                                data-value="diffDesc">
+                                <span>Difficulty: Desc</span> <i data-lucide="check"
+                                    class="w-4 h-4 text-transparent check-icon"></i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
                 <!-- Custom Difficulty Dropdown -->
-                <div class="relative w-full sm:w-48">
+                <div class="relative w-full sm:w-40">
                     <button onclick="toggleDiffMenu(event)" id="diff-btn"
                         class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
-                        <span id="diff-selected-text" class="truncate">All Difficulties</span>
+                        <span id="diff-selected-text" class="truncate">All Levels</span>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
                             id="diff-chevron"></i>
                     </button>
                     <div id="diff-menu"
                         class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden transition-all duration-200 glass origin-top">
                         <ul class="max-h-60 overflow-y-auto py-1.5 custom-scrollbar outline-none">
-                            <li onclick="selectDifficulty(event, 'All', 'All Difficulties')"
+                            <li onclick="selectDifficulty(event, 'All', 'All Levels')"
                                 class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group diff-option"
                                 data-value="All">
-                                <span>All Difficulties</span> <i data-lucide="check"
+                                <span>All Levels</span> <i data-lucide="check"
                                     class="w-4 h-4 text-indigo-400 check-icon"></i>
                             </li>
                             <li onclick="selectDifficulty(event, 'Easy', 'Easy')"
@@ -230,7 +283,7 @@
         </div>
 
         <!-- Problem List -->
-        <div id="problemList" class="space-y-2 pb-20 relative z-10">
+        <div id="problemList" class="space-y-3 pb-20 relative z-10">
             <!-- Items injected by JS -->
         </div>
 
@@ -238,13 +291,77 @@
 
     <!-- Application Logic & Data -->
     <script>
+        // Fallback Data used if fetching data.json fails due to Canvas sandbox limits
+        const fallbackData = [
+            {
+                "id": 11,
+                "title": "Container With Most Water",
+                "difficulty": "Easy",
+                "tags": ["Array", "Greedy", "Two Pointers"],
+                "platform": "LeetCode",
+                "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/",
+                "solutions": [
+                    { "name": "Brute Force", "url": "#" },
+                    { "name": "Optimal", "url": "array/container-with-most-water.html" }
+                ]
+            },
+            {
+                "id": 2751,
+                "title": "Robot Collisions",
+                "difficulty": "Hard",
+                "tags": ["Senior Staff", "Array", "Stack", "Sorting", "Simulation"],
+                "platform": "LeetCode",
+                "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
+                "solutions": [
+                    { "name": "AlgoViz", "url": "array/robot-collisions.html" }
+                ]
+            },
+            {
+                "id": "15",
+                "title": "3Sum",
+                "difficulty": "Medium",
+                "tags": ["Array", "Two Pointers", "Sorting"],
+                "platform": "LeetCode",
+                "platformUrl": "https://leetcode.com/problems/3sum/description/",
+                "solutions": [
+                    { "name": "AlgoViz", "url": "algorithm/3sum.html" }
+                ]
+            },
+            {
+                "id": "g-1",
+                "title": "Construct List using XOR Queries",
+                "difficulty": "Medium",
+                "tags": ["Array", "Bit Magic", "Data Structures"],
+                "platform": "GeeksForGeeks",
+                "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
+                "solutions": [
+                    { "name": "AlgoViz", "url": "array/construct-list-using-given-q-xor-queries.html" }
+                ]
+            },
+            {
+                "id": "a-12",
+                "title": "Binary Tree Boundary Traversal",
+                "difficulty": "Hard",
+                "tags": ["Algorithm"],
+                "platform": "LeetCode",
+                "platformUrl": "#",
+                "solutions": [
+                    { "name": "AlgoViz", "url": "algorithm/binary-tree-boundary-traversal.html" }
+                ]
+            }
+        ];
+
         // State
         let problemData = [];
         let currentFilter = 'All';
+        let currentSort = 'default';
         let selectedTags = [];
         let searchQuery = '';
+
+        // Dropdown open states
         let isDiffOpen = false;
         let isTagOpen = false;
+        let isSortOpen = false;
 
         // DOM Elements
         const listContainer = document.getElementById('problemList');
@@ -260,11 +377,24 @@
             }
         }
 
+        // Helper: Get Platform Config (Icon & Colors)
+        function getPlatformConfig(platform) {
+            const p = (platform || '').toLowerCase();
+            if (p.includes('leetcode')) return { icon: 'code', text: 'LeetCode', colorClass: 'text-amber-400 hover:bg-amber-400/10 hover:border-amber-400/20' };
+            if (p.includes('geeks') || p.includes('gfg')) return { icon: 'book-open', text: 'GFG', colorClass: 'text-green-400 hover:bg-green-400/10 hover:border-green-400/20' };
+            if (p.includes('codeforces')) return { icon: 'bar-chart-2', text: 'Codeforces', colorClass: 'text-red-400 hover:bg-red-400/10 hover:border-red-400/20' };
+            if (p.includes('hackerrank')) return { icon: 'terminal', text: 'HackerRank', colorClass: 'text-emerald-400 hover:bg-emerald-400/10 hover:border-emerald-400/20' };
+
+            // Default
+            return { icon: 'globe', text: platform || 'Link', colorClass: 'text-slate-400 hover:bg-slate-400/10 hover:border-slate-400/20' };
+        }
+
         // Initialize and Update Stats
         function updateStats() {
             const counts = { Easy: 0, Medium: 0, Hard: 0 };
             problemData.forEach(p => { if (counts[p.difficulty] !== undefined) counts[p.difficulty]++; });
 
+            document.getElementById('count-total').innerText = problemData.length;
             document.getElementById('count-easy').innerText = counts.Easy;
             document.getElementById('count-medium').innerText = counts.Medium;
             document.getElementById('count-hard').innerText = counts.Hard;
@@ -272,24 +402,21 @@
 
         // --- Custom Dropdown Logic ---
 
-        // Dynamically extract and populate tags into the custom UI list
         function populateTags() {
             const allTags = new Set();
             problemData.forEach(p => {
-                p.tags.forEach(tag => allTags.add(tag));
+                (p.tags || []).forEach(tag => allTags.add(tag));
             });
 
             const sortedTags = Array.from(allTags).sort();
             const tagList = document.getElementById('tag-menu-list');
 
-            // Default 'All Tags' option
             let html = `
                 <li onclick="toggleTagSelect(event, 'All')" class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group tag-option" data-value="All">
                     <span>All Tags</span> <i data-lucide="check" class="w-4 h-4 text-indigo-400 check-icon"></i>
                 </li>
             `;
 
-            // Generated Tag options
             sortedTags.forEach(tag => {
                 html += `
                     <li onclick="toggleTagSelect(event, '${tag}')" class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-300 text-sm transition-colors flex items-center justify-between group tag-option" data-value="${tag}">
@@ -299,73 +426,69 @@
             });
 
             tagList.innerHTML = html;
-            // Initialize lucide icons within the newly added html
             lucide.createIcons();
         }
 
         function toggleDiffMenu(e) {
             e.stopPropagation();
             isDiffOpen = !isDiffOpen;
-            isTagOpen = false; // Close the other dropdown
+            isTagOpen = false; isSortOpen = false;
             renderDropdownState();
         }
 
         function toggleTagMenu(e) {
             e.stopPropagation();
             isTagOpen = !isTagOpen;
-            isDiffOpen = false; // Close the other dropdown
+            isDiffOpen = false; isSortOpen = false;
+            renderDropdownState();
+        }
+
+        function toggleSortMenu(e) {
+            e.stopPropagation();
+            isSortOpen = !isSortOpen;
+            isDiffOpen = false; isTagOpen = false;
             renderDropdownState();
         }
 
         function renderDropdownState() {
-            const diffMenu = document.getElementById('diff-menu');
-            const diffChevron = document.getElementById('diff-chevron');
-            const tagMenu = document.getElementById('tag-menu');
-            const tagChevron = document.getElementById('tag-chevron');
+            const menus = [
+                { id: 'diff', isOpen: isDiffOpen },
+                { id: 'tag', isOpen: isTagOpen },
+                { id: 'sort', isOpen: isSortOpen }
+            ];
 
-            // Difficulty Menu
-            if (isDiffOpen) {
-                diffMenu.classList.remove('hidden');
-                diffChevron.style.transform = 'rotate(180deg)';
-            } else {
-                diffMenu.classList.add('hidden');
-                diffChevron.style.transform = 'rotate(0deg)';
-            }
-
-            // Tag Menu
-            if (isTagOpen) {
-                tagMenu.classList.remove('hidden');
-                tagChevron.style.transform = 'rotate(180deg)';
-            } else {
-                tagMenu.classList.add('hidden');
-                tagChevron.style.transform = 'rotate(0deg)';
-            }
+            menus.forEach(m => {
+                const menuEl = document.getElementById(`${m.id}-menu`);
+                const chevEl = document.getElementById(`${m.id}-chevron`);
+                if (m.isOpen) {
+                    menuEl.classList.remove('hidden');
+                    if (m.id !== 'sort') chevEl.style.transform = 'rotate(180deg)';
+                } else {
+                    menuEl.classList.add('hidden');
+                    if (m.id !== 'sort') chevEl.style.transform = 'rotate(0deg)';
+                }
+            });
         }
 
-        // Click outside closes dropdowns
+        // Close dropdowns on outside click
         document.addEventListener('click', () => {
-            if (isDiffOpen || isTagOpen) {
-                isDiffOpen = false;
-                isTagOpen = false;
+            if (isDiffOpen || isTagOpen || isSortOpen) {
+                isDiffOpen = false; isTagOpen = false; isSortOpen = false;
                 renderDropdownState();
             }
         });
 
-        // Handle item selection in Difficulty Dropdown
         function selectDifficulty(e, value, text) {
             if (e) e.stopPropagation();
             currentFilter = value;
             document.getElementById('diff-selected-text').innerText = text;
 
-            // Update active styling/checkmarks
             document.querySelectorAll('.diff-option').forEach(el => {
                 const icon = el.querySelector('.check-icon');
                 if (el.dataset.value === value) {
-                    icon.classList.remove('text-transparent');
-                    icon.classList.add('text-indigo-400');
+                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
                 } else {
-                    icon.classList.add('text-transparent');
-                    icon.classList.remove('text-indigo-400');
+                    icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400');
                 }
             });
 
@@ -374,82 +497,115 @@
             renderProblems();
         }
 
-        // Handle Multi-Select for Tags
+        function selectSort(e, value, text) {
+            if (e) e.stopPropagation();
+            currentSort = value;
+            document.getElementById('sort-selected-text').innerText = text;
+
+            document.querySelectorAll('.sort-option').forEach(el => {
+                const icon = el.querySelector('.check-icon');
+                if (el.dataset.value === value) {
+                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
+                } else {
+                    icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400');
+                }
+            });
+
+            isSortOpen = false;
+            renderDropdownState();
+            renderProblems();
+        }
+
         function toggleTagSelect(e, tag) {
-            if (e) e.stopPropagation(); // Keep menu open when selecting tags
+            if (e) e.stopPropagation(); // Keep menu open
 
             if (tag === 'All') {
                 selectedTags = [];
             } else {
                 const index = selectedTags.indexOf(tag);
-                if (index > -1) {
-                    selectedTags.splice(index, 1); // Remove if already selected
-                } else {
-                    selectedTags.push(tag); // Add if not selected
-                }
+                if (index > -1) selectedTags.splice(index, 1);
+                else selectedTags.push(tag);
             }
 
-            // Update Button Text
             const tagText = document.getElementById('tag-selected-text');
-            if (selectedTags.length === 0) {
-                tagText.innerText = 'All Tags';
-            } else if (selectedTags.length === 1) {
-                tagText.innerText = selectedTags[0];
-            } else {
-                tagText.innerText = `${selectedTags.length} Tags Selected`;
-            }
+            if (selectedTags.length === 0) tagText.innerText = 'All Tags';
+            else if (selectedTags.length === 1) tagText.innerText = selectedTags[0];
+            else tagText.innerText = `${selectedTags.length} Tags Selected`;
 
-            // Update Checkmarks in UI
             document.querySelectorAll('.tag-option').forEach(el => {
                 const icon = el.querySelector('.check-icon');
                 const val = el.dataset.value;
 
                 if (val === 'All' && selectedTags.length === 0) {
-                    icon.classList.remove('text-transparent');
-                    icon.classList.add('text-indigo-400');
+                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
                 } else if (val !== 'All' && selectedTags.includes(val)) {
-                    icon.classList.remove('text-transparent');
-                    icon.classList.add('text-indigo-400');
+                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
                 } else {
-                    icon.classList.add('text-transparent');
-                    icon.classList.remove('text-indigo-400');
+                    icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400');
                 }
             });
 
             renderProblems();
         }
 
-        // Reset all filters
         function resetFilters() {
-            // Reset Search
             searchQuery = '';
             document.getElementById('searchInput').value = '';
-
-            // Reset Dropdowns Logic
-            selectDifficulty(null, 'All', 'All Difficulties');
+            selectDifficulty(null, 'All', 'All Levels');
+            selectSort(null, 'default', 'Sort: Default');
             toggleTagSelect(null, 'All');
-
-            // Ensure Menus are closed
-            isDiffOpen = false;
-            isTagOpen = false;
+            isDiffOpen = false; isTagOpen = false; isSortOpen = false;
             renderDropdownState();
         }
 
+        // --- Sorting Logic ---
+        function getSortedData(data) {
+            const diffValues = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+
+            // Create a copy to prevent mutating original
+            let sorted = [...data];
+
+            sorted.sort((a, b) => {
+                if (currentSort === 'idAsc') {
+                    const strA = String(a.id);
+                    const strB = String(b.id);
+                    // Extract number if it exists for numerical sorting (e.g., "a-12" -> 12, "11" -> 11)
+                    const numA = parseInt(strA.match(/\d+/)?.[0] || '-1');
+                    const numB = parseInt(strB.match(/\d+/)?.[0] || '-1');
+
+                    if (numA !== -1 && numB !== -1 && numA !== numB) return numA - numB;
+                    return strA.localeCompare(strB); // Fallback to string
+                }
+                if (currentSort === 'titleAsc') {
+                    return a.title.localeCompare(b.title);
+                }
+                if (currentSort === 'diffAsc') {
+                    return (diffValues[a.difficulty] || 0) - (diffValues[b.difficulty] || 0);
+                }
+                if (currentSort === 'diffDesc') {
+                    return (diffValues[b.difficulty] || 0) - (diffValues[a.difficulty] || 0);
+                }
+                return 0; // default order (keeps JSON order)
+            });
+
+            return sorted;
+        }
 
         // --- List Rendering logic ---
 
         function renderProblems() {
-            const filteredData = problemData.filter(p => {
-                const matchesSearch = (p.id && p.id.toString().includes(searchQuery.toLowerCase())) ||
-                    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
-                const matchesDiffFilter = currentFilter === 'All' || p.difficulty === currentFilter;
+            let filteredData = problemData.filter(p => {
+                const platformName = p.platform || 'LeetCode';
+                const searchStr = `${p.id} ${p.title} ${p.tags.join(' ')} ${platformName}`.toLowerCase();
 
-                // If no tags selected, match all. Otherwise, match if problem has ANY of the selected tags (OR Logic)
-                const matchesTagFilter = selectedTags.length === 0 || selectedTags.some(t => p.tags.includes(t));
+                const matchesSearch = searchStr.includes(searchQuery.toLowerCase());
+                const matchesDiffFilter = currentFilter === 'All' || p.difficulty === currentFilter;
+                const matchesTagFilter = selectedTags.length === 0 || selectedTags.some(t => (p.tags || []).includes(t));
 
                 return matchesSearch && matchesDiffFilter && matchesTagFilter;
             });
+
+            filteredData = getSortedData(filteredData);
 
             if (filteredData.length === 0) {
                 listContainer.innerHTML = `
@@ -460,19 +616,46 @@
             } else {
                 listContainer.innerHTML = filteredData.map((p, index) => {
                     const diffClass = getDifficultyClasses(p.difficulty);
-                    const animationDelay = index * 0.02; // Faster staggered animation
+                    const animationDelay = (index % 20) * 0.02; // Staggered, cap to prevent huge delays on large lists
+
+                    // Support fallback logic for legacy data.json schema vs new schema
+                    const platformName = p.platform || 'LeetCode';
+                    const platformUrl = p.platformUrl || p.leetcodeUrl || '#';
+                    const platformConfig = getPlatformConfig(platformName);
+
+                    // Parse multiple solutions (fallback to old algovizUrl single string if needed)
+                    let solutionsHtml = '';
+                    let solutionsList = p.solutions || [];
+
+                    // Backward compatibility: If no 'solutions' array but has old 'algovizUrl'
+                    if (solutionsList.length === 0 && p.algovizUrl && p.algovizUrl !== "#") {
+                        solutionsList = [{ name: 'AlgoViz', url: p.algovizUrl }];
+                    }
+
+                    if (solutionsList.length > 0) {
+                        solutionsHtml = `
+                            <div class="flex items-center gap-1.5 border-l border-slate-700/50 pl-2 sm:pl-3 ml-1 sm:ml-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
+                                ${solutionsList.map(sol => `
+                                    <a href="${sol.url}" target="_blank" rel="noopener noreferrer"
+                                       class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/40 transition-all text-[11px] sm:text-xs font-medium whitespace-nowrap">
+                                        <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> ${sol.name}
+                                    </a>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
 
                     return `
-                        <div class="glass rounded-xl border border-slate-700/50 hover:border-slate-500 hover:bg-slate-800/40 transition-all duration-200 animate-fade-in-up group flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4" style="animation-delay: ${animationDelay}s;">
+                        <div class="glass rounded-xl border border-slate-700/50 hover:border-slate-500 hover:bg-slate-800/40 transition-all duration-200 animate-fade-in-up group flex flex-col md:flex-row md:items-center justify-between p-3.5 sm:p-4 gap-3 sm:gap-4" style="animation-delay: ${animationDelay}s;">
                             
                             <!-- Left Section: Checkmark, Title & Difficulty -->
-                            <div class="flex items-center gap-3 sm:gap-4 flex-grow min-w-0">
-                                <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all">
+                            <div class="flex items-start md:items-center gap-3 sm:gap-4 flex-grow min-w-0">
+                                <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all mt-0.5 md:mt-0">
                                     <i data-lucide="check" class="w-3.5 h-3.5"></i>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0 flex-grow">
-                                    <h3 class="text-base font-medium text-slate-200 truncate group-hover:text-white transition-colors">
-                                        ${p.title}
+                                    <h3 class="text-base font-medium text-slate-200 truncate group-hover:text-white transition-colors" title="${p.id}. ${p.title}">
+                                        <span class="text-slate-500 text-sm font-mono mr-1">${p.id}.</span>${p.title}
                                     </h3>
                                     <div class="flex items-center gap-2">
                                         <span class="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold border ${diffClass} flex-shrink-0">
@@ -482,24 +665,23 @@
                                 </div>
                             </div>
 
-                            <!-- Middle Section: Tags (Visible on md and up) -->
-                            <div class="hidden md:flex flex-wrap items-center justify-end gap-1.5 w-1/3 flex-shrink-0">
-                                ${p.tags.slice(0, 3).map(tag => `<span class="px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 text-[10px] font-mono border border-slate-700/80">${tag}</span>`).join('')}
-                                ${p.tags.length > 3 ? `<span class="text-slate-600 text-xs" title="${p.tags.slice(3).join(', ')}">...</span>` : ''}
-                            </div>
+                            <div class="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto">
+                                <!-- Tags (Hidden on mobile to save space, visible on tablet+) -->
+                                <div class="hidden lg:flex flex-wrap items-center justify-end gap-1.5 w-48 flex-shrink-0 mr-2">
+                                    ${(p.tags || []).slice(0, 2).map(tag => `<span class="px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 text-[10px] font-mono border border-slate-700/80 truncate max-w-[80px]" title="${tag}">${tag}</span>`).join('')}
+                                    ${(p.tags || []).length > 2 ? `<span class="text-slate-500 text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/80" title="${p.tags.slice(2).join(', ')}">+${p.tags.length - 2}</span>` : ''}
+                                </div>
 
-                            <!-- Right Section: Actions -->
-                            <div class="flex items-center justify-end gap-1 sm:gap-2 flex-shrink-0">
-                                <a href="${p.leetcodeUrl}" target="_blank" rel="noopener noreferrer" 
-                                   class="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-amber-400/10 border border-transparent hover:border-amber-400/20 transition-all tooltip-trigger" title="View on LeetCode">
-                                    <i data-lucide="code" class="w-4 h-4"></i>
-                                    <span class="text-xs font-medium hidden lg:block">LeetCode</span>
-                                </a>
-                                <a href="${p.algovizUrl}" target="_blank" rel="noopener noreferrer"
-                                   class="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 border border-transparent hover:border-indigo-500/20 transition-all" title="View on AlgoViz">
-                                    <i data-lucide="globe" class="w-4 h-4"></i>
-                                    <span class="text-xs font-medium hidden lg:block">AlgoViz</span>
-                                </a>
+                                <!-- Right Section: External Platform & Solutions -->
+                                <div class="flex items-center w-full md:w-auto overflow-hidden">
+                                    <a href="${platformUrl}" target="_blank" rel="noopener noreferrer" 
+                                    class="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-transparent transition-all flex-shrink-0 ${platformConfig.colorClass}" title="View on ${platformConfig.text}">
+                                        <i data-lucide="${platformConfig.icon}" class="w-4 h-4"></i>
+                                        <span class="text-xs font-medium hidden sm:block">${platformConfig.text}</span>
+                                    </a>
+                                    
+                                    ${solutionsHtml}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -519,24 +701,20 @@
         // Initialize App by fetching data.json
         async function initApp() {
             try {
+                // Try fetching normally (will work in Local Server)
                 const response = await fetch('data.json');
                 if (!response.ok) throw new Error('Network response was not ok');
-
                 problemData = await response.json();
-
-                updateStats();
-                populateTags();
-                renderProblems();
             } catch (error) {
-                console.error("Error loading data.json:", error);
-                listContainer.innerHTML = `
-                    <div class="text-center py-12 glass rounded-2xl border-dashed border-2 border-rose-700/50">
-                        <i data-lucide="alert-circle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i>
-                        <p class="text-slate-300 text-lg">Error loading data.json</p>
-                        <p class="text-slate-500 text-sm mt-2 max-w-md mx-auto">Make sure you are running this through a local web server (like VS Code Live Server). Fetching local files directly via double-clicking the HTML file is blocked by browsers for security reasons.</p>
-                    </div>`;
-                lucide.createIcons();
+                console.warn("Could not fetch data.json (likely running in Canvas sandbox). Using fallback data.", error);
+                // Use fallback data so the app still renders in Canvas/Preview
+                problemData = fallbackData;
             }
+
+            // Once data is set, initialize UI
+            updateStats();
+            populateTags();
+            renderProblems();
         }
 
         initApp();

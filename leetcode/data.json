@@ -8,8 +8,14 @@
             "Greedy",
             "Two Pointers"
         ],
-        "leetcodeUrl": "https://leetcode.com/problems/container-with-most-water/description/",
-        "algovizUrl": "array/container-with-most-water.html"
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "array/container-with-most-water.html"
+            }
+        ]
     },
     {
         "id": 2751,
@@ -22,8 +28,14 @@
             "Sorting",
             "Simulation"
         ],
-        "leetcodeUrl": "https://leetcode.com/problems/robot-collisions/description/",
-        "algovizUrl": "array/robot-collisions.html"
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "array/robot-collisions.html"
+            }
+        ]
     },
     {
         "id": "15",
@@ -34,8 +46,14 @@
             "Two Pointers",
             "Sorting"
         ],
-        "leetcodeUrl": "https://leetcode.com/problems/3sum/description/",
-        "algovizUrl": "algorithm/3sum.html"
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/3sum/description/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "algorithm/3sum.html"
+            }
+        ]
     },
     {
         "id": "a-12",
@@ -44,8 +62,14 @@
         "tags": [
             "Algorithm"
         ],
-        "leetcodeUrl": "#",
-        "algovizUrl": "algorithm/binary-tree-boundary-traversal.html"
+        "platform": "Custom",
+        "platformUrl": "#",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "algorithm/binary-tree-boundary-traversal.html"
+            }
+        ]
     },
     {
         "id": "987",
@@ -60,8 +84,14 @@
             "Sorting",
             "Binary Tree"
         ],
-        "leetcodeUrl": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/",
-        "algovizUrl": "algorithm/vertical-order-traversal-of-a-binary-tree.html"
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "algorithm/vertical-order-traversal-of-a-binary-tree.html"
+            }
+        ]
     },
     {
         "id": "a-4",
@@ -70,8 +100,14 @@
         "tags": [
             "Algorithm"
         ],
-        "leetcodeUrl": "#",
-        "algovizUrl": "algorithm/dutch-national-flag.html"
+        "platform": "Custom",
+        "platformUrl": "#",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "algorithm/dutch-national-flag.html"
+            }
+        ]
     },
     {
         "id": "a-5",
@@ -80,8 +116,14 @@
         "tags": [
             "Algorithm"
         ],
-        "leetcodeUrl": "#",
-        "algovizUrl": "algorithm/inversion-count.html"
+        "platform": "Custom",
+        "platformUrl": "#",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "algorithm/inversion-count.html"
+            }
+        ]
     },
     {
         "id": "a-6",
@@ -90,8 +132,14 @@
         "tags": [
             "Algorithm"
         ],
-        "leetcodeUrl": "#",
-        "algovizUrl": "algorithm/kadanes-algorithm.html"
+        "platform": "Custom",
+        "platformUrl": "#",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "algorithm/kadanes-algorithm.html"
+            }
+        ]
     },
     {
         "id": "a-7",
@@ -100,8 +148,14 @@
         "tags": [
             "Algorithm"
         ],
-        "leetcodeUrl": "#",
-        "algovizUrl": "algorithm/moores-voting.html"
+        "platform": "Custom",
+        "platformUrl": "#",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "algorithm/moores-voting.html"
+            }
+        ]
     },
     {
         "id": "1365",
@@ -114,8 +168,14 @@
             "Sorting",
             "Counting Sort"
         ],
-        "leetcodeUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
-        "algovizUrl": "array/how-many-numbers-are-smaller-than-the-current-number.html"
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "array/how-many-numbers-are-smaller-than-the-current-number.html"
+            }
+        ]
     },
     {
         "id": "448",
@@ -125,8 +185,14 @@
             "Array",
             "Hash Table"
         ],
-        "leetcodeUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
-        "algovizUrl": "array/find-all-numbers-disappeared-in-an-array.html"
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "array/find-all-numbers-disappeared-in-an-array.html"
+            }
+        ]
     },
     {
         "id": "295",
@@ -139,8 +205,14 @@
             "Heap (Priority Queue)",
             "Data Stream"
         ],
-        "leetcodeUrl": "https://leetcode.com/problems/find-median-from-data-stream/description/",
-        "algovizUrl": "two-pointers/find-median-from-data-stream.html"
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/find-median-from-data-stream/description/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "two-pointers/find-median-from-data-stream.html"
+            }
+        ]
     },
     {
         "id": "g-1",
@@ -151,7 +223,35 @@
             "Bit Magic",
             "Data Structures"
         ],
-        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
-        "algovizUrl": "array/construct-list-using-given-q-xor-queries.html"
+        "platform": "GeeksForGeeks",
+        "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "array/construct-list-using-given-q-xor-queries.html"
+            }
+        ]
+    },
+    {
+        "id": 70,
+        "title": "Climbing Stairs",
+        "difficulty": "Easy",
+        "tags": [
+            "Math",
+            "Dynamic Programming",
+            "Memoization"
+        ],
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/climbing-stairs/description/",
+        "solutions": [
+            {
+                "name": "Brute",
+                "url": "dynamic-programming/climbing-stairs-brute.html"
+            },
+            {
+                "name": "Optimal",
+                "url": "dynamic-programming/climbing-stairs-optimal.html"
+            }
+        ]
     }
 ]
