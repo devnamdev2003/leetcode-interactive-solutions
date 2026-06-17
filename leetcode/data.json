@@ -271,5 +271,23 @@
                 "url": "string/process-string-with-special-operations-ii.html"
             }
         ]
+    },
+    {
+        "id": 1,
+        "title": "Cut rope to maximise product",
+        "difficulty": "Medium",
+        "tags": [
+            "Array",
+            "Dynamic Programming",
+            "Algorithm"
+        ],
+        "platform": "GeeksForGeeks",
+        "platformUrl": "https://www.geeksforgeeks.org/problems/max-rope-cutting1312/1",
+        "solutions": [
+            {
+                "name": "Brute",
+                "url": "dynamic-programming/max-rope-cutting-brute.html"
+            }
+        ]
     }
 ]
