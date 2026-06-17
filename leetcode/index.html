@@ -37,11 +37,16 @@
                     },
                     animation: {
                         'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                        'scale-in': 'scaleIn 0.2s ease-out forwards',
                     },
                     keyframes: {
                         fadeInUp: {
                             '0%': { opacity: '0', transform: 'translateY(10px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
                         }
                     }
                 }
@@ -50,6 +55,10 @@
     </script>
 
     <style>
+        :root {
+            color-scheme: dark;
+        }
+
         body {
             background-color: #0f172a;
             color: #f8fafc;
@@ -63,6 +72,7 @@
         /* Custom Global Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -78,7 +88,7 @@
             background: #475569;
         }
 
-        /* Custom Scrollbar for Dropdowns */
+        /* Custom Scrollbar for Dropdowns & Modals */
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
@@ -88,20 +98,48 @@
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #475569;
             border-radius: 10px;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: #64748b;
         }
 
         /* Glassmorphism utility */
         .glass {
             background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-solid {
+            background: rgb(30, 41, 59);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Form Inputs */
+        .form-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            color: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Fix for native select dropdown options */
+        select option {
+            background-color: #1e293b;
+            color: #f8fafc;
         }
     </style>
 </head>
@@ -168,7 +206,7 @@
                     class="block w-full pl-10 pr-3 py-3 border border-slate-700 rounded-xl leading-5 bg-slate-800/50 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all sm:text-sm glass">
             </div>
 
-            <!-- Custom Dropdowns & Reset -->
+            <!-- Custom Dropdowns & Actions -->
             <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full lg:w-auto">
 
                 <!-- Sort Dropdown -->
@@ -273,10 +311,17 @@
 
                 <!-- Reset Filters Button -->
                 <button onclick="resetFilters()"
-                    class="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800/50 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 text-sm transition-all shadow-sm glass focus:outline-none focus:ring-2 focus:ring-slate-500 tooltip-trigger"
+                    class="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800/50 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 text-sm transition-all shadow-sm glass focus:outline-none focus:ring-2 focus:ring-slate-500"
                     title="Reset all filters">
                     <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    <span class="sm:hidden lg:inline font-medium">Reset</span>
+                    <span class="hidden xl:inline font-medium">Reset</span>
+                </button>
+
+                <!-- Add New Entry Button -->
+                <button onclick="openAddEntryModal()"
+                    class="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-400 ml-auto lg:ml-0 whitespace-nowrap">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Problem</span>
                 </button>
 
             </div>
@@ -289,9 +334,163 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!--          ADD NEW ENTRY MODAL               -->
+    <!-- ========================================== -->
+    <div id="addEntryModal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+        <!-- Modal Content Container -->
+        <div class="glass-solid w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scale-in">
+
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-2xl">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                        <i data-lucide="file-json" class="w-5 h-5 text-indigo-400"></i> Generate JSON Entry
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Fill details to create a new problem entry for data.json</p>
+                </div>
+                <button onclick="closeAddEntryModal()"
+                    class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Body: Form View -->
+            <div id="modalFormView" class="p-6 overflow-y-auto custom-scrollbar flex-grow">
+                <form id="newEntryForm" class="space-y-5">
+
+                    <!-- ID & Title Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <div class="sm:col-span-1">
+                            <label class="block text-sm font-medium text-slate-300 mb-1">ID *</label>
+                            <input type="text" id="entryID" required placeholder="e.g., 1" class="form-input">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Title *</label>
+                            <input type="text" id="entryTitle" required placeholder="e.g., Two Sum" class="form-input">
+                        </div>
+                    </div>
+
+                    <!-- Difficulty & Platform Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Difficulty *</label>
+                            <select id="entryDiff" required class="form-input appearance-none">
+                                <option value="" disabled selected class="bg-slate-800 text-slate-200">Select Level
+                                </option>
+                                <option value="Easy" class="bg-slate-800 text-slate-200">Easy</option>
+                                <option value="Medium" class="bg-slate-800 text-slate-200">Medium</option>
+                                <option value="Hard" class="bg-slate-800 text-slate-200">Hard</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Platform *</label>
+                            <input type="text" id="entryPlatform" list="platform-suggestions" required
+                                placeholder="e.g., LeetCode" class="form-input">
+                            <datalist id="platform-suggestions">
+                                <!-- Populated dynamically -->
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <!-- Platform URL -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Platform URL *</label>
+                        <input type="url" id="entryUrl" required placeholder="https://leetcode.com/problems/..."
+                            class="form-input text-sm">
+                    </div>
+
+                    <!-- Tags Selection (Autocomplete Dropdown) -->
+                    <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/30">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Tags *</label>
+
+                        <!-- Selected Tags Display -->
+                        <div id="selectedTagsContainer" class="flex flex-wrap gap-2 mb-3 empty:hidden"></div>
+
+                        <!-- Tag Autocomplete Input -->
+                        <div class="relative">
+                            <div
+                                class="flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-lg px-3 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all shadow-inner">
+                                <i data-lucide="tag" class="w-4 h-4 text-slate-400"></i>
+                                <input type="text" id="tagInputBox" placeholder="Type to search or add tag..."
+                                    class="w-full bg-transparent border-none text-sm text-slate-200 focus:outline-none focus:ring-0 py-2.5"
+                                    autocomplete="off" onfocus="showTagDropdown()" oninput="showTagDropdown()"
+                                    onkeydown="handleTagKeydown(event)">
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i>
+                            </div>
+
+                            <!-- Dropdown Menu -->
+                            <div id="tagAutocompleteDropdown"
+                                class="hidden absolute z-50 w-full mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-2xl overflow-hidden custom-scrollbar max-h-48 overflow-y-auto">
+                                <!-- Injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solutions Array -->
+                    <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/30">
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="block text-sm font-medium text-slate-300">Solutions *</label>
+                            <button type="button" onclick="addSolutionRow()"
+                                class="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded">
+                                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Solution
+                            </button>
+                        </div>
+
+                        <div id="solutionsListContainer" class="space-y-3">
+                            <!-- Solution Rows go here -->
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Body: Result View (Hidden by default) -->
+            <div id="modalResultView" class="p-6 hidden flex-col flex-grow">
+                <div
+                    class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg mb-4 text-sm flex items-start gap-3">
+                    <i data-lucide="check-circle-2" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium">JSON Generated Successfully!</p>
+                        <p class="text-emerald-500/80 mt-1">Copy the snippet below and paste it into your <code
+                                class="font-mono bg-emerald-900/40 px-1 rounded text-emerald-300">data.json</code> file,
+                            remembering to add a comma if it's not the last item.</p>
+                    </div>
+                </div>
+
+                <div class="relative flex-grow">
+                    <textarea id="jsonOutputArea" readonly
+                        class="w-full h-64 bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 font-mono focus:outline-none custom-scrollbar resize-none"></textarea>
+                    <button onclick="copyGeneratedJson()" id="copyJsonBtn"
+                        class="absolute top-3 right-3 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shadow-lg">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span>Copy JSON</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-5 border-t border-slate-700 bg-slate-800/50 rounded-b-2xl flex justify-end gap-3">
+                <button type="button" onclick="closeAddEntryModal()"
+                    class="px-5 py-2.5 text-sm font-medium text-slate-300 hover:text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 rounded-xl transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" form="newEntryForm" id="generateBtn"
+                    class="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4"></i> Generate JSON
+                </button>
+                <button type="button" onclick="resetModalView()" id="makeAnotherBtn"
+                    class="hidden px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20 items-center gap-2">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Create Another
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Application Logic & Data -->
     <script>
-        // Fallback Data used if fetching data.json fails due to Canvas sandbox limits
+        // Fallback Data used if fetching data.json fails
         const fallbackData = [
             {
                 "id": 11,
@@ -337,17 +536,6 @@
                 "solutions": [
                     { "name": "AlgoViz", "url": "array/construct-list-using-given-q-xor-queries.html" }
                 ]
-            },
-            {
-                "id": "a-12",
-                "title": "Binary Tree Boundary Traversal",
-                "difficulty": "Hard",
-                "tags": ["Algorithm"],
-                "platform": "LeetCode",
-                "platformUrl": "#",
-                "solutions": [
-                    { "name": "AlgoViz", "url": "algorithm/binary-tree-boundary-traversal.html" }
-                ]
             }
         ];
 
@@ -362,6 +550,11 @@
         let isDiffOpen = false;
         let isTagOpen = false;
         let isSortOpen = false;
+
+        // Modal State
+        let formBuilderTags = [];
+        let globalUniqueTags = [];
+        let globalUniquePlatforms = [];
 
         // DOM Elements
         const listContainer = document.getElementById('problemList');
@@ -385,7 +578,6 @@
             if (p.includes('codeforces')) return { icon: 'bar-chart-2', text: 'Codeforces', colorClass: 'text-red-400 hover:bg-red-400/10 hover:border-red-400/20' };
             if (p.includes('hackerrank')) return { icon: 'terminal', text: 'HackerRank', colorClass: 'text-emerald-400 hover:bg-emerald-400/10 hover:border-emerald-400/20' };
 
-            // Default
             return { icon: 'globe', text: platform || 'Link', colorClass: 'text-slate-400 hover:bg-slate-400/10 hover:border-slate-400/20' };
         }
 
@@ -400,55 +592,46 @@
             document.getElementById('count-hard').innerText = counts.Hard;
         }
 
-        // --- Custom Dropdown Logic ---
-
-        function populateTags() {
+        // Populate Main Dropdown Tags and Global Data for Modal
+        function populateTagsAndPlatforms() {
             const allTags = new Set();
+            const allPlatforms = new Set();
+
             problemData.forEach(p => {
                 (p.tags || []).forEach(tag => allTags.add(tag));
+                if (p.platform) allPlatforms.add(p.platform);
             });
 
-            const sortedTags = Array.from(allTags).sort();
-            const tagList = document.getElementById('tag-menu-list');
+            globalUniqueTags = Array.from(allTags).sort();
+            globalUniquePlatforms = Array.from(allPlatforms).sort();
 
+            // Populate Main UI Filter dropdown
+            const tagList = document.getElementById('tag-menu-list');
             let html = `
                 <li onclick="toggleTagSelect(event, 'All')" class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group tag-option" data-value="All">
                     <span>All Tags</span> <i data-lucide="check" class="w-4 h-4 text-indigo-400 check-icon"></i>
                 </li>
             `;
-
-            sortedTags.forEach(tag => {
+            globalUniqueTags.forEach(tag => {
                 html += `
                     <li onclick="toggleTagSelect(event, '${tag}')" class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-300 text-sm transition-colors flex items-center justify-between group tag-option" data-value="${tag}">
                         <span>${tag}</span> <i data-lucide="check" class="w-4 h-4 text-transparent check-icon"></i>
                     </li>
                 `;
             });
-
             tagList.innerHTML = html;
+
+            // Populate Modal Platform Datalist
+            const platformDatalist = document.getElementById('platform-suggestions');
+            platformDatalist.innerHTML = globalUniquePlatforms.map(plat => `<option value="${plat}">`).join('');
+
             lucide.createIcons();
         }
 
-        function toggleDiffMenu(e) {
-            e.stopPropagation();
-            isDiffOpen = !isDiffOpen;
-            isTagOpen = false; isSortOpen = false;
-            renderDropdownState();
-        }
-
-        function toggleTagMenu(e) {
-            e.stopPropagation();
-            isTagOpen = !isTagOpen;
-            isDiffOpen = false; isSortOpen = false;
-            renderDropdownState();
-        }
-
-        function toggleSortMenu(e) {
-            e.stopPropagation();
-            isSortOpen = !isSortOpen;
-            isDiffOpen = false; isTagOpen = false;
-            renderDropdownState();
-        }
+        // --- Custom Dropdown Logic ---
+        function toggleDiffMenu(e) { e.stopPropagation(); isDiffOpen = !isDiffOpen; isTagOpen = false; isSortOpen = false; renderDropdownState(); }
+        function toggleTagMenu(e) { e.stopPropagation(); isTagOpen = !isTagOpen; isDiffOpen = false; isSortOpen = false; renderDropdownState(); }
+        function toggleSortMenu(e) { e.stopPropagation(); isSortOpen = !isSortOpen; isDiffOpen = false; isTagOpen = false; renderDropdownState(); }
 
         function renderDropdownState() {
             const menus = [
@@ -471,10 +654,17 @@
         }
 
         // Close dropdowns on outside click
-        document.addEventListener('click', () => {
+        document.addEventListener('click', (e) => {
             if (isDiffOpen || isTagOpen || isSortOpen) {
                 isDiffOpen = false; isTagOpen = false; isSortOpen = false;
                 renderDropdownState();
+            }
+
+            // Tag Autocomplete Modal Dropdown
+            const tagInputContainer = document.getElementById('tagInputBox')?.parentElement;
+            const tagDropdown = document.getElementById('tagAutocompleteDropdown');
+            if (tagInputContainer && tagDropdown && !tagInputContainer.contains(e.target) && !tagDropdown.contains(e.target)) {
+                tagDropdown.classList.add('hidden');
             }
         });
 
@@ -485,16 +675,11 @@
 
             document.querySelectorAll('.diff-option').forEach(el => {
                 const icon = el.querySelector('.check-icon');
-                if (el.dataset.value === value) {
-                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
-                } else {
-                    icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400');
-                }
+                if (el.dataset.value === value) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
+                else { icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400'); }
             });
 
-            isDiffOpen = false;
-            renderDropdownState();
-            renderProblems();
+            isDiffOpen = false; renderDropdownState(); renderProblems();
         }
 
         function selectSort(e, value, text) {
@@ -504,24 +689,17 @@
 
             document.querySelectorAll('.sort-option').forEach(el => {
                 const icon = el.querySelector('.check-icon');
-                if (el.dataset.value === value) {
-                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
-                } else {
-                    icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400');
-                }
+                if (el.dataset.value === value) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
+                else { icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400'); }
             });
 
-            isSortOpen = false;
-            renderDropdownState();
-            renderProblems();
+            isSortOpen = false; renderDropdownState(); renderProblems();
         }
 
         function toggleTagSelect(e, tag) {
-            if (e) e.stopPropagation(); // Keep menu open
-
-            if (tag === 'All') {
-                selectedTags = [];
-            } else {
+            if (e) e.stopPropagation();
+            if (tag === 'All') { selectedTags = []; }
+            else {
                 const index = selectedTags.indexOf(tag);
                 if (index > -1) selectedTags.splice(index, 1);
                 else selectedTags.push(tag);
@@ -535,16 +713,10 @@
             document.querySelectorAll('.tag-option').forEach(el => {
                 const icon = el.querySelector('.check-icon');
                 const val = el.dataset.value;
-
-                if (val === 'All' && selectedTags.length === 0) {
-                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
-                } else if (val !== 'All' && selectedTags.includes(val)) {
-                    icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400');
-                } else {
-                    icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400');
-                }
+                if (val === 'All' && selectedTags.length === 0) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
+                else if (val !== 'All' && selectedTags.includes(val)) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
+                else { icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400'); }
             });
-
             renderProblems();
         }
 
@@ -558,50 +730,34 @@
             renderDropdownState();
         }
 
-        // --- Sorting Logic ---
+        // Sorting Logic
         function getSortedData(data) {
             const diffValues = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
-
-            // Create a copy to prevent mutating original
             let sorted = [...data];
 
             sorted.sort((a, b) => {
                 if (currentSort === 'idAsc') {
-                    const strA = String(a.id);
-                    const strB = String(b.id);
-                    // Extract number if it exists for numerical sorting (e.g., "a-12" -> 12, "11" -> 11)
-                    const numA = parseInt(strA.match(/\d+/)?.[0] || '-1');
-                    const numB = parseInt(strB.match(/\d+/)?.[0] || '-1');
-
+                    const strA = String(a.id); const strB = String(b.id);
+                    const numA = parseInt(strA.match(/\d+/)?.[0] || '-1'); const numB = parseInt(strB.match(/\d+/)?.[0] || '-1');
                     if (numA !== -1 && numB !== -1 && numA !== numB) return numA - numB;
-                    return strA.localeCompare(strB); // Fallback to string
+                    return strA.localeCompare(strB);
                 }
-                if (currentSort === 'titleAsc') {
-                    return a.title.localeCompare(b.title);
-                }
-                if (currentSort === 'diffAsc') {
-                    return (diffValues[a.difficulty] || 0) - (diffValues[b.difficulty] || 0);
-                }
-                if (currentSort === 'diffDesc') {
-                    return (diffValues[b.difficulty] || 0) - (diffValues[a.difficulty] || 0);
-                }
-                return 0; // default order (keeps JSON order)
+                if (currentSort === 'titleAsc') return a.title.localeCompare(b.title);
+                if (currentSort === 'diffAsc') return (diffValues[a.difficulty] || 0) - (diffValues[b.difficulty] || 0);
+                if (currentSort === 'diffDesc') return (diffValues[b.difficulty] || 0) - (diffValues[a.difficulty] || 0);
+                return 0;
             });
-
             return sorted;
         }
 
-        // --- List Rendering logic ---
-
+        // List Rendering
         function renderProblems() {
             let filteredData = problemData.filter(p => {
                 const platformName = p.platform || 'LeetCode';
                 const searchStr = `${p.id} ${p.title} ${p.tags.join(' ')} ${platformName}`.toLowerCase();
-
                 const matchesSearch = searchStr.includes(searchQuery.toLowerCase());
                 const matchesDiffFilter = currentFilter === 'All' || p.difficulty === currentFilter;
                 const matchesTagFilter = selectedTags.length === 0 || selectedTags.some(t => (p.tags || []).includes(t));
-
                 return matchesSearch && matchesDiffFilter && matchesTagFilter;
             });
 
@@ -616,22 +772,17 @@
             } else {
                 listContainer.innerHTML = filteredData.map((p, index) => {
                     const diffClass = getDifficultyClasses(p.difficulty);
-                    const animationDelay = (index % 20) * 0.02; // Staggered, cap to prevent huge delays on large lists
-
-                    // Support fallback logic for legacy data.json schema vs new schema
+                    const animationDelay = (index % 20) * 0.02;
                     const platformName = p.platform || 'LeetCode';
                     const platformUrl = p.platformUrl || p.leetcodeUrl || '#';
                     const platformConfig = getPlatformConfig(platformName);
 
-                    // Parse multiple solutions (fallback to old algovizUrl single string if needed)
-                    let solutionsHtml = '';
                     let solutionsList = p.solutions || [];
-
-                    // Backward compatibility: If no 'solutions' array but has old 'algovizUrl'
                     if (solutionsList.length === 0 && p.algovizUrl && p.algovizUrl !== "#") {
                         solutionsList = [{ name: 'AlgoViz', url: p.algovizUrl }];
                     }
 
+                    let solutionsHtml = '';
                     if (solutionsList.length > 0) {
                         solutionsHtml = `
                             <div class="flex items-center gap-1.5 border-l border-slate-700/50 pl-2 sm:pl-3 ml-1 sm:ml-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
@@ -647,8 +798,6 @@
 
                     return `
                         <div class="glass rounded-xl border border-slate-700/50 hover:border-slate-500 hover:bg-slate-800/40 transition-all duration-200 animate-fade-in-up group flex flex-col md:flex-row md:items-center justify-between p-3.5 sm:p-4 gap-3 sm:gap-4" style="animation-delay: ${animationDelay}s;">
-                            
-                            <!-- Left Section: Checkmark, Title & Difficulty -->
                             <div class="flex items-start md:items-center gap-3 sm:gap-4 flex-grow min-w-0">
                                 <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all mt-0.5 md:mt-0">
                                     <i data-lucide="check" class="w-3.5 h-3.5"></i>
@@ -664,22 +813,17 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto">
-                                <!-- Tags (Hidden on mobile to save space, visible on tablet+) -->
                                 <div class="hidden lg:flex flex-wrap items-center justify-end gap-1.5 w-48 flex-shrink-0 mr-2">
                                     ${(p.tags || []).slice(0, 2).map(tag => `<span class="px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 text-[10px] font-mono border border-slate-700/80 truncate max-w-[80px]" title="${tag}">${tag}</span>`).join('')}
                                     ${(p.tags || []).length > 2 ? `<span class="text-slate-500 text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/80" title="${p.tags.slice(2).join(', ')}">+${p.tags.length - 2}</span>` : ''}
                                 </div>
-
-                                <!-- Right Section: External Platform & Solutions -->
                                 <div class="flex items-center w-full md:w-auto overflow-hidden">
                                     <a href="${platformUrl}" target="_blank" rel="noopener noreferrer" 
                                     class="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-transparent transition-all flex-shrink-0 ${platformConfig.colorClass}" title="View on ${platformConfig.text}">
                                         <i data-lucide="${platformConfig.icon}" class="w-4 h-4"></i>
                                         <span class="text-xs font-medium hidden sm:block">${platformConfig.text}</span>
                                     </a>
-                                    
                                     ${solutionsHtml}
                                 </div>
                             </div>
@@ -687,33 +831,266 @@
                     `;
                 }).join('');
             }
-
-            // Re-initialize icons for newly rendered elements
             lucide.createIcons();
         }
 
-        // Search Bar Event Listener
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            renderProblems();
+        searchInput.addEventListener('input', (e) => { searchQuery = e.target.value; renderProblems(); });
+
+        // ==========================================
+        //         ADD NEW ENTRY MODAL LOGIC
+        // ==========================================
+
+        function openAddEntryModal() {
+            document.getElementById('addEntryModal').classList.remove('hidden');
+            document.getElementById('addEntryModal').classList.add('flex');
+            resetModalView(); // Reset form & data
+        }
+
+        function closeAddEntryModal() {
+            document.getElementById('addEntryModal').classList.add('hidden');
+            document.getElementById('addEntryModal').classList.remove('flex');
+        }
+
+        function resetModalView() {
+            document.getElementById('newEntryForm').reset();
+            document.getElementById('modalFormView').classList.remove('hidden');
+            document.getElementById('modalResultView').classList.add('hidden');
+            document.getElementById('generateBtn').classList.remove('hidden');
+            document.getElementById('makeAnotherBtn').classList.add('hidden');
+            document.getElementById('makeAnotherBtn').style.display = 'none';
+            document.getElementById('generateBtn').style.display = 'flex';
+
+            formBuilderTags = [];
+            renderModalTags();
+
+            // Reset Solutions list
+            document.getElementById('solutionsListContainer').innerHTML = '';
+            addSolutionRow(); // Add one empty row initially
+        }
+
+        // --- Tags Builder Logic (Autocomplete) ---
+        function showTagDropdown() {
+            const input = document.getElementById('tagInputBox');
+            const val = input.value.trim().toLowerCase();
+            const dropdown = document.getElementById('tagAutocompleteDropdown');
+            dropdown.innerHTML = '';
+
+            const available = globalUniqueTags.filter(t => !formBuilderTags.includes(t));
+            const filtered = val ? available.filter(t => t.toLowerCase().includes(val)) : available;
+
+            let html = '';
+            const exactMatch = available.find(t => t.toLowerCase() === val);
+
+            // Option to create new if no exact match exists
+            if (val && !exactMatch) {
+                const rawVal = input.value.trim();
+                html += `
+                    <div onclick="addModalTag('${rawVal}', true)" class="px-4 py-2.5 hover:bg-indigo-500/10 cursor-pointer text-sm text-indigo-400 font-medium flex items-center gap-2 border-b border-slate-700/50">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add "${rawVal}"
+                    </div>`;
+            }
+
+            // Render available options
+            if (filtered.length === 0 && !val) {
+                html += `<div class="px-4 py-3 text-sm text-slate-500 italic text-center">No more tags available</div>`;
+            } else {
+                filtered.forEach(tag => {
+                    html += `
+                        <div onclick="addModalTag('${tag}', true)" class="px-4 py-2.5 hover:bg-slate-700/50 cursor-pointer text-sm text-slate-300 transition-colors flex items-center justify-between group">
+                            <span>${tag}</span>
+                            <i data-lucide="plus" class="w-3 h-3 text-slate-500 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>`;
+                });
+            }
+
+            dropdown.innerHTML = html;
+            dropdown.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function handleTagKeydown(e) {
+            const val = document.getElementById('tagInputBox').value.trim();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (val) {
+                    addModalTag(val, true);
+                }
+            }
+        }
+
+        function addModalTag(tag, clearInput = false) {
+            if (!formBuilderTags.includes(tag)) {
+                formBuilderTags.push(tag);
+                renderModalTags();
+
+                // Add to global dictionary to appear later if deleted
+                if (!globalUniqueTags.includes(tag)) {
+                    globalUniqueTags.push(tag);
+                    globalUniqueTags.sort();
+                }
+
+                if (clearInput) {
+                    const input = document.getElementById('tagInputBox');
+                    input.value = '';
+                    document.getElementById('tagAutocompleteDropdown').classList.add('hidden');
+                    input.focus();
+                }
+            }
+        }
+
+        function removeModalTag(tag) {
+            formBuilderTags = formBuilderTags.filter(t => t !== tag);
+            renderModalTags();
+            // Optional: Show dropdown again to reflect the newly available tag
+            if (document.activeElement === document.getElementById('tagInputBox')) {
+                showTagDropdown();
+            }
+        }
+
+        function renderModalTags() {
+            const selectedContainer = document.getElementById('selectedTagsContainer');
+            selectedContainer.innerHTML = formBuilderTags.map(tag => `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-medium">
+                    ${tag}
+                    <button type="button" onclick="removeModalTag('${tag}')" class="hover:text-white bg-indigo-500/20 p-0.5 rounded-md transition-colors">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                </span>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- Solutions Builder Logic ---
+        function addSolutionRow() {
+            const container = document.getElementById('solutionsListContainer');
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'flex flex-col sm:flex-row gap-2 items-start sm:items-center solution-row bg-slate-950/50 p-3 rounded-lg border border-slate-800';
+
+            rowDiv.innerHTML = `
+                <div class="w-full sm:w-1/3 relative">
+                    <select required class="form-input text-sm sol-name cursor-pointer appearance-none pr-8">
+                        <option value="" disabled selected class="bg-slate-800 text-slate-200">Select Type</option>
+                        <option value="Brute" class="bg-slate-800 text-slate-200">Brute</option>
+                        <option value="Better" class="bg-slate-800 text-slate-200">Better</option>
+                        <option value="Optimal" class="bg-slate-800 text-slate-200">Optimal</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+                <div class="w-full flex-grow flex gap-2">
+                    <input type="text" placeholder="Path/URL (e.g. array/prob.html)" required class="form-input text-sm sol-url w-full">
+                    <button type="button" onclick="this.closest('.solution-row').remove()" class="text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 p-2 rounded-lg transition-colors flex-shrink-0" title="Remove">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(rowDiv);
+            lucide.createIcons();
+        }
+
+        // --- Form Submission & JSON Generation ---
+        document.getElementById('newEntryForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (formBuilderTags.length === 0) {
+                alert("Please add at least one tag.");
+                return;
+            }
+
+            // Extract values
+            const rawId = document.getElementById('entryID').value.trim();
+            // Try to parse ID as number if it's purely numeric, else keep as string
+            const idVal = /^\d+$/.test(rawId) ? Number(rawId) : rawId;
+
+            const titleVal = document.getElementById('entryTitle').value.trim();
+            const diffVal = document.getElementById('entryDiff').value;
+            const platformVal = document.getElementById('entryPlatform').value.trim();
+            const urlVal = document.getElementById('entryUrl').value.trim();
+
+            // Extract Solutions
+            const solutionRows = document.querySelectorAll('.solution-row');
+            const solutionsData = [];
+            solutionRows.forEach(row => {
+                const n = row.querySelector('.sol-name').value.trim();
+                const u = row.querySelector('.sol-url').value.trim();
+                if (n && u) solutionsData.push({ name: n, url: u });
+            });
+
+            if (solutionsData.length === 0) {
+                alert("Please add at least one valid solution.");
+                return;
+            }
+
+            // Build Object
+            const newEntry = {
+                id: idVal,
+                title: titleVal,
+                difficulty: diffVal,
+                tags: formBuilderTags,
+                platform: platformVal,
+                platformUrl: urlVal,
+                solutions: solutionsData
+            };
+
+            // Convert to formatted JSON
+            const jsonString = JSON.stringify(newEntry, null, 4);
+
+            // Display Result
+            document.getElementById('jsonOutputArea').value = jsonString;
+
+            document.getElementById('modalFormView').classList.add('hidden');
+            document.getElementById('modalResultView').classList.remove('hidden');
+            document.getElementById('modalResultView').classList.add('flex');
+
+            document.getElementById('generateBtn').style.display = 'none';
+            document.getElementById('makeAnotherBtn').style.display = 'flex';
+            document.getElementById('makeAnotherBtn').classList.remove('hidden');
         });
 
-        // Initialize App by fetching data.json
+        // --- Copy to Clipboard ---
+        function copyGeneratedJson() {
+            const textarea = document.getElementById('jsonOutputArea');
+            const btn = document.getElementById('copyJsonBtn');
+            const originalHTML = btn.innerHTML;
+
+            // Note: Canvas iframe restricts modern navigator.clipboard sometimes, fallback to execCommand
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand('copy');
+                // Visual feedback
+                btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> <span>Copied!</span>`;
+                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+                btn.classList.remove('bg-slate-700', 'hover:bg-slate-600');
+                lucide.createIcons();
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+                    btn.classList.add('bg-slate-700', 'hover:bg-slate-600');
+                    lucide.createIcons();
+                }, 2000);
+            } catch (err) {
+                alert("Failed to copy. Please select the text and copy manually.");
+            }
+        }
+
+        // ==========================================
+        //               INITIALIZATION
+        // ==========================================
         async function initApp() {
             try {
-                // Try fetching normally (will work in Local Server)
                 const response = await fetch('data.json');
                 if (!response.ok) throw new Error('Network response was not ok');
                 problemData = await response.json();
             } catch (error) {
                 console.warn("Could not fetch data.json (likely running in Canvas sandbox). Using fallback data.", error);
-                // Use fallback data so the app still renders in Canvas/Preview
                 problemData = fallbackData;
             }
 
-            // Once data is set, initialize UI
             updateStats();
-            populateTags();
+            populateTagsAndPlatforms();
             renderProblems();
         }
 

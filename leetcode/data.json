@@ -253,5 +253,23 @@
                 "url": "dynamic-programming/climbing-stairs-optimal.html"
             }
         ]
+    },
+    {
+        "id": 3614,
+        "title": "Process String with Special Operations II",
+        "difficulty": "Hard",
+        "tags": [
+            "Senior Staff",
+            "String",
+            "Simulation"
+        ],
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/process-string-with-special-operations-ii/description/",
+        "solutions": [
+            {
+                "name": "Optimal",
+                "url": "string/process-string-with-special-operations-ii.html"
+            }
+        ]
     }
 ]
