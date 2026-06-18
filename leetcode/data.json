@@ -349,5 +349,30 @@
         "url": "matrix/search-a-2d-matrix.html"
       }
     ]
+  },
+  {
+    "id": "50",
+    "title": "Pow(x, n)",
+    "difficulty": "Medium",
+    "tags": [
+      "Math",
+      "Recursion"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/powx-n/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "math/powx-n-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "math/powx-n-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "math/powx-n.html"
+      }
+    ]
   }
 ]
