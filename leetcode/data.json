@@ -3,7 +3,11 @@
     "id": 11,
     "title": "Container With Most Water",
     "difficulty": "Easy",
-    "tags": ["Array", "Greedy", "Two Pointers"],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Two Pointers"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/",
     "solutions": [
@@ -17,7 +21,13 @@
     "id": 2751,
     "title": "Robot Collisions",
     "difficulty": "Hard",
-    "tags": ["Senior Staff", "Array", "Stack", "Sorting", "Simulation"],
+    "tags": [
+      "Senior Staff",
+      "Array",
+      "Stack",
+      "Sorting",
+      "Simulation"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
     "solutions": [
@@ -31,7 +41,11 @@
     "id": "15",
     "title": "3Sum",
     "difficulty": "Medium",
-    "tags": ["Array", "Two Pointers", "Sorting"],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/3sum/description/",
     "solutions": [
@@ -45,7 +59,9 @@
     "id": "a-12",
     "title": "Binary Tree Boundary Traversal",
     "difficulty": "Hard",
-    "tags": ["Algorithm"],
+    "tags": [
+      "Algorithm"
+    ],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -81,7 +97,9 @@
     "id": "a-4",
     "title": "Dutch National Flag",
     "difficulty": "Hard",
-    "tags": ["Algorithm"],
+    "tags": [
+      "Algorithm"
+    ],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -95,7 +113,9 @@
     "id": "a-5",
     "title": "Inversion Count",
     "difficulty": "Hard",
-    "tags": ["Algorithm"],
+    "tags": [
+      "Algorithm"
+    ],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -109,7 +129,9 @@
     "id": "a-6",
     "title": "Kadane's Algorithm",
     "difficulty": "Hard",
-    "tags": ["Algorithm"],
+    "tags": [
+      "Algorithm"
+    ],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -123,7 +145,9 @@
     "id": "a-7",
     "title": "Moore's Voting",
     "difficulty": "Hard",
-    "tags": ["Algorithm"],
+    "tags": [
+      "Algorithm"
+    ],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -137,7 +161,13 @@
     "id": "1365",
     "title": "How Many Numbers Are Smaller Than the Current Number",
     "difficulty": "Easy",
-    "tags": ["Mid Level", "Array", "Hash Table", "Sorting", "Counting Sort"],
+    "tags": [
+      "Mid Level",
+      "Array",
+      "Hash Table",
+      "Sorting",
+      "Counting Sort"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
     "solutions": [
@@ -151,7 +181,10 @@
     "id": "448",
     "title": "Find All Numbers Disappeared in an Array",
     "difficulty": "Easy",
-    "tags": ["Array", "Hash Table"],
+    "tags": [
+      "Array",
+      "Hash Table"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
     "solutions": [
@@ -185,7 +218,11 @@
     "id": "g-1",
     "title": "Construct List using XOR Queries",
     "difficulty": "Medium",
-    "tags": ["Array", "Bit Magic", "Data Structures"],
+    "tags": [
+      "Array",
+      "Bit Magic",
+      "Data Structures"
+    ],
     "platform": "GeeksForGeeks",
     "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
     "solutions": [
@@ -199,7 +236,11 @@
     "id": 70,
     "title": "Climbing Stairs",
     "difficulty": "Easy",
-    "tags": ["Math", "Dynamic Programming", "Memoization"],
+    "tags": [
+      "Math",
+      "Dynamic Programming",
+      "Memoization"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/climbing-stairs/description/",
     "solutions": [
@@ -217,7 +258,11 @@
     "id": 3614,
     "title": "Process String with Special Operations II",
     "difficulty": "Hard",
-    "tags": ["Senior Staff", "String", "Simulation"],
+    "tags": [
+      "Senior Staff",
+      "String",
+      "Simulation"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/process-string-with-special-operations-ii/description/",
     "solutions": [
@@ -231,7 +276,11 @@
     "id": 1,
     "title": "Cut rope to maximise product",
     "difficulty": "Medium",
-    "tags": ["Array", "Dynamic Programming", "Algorithm"],
+    "tags": [
+      "Array",
+      "Dynamic Programming",
+      "Algorithm"
+    ],
     "platform": "GeeksForGeeks",
     "platformUrl": "https://www.geeksforgeeks.org/problems/max-rope-cutting1312/1",
     "solutions": [
@@ -245,7 +294,11 @@
     "id": 62,
     "title": "Unique Paths",
     "difficulty": "Medium",
-    "tags": ["Math", "Dynamic Programming", "Combinatorics"],
+    "tags": [
+      "Math",
+      "Dynamic Programming",
+      "Combinatorics"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/unique-paths/description/",
     "solutions": [
@@ -267,13 +320,33 @@
     "id": 1344,
     "title": "Angle Between Hands of a Clock",
     "difficulty": "Medium",
-    "tags": ["Math"],
+    "tags": [
+      "Math"
+    ],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/angle-between-hands-of-a-clock/description/",
     "solutions": [
       {
         "name": "Optimal",
         "url": "math/angle-between-hands-of-a-clock.html"
+      }
+    ]
+  },
+  {
+    "id": "74",
+    "title": "Search a 2D Matrix",
+    "difficulty": "Medium",
+    "tags": [
+      "Matrix",
+      "Binary Search",
+      "Array"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/search-a-2d-matrix/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "matrix/search-a-2d-matrix.html"
       }
     ]
   }

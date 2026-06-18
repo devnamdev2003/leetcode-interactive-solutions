@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Search 2D Matrix</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        .array-box { 
+            width: 44px; height: 44px; border: 2px solid #1e293b; background: #111827; 
+            border-radius: 8px; display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; font-size: 16px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .highlight-read { border-color: #f472b6 !important; background: rgba(244, 114, 182, 0.1) !important; box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); transform: scale(1.1); z-index: 20;}
+        .highlight-write { border-color: #34d399 !important; background: rgba(52, 211, 153, 0.1) !important; box-shadow: 0 0 12px rgba(52, 211, 153, 0.4); transform: scale(1.1); z-index: 20;}
+        
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        /* Drag Overlay classes for smooth resizing */
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-border-all"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Search a 2D Matrix (Optimized 2-Step Binary Search)</p>
+            </div>
+        </div>
+        
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar (Hidden on Theory Tab) -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">2D Matrix (Rows separated by semicolons ';')</label>
+            <input type="text" id="input-matrix" class="input-field" value="1, 3, 5, 7; 10, 11, 16, 20; 23, 30, 34, 60">
+        </div>
+        <div class="w-32">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Target</label>
+            <input type="number" id="input-target" class="input-field" value="3">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Ensure format is proper numbers (e.g. 1, 2; 3, 4) and rows are of equal length.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-auto flex flex-col p-6 gap-8 transition-opacity duration-300 items-center">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-30 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Matrix Visualization -->
+                    <div class="mt-8">
+                        <div class="flex items-center gap-2 mb-6">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[][]</span> matrix</h3>
+                        </div>
+                        <div id="canvas-matrix" class="flex flex-col"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-3 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm col-span-3 text-center mb-1">
+                                <span class="text-[10px] text-slate-500 uppercase mr-2">Target to find:</span>
+                                <span id="var-target" class="font-mono text-syntaxPink font-bold text-lg">-</span>
+                            </div>
+                            
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">i (Start)</span>
+                                <span id="var-i" class="font-mono text-syntaxBlue font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">mid (Pivot)</span>
+                                <span id="var-mid" class="font-mono text-syntaxYellow font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">j (End)</span>
+                                <span id="var-j" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">m (Max Col)</span>
+                                <span id="var-m" class="font-mono text-slate-300 text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm col-span-2">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">mid2 (Col Pivot)</span>
+                                <span id="var-mid2" class="font-mono text-slate-300 text-lg">-</span>
+                            </div>
+
+                            <div class="col-span-3 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm mt-1">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxGreen font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div class="debug-line" id="line-1"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line" id="line-2"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public boolean</span> searchMatrix(<span class="text-syntaxPink">int</span>[][] matrix, <span class="text-syntaxPink">int</span> target) {</div></div>
+                        <div class="debug-line" id="line-3"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line" id="line-4"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">int</span> j = matrix.length - <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line" id="line-5"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">int</span> m = matrix[0].length - <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line text-slate-500 italic"><div class="line-num"></div><div class="code-content">        // Step 1: Binary Search on Rows</div></div>
+                        <div class="debug-line" id="line-6"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">while</span> (i <= j) {</div></div>
+                        <div class="debug-line" id="line-7"><div class="line-num">7</div><div class="code-content">            <span class="text-syntaxPink">int</span> mid = i + (j - i) / <span class="text-syntaxPink">2</span>;</div></div>
+                        <div class="debug-line" id="line-8"><div class="line-num">8</div><div class="code-content">            <span class="text-syntaxPink">if</span> (matrix[mid][0] == target) {</div></div>
+                        <div class="debug-line" id="line-9"><div class="line-num">9</div><div class="code-content">                <span class="text-syntaxPink">return true</span>;</div></div>
+                        <div class="debug-line" id="line-10"><div class="line-num">10</div><div class="code-content">            } <span class="text-syntaxPink">else if</span> (matrix[mid][0] > target) {</div></div>
+                        <div class="debug-line" id="line-11"><div class="line-num">11</div><div class="code-content">                j = mid - <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line" id="line-12"><div class="line-num">12</div><div class="code-content">            } <span class="text-syntaxPink">else</span> {</div></div>
+                        <div class="debug-line" id="line-13"><div class="line-num">13</div><div class="code-content">                <span class="text-syntaxPink">if</span> (matrix[mid][m] >= target) {</div></div>
+                        <div class="debug-line text-slate-500 italic"><div class="line-num"></div><div class="code-content">                    // Step 2: Binary Search on specific Column</div></div>
+                        <div class="debug-line" id="line-14"><div class="line-num">14</div><div class="code-content">                    i = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line" id="line-15"><div class="line-num">15</div><div class="code-content">                    j = matrix[mid].length - <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line" id="line-16"><div class="line-num">16</div><div class="code-content">                    <span class="text-syntaxPink">while</span> (i <= j) {</div></div>
+                        <div class="debug-line" id="line-17"><div class="line-num">17</div><div class="code-content">                        <span class="text-syntaxPink">int</span> mid2 = i + (j - i) / <span class="text-syntaxPink">2</span>;</div></div>
+                        <div class="debug-line" id="line-18"><div class="line-num">18</div><div class="code-content">                        <span class="text-syntaxPink">if</span> (matrix[mid][mid2] == target) {</div></div>
+                        <div class="debug-line" id="line-19"><div class="line-num">19</div><div class="code-content">                            <span class="text-syntaxPink">return true</span>;</div></div>
+                        <div class="debug-line" id="line-20"><div class="line-num">20</div><div class="code-content">                        } <span class="text-syntaxPink">else if</span> (matrix[mid][mid2] > target) {</div></div>
+                        <div class="debug-line" id="line-21"><div class="line-num">21</div><div class="code-content">                            j = mid2 - <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line" id="line-22"><div class="line-num">22</div><div class="code-content">                        } <span class="text-syntaxPink">else</span> {</div></div>
+                        <div class="debug-line" id="line-23"><div class="line-num">23</div><div class="code-content">                            i = mid2 + <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line" id="line-24"><div class="line-num">24</div><div class="code-content">                        }</div></div>
+                        <div class="debug-line" id="line-25"><div class="line-num">25</div><div class="code-content">                    }</div></div>
+                        <div class="debug-line" id="line-26"><div class="line-num">26</div><div class="code-content">                    <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line" id="line-27"><div class="line-num">27</div><div class="code-content">                } <span class="text-syntaxPink">else</span> {</div></div>
+                        <div class="debug-line" id="line-28"><div class="line-num">28</div><div class="code-content">                    i = mid + <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line" id="line-29"><div class="line-num">29</div><div class="code-content">                }</div></div>
+                        <div class="debug-line" id="line-30"><div class="line-num">30</div><div class="code-content">            }</div></div>
+                        <div class="debug-line" id="line-31"><div class="line-num">31</div><div class="code-content">        }</div></div>
+                        <div class="debug-line" id="line-32"><div class="line-num">32</div><div class="code-content">        <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line" id="line-33"><div class="line-num">33</div><div class="code-content">    }</div></div>
+                        <div class="debug-line" id="line-34"><div class="line-num">34</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution uses an <strong>Optimized Two-Step Binary Search</strong>. Because of the strict properties of the given matrix (each row is sorted, and the first element of a row is greater than the last element of the previous row), we can treat the 2D matrix almost as a single sorted 1D array, but we optimize memory access by searching in two dimensions conceptually.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Step 1: Row Binary Search</strong><br>
+                            We initialize pointers `i` and `j` to the top and bottom rows respectively. We calculate the middle row `mid`. By examining the first element `matrix[mid][0]` and the last element `matrix[mid][m]`, we can determine if the target lies completely before this row, completely after this row, or perfectly within this row's range.
+                        </li>
+                        <li>
+                            <strong>Step 2: Column Binary Search</strong><br>
+                            Once we confidently lock down the exact row `mid` where the target *must* reside (if it exists), we reuse the `i` and `j` pointers for the columns of that specific row. We then run a standard binary search horizontally to find the exact cell.
+                        </li>
+                        <li>
+                            <strong>Advantage:</strong><br>
+                            This prevents having to flatten the array or use modulo arithmetic to map 1D indexes to 2D indexes, keeping the logic clean and cache-friendly.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(log(R) + log(C)) = O(log(R × C))</span>
+                        <p class="text-xs text-slate-400">Where $R$ is the number of rows and $C$ is the number of columns. We binary search the rows $O(\log R)$ and then binary search exactly one row $O(\log C)$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">We only maintain a few integer variables (`i`, `j`, `m`, `mid`, `mid2`) for our pointers, taking up constant auxiliary space.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar (Hidden on Theory Tab) -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left';
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500; 
+        let currentMatrix = [];
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const matrixStr = document.getElementById('input-matrix').value;
+            const targetStr = document.getElementById('input-target').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                // Parse target
+                const target = parseInt(targetStr.trim());
+                if(isNaN(target)) throw new Error("Invalid target");
+
+                // Parse matrix
+                const rows = matrixStr.split(';');
+                const matrix = rows.map(r => r.split(',').map(s => parseInt(s.trim())));
+                
+                // Validate dimensions
+                if (matrix.length === 0) throw new Error("Empty matrix");
+                const mLen = matrix[0].length;
+                for(let r of matrix) {
+                    if (r.some(isNaN) || r.length !== mLen || r.length === 0) {
+                        throw new Error("Invalid Input");
+                    }
+                }
+
+                currentMatrix = matrix;
+                generateStates(matrix, target);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(matrix, target) {
+            states = [];
+            let rLen = matrix.length;
+            if(rLen === 0) return;
+            let cLen = matrix[0].length;
+
+            let vrs = { target: target, i: '-', j: '-', m: '-', mid: '-', mid2: '-', action: 'Waiting to start' };
+            let vis = { mode: 'row', rowRange: [0, rLen - 1], colRange: [0, cLen - 1], mid: -1, mid2: -1, read: null, found: null };
+
+            const pushState = (msg, line, vUpdate, visUpdate) => {
+                vrs = { ...vrs, ...vUpdate };
+                vis = { ...vis, ...visUpdate };
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: JSON.parse(JSON.stringify(vis))
+                });
+            };
+
+            // Initializations
+            pushState(`Initialize target and boundary pointers.`, "line-2", {}, {});
+            
+            let i = 0;
+            pushState(`i (start row) initialized to 0`, "line-3", { i: i, action: "Init row boundaries" }, {});
+            
+            let j = rLen - 1;
+            pushState(`j (end row) initialized to ${j}`, "line-4", { j: j }, {});
+            
+            let m = cLen - 1;
+            pushState(`m (max col index) initialized to ${m}`, "line-5", { m: m }, {});
+
+            // Row Binary Search
+            while (i <= j) {
+                pushState(`Row search bounds: i=${i} <= j=${j}`, "line-6", { action: "Entering row loop" }, {});
+                
+                let mid = Math.floor(i + (j - i) / 2);
+                pushState(`Calculate mid row index: ${mid}`, "line-7", { mid: mid, action: "Calculated mid row" }, { mid: mid, read: null });
+
+                pushState(`Check if first element of row ${mid} is the target`, "line-8", { action: `matrix[${mid}][0] == ${target}?` }, { read: [mid, 0] });
+                if (matrix[mid][0] === target) {
+                    pushState(`Target found at [${mid}][0]!`, "line-9", { action: "Target located!" }, { found: [mid, 0], read: null });
+                    return;
+                }
+
+                pushState(`Check if entire row is greater than target`, "line-10", { action: `matrix[${mid}][0] > ${target}?` }, { read: [mid, 0] });
+                if (matrix[mid][0] > target) {
+                    j = mid - 1;
+                    pushState(`Target must be in earlier row. Updating j = ${j}`, "line-11", { j: j, action: "Discard lower half" }, { rowRange: [i, j], mid: -1, read: null });
+                } else {
+                    pushState(`First element <= target. Check last element of row ${mid}`, "line-13", { action: `matrix[${mid}][${m}] >= ${target}?` }, { read: [mid, m] });
+                    if (matrix[mid][m] >= target) {
+                        pushState(`Target is within row ${mid}'s range! Switching to Column Search`, "line-13", { action: `Locking onto row ${mid}` }, { mode: 'col', rowRange: [mid, mid], read: null, mid: -1 });
+                        
+                        i = 0;
+                        pushState(`Reset i (col start) to 0`, "line-14", { i: i, action: "Init col boundaries" }, {});
+                        j = matrix[mid].length - 1;
+                        pushState(`Set j (col end) to ${j}`, "line-15", { j: j }, { colRange: [i, j] });
+
+                        // Column Binary Search
+                        while (i <= j) {
+                            pushState(`Col search bounds: i=${i} <= j=${j}`, "line-16", { action: "Entering col loop" }, {});
+                            
+                            let mid2 = Math.floor(i + (j - i) / 2);
+                            pushState(`Calculate mid col index: ${mid2}`, "line-17", { mid2: mid2, action: "Calculated mid col" }, { mid2: mid2, read: null });
+
+                            pushState(`Check if mid element is target`, "line-18", { action: `matrix[${mid}][${mid2}] == ${target}?` }, { read: [mid, mid2] });
+                            if (matrix[mid][mid2] === target) {
+                                pushState(`Target found at [${mid}][${mid2}]!`, "line-19", { action: "Target located!" }, { found: [mid, mid2], read: null });
+                                return;
+                            }
+
+                            pushState(`Check if mid element is greater than target`, "line-20", { action: `matrix[${mid}][${mid2}] > ${target}?` }, { read: [mid, mid2] });
+                            if (matrix[mid][mid2] > target) {
+                                j = mid2 - 1;
+                                pushState(`Target is smaller. Updating j = ${j}`, "line-21", { j: j, action: "Discard right half" }, { colRange: [i, j], mid2: -1, read: null });
+                            } else {
+                                i = mid2 + 1;
+                                pushState(`Target is greater. Updating i = ${i}`, "line-23", { i: i, action: "Discard left half" }, { colRange: [i, j], mid2: -1, read: null });
+                            }
+                        }
+                        pushState(`Column search depleted. Target not in row ${mid}.`, "line-26", { action: "Target missing" }, { mode: 'done', mid2: -1, read: null });
+                        return;
+
+                    } else {
+                        i = mid + 1;
+                        pushState(`Target is larger than last element in row ${mid}. Target must be in later row. Updating i = ${i}`, "line-28", { i: i, action: "Discard upper half" }, { rowRange: [i, j], mid: -1, read: null });
+                    }
+                }
+            }
+            
+            pushState(`Row boundaries crossed (i > j). Target not present in matrix.`, "line-32", { action: "Search Failed" }, { mode: 'done', read: null });
+        }
+
+        function renderMatrixDOM(vis, vrs) {
+            const container = document.getElementById('canvas-matrix');
+            let html = '';
+
+            for (let r = 0; r < currentMatrix.length; r++) {
+                let rowOpacity = 'opacity-100';
+                let rowLabels = [];
+
+                // Visual rules for Row Search Mode
+                if (vis.mode === 'row') {
+                    if (r < vis.rowRange[0] || r > vis.rowRange[1]) rowOpacity = 'opacity-20';
+                    if (r === vrs.i && vrs.i !== '-') rowLabels.push('<span class="bg-blue-600 text-white text-[9px] px-1.5 py-0.5 rounded shadow">i</span>');
+                    if (r === vrs.j && vrs.j !== '-') rowLabels.push('<span class="bg-purple-600 text-white text-[9px] px-1.5 py-0.5 rounded shadow">j</span>');
+                    if (r === vis.mid && vis.mid !== -1) rowLabels.push('<span class="bg-yellow-500 text-black text-[9px] px-1.5 py-0.5 rounded font-bold shadow">mid</span>');
+                } 
+                // Visual rules for Column Search Mode / Done
+                else if (vis.mode === 'col' || vis.mode === 'done') {
+                    if (r !== vis.rowRange[0]) rowOpacity = 'opacity-20';
+                    if (vis.mode === 'col' && r === vis.rowRange[0]) {
+                        rowLabels.push('<span class="bg-emerald-600 text-white text-[9px] px-1.5 py-0.5 rounded shadow text-center leading-tight mt-1">Target Row</span>');
+                    }
+                }
+
+                let cellsHtml = currentMatrix[r].map((val, c) => {
+                    let cellOpacity = 'opacity-100';
+                    let cellClasses = 'array-box'; 
+                    let cellLabels = [];
+
+                    // Apply Column limits only to the Target Row
+                    if (vis.mode === 'col' && r === vis.rowRange[0]) {
+                        if (c < vis.colRange[0] || c > vis.colRange[1]) cellOpacity = 'opacity-20';
+                        if (c === vrs.i && vrs.i !== '-') cellLabels.push('<span class="absolute -top-3 -left-2 bg-blue-600 text-white text-[10px] font-mono px-1 rounded shadow z-10">i</span>');
+                        if (c === vrs.j && vrs.j !== '-') cellLabels.push('<span class="absolute -top-3 -right-2 bg-purple-600 text-white text-[10px] font-mono px-1 rounded shadow z-10">j</span>');
+                        if (c === vis.mid2 && vis.mid2 !== -1) cellLabels.push('<span class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-black text-[10px] font-mono font-bold px-1 rounded shadow z-10">mid2</span>');
+                    }
+
+                    if (vis.read && vis.read[0] === r && vis.read[1] === c) {
+                        cellClasses += ' highlight-read';
+                        cellOpacity = 'opacity-100 z-10 relative'; 
+                    }
+                    if (vis.found && vis.found[0] === r && vis.found[1] === c) {
+                        cellClasses += ' highlight-write'; 
+                        cellOpacity = 'opacity-100 z-10 relative';
+                    }
+
+                    return `
+                        <div class="relative ${cellOpacity} transition-all duration-300 mx-1">
+                            ${cellLabels.join('')}
+                            <div class="${cellClasses}">${val}</div>
+                            <div class="text-center mt-1 text-[9px] text-slate-500 font-mono">[${r}][${c}]</div>
+                        </div>
+                    `;
+                }).join('');
+
+                html += `
+                    <div class="flex items-center gap-4 ${rowOpacity} transition-all duration-300 mb-3">
+                        <div class="w-16 flex flex-col gap-1 items-end justify-center shrink-0">
+                            <span class="text-[10px] text-slate-500 font-mono mb-1 uppercase tracking-wider">Row ${r}</span>
+                            ${rowLabels.join('')}
+                        </div>
+                        <div class="flex p-2 bg-bgPanel/40 rounded-xl border border-borderMain/50 relative shadow-inner">
+                            ${cellsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if(!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render Matrix Visuals
+            renderMatrixDOM(state.visuals, state.vars);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+            }
+
+            document.getElementById('var-target').innerText = state.vars.target;
+            document.getElementById('var-i').innerText = state.vars.i;
+            document.getElementById('var-j').innerText = state.vars.j;
+            document.getElementById('var-m').innerText = state.vars.m;
+            document.getElementById('var-mid').innerText = state.vars.mid;
+            document.getElementById('var-mid2').innerText = state.vars.mid2;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>

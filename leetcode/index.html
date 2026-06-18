@@ -999,8 +999,8 @@
 
             // Extract values
             const rawId = document.getElementById('entryID').value.trim();
-            // Try to parse ID as number if it's purely numeric, else keep as string
-            const idVal = /^\d+$/.test(rawId) ? Number(rawId) : rawId;
+            // Always store ID as a string, even if it only contains numbers
+            const idVal = String(rawId);
 
             const titleVal = document.getElementById('entryTitle').value.trim();
             const diffVal = document.getElementById('entryDiff').value;
