@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Angle Between Clock Hands</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        /* Drag Overlay classes for smooth resizing */
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+
+        /* Clock specific animation */
+        #hour-hand, #minute-hand, #angle-arc { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Angle Between Hands of a Clock</p>
+            </div>
+        </div>
+        
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-[120px]">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Hour (1-12)</label>
+            <input type="number" id="input-hour" class="input-field" value="12" min="1" max="12">
+        </div>
+        <div class="flex-1 w-full max-w-[120px]">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Minutes (0-59)</label>
+            <input type="number" id="input-minute" class="input-field" value="30" min="0" max="59">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Ensure Hour is 1-12 and Minutes 0-59.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Math Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-hidden flex flex-col items-center justify-center p-6 transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Visual Clock -->
+                    <div class="relative w-full max-w-[400px] aspect-square flex items-center justify-center filter drop-shadow-xl">
+                        <svg id="clock-svg" viewBox="0 0 200 200" class="w-full h-full transform -rotate-90">
+                            <!-- Shadow/Outer Ring -->
+                            <circle cx="100" cy="100" r="95" fill="#111827" stroke="#1e293b" stroke-width="6"/>
+                            <!-- Inner Ring -->
+                            <circle cx="100" cy="100" r="92" fill="transparent" stroke="#0f1423" stroke-width="2"/>
+                            
+                            <!-- Ticks Group generated by JS -->
+                            <g id="clock-ticks"></g>
+                            
+                            <!-- Angle Arc -->
+                            <path id="angle-arc" class="hidden" d="" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4"/>
+                            
+                            <!-- Hour Hand -->
+                            <line id="hour-hand" x1="100" y1="100" x2="155" y2="100" stroke="#f472b6" stroke-width="5" stroke-linecap="round" />
+                            <!-- Minute Hand -->
+                            <line id="minute-hand" x1="100" y1="100" x2="180" y2="100" stroke="#34d399" stroke-width="3" stroke-linecap="round" />
+                            
+                            <!-- Center Dot -->
+                            <circle cx="100" cy="100" r="6" fill="#f8fafc" class="shadow-md"/>
+                            <circle cx="100" cy="100" r="2" fill="#0b1120"/>
+                        </svg>
+                        
+                        <!-- Angle Overlay Badge -->
+                        <div id="angle-badge" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-bgPanel border border-borderMain px-4 py-2 rounded-full text-white font-mono font-bold shadow-lg hidden">
+                            <span class="text-primary text-xs mr-2 uppercase tracking-widest">Angle</span>
+                            <span id="angle-display">0</span>°
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-4">
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">hour</span>
+                                <span id="var-hour" class="font-mono text-syntaxPink font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">m (minutes)</span>
+                                <span id="var-m" class="font-mono text-syntaxGreen font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">ans (Angle)</span>
+                                <span id="var-ans" class="font-mono text-primary font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium leading-snug">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-func" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public double</span> angleClock(<span class="text-syntaxPink">int</span> hour, <span class="text-syntaxPink">int</span> minutes) {</div></div>
+                        <div id="line-h-mul" class="debug-line"><div class="line-num">3</div><div class="code-content">        hour = hour * <span class="text-syntaxPink">5</span>;</div></div>
+                        <div id="line-m-init" class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">double</span> m = minutes;</div></div>
+                        <div id="line-h-if1" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">if</span> (hour == <span class="text-syntaxPink">60</span>)</div></div>
+                        <div id="line-h-if2" class="debug-line"><div class="line-num">6</div><div class="code-content">            hour = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-m-if1" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">if</span> (m == <span class="text-syntaxPink">60</span>)</div></div>
+                        <div id="line-m-if2" class="debug-line"><div class="line-num">8</div><div class="code-content">            m = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-ans-calc" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">double</span> ans = Math.abs(((m - hour) * <span class="text-syntaxPink">6</span>) - (m / <span class="text-syntaxPink">2</span>));</div></div>
+                        <div id="line-ret" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">return</span> Math.min(ans, <span class="text-syntaxPink">360</span> - ans);</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This mathematical algorithm elegantly determines the shortest angle between the hour and minute hands of a standard 12-hour analog clock. It leverages the concept of mapping both hands to the same rotational metric (minutes) to calculate the difference easily.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Mathematical Breakdown:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Mapping Hour to Minute Scale:</strong> <code>hour = hour * 5</code><br>
+                            Instead of working in degrees immediately, the algorithm maps the hour hand's primary position to a "minute" equivalent. For example, 3 o'clock maps to the 15-minute mark.
+                        </li>
+                        <li>
+                            <strong>Wrap Around Cases:</strong> <code>if (hour == 60) hour = 0;</code><br>
+                            12 o'clock maps to 60, but operationally, it starts at the 0 position. The algorithm resets it to 0.
+                        </li>
+                        <li>
+                            <strong>Calculating the Degree Difference:</strong> <code>abs(((m - hour) * 6) - (m / 2))</code><br>
+                            This line is the core engine. Let's break it down:
+                            <ul class="list-[circle] pl-5 mt-2 space-y-1 text-slate-400">
+                                <li><code>(m - hour)</code> calculates the baseline difference in <em>minutes</em> between the two hands.</li>
+                                <li>Multiplying by <code>6</code> converts this minute distance into <strong>degrees</strong> (since 360° / 60 minutes = 6° per minute).</li>
+                                <li>However, the hour hand doesn't stay still! It moves slowly as minutes tick by. It moves 30° per hour, which is <strong>0.5° per minute</strong> (<code>m / 2</code>). So we subtract the extra drift of the hour hand.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Finding the Shortest Angle:</strong> <code>Math.min(ans, 360 - ans)</code><br>
+                            Two angles are formed by the hands: an interior and an exterior angle, which together add up to 360°. To satisfy the requirement of the "smaller angle", we take the minimum of the calculated angle and its 360° complement.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">The execution simply performs a constant number of basic arithmetic operations (multiplication, subtraction, absolute value). It does not depend on the size of any input array or loop iterations.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">The algorithm only allocates a few primitive variables (<code>hour</code>, <code>m</code>, <code>ans</code>) resulting in strictly constant extra space independent of input.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // Setup clock face ticks
+        function setupClockFace() {
+            const ticksGroup = document.getElementById('clock-ticks');
+            let ticksHTML = '';
+            for(let i=0; i<60; i++) {
+                const angle = i * 6; // 6 degrees per minute
+                const rad = angle * Math.PI / 180;
+                const isHour = i % 5 === 0;
+                
+                const innerR = isHour ? 82 : 88;
+                const outerR = 92;
+                
+                // Note: rotation on parent SVG handles 12 o'clock offset, calculate based on standard circle
+                const x1 = 100 + innerR * Math.cos(rad);
+                const y1 = 100 + innerR * Math.sin(rad);
+                const x2 = 100 + outerR * Math.cos(rad);
+                const y2 = 100 + outerR * Math.sin(rad);
+                
+                const strokeColor = isHour ? '#94a3b8' : '#334155';
+                const strokeWidth = isHour ? '2.5' : '1';
+                
+                ticksHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
+            }
+            ticksGroup.innerHTML = ticksHTML;
+        }
+
+        // Generate SVG Arc Wedge
+        function getArcPath(cx, cy, r, h_deg, m_deg, isMin) {
+            let diff = Math.abs(h_deg - m_deg);
+            let start = Math.min(h_deg, m_deg);
+            let end = Math.max(h_deg, m_deg);
+
+            let sweep = 1;
+            let largeArc = 0;
+
+            if (isMin) {
+                if (diff > 180) {
+                    // Min angle is the outer path crossing 0
+                    start = Math.max(h_deg, m_deg);
+                    end = Math.min(h_deg, m_deg) + 360;
+                    largeArc = 0; // The difference is now 360 - diff < 180
+                }
+            } else {
+                if (diff > 180) {
+                    largeArc = 1; // Draw the large side to visualize the 'raw' angle > 180
+                }
+            }
+
+            // Convert to radians (no -90 offset here since parent SVG is rotated -90 deg)
+            const startRad = start * Math.PI / 180;
+            const endRad = end * Math.PI / 180;
+
+            const x1 = cx + r * Math.cos(startRad);
+            const y1 = cy + r * Math.sin(startRad);
+            const x2 = cx + r * Math.cos(endRad);
+            const y2 = cy + r * Math.sin(endRad);
+
+            // M cx cy L x1 y1 A rx ry x-axis-rotation large-arc-flag sweep-flag x2 y2 Z
+            return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} ${sweep} ${x2} ${y2} Z`;
+        }
+
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left'; 
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            setupClockFace();
+
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500; 
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const inputHour = parseInt(document.getElementById('input-hour').value);
+            const inputMin = parseInt(document.getElementById('input-minute').value);
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                if (isNaN(inputHour) || isNaN(inputMin) || inputHour < 1 || inputHour > 12 || inputMin < 0 || inputMin > 59) {
+                    throw new Error("Invalid Input");
+                }
+
+                generateStates(inputHour, inputMin);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(h_input, m_input) {
+            states = [];
+            let hour = h_input;
+            let m = m_input;
+            let ans = 0;
+            let finalAns = 0;
+
+            const h_actual_deg = (h_input % 12) * 30 + (m_input * 0.5);
+            const m_actual_deg = m_input * 6;
+
+            let vrs = { hour: hour, m: '-', ans: '-', action: 'Start Execution' };
+
+            const pushState = (msg, line, vrs, visual) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: visual
+                });
+            };
+
+            // Init state
+            pushState(`Begin Angle Clock Algorithm for ${h_input}:${m_input.toString().padStart(2, '0')}`, "line-func", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+
+            // Step 1: hour = hour * 5
+            const oldHour = hour;
+            hour = hour * 5;
+            vrs.hour = hour;
+            vrs.action = `hour = ${oldHour} * 5 \u2192 ${hour}`;
+            pushState(`Map hour hand to minute-scale equivalent`, "line-h-mul", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+
+            // Step 2: double m = minutes
+            m = m_input;
+            vrs.m = m;
+            vrs.action = `Cast minutes to double: m = ${m}`;
+            pushState(`Initialize minutes double variable`, "line-m-init", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+
+            // Step 3: if (hour == 60) hour = 0
+            if (hour === 60) {
+                vrs.action = `hour == 60 (12 o'clock case) \u2192 reset`;
+                pushState(`Condition True: hour wraps around at 60`, "line-h-if1", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+                hour = 0;
+                vrs.hour = hour;
+                pushState(`hour is now mapped to 0`, "line-h-if2", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+            } else {
+                vrs.action = `hour != 60 \u2192 skip reset`;
+                pushState(`Condition False: No hour wraparound needed`, "line-h-if1", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+            }
+
+            // Step 4: if (m == 60) m = 0
+            if (m === 60) {
+                vrs.action = `m == 60 \u2192 reset`;
+                pushState(`Condition True: minutes wraps around at 60`, "line-m-if1", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+                m = 0;
+                vrs.m = m;
+                pushState(`m is now mapped to 0`, "line-m-if2", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+            } else {
+                vrs.action = `m != 60 \u2192 skip reset`;
+                pushState(`Condition False: No minute wraparound needed`, "line-m-if1", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: null });
+            }
+
+            // Step 5: double ans = Math.abs(((m - hour) * 6) - (m / 2));
+            ans = Math.abs(((m - hour) * 6) - (m / 2));
+            vrs.ans = ans.toFixed(1);
+            vrs.action = `Evaluate formula: |((${m} - ${hour}) * 6) - (${m}/2)|`;
+            pushState(`Calculate raw angle between hands`, "line-ans-calc", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: { type: 'raw', val: ans } });
+
+            // Step 6: return Math.min(ans, 360 - ans);
+            finalAns = Math.min(ans, 360 - ans);
+            vrs.ans = finalAns.toFixed(1);
+            vrs.action = `Min(${ans.toFixed(1)}, ${360 - ans.toFixed(1)}) = ${finalAns.toFixed(1)}`;
+            pushState(`Return the minimum (inner) angle! Final: ${finalAns.toFixed(1)}°`, "line-ret", vrs, { h_deg: h_actual_deg, m_deg: m_actual_deg, arc: { type: 'min', val: finalAns } });
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-hour').innerText = state.vars.hour;
+            document.getElementById('var-m').innerText = state.vars.m;
+            document.getElementById('var-ans').innerText = state.vars.ans;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // Render Clock Visualization
+            const v = state.visuals;
+            document.getElementById('hour-hand').setAttribute('transform', `rotate(${v.h_deg}, 100, 100)`);
+            document.getElementById('minute-hand').setAttribute('transform', `rotate(${v.m_deg}, 100, 100)`);
+
+            const arcEl = document.getElementById('angle-arc');
+            const badgeEl = document.getElementById('angle-badge');
+            const displayEl = document.getElementById('angle-display');
+
+            if (v.arc) {
+                arcEl.setAttribute('d', getArcPath(100, 100, 45, v.h_deg, v.m_deg, v.arc.type === 'min'));
+                arcEl.classList.remove('hidden');
+                badgeEl.classList.remove('hidden');
+                displayEl.innerText = v.arc.val.toFixed(1);
+                
+                if(v.arc.type === 'min') {
+                    arcEl.setAttribute('fill', 'rgba(52, 211, 153, 0.25)');
+                    arcEl.setAttribute('stroke', '#34d399');
+                    displayEl.classList.replace('text-primary', 'text-success');
+                } else {
+                    arcEl.setAttribute('fill', 'rgba(59, 130, 246, 0.25)');
+                    arcEl.setAttribute('stroke', '#3b82f6');
+                    displayEl.classList.replace('text-success', 'text-primary');
+                }
+            } else {
+                arcEl.classList.add('hidden');
+                badgeEl.classList.add('hidden');
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>

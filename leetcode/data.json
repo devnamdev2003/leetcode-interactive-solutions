@@ -1,319 +1,280 @@
 [
-    {
-        "id": 11,
-        "title": "Container With Most Water",
-        "difficulty": "Easy",
-        "tags": [
-            "Array",
-            "Greedy",
-            "Two Pointers"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "array/container-with-most-water.html"
-            }
-        ]
-    },
-    {
-        "id": 2751,
-        "title": "Robot Collisions",
-        "difficulty": "Hard",
-        "tags": [
-            "Senior Staff",
-            "Array",
-            "Stack",
-            "Sorting",
-            "Simulation"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "array/robot-collisions.html"
-            }
-        ]
-    },
-    {
-        "id": "15",
-        "title": "3Sum",
-        "difficulty": "Medium",
-        "tags": [
-            "Array",
-            "Two Pointers",
-            "Sorting"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/3sum/description/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "algorithm/3sum.html"
-            }
-        ]
-    },
-    {
-        "id": "a-12",
-        "title": "Binary Tree Boundary Traversal",
-        "difficulty": "Hard",
-        "tags": [
-            "Algorithm"
-        ],
-        "platform": "Custom",
-        "platformUrl": "#",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "algorithm/binary-tree-boundary-traversal.html"
-            }
-        ]
-    },
-    {
-        "id": "987",
-        "title": "Vertical Order Traversal of a Binary Tree",
-        "difficulty": "Hard",
-        "tags": [
-            "Staff",
-            "Hash Table",
-            "Tree",
-            "Depth-First Search",
-            "Breadth-First Search",
-            "Sorting",
-            "Binary Tree"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "algorithm/vertical-order-traversal-of-a-binary-tree.html"
-            }
-        ]
-    },
-    {
-        "id": "a-4",
-        "title": "Dutch National Flag",
-        "difficulty": "Hard",
-        "tags": [
-            "Algorithm"
-        ],
-        "platform": "Custom",
-        "platformUrl": "#",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "algorithm/dutch-national-flag.html"
-            }
-        ]
-    },
-    {
-        "id": "a-5",
-        "title": "Inversion Count",
-        "difficulty": "Hard",
-        "tags": [
-            "Algorithm"
-        ],
-        "platform": "Custom",
-        "platformUrl": "#",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "algorithm/inversion-count.html"
-            }
-        ]
-    },
-    {
-        "id": "a-6",
-        "title": "Kadane's Algorithm",
-        "difficulty": "Hard",
-        "tags": [
-            "Algorithm"
-        ],
-        "platform": "Custom",
-        "platformUrl": "#",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "algorithm/kadanes-algorithm.html"
-            }
-        ]
-    },
-    {
-        "id": "a-7",
-        "title": "Moore's Voting",
-        "difficulty": "Hard",
-        "tags": [
-            "Algorithm"
-        ],
-        "platform": "Custom",
-        "platformUrl": "#",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "algorithm/moores-voting.html"
-            }
-        ]
-    },
-    {
-        "id": "1365",
-        "title": "How Many Numbers Are Smaller Than the Current Number",
-        "difficulty": "Easy",
-        "tags": [
-            "Mid Level",
-            "Array",
-            "Hash Table",
-            "Sorting",
-            "Counting Sort"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "array/how-many-numbers-are-smaller-than-the-current-number.html"
-            }
-        ]
-    },
-    {
-        "id": "448",
-        "title": "Find All Numbers Disappeared in an Array",
-        "difficulty": "Easy",
-        "tags": [
-            "Array",
-            "Hash Table"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "array/find-all-numbers-disappeared-in-an-array.html"
-            }
-        ]
-    },
-    {
-        "id": "295",
-        "title": "Find Median from Data Stream",
-        "difficulty": "Hard",
-        "tags": [
-            "Two Pointers",
-            "Design",
-            "Sorting",
-            "Heap (Priority Queue)",
-            "Data Stream"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/find-median-from-data-stream/description/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "two-pointers/find-median-from-data-stream.html"
-            }
-        ]
-    },
-    {
-        "id": "g-1",
-        "title": "Construct List using XOR Queries",
-        "difficulty": "Medium",
-        "tags": [
-            "Array",
-            "Bit Magic",
-            "Data Structures"
-        ],
-        "platform": "GeeksForGeeks",
-        "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "array/construct-list-using-given-q-xor-queries.html"
-            }
-        ]
-    },
-    {
-        "id": 70,
-        "title": "Climbing Stairs",
-        "difficulty": "Easy",
-        "tags": [
-            "Math",
-            "Dynamic Programming",
-            "Memoization"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/climbing-stairs/description/",
-        "solutions": [
-            {
-                "name": "Brute",
-                "url": "dynamic-programming/climbing-stairs-brute.html"
-            },
-            {
-                "name": "Optimal",
-                "url": "dynamic-programming/climbing-stairs.html"
-            }
-        ]
-    },
-    {
-        "id": 3614,
-        "title": "Process String with Special Operations II",
-        "difficulty": "Hard",
-        "tags": [
-            "Senior Staff",
-            "String",
-            "Simulation"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/process-string-with-special-operations-ii/description/",
-        "solutions": [
-            {
-                "name": "Optimal",
-                "url": "string/process-string-with-special-operations-ii.html"
-            }
-        ]
-    },
-    {
-        "id": 1,
-        "title": "Cut rope to maximise product",
-        "difficulty": "Medium",
-        "tags": [
-            "Array",
-            "Dynamic Programming",
-            "Algorithm"
-        ],
-        "platform": "GeeksForGeeks",
-        "platformUrl": "https://www.geeksforgeeks.org/problems/max-rope-cutting1312/1",
-        "solutions": [
-            {
-                "name": "Brute",
-                "url": "dynamic-programming/max-rope-cutting-brute.html"
-            }
-        ]
-    },
-    {
-        "id": 62,
-        "title": "Unique Paths",
-        "difficulty": "Medium",
-        "tags": [
-            "Math",
-            "Dynamic Programming",
-            "Combinatorics"
-        ],
-        "platform": "LeetCode",
-        "platformUrl": "https://leetcode.com/problems/unique-paths/description/",
-        "solutions": [
-            {
-                "name": "Brute",
-                "url": "dynamic-programming/unique-paths-brute.html"
-            },
-            {
-                "name": "Better",
-                "url": "dynamic-programming/unique-paths-better.html"
-            },
-            {
-                "name": "Optimal",
-                "url": "dynamic-programming/unique-paths.html"
-            }
-        ]
-    }
+  {
+    "id": 11,
+    "title": "Container With Most Water",
+    "difficulty": "Easy",
+    "tags": ["Array", "Greedy", "Two Pointers"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "array/container-with-most-water.html"
+      }
+    ]
+  },
+  {
+    "id": 2751,
+    "title": "Robot Collisions",
+    "difficulty": "Hard",
+    "tags": ["Senior Staff", "Array", "Stack", "Sorting", "Simulation"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "array/robot-collisions.html"
+      }
+    ]
+  },
+  {
+    "id": "15",
+    "title": "3Sum",
+    "difficulty": "Medium",
+    "tags": ["Array", "Two Pointers", "Sorting"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/3sum/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/3sum.html"
+      }
+    ]
+  },
+  {
+    "id": "a-12",
+    "title": "Binary Tree Boundary Traversal",
+    "difficulty": "Hard",
+    "tags": ["Algorithm"],
+    "platform": "Custom",
+    "platformUrl": "#",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/binary-tree-boundary-traversal.html"
+      }
+    ]
+  },
+  {
+    "id": "987",
+    "title": "Vertical Order Traversal of a Binary Tree",
+    "difficulty": "Hard",
+    "tags": [
+      "Staff",
+      "Hash Table",
+      "Tree",
+      "Depth-First Search",
+      "Breadth-First Search",
+      "Sorting",
+      "Binary Tree"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/vertical-order-traversal-of-a-binary-tree.html"
+      }
+    ]
+  },
+  {
+    "id": "a-4",
+    "title": "Dutch National Flag",
+    "difficulty": "Hard",
+    "tags": ["Algorithm"],
+    "platform": "Custom",
+    "platformUrl": "#",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/dutch-national-flag.html"
+      }
+    ]
+  },
+  {
+    "id": "a-5",
+    "title": "Inversion Count",
+    "difficulty": "Hard",
+    "tags": ["Algorithm"],
+    "platform": "Custom",
+    "platformUrl": "#",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/inversion-count.html"
+      }
+    ]
+  },
+  {
+    "id": "a-6",
+    "title": "Kadane's Algorithm",
+    "difficulty": "Hard",
+    "tags": ["Algorithm"],
+    "platform": "Custom",
+    "platformUrl": "#",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/kadanes-algorithm.html"
+      }
+    ]
+  },
+  {
+    "id": "a-7",
+    "title": "Moore's Voting",
+    "difficulty": "Hard",
+    "tags": ["Algorithm"],
+    "platform": "Custom",
+    "platformUrl": "#",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/moores-voting.html"
+      }
+    ]
+  },
+  {
+    "id": "1365",
+    "title": "How Many Numbers Are Smaller Than the Current Number",
+    "difficulty": "Easy",
+    "tags": ["Mid Level", "Array", "Hash Table", "Sorting", "Counting Sort"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "array/how-many-numbers-are-smaller-than-the-current-number.html"
+      }
+    ]
+  },
+  {
+    "id": "448",
+    "title": "Find All Numbers Disappeared in an Array",
+    "difficulty": "Easy",
+    "tags": ["Array", "Hash Table"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "array/find-all-numbers-disappeared-in-an-array.html"
+      }
+    ]
+  },
+  {
+    "id": "295",
+    "title": "Find Median from Data Stream",
+    "difficulty": "Hard",
+    "tags": [
+      "Two Pointers",
+      "Design",
+      "Sorting",
+      "Heap (Priority Queue)",
+      "Data Stream"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/find-median-from-data-stream/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "two-pointers/find-median-from-data-stream.html"
+      }
+    ]
+  },
+  {
+    "id": "g-1",
+    "title": "Construct List using XOR Queries",
+    "difficulty": "Medium",
+    "tags": ["Array", "Bit Magic", "Data Structures"],
+    "platform": "GeeksForGeeks",
+    "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "array/construct-list-using-given-q-xor-queries.html"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "title": "Climbing Stairs",
+    "difficulty": "Easy",
+    "tags": ["Math", "Dynamic Programming", "Memoization"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/climbing-stairs/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "dynamic-programming/climbing-stairs-brute.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "dynamic-programming/climbing-stairs.html"
+      }
+    ]
+  },
+  {
+    "id": 3614,
+    "title": "Process String with Special Operations II",
+    "difficulty": "Hard",
+    "tags": ["Senior Staff", "String", "Simulation"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/process-string-with-special-operations-ii/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "string/process-string-with-special-operations-ii.html"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "title": "Cut rope to maximise product",
+    "difficulty": "Medium",
+    "tags": ["Array", "Dynamic Programming", "Algorithm"],
+    "platform": "GeeksForGeeks",
+    "platformUrl": "https://www.geeksforgeeks.org/problems/max-rope-cutting1312/1",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "dynamic-programming/max-rope-cutting-brute.html"
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "title": "Unique Paths",
+    "difficulty": "Medium",
+    "tags": ["Math", "Dynamic Programming", "Combinatorics"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/unique-paths/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "dynamic-programming/unique-paths-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "dynamic-programming/unique-paths-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "dynamic-programming/unique-paths.html"
+      }
+    ]
+  },
+  {
+    "id": 1344,
+    "title": "Angle Between Hands of a Clock",
+    "difficulty": "Medium",
+    "tags": ["Math"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/angle-between-hands-of-a-clock/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "math/angle-between-hands-of-a-clock.html"
+      }
+    ]
+  }
 ]
