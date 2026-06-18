@@ -250,7 +250,7 @@
             },
             {
                 "name": "Optimal",
-                "url": "dynamic-programming/climbing-stairs-optimal.html"
+                "url": "dynamic-programming/climbing-stairs.html"
             }
         ]
     },
@@ -287,6 +287,32 @@
             {
                 "name": "Brute",
                 "url": "dynamic-programming/max-rope-cutting-brute.html"
+            }
+        ]
+    },
+    {
+        "id": 62,
+        "title": "Unique Paths",
+        "difficulty": "Medium",
+        "tags": [
+            "Math",
+            "Dynamic Programming",
+            "Combinatorics"
+        ],
+        "platform": "LeetCode",
+        "platformUrl": "https://leetcode.com/problems/unique-paths/description/",
+        "solutions": [
+            {
+                "name": "Brute",
+                "url": "dynamic-programming/unique-paths-brute.html"
+            },
+            {
+                "name": "Better",
+                "url": "dynamic-programming/unique-paths-better.html"
+            },
+            {
+                "name": "Optimal",
+                "url": "dynamic-programming/unique-paths.html"
             }
         ]
     }
