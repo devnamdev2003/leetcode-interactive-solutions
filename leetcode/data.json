@@ -374,5 +374,26 @@
         "url": "math/powx-n.html"
       }
     ]
+  },
+  {
+    "id": "121",
+    "title": "Best Time to Buy and Sell Stock",
+    "difficulty": "Easy",
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/",
+    "solutions": [
+      {
+        "name": "Better",
+        "url": "array/best-time-to-buy-and-sell-stock-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "array/best-time-to-buy-and-sell-stock.html"
+      }
+    ]
   }
 ]
