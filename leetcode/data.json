@@ -445,5 +445,31 @@
         "url": "array/maximum-building-height.html"
       }
     ]
+  },
+  {
+    "id": "5",
+    "title": "Longest Palindromic Substring",
+    "difficulty": "Medium",
+    "tags": [
+      "Dynamic Programming",
+      "Two Pointers",
+      "String"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/longest-palindromic-substring/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "string/longest-palindromic-substring-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "string/longest-palindromic-substring-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "string/longest-palindromic-substring.html"
+      }
+    ]
   }
 ]
