@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Max Building Height</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* SVG Graph Styles */
+        .grid-line { stroke: #1e293b; stroke-width: 1; }
+        .axis-line { stroke: #475569; stroke-width: 2; }
+        .axis-text { fill: #64748b; font-family: 'Fira Code', monospace; font-size: 12px; }
+        .restriction-point { fill: #f472b6; stroke: #0b1120; stroke-width: 2; transition: all 0.3s; }
+        .restriction-point.active { fill: #34d399; r: 8; stroke: #fff; }
+        .envelope-line { stroke: #3b82f6; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; transition: all 0.3s; }
+        .envelope-line.active-sweep { stroke: #34d399; stroke-dasharray: 8 4; animation: dash 1s linear infinite; }
+        .peak-polygon { fill: rgba(59, 130, 246, 0.2); stroke: #60a5fa; stroke-width: 2; stroke-dasharray: 4 4;}
+        .peak-polygon.active { fill: rgba(52, 211, 153, 0.3); stroke: #34d399; }
+        .peak-point { fill: #fcd34d; r: 6; stroke: #0b1120; stroke-width: 2; }
+        
+        @keyframes dash { to { stroke-dashoffset: -12; } }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-city"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Maximum Building Height (Sweep Line)</p>
+            </div>
+        </div>
+        
+        <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+        </nav>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="w-32">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Total (n)</label>
+            <input type="number" id="input-n" class="input-field" value="10" min="2" max="50">
+        </div>
+        <div class="flex-1 w-full max-w-2xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Restrictions (Format: id,maxHeight ; id,maxHeight)</label>
+            <input type="text" id="input-rest" class="input-field" value="8,5 ; 9,0 ; 6,2 ; 4,0 ; 3,2 ; 10,0 ; 5,3 ; 7,3 ; 2,4">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input format. Check your syntax.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-chart-line text-primary"></i> 
+                        <span>Building Heights Coordinate System</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg flex flex-col items-center justify-center p-6 gap-8 overflow-hidden">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 left-6 right-6 lg:right-auto flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-3 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg" class="flex-1">Waiting to begin...</span>
+                    </div>
+
+                    <!-- SVG Canvas -->
+                    <div class="w-full h-full max-h-[800px] bg-bgPanel/30 border border-borderMain rounded-xl shadow-inner relative overflow-hidden flex items-center justify-center p-4 pt-16">
+                        <svg id="viz-svg" width="100%" height="100%" preserveAspectRatio="xMidYMid meet"></svg>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[9px] text-slate-500 uppercase mb-0.5">Index (i)</span>
+                                <span id="var-i" class="font-mono text-primary font-bold text-base">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[9px] text-slate-500 uppercase mb-0.5">maxHeight</span>
+                                <span id="var-maxh" class="font-mono text-success font-bold text-base">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[9px] text-slate-500 uppercase mb-0.5">Left / Curr (id, h)</span>
+                                <span id="var-left" class="font-mono text-syntaxPink text-sm">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[9px] text-slate-500 uppercase mb-0.5">Right / Next (id, h)</span>
+                                <span id="var-right" class="font-mono text-syntaxBlue text-sm">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[9px] text-slate-500 uppercase mb-0.5">Distance</span>
+                                <span id="var-dist" class="font-mono text-slate-300 text-sm">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[9px] text-slate-500 uppercase mb-0.5">Calculated Peak</span>
+                                <span id="var-peak" class="font-mono text-warning text-sm">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
+                                <span class="block text-[9px] text-slate-500 uppercase mb-0.5">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow py-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> maxBuilding(<span class="text-syntaxPink">int</span> n, <span class="text-syntaxPink">int</span>[][] restrictions) {</div></div>
+                        <div id="line-init" class="debug-line"><div class="line-num">3</div><div class="code-content">        List&lt;<span class="text-syntaxPink">int</span>[]&gt; list = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div id="line-add-base" class="debug-line"><div class="line-num">4</div><div class="code-content">        list.add(<span class="text-syntaxPink">new int</span>[]{<span class="text-syntaxPink">1</span>, <span class="text-syntaxPink">0</span>}); <span class="text-slate-500 italic">// Base requirement</span></div></div>
+                        <div id="line-add-rest" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span>[] r : restrictions) list.add(<span class="text-syntaxPink">new int</span>[]{r[<span class="text-syntaxPink">0</span>], r[<span class="text-syntaxPink">1</span>]});</div></div>
+                        <div id="line-sort" class="debug-line"><div class="line-num">6</div><div class="code-content">        list.sort((a, b) -&gt; Integer.compare(a[<span class="text-syntaxPink">0</span>], b[<span class="text-syntaxPink">0</span>]));</div></div>
+                        <div id="line-add-end" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">if</span> (list.get(list.size() - <span class="text-syntaxPink">1</span>)[<span class="text-syntaxPink">0</span>] != n) {</div></div>
+                        <div id="line-add-end-in" class="debug-line"><div class="line-num">8</div><div class="code-content">            list.add(<span class="text-syntaxPink">new int</span>[]{n, n - <span class="text-syntaxPink">1</span>});</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">        }</div></div>
+                        <div id="line-m" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">int</span> m = list.size();</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content text-slate-500 italic">        // Pass 1: Left to Right sweep</div></div>
+                        <div id="line-for-1" class="debug-line"><div class="line-num">12</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">1</span>; i &lt; m; i++) {</div></div>
+                        <div id="line-p1-vars" class="debug-line"><div class="line-num">13</div><div class="code-content">            <span class="text-syntaxPink">int</span>[] prev = list.get(i - <span class="text-syntaxPink">1</span>); <span class="text-syntaxPink">int</span>[] curr = list.get(i);</div></div>
+                        <div id="line-p1-dist" class="debug-line"><div class="line-num">14</div><div class="code-content">            <span class="text-syntaxPink">int</span> distance = curr[<span class="text-syntaxPink">0</span>] - prev[<span class="text-syntaxPink">0</span>];</div></div>
+                        <div id="line-p1-upd" class="debug-line"><div class="line-num">15</div><div class="code-content">            curr[<span class="text-syntaxPink">1</span>] = Math.min(curr[<span class="text-syntaxPink">1</span>], prev[<span class="text-syntaxPink">1</span>] + distance);</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content text-slate-500 italic">        // Pass 2: Right to Left sweep</div></div>
+                        <div id="line-for-2" class="debug-line"><div class="line-num">18</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = m - <span class="text-syntaxPink">2</span>; i &gt;= <span class="text-syntaxPink">0</span>; i--) {</div></div>
+                        <div id="line-p2-vars" class="debug-line"><div class="line-num">19</div><div class="code-content">            <span class="text-syntaxPink">int</span>[] curr = list.get(i); <span class="text-syntaxPink">int</span>[] next = list.get(i + <span class="text-syntaxPink">1</span>);</div></div>
+                        <div id="line-p2-dist" class="debug-line"><div class="line-num">20</div><div class="code-content">            <span class="text-syntaxPink">int</span> distance = next[<span class="text-syntaxPink">0</span>] - curr[<span class="text-syntaxPink">0</span>];</div></div>
+                        <div id="line-p2-upd" class="debug-line"><div class="line-num">21</div><div class="code-content">            curr[<span class="text-syntaxPink">1</span>] = Math.min(curr[<span class="text-syntaxPink">1</span>], next[<span class="text-syntaxPink">1</span>] + distance);</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">        }</div></div>
+                        <div id="line-init-max" class="debug-line"><div class="line-num">23</div><div class="code-content">        <span class="text-syntaxPink">int</span> maxHeight = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content text-slate-500 italic">        // Find maximum peak between any two adjacent restrictions</div></div>
+                        <div id="line-for-3" class="debug-line"><div class="line-num">25</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; m - <span class="text-syntaxPink">1</span>; i++) {</div></div>
+                        <div id="line-p3-vars" class="debug-line"><div class="line-num">26</div><div class="code-content">            <span class="text-syntaxPink">int</span>[] left = list.get(i); <span class="text-syntaxPink">int</span>[] right = list.get(i + <span class="text-syntaxPink">1</span>);</div></div>
+                        <div id="line-p3-dist" class="debug-line"><div class="line-num">27</div><div class="code-content">            <span class="text-syntaxPink">int</span> distance = right[<span class="text-syntaxPink">0</span>] - left[<span class="text-syntaxPink">0</span>];</div></div>
+                        <div id="line-p3-peak" class="debug-line"><div class="line-num">28</div><div class="code-content">            <span class="text-syntaxPink">int</span> peak = (left[<span class="text-syntaxPink">1</span>] + right[<span class="text-syntaxPink">1</span>] + distance) / <span class="text-syntaxPink">2</span>;</div></div>
+                        <div id="line-p3-upd" class="debug-line"><div class="line-num">29</div><div class="code-content">            maxHeight = Math.max(maxHeight, peak);</div></div>
+                        <div class="debug-line"><div class="line-num">30</div><div class="code-content">        }</div></div>
+                        <div id="line-ret" class="debug-line"><div class="line-num">31</div><div class="code-content">        <span class="text-syntaxPink">return</span> maxHeight;</div></div>
+                        <div class="debug-line"><div class="line-num">32</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">33</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution uses a highly efficient <strong>Sweep Line / Multipass</strong> approach. The core challenge is that a building's height cannot exceed $H + |id_1 - id_2|$ where $H$ is a restricted height nearby. Because restrictions propagate in both directions, evaluating them naively is too slow.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">The Multi-Pass Strategy:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Setup:</strong> First, ensure the mandatory base restriction at the start `(1, 0)` is present. We also inject a pseudo-restriction at the very end `(n, n-1)` to bound our calculations if the user hasn't explicitly capped the city's end. We then sort all restrictions by building ID.
+                        </li>
+                        <li>
+                            <strong>Pass 1 (Left-to-Right):</strong><br>
+                            We iterate from left to right. A building's height is bounded by the restriction to its left. We enforce: <code>curr_height = min(curr_height, prev_height + distance)</code>. This step ensures no restriction is violated when moving rightwards.
+                        </li>
+                        <li>
+                            <strong>Pass 2 (Right-to-Left):</strong><br>
+                            However, a very low restriction on the right can heavily limit buildings on its left! So, we sweep backward. We enforce: <code>curr_height = min(curr_height, next_height + distance)</code>. Now, every restriction is perfectly bounded by both its left and right neighbors.
+                        </li>
+                        <li>
+                            <strong>Peak Finding:</strong><br>
+                            Between any two adjacent (and fully bounded) restrictions, the highest possible building occurs where the maximum possible upward slope from the left meets the maximum possible upward slope from the right. <br>The math formula for this intersection is: <code>peak = (left_height + right_height + distance) / 2</code>. We find the maximum of these peaks across the entire city.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(M log M)</span>
+                        <p class="text-xs text-slate-400">Where $M$ is the number of restrictions. Sorting the restrictions array takes $O(M \log M)$ time. The subsequent sweeping passes (Left-to-Right, Right-to-Left, and Peak-Finding) are all linear $O(M)$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(M)</span>
+                        <p class="text-xs text-slate-400">Where $M$ is the number of restrictions. We store them in a new List/Array to allow adding the boundary restrictions `(1, 0)` and `(n, n-1)` and to perform the sorting without mutating the original input array.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left';
+            }
+            setTimeout(redrawSVG, 300); // Wait for transition
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => { isResizingV = true; document.body.classList.add('resizing'); resizerV.classList.add('active'); });
+            resizerH.addEventListener('mousedown', () => { isResizingH = true; document.body.classList.add('resizing-h'); resizerH.classList.add('active'); });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) { isResizingV = false; document.body.classList.remove('resizing'); resizerV.classList.remove('active'); setTimeout(redrawSVG, 50); }
+                if (isResizingH) { isResizingH = false; document.body.classList.remove('resizing-h'); resizerH.classList.remove('active'); }
+            });
+
+            window.addEventListener('resize', redrawSVG);
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+                setTimeout(redrawSVG, 50);
+            }
+        }
+
+        // Core State Engine
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1500; 
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const nStr = document.getElementById('input-n').value;
+            const restStr = document.getElementById('input-rest').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                const n = parseInt(nStr);
+                if (isNaN(n) || n < 2) throw new Error("Invalid N");
+
+                let restrictions = [];
+                if (restStr.trim().length > 0) {
+                    const pairs = restStr.split(';');
+                    for (let p of pairs) {
+                        if(p.trim().length === 0) continue;
+                        let parts = p.split(',');
+                        if (parts.length !== 2) throw new Error("Invalid Format");
+                        let id = parseInt(parts[0].trim());
+                        let h = parseInt(parts[1].trim());
+                        if (isNaN(id) || isNaN(h) || id < 1 || id > n || h < 0) throw new Error("Invalid Format");
+                        restrictions.push([id, h]);
+                    }
+                }
+
+                generateStates(n, restrictions);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+                console.error(e);
+            }
+        }
+
+        function generateStates(n, restrictions) {
+            states = [];
+            let list = [];
+            let peaksList = [];
+
+            const getVis = (hlPair, mode) => {
+                return {
+                    n: n,
+                    list: JSON.parse(JSON.stringify(list)),
+                    hlPair: hlPair, // [idx1, idx2]
+                    mode: mode, // 'INIT', 'LR', 'RL', 'PEAK'
+                    peaks: JSON.parse(JSON.stringify(peaksList))
+                };
+            };
+
+            const pushState = (msg, line, vrs, hlPair, mode) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: getVis(hlPair, mode)
+                });
+            };
+
+            let vrs = { i: '-', left: '-', right: '-', dist: '-', peak: '-', maxH: '-', action: 'Initialization' };
+            
+            // Initialization
+            pushState("Start: Initialize empty restrictions list.", "line-init", vrs, [], 'INIT');
+            
+            list.push([1, 0]);
+            pushState("Base requirement: Building 1 must have height 0.", "line-add-base", vrs, [0,0], 'INIT');
+
+            for (let r of restrictions) {
+                list.push([r[0], r[1]]);
+            }
+            vrs.action = "Adding input restrictions";
+            pushState(`Added ${restrictions.length} restrictions from input.`, "line-add-rest", vrs, [], 'INIT');
+
+            list.sort((a, b) => a[0] - b[0]);
+            vrs.action = "Sorting by ID";
+            pushState("Sorted restrictions by building ID ascending.", "line-sort", vrs, [], 'INIT');
+
+            if (list[list.length - 1][0] !== n) {
+                list.push([n, n - 1]);
+                vrs.action = "Add bounds";
+                pushState(`End of city not bounded. Added implicit restriction [${n}, ${n-1}].`, "line-add-end-in", vrs, [list.length-1, list.length-1], 'INIT');
+            } else {
+                pushState("End of city already bounded by existing restriction.", "line-add-end", vrs, [], 'INIT');
+            }
+
+            let m = list.length;
+            vrs.action = `List size m = ${m}`;
+            pushState(`Total active restrictions (m) is ${m}.`, "line-m", vrs, [], 'INIT');
+
+            // Pass 1: L -> R
+            for (let i = 1; i < m; i++) {
+                vrs.i = i;
+                vrs.action = "Pass 1 (Left to Right Sweep)";
+                pushState(`Pass 1: Checking building boundary moving rightwards for i=${i}.`, "line-for-1", vrs, [i-1, i], 'LR');
+
+                let prev = list[i - 1];
+                let curr = list[i];
+                vrs.left = `[${prev[0]}, ${prev[1]}]`;
+                vrs.right = `[${curr[0]}, ${curr[1]}]`;
+                pushState(`Read prev=${vrs.left} and curr=${vrs.right}`, "line-p1-vars", vrs, [i-1, i], 'LR');
+
+                let distance = curr[0] - prev[0];
+                vrs.dist = distance;
+                pushState(`Distance between buildings: ${curr[0]} - ${prev[0]} = ${distance}`, "line-p1-dist", vrs, [i-1, i], 'LR');
+
+                let possibleH = prev[1] + distance;
+                let oldH = curr[1];
+                curr[1] = Math.min(curr[1], possibleH);
+                
+                let msg = `curr[1] = Math.min(${oldH}, ${prev[1]} + ${distance}). `;
+                if (curr[1] < oldH) msg += `Updated to ${curr[1]}!`;
+                else msg += `Remains ${curr[1]}.`;
+                
+                vrs.right = `[${curr[0]}, ${curr[1]}]`; // update after mutation
+                pushState(msg, "line-p1-upd", vrs, [i-1, i], 'LR');
+            }
+
+            // Reset UI vars for next loop
+            vrs.i = '-'; vrs.left = '-'; vrs.right = '-'; vrs.dist = '-'; vrs.action = 'Transition';
+            pushState("Pass 1 Complete. Now Sweep Right to Left.", "line-for-2", vrs, [], 'RL');
+
+            // Pass 2: R -> L
+            for (let i = m - 2; i >= 0; i--) {
+                vrs.i = i;
+                vrs.action = "Pass 2 (Right to Left Sweep)";
+                pushState(`Pass 2: Checking building boundary moving leftwards for i=${i}.`, "line-for-2", vrs, [i, i+1], 'RL');
+
+                let curr = list[i];
+                let next = list[i + 1];
+                vrs.left = `[${curr[0]}, ${curr[1]}]`;
+                vrs.right = `[${next[0]}, ${next[1]}]`;
+                pushState(`Read curr=${vrs.left} and next=${vrs.right}`, "line-p2-vars", vrs, [i, i+1], 'RL');
+
+                let distance = next[0] - curr[0];
+                vrs.dist = distance;
+                pushState(`Distance between buildings: ${next[0]} - ${curr[0]} = ${distance}`, "line-p2-dist", vrs, [i, i+1], 'RL');
+
+                let possibleH = next[1] + distance;
+                let oldH = curr[1];
+                curr[1] = Math.min(curr[1], possibleH);
+                
+                let msg = `curr[1] = Math.min(${oldH}, ${next[1]} + ${distance}). `;
+                if (curr[1] < oldH) msg += `Updated to ${curr[1]}!`;
+                else msg += `Remains ${curr[1]}.`;
+
+                vrs.left = `[${curr[0]}, ${curr[1]}]`;
+                pushState(msg, "line-p2-upd", vrs, [i, i+1], 'RL');
+            }
+
+            let maxHeight = 0;
+            vrs.maxH = maxHeight;
+            vrs.i = '-'; vrs.left = '-'; vrs.right = '-'; vrs.dist = '-'; vrs.action = 'Peak Finding';
+            pushState("Both passes complete. Initialize maxHeight = 0.", "line-init-max", vrs, [], 'PEAK');
+
+            // Find Maximum Peak
+            for (let i = 0; i < m - 1; i++) {
+                vrs.i = i;
+                pushState(`Evaluating max potential peak between interval i=${i}.`, "line-for-3", vrs, [i, i+1], 'PEAK');
+
+                let left = list[i];
+                let right = list[i + 1];
+                vrs.left = `[${left[0]}, ${left[1]}]`;
+                vrs.right = `[${right[0]}, ${right[1]}]`;
+                pushState(`Bounds: left=${vrs.left}, right=${vrs.right}`, "line-p3-vars", vrs, [i, i+1], 'PEAK');
+
+                let distance = right[0] - left[0];
+                vrs.dist = distance;
+                pushState(`Distance = ${distance}`, "line-p3-dist", vrs, [i, i+1], 'PEAK');
+
+                let peak = Math.floor((left[1] + right[1] + distance) / 2);
+                vrs.peak = peak;
+                
+                // Add peak for drawing
+                let peakX = left[0] + (peak - left[1]);
+                peaksList.push({x: peakX, y: peak});
+
+                pushState(`Intersection Math: (${left[1]} + ${right[1]} + ${distance}) / 2 = ${peak}`, "line-p3-peak", vrs, [i, i+1], 'PEAK');
+
+                let oldMax = maxHeight;
+                maxHeight = Math.max(maxHeight, peak);
+                vrs.maxH = maxHeight;
+                
+                let msg = `maxHeight = max(${oldMax}, ${peak}) -> ${maxHeight}`;
+                pushState(msg, "line-p3-upd", vrs, [i, i+1], 'PEAK');
+            }
+
+            vrs.i = '-'; vrs.left = '-'; vrs.right = '-'; vrs.dist = '-'; vrs.peak = '-';
+            vrs.action = 'Algorithm Complete';
+            pushState(`Done! The maximum possible building height is ${maxHeight}.`, "line-ret", vrs, [], 'PEAK');
+        }
+
+        // SVG Drawing Logic
+        function redrawSVG() {
+            if (states.length > 0) {
+                renderState(currState);
+            }
+        }
+
+        function drawSVG(stateVisuals) {
+            const svg = document.getElementById('viz-svg');
+            const rect = svg.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            
+            if (w === 0 || h === 0) return; // Not visible yet
+
+            // Coordinate System Setup
+            const padX = 40;
+            const padY = 40;
+            const graphW = w - 2 * padX;
+            const graphH = h - 2 * padY;
+
+            const n = stateVisuals.n;
+            const maxVal = n; // Y-axis max is mostly N
+            
+            // Scaler functions
+            const mapX = (id) => padX + ((id - 1) / Math.max(1, n - 1)) * graphW;
+            const mapY = (height) => h - padY - (height / maxVal) * graphH;
+
+            let svgContent = '';
+
+            // Draw Grid Lines & Axes
+            // X-Axis
+            svgContent += `<line x1="${padX}" y1="${h - padY}" x2="${w - padX}" y2="${h - padY}" class="axis-line" />`;
+            // Y-Axis
+            svgContent += `<line x1="${padX}" y1="${padY}" x2="${padX}" y2="${h - padY}" class="axis-line" />`;
+
+            // Draw a few X markers
+            let stepX = Math.ceil(n / 10);
+            for(let i = 1; i <= n; i += stepX) {
+                let x = mapX(i);
+                svgContent += `<line x1="${x}" y1="${h - padY}" x2="${x}" y2="${h - padY + 5}" class="axis-line" />`;
+                svgContent += `<text x="${x}" y="${h - padY + 20}" class="axis-text" text-anchor="middle">${i}</text>`;
+            }
+            if(n % stepX !== 1) { // ensure last is drawn if not hit
+                let x = mapX(n);
+                svgContent += `<line x1="${x}" y1="${h - padY}" x2="${x}" y2="${h - padY + 5}" class="axis-line" />`;
+                svgContent += `<text x="${x}" y="${h - padY + 20}" class="axis-text" text-anchor="middle">${n}</text>`;
+            }
+
+            // Draw a few Y markers
+            let stepY = Math.ceil(maxVal / 5);
+            for(let i = 0; i <= maxVal; i += stepY) {
+                let y = mapY(i);
+                svgContent += `<line x1="${padX - 5}" y1="${y}" x2="${w - padX}" y2="${y}" class="grid-line" stroke-dasharray="2 4"/>`;
+                svgContent += `<text x="${padX - 10}" y="${y + 4}" class="axis-text" text-anchor="end">${i}</text>`;
+            }
+
+            const list = stateVisuals.list;
+            const hlPair = stateVisuals.hlPair || [];
+            const mode = stateVisuals.mode;
+
+            // Draw Envelopes (Lines between restrictions)
+            if (list.length > 1 && mode !== 'INIT') {
+                for (let i = 0; i < list.length - 1; i++) {
+                    let p1 = list[i];
+                    let p2 = list[i+1];
+                    let isHl = (hlPair.includes(i) && hlPair.includes(i+1));
+                    
+                    let lineClass = isHl ? "envelope-line active-sweep" : "envelope-line";
+                    let strokeColor = isHl ? (mode === 'LR' ? '#f472b6' : (mode === 'RL' ? '#60a5fa' : '#34d399')) : '#334155';
+                    
+                    svgContent += `<line x1="${mapX(p1[0])}" y1="${mapY(p1[1])}" x2="${mapX(p2[0])}" y2="${mapY(p2[1])}" class="${lineClass}" stroke="${strokeColor}" />`;
+                }
+            }
+
+            // Draw Peaks
+            if (mode === 'PEAK' && stateVisuals.peaks.length > 0) {
+                stateVisuals.peaks.forEach((peak, i) => {
+                    let left = list[i];
+                    let right = list[i+1];
+                    let px = mapX(peak.x);
+                    let py = mapY(peak.y);
+                    let lx = mapX(left[0]);
+                    let ly = mapY(left[1]);
+                    let rx = mapX(right[0]);
+                    let ry = mapY(right[1]);
+
+                    let isHl = (hlPair.includes(i));
+                    let polyClass = isHl ? "peak-polygon active" : "peak-polygon";
+                    
+                    // Draw Triangle Base -> Left -> Peak -> Right -> Base
+                    svgContent += `<polygon points="${lx},${h-padY} ${lx},${ly} ${px},${py} ${rx},${ry} ${rx},${h-padY}" class="${polyClass}" />`;
+                    
+                    // Draw Peak Point
+                    svgContent += `<circle cx="${px}" cy="${py}" r="${isHl ? 6 : 4}" class="peak-point" />`;
+                    if (isHl) {
+                        svgContent += `<text x="${px}" y="${py - 12}" fill="#fcd34d" font-size="12" font-family="monospace" text-anchor="middle" font-weight="bold">Max ${peak.y}</text>`;
+                    }
+                });
+            }
+
+            // Draw Restrictions Points
+            list.forEach((p, i) => {
+                let x = mapX(p[0]);
+                let y = mapY(p[1]);
+                let isActive = hlPair.includes(i);
+                let ptClass = isActive ? "restriction-point active" : "restriction-point";
+                svgContent += `<circle cx="${x}" cy="${y}" r="5" class="${ptClass}" />`;
+                
+                // Show coords always if active, or just normally
+                if (isActive || list.length <= 10) {
+                    svgContent += `<text x="${x}" y="${y - 12}" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="middle">(${p[0]},${p[1]})</text>`;
+                }
+            });
+
+            svg.innerHTML = svgContent;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if(!state) return;
+
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / Math.max(1, states.length - 1)) * 100}%`;
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-i').innerText = state.vars.i;
+            document.getElementById('var-maxh').innerText = state.vars.maxH;
+            document.getElementById('var-left').innerText = state.vars.left;
+            document.getElementById('var-right').innerText = state.vars.right;
+            document.getElementById('var-dist').innerText = state.vars.dist;
+            document.getElementById('var-peak').innerText = state.vars.peak;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Render Visualization
+            drawSVG(state.visuals);
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+            setTimeout(redrawSVG, 200);
+        };
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoViz Canvas - Process String (Reverse Mapping)</title>
+    <title>AlgoViz Canvas - Max Building Height (Brute Force)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -27,7 +27,8 @@
                         syntaxPink: '#f472b6',
                         syntaxBlue: '#60a5fa',
                         syntaxGreen: '#34d399',
-                        syntaxYellow: '#fcd34d'
+                        syntaxYellow: '#fcd34d',
+                        syntaxPurple: '#c084fc'
                     }
                 }
             }
@@ -53,22 +54,6 @@
         /* Canvas Styles */
         .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
         
-        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; }
-        .array-box { 
-            width: 44px; height: 44px; border: 2px solid #1e293b; background: #111827; 
-            border-radius: 8px; display: flex; justify-content: center; align-items: center; 
-            font-weight: bold; font-size: 16px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .array-box.empty-box { color: transparent; border-color: #1e293b80; }
-        .array-box.highlight-read { border-color: #f472b6; background: rgba(244, 114, 182, 0.1); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); transform: scale(1.1); z-index: 10;}
-        .array-box.highlight-write { border-color: #34d399; background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 12px rgba(52, 211, 153, 0.4); transform: scale(1.1); z-index: 10;}
-        .array-index { font-family: 'Fira Code', monospace; font-size: 10px; color: #64748b; }
-
-        /* Logic Block Styles */
-        .logic-block { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s ease; }
-        .logic-block.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); box-shadow: 0 0 16px rgba(59, 130, 246, 0.2); transform: scale(1.05); }
-        .logic-value { font-family: 'Fira Code', monospace; font-size: 24px; font-weight: bold; color: #f8fafc; margin-top: 8px;}
-
         /* Speed Slider */
         input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
@@ -86,9 +71,15 @@
         .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
         .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
         
-        /* Drag Overlay classes */
+        /* Drag Overlay classes for smooth resizing */
         body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
         body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+        
+        /* Custom Building Classes */
+        .building-col { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; height: 100%; min-width: 32px; }
+        .building-bar { width: 100%; min-height: 4px; border-radius: 4px 4px 0 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .highlight-read { background-color: #f472b6 !important; box-shadow: 0 0 12px rgba(244, 114, 182, 0.5); transform: scale(1.1); z-index: 10; }
+        .highlight-write { background-color: #34d399 !important; box-shadow: 0 0 12px rgba(52, 211, 153, 0.5); transform: scale(1.1); z-index: 10; }
     </style>
 </head>
 <body class="text-slate-300">
@@ -97,11 +88,11 @@
     <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
-                <i class="fas fa-backward"></i>
+                <i class="fas fa-city"></i>
             </div>
             <div>
                 <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
-                <p class="text-xs text-slate-500">Process String (Reverse Target Mapping)</p>
+                <p class="text-xs text-slate-500">Max Building Height (Brute Force Approach)</p>
             </div>
         </div>
         
@@ -111,21 +102,21 @@
         </nav>
     </header>
 
-    <!-- Inputs Bar -->
+    <!-- Inputs Bar (Hidden on Theory Tab) -->
     <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
-        <div class="flex-1 w-full max-w-sm">
-            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Input String (s)</label>
-            <input type="text" id="input-s" class="input-field" value="ab#c%">
+        <div class="w-32">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">n (Max 20)</label>
+            <input type="number" id="input-n" class="input-field" value="10" min="2" max="20">
         </div>
-        <div class="w-full md:w-32">
-            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Target Index (k)</label>
-            <input type="number" id="input-k" class="input-field" value="2" min="0">
+        <div class="flex-1 w-full max-w-2xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Restrictions (JSON Array)</label>
+            <input type="text" id="input-restr" class="input-field" value="[[8,5],[9,0],[6,2],[4,0],[3,2],[10,0],[5,3],[7,3],[2,4]]">
         </div>
         <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
-            <i class="fas fa-play text-xs"></i> Start Debugging
+            <i class="fas fa-play text-xs"></i> Visualize
         </button>
     </section>
-    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please ensure the string is not empty and K >= 0.</div>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. N should be &le; 20 and restrictions valid JSON like [[2,1],[4,1]].</div>
 
     <!-- Main Workspace -->
     <main class="flex-grow flex overflow-hidden relative">
@@ -156,43 +147,18 @@
                         <span id="step-msg">Waiting to begin...</span>
                     </div>
 
-                    <!-- String s Array -->
-                    <div class="mt-12">
-                        <div class="flex items-center gap-2 mb-3">
-                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">char[]</span> s (Operations)</h3>
-                            <span class="text-[10px] text-slate-500">(Input Operations Array)</span>
-                        </div>
-                        <div id="canvas-s" class="flex gap-2 overflow-x-auto pb-4 pt-2 px-2"></div>
-                    </div>
-
-                    <!-- Calculated Lengths Array (Simulating getLength) -->
-                    <div>
-                        <div class="flex items-center gap-2 mb-3">
-                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">long[]</span> virtual lengths</h3>
-                            <span class="text-[10px] text-slate-500">(Result of getLength(s, i) for visualization)</span>
-                        </div>
-                        <div id="canvas-len" class="flex gap-2 overflow-x-auto pb-4 pt-2 px-2"></div>
-                    </div>
-
-                    <!-- Target Tracking Panel -->
-                    <div class="flex gap-6 mt-4">
-                        <div id="block-currK" class="logic-block flex-1 max-w-[200px]">
-                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">currK</span>
-                            <span id="visual-currK" class="logic-value text-primary">-</span>
-                            <span class="text-[10px] text-slate-500 mt-2">Target Index</span>
+                    <!-- City Skyline Visualization -->
+                    <div class="flex-grow flex flex-col pt-16 h-full pb-8">
+                        <div class="flex items-center justify-center gap-2 mb-8">
+                            <h3 class="text-sm font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[]</span> h (Building Heights)</h3>
                         </div>
                         
-                        <div class="flex items-center justify-center text-slate-500 text-2xl font-bold">
-                            <i class="fas fa-crosshairs text-borderMain mx-2"></i>
+                        <!-- Visualization Container -->
+                        <div class="flex-grow w-full border-b-2 border-slate-700 relative flex items-end justify-center gap-2 md:gap-4 lg:gap-6 px-4" id="canvas-buildings" style="height: 350px;">
+                            <!-- Bars rendered dynamically -->
                         </div>
-
-                        <div id="block-prevLen" class="logic-block flex-1 max-w-[200px]">
-                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">prevLen</span>
-                            <span id="visual-prevLen" class="logic-value text-syntaxPink">-</span>
-                            <span class="text-[10px] text-slate-500 mt-2">String Size Before Operation</span>
-                        </div>
+                        <div class="text-center mt-6 text-xs text-slate-500 font-mono" id="canvas-max-msg">Max Height tracking will appear here</div>
                     </div>
-
                 </div>
             </div>
 
@@ -200,7 +166,7 @@
             <div id="resizer-v" class="resizer-v hidden lg:block"></div>
 
             <!-- Right: Debugger Panels -->
-            <div id="panel-right" style="flex: 0 0 500px; width: 500px; min-width: 320px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+            <div id="panel-right" style="flex: 0 0 480px; width: 480px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
                 
                 <!-- Variables Watch -->
                 <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
@@ -212,26 +178,30 @@
                     <!-- Vars Content -->
                     <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
                         <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
-                        <div id="active-vars" class="hidden grid grid-cols-2 gap-4">
-                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg shadow-sm">
                                 <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i)</span>
-                                <span id="var-i" class="font-mono text-slate-200 text-lg">-</span>
+                                <span id="var-i" class="font-mono text-primary font-bold text-lg">-</span>
                             </div>
-                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Char (c)</span>
-                                <span id="var-c" class="font-mono text-syntaxYellow font-bold text-lg">-</span>
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">boolean changed</span>
+                                <span id="var-changed" class="font-mono text-syntaxPink text-lg">-</span>
                             </div>
-                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">currK</span>
-                                <span id="var-currK" class="font-mono text-primary font-bold text-lg">-</span>
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Target h[i]</span>
+                                <span id="var-hi" class="font-mono text-syntaxGreen font-bold text-lg">-</span>
                             </div>
-                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">prevLen</span>
-                                <span id="var-prevLen" class="font-mono text-syntaxPink font-bold text-lg">-</span>
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Compare h[Adj] + 1</span>
+                                <span id="var-comp" class="font-mono text-slate-300 text-lg">-</span>
                             </div>
-                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">System Action</span>
-                                <span id="var-action" class="text-xs text-slate-300 font-medium">-</span>
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">maxHeight</span>
+                                <span id="var-max" class="font-mono text-syntaxPurple font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2.5 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium block truncate">-</span>
                             </div>
                         </div>
                     </div>
@@ -246,43 +216,41 @@
                     <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
                         <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
                         <div class="flex items-center gap-3">
-                            <span class="text-slate-500 normal-case">Java</span>
+                            <span class="text-slate-500 normal-case">Java (Brute Force)</span>
                             <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
                         </div>
                     </div>
                     <!-- Code Content -->
                     <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
                         <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
-                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public char</span> processString(String s, <span class="text-syntaxPink">long</span> k) {</div></div>
-                        <div id="line-init-n" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = s.length();</div></div>
-                        <div id="line-init-finalLen" class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">long</span> finalLen = getLength(s, n - <span class="text-syntaxPink">1</span>);</div></div>
-                        <div class="debug-line"><div class="line-num">5</div><div class="code-content">        </div></div>
-                        <div id="line-check-bounds" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">if</span> (k >= finalLen) <span class="text-syntaxPink">return</span> <span class="text-syntaxYellow">'.'</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">        </div></div>
-                        <div id="line-init-currK" class="debug-line"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">long</span> currK = k;</div></div>
-                        <div class="debug-line"><div class="line-num">9</div><div class="code-content text-slate-500 italic">        // Work backwards</div></div>
-                        <div id="line-for" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = n - <span class="text-syntaxPink">1</span>; i >= <span class="text-syntaxPink">0</span>; i--) {</div></div>
-                        <div class="debug-line"><div class="line-num">11</div><div class="code-content text-slate-500 italic">            // Find length of string right before current operation</div></div>
-                        <div id="line-prevLen" class="debug-line"><div class="line-num">12</div><div class="code-content">            <span class="text-syntaxPink">long</span> prevLen = i > <span class="text-syntaxPink">0</span> ? getLength(s, i - <span class="text-syntaxPink">1</span>) : <span class="text-syntaxPink">0</span>;</div></div>
-                        <div id="line-char" class="debug-line"><div class="line-num">13</div><div class="code-content">            <span class="text-syntaxPink">char</span> c = s.charAt(i);</div></div>
-                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">            </div></div>
-                        <div id="line-if-percent" class="debug-line"><div class="line-num">15</div><div class="code-content">            <span class="text-syntaxPink">if</span> (c == <span class="text-syntaxYellow">'%'</span>) {</div></div>
-                        <div class="debug-line"><div class="line-num">16</div><div class="code-content text-slate-500 italic">                // Reversing maps index K to the opposite side</div></div>
-                        <div id="line-op-percent" class="debug-line"><div class="line-num">17</div><div class="code-content">                currK = prevLen - <span class="text-syntaxPink">1</span> - currK;</div></div>
-                        <div id="line-if-hash" class="debug-line"><div class="line-num">18</div><div class="code-content">            } <span class="text-syntaxPink">else if</span> (c == <span class="text-syntaxYellow">'#'</span>) {</div></div>
-                        <div class="debug-line"><div class="line-num">19</div><div class="code-content text-slate-500 italic">                // Duplicating means second half mirrors first</div></div>
-                        <div id="line-op-hash" class="debug-line"><div class="line-num">20</div><div class="code-content">                currK %= prevLen;</div></div>
-                        <div id="line-if-star" class="debug-line"><div class="line-num">21</div><div class="code-content">            } <span class="text-syntaxPink">else if</span> (c == <span class="text-syntaxYellow">'*'</span>) {</div></div>
-                        <div class="debug-line"><div class="line-num">22</div><div class="code-content text-slate-500 italic">                // Deletion after char placement doesn't affect index</div></div>
-                        <div id="line-if-char" class="debug-line"><div class="line-num">23</div><div class="code-content">            } <span class="text-syntaxPink">else</span> {</div></div>
-                        <div id="line-check-match" class="debug-line"><div class="line-num">24</div><div class="code-content">                <span class="text-syntaxPink">if</span> (currK == prevLen) {</div></div>
-                        <div id="line-return-match" class="debug-line"><div class="line-num">25</div><div class="code-content">                    <span class="text-syntaxPink">return</span> c;</div></div>
-                        <div class="debug-line"><div class="line-num">26</div><div class="code-content">                }</div></div>
-                        <div class="debug-line"><div class="line-num">27</div><div class="code-content">            }</div></div>
-                        <div class="debug-line"><div class="line-num">28</div><div class="code-content">        }</div></div>
-                        <div id="line-return-dot" class="debug-line"><div class="line-num">29</div><div class="code-content">        <span class="text-syntaxPink">return</span> <span class="text-syntaxYellow">'.'</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">30</div><div class="code-content">    }</div></div>
-                        <div class="debug-line"><div class="line-num">31</div><div class="code-content">}</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> maxBuilding(<span class="text-syntaxPink">int</span> n, <span class="text-syntaxPink">int</span>[][] restrictions) {</div></div>
+                        <div id="line-init" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span>[] h = <span class="text-syntaxPink">new int</span>[n + <span class="text-syntaxPink">1</span>];</div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content text-slate-500 italic">        // Initialize max possible heights</div></div>
+                        <div id="line-init-loop" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">1</span>; i <= n; i++) h[i] = i - <span class="text-syntaxPink">1</span>; </div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content text-slate-500 italic">        // Apply direct restrictions</div></div>
+                        <div id="line-restr" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span>[] r : restrictions) h[r[0]] = Math.min(h[r[0]], r[1]);</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content text-slate-500 italic">        // Propagate limits across the city</div></div>
+                        <div id="line-changed-true" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">boolean</span> changed = <span class="text-syntaxPink">true</span>;</div></div>
+                        <div id="line-while" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">while</span> (changed) {</div></div>
+                        <div id="line-changed-false" class="debug-line"><div class="line-num">11</div><div class="code-content">            changed = <span class="text-syntaxPink">false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content text-slate-500 italic">            // Sweep left-to-right</div></div>
+                        <div id="line-lr-loop" class="debug-line"><div class="line-num">13</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">2</span>; i <= n; i++) {</div></div>
+                        <div id="line-lr-check" class="debug-line"><div class="line-num">14</div><div class="code-content">                <span class="text-syntaxPink">if</span> (h[i] > h[i-1] + <span class="text-syntaxPink">1</span>) {</div></div>
+                        <div id="line-lr-update" class="debug-line"><div class="line-num">15</div><div class="code-content">                    h[i] = h[i-1] + <span class="text-syntaxPink">1</span>; changed = <span class="text-syntaxPink">true</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content text-slate-500 italic">            // Sweep right-to-left</div></div>
+                        <div id="line-rl-loop" class="debug-line"><div class="line-num">19</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = n - <span class="text-syntaxPink">1</span>; i >= <span class="text-syntaxPink">1</span>; i--) {</div></div>
+                        <div id="line-rl-check" class="debug-line"><div class="line-num">20</div><div class="code-content">                <span class="text-syntaxPink">if</span> (h[i] > h[i+1] + <span class="text-syntaxPink">1</span>) {</div></div>
+                        <div id="line-rl-update" class="debug-line"><div class="line-num">21</div><div class="code-content">                    h[i] = h[i+1] + <span class="text-syntaxPink">1</span>; changed = <span class="text-syntaxPink">true</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">        }</div></div>
+                        <div id="line-max-init" class="debug-line"><div class="line-num">25</div><div class="code-content">        <span class="text-syntaxPink">int</span> maxHeight = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-max-loop" class="debug-line"><div class="line-num">26</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">1</span>; i <= n; i++) maxHeight = Math.max(maxHeight, h[i]);</div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">27</div><div class="code-content">        <span class="text-syntaxPink">return</span> maxHeight;</div></div>
+                        <div class="debug-line"><div class="line-num">28</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">29</div><div class="code-content">}</div></div>
                     </div>
                 </div>
             </div>
@@ -291,23 +259,29 @@
         <!-- Tab: Theory & Complexity -->
         <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
             <div class="max-w-4xl mx-auto">
-                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Reverse Target Mapping Logic</h2>
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Brute Force Logic & Complexity</h2>
+                
+                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
+                    <p class="text-red-400 text-sm font-semibold flex items-center gap-2">
+                        <i class="fas fa-exclamation-triangle"></i> Note: This visualization specifically illustrates the Brute Force Approach provided in your code.
+                    </p>
+                    <p class="text-xs text-red-300/80 mt-1">This logic simulates sweeping back and forth continuously until no changes occur. For large inputs on LeetCode, it will cause a <strong>Time Limit Exceeded</strong> or <strong>Memory Limit Exceeded</strong>. An optimal $O(M \log M)$ approach exists by sorting the restrictions, but here we focus entirely on the provided iterative sweeping method.</p>
+                </div>
+
                 <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
-                    <p class="mb-4">This algorithm solves the problem of finding a character at a specific index <code>K</code> after generating a massive string from a set of operations. Instead of actually building the string (which could cause Memory/Time Limit Exceeded due to exponential growth from `#`), it works <strong>backwards</strong>.</p>
-                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Strategy:</h3>
+                    <h3 class="text-lg font-bold text-white mb-3">The Brute Force Sweep Mechanism:</h3>
                     <ul class="list-disc pl-5 space-y-4 text-slate-300">
                         <li>
-                            <strong>Find Final Length:</strong> First, calculate the theoretical length of the final string. If `K` is out of bounds, instantly return <code>'.'</code>.
+                            <strong>Initialization:</strong><br>
+                            The maximum height a building `i` can reach natively (starting from height 0 at building 1 and going up by 1) is `i - 1`. We initialize an array `h` to store these maximums. Then we apply explicit restrictions by directly modifying `h[id] = min(h[id], max_height)`.
                         </li>
                         <li>
-                            <strong>Trace Backwards:</strong> We iterate from the end of the operations string `s` down to `0`. At each step, we look at the operation and ask: <em>"If my target index is currently <code>currK</code>, where was this target located right before this operation occurred?"</em>
+                            <strong>Constraint Propagation (The While Loop):</strong><br>
+                            Because building `i` cannot be more than 1 unit taller than `i-1` or `i+1`, any sharp drop in restriction creates a cascading ceiling across adjacent buildings. We repeatedly sweep left-to-right (`h[i] = min(h[i], h[i-1] + 1)`) and right-to-left (`h[i] = min(h[i], h[i+1] + 1)`).
                         </li>
                         <li>
-                            <strong>The Operations:</strong>
-                            <br>- <code>%</code> (Reverse): Maps <code>currK</code> to the opposite side of the string. New index is <code>prevLen - 1 - currK</code>.
-                            <br>- <code>#</code> (Duplicate): If the target is in the duplicated half, it mirrors the exact character in the first half. So we take the modulo: <code>currK %= prevLen</code>.
-                            <br>- <code>*</code> (Delete): This deleted the character at the very end. It doesn't affect the relative indices of characters before it, so <code>currK</code> doesn't change.
-                            <br>- <code>Letter</code> (Append): If a letter was appended, its index is exactly <code>prevLen</code>. If our <code>currK</code> equals <code>prevLen</code>, we found our target character!
+                            <strong>Convergence:</strong><br>
+                            If any height is reduced during a sweep, it might affect buildings in the opposite direction. Therefore, we use a `boolean changed` flag. We keep running both sweeps in a `while(changed)` loop until a full bi-directional pass yields zero height changes.
                         </li>
                     </ul>
                 </div>
@@ -316,14 +290,14 @@
                     <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
                         <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
-                        <span class="text-white text-2xl font-bold block mb-2">O(N²)</span>
-                        <p class="text-xs text-slate-400">Where $N$ is the length of `s`. Working backwards is $O(N)$, but the provided Java snippet calls <code>getLength(s, i-1)</code> inside the loop. <code>getLength</code> takes $O(N)$ time, resulting in $O(N^2)$ overall. <br><br><em>Optimization Note:</em> It can be optimized to $O(N)$ by pre-calculating the prefix lengths into an array.</p>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N × Iterations)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the total number of buildings. The while loop runs multiple passes. In the worst-case scenario (e.g., a steep drop restriction at the very end), the limits take many passes to fully propagate across $N$ elements, pushing time to nearly $O(N^2)$.</p>
                     </div>
                     <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
                         <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
-                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
-                        <p class="text-xs text-slate-400">The algorithm only uses a few primitive variables (<code>i, currK, prevLen</code>) to track the state, completely avoiding the need to store massive strings in memory. Auxiliary space is strictly $O(1)$.</p>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the total number of buildings. We allocate an integer array `h` of size $N + 1$ to track the state of every single building in the city.</p>
                     </div>
                 </div>
             </div>
@@ -363,7 +337,7 @@
         <div class="flex items-center justify-center gap-3 w-full md:w-auto">
             <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
             <span class="text-xs text-slate-400">Slow</span>
-            <input type="range" min="0" max="100" value="50" oninput="updateSpeed(this.value)" class="w-24">
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
             <span class="text-xs text-slate-400">Fast</span>
         </div>
     </footer>
@@ -371,7 +345,7 @@
     <script>
         // UI State for Expand/Collapse Panels
         let isSplitView = true;
-        let rightPanelWidth = 500; 
+        let rightPanelWidth = 480; 
         let varsPanelHeight = 'flex: 1 1 0%';
 
         function toggleCanvasFullscreen() {
@@ -511,10 +485,10 @@
         let currState = 0;
         let playInterval = null;
         let isPlaying = false;
-        let animSpeed = 1500; 
+        let animSpeed = 500; // Default faster speed
 
         function updateSpeed(val) {
-            animSpeed = 3000 - (val * 27); 
+            animSpeed = 1500 - (val * 14); // Scaled for better feel
             if (isPlaying) {
                 clearInterval(playInterval);
                 playInterval = setInterval(nextStep, animSpeed);
@@ -522,17 +496,19 @@
         }
 
         function initSimulationFromInputs() {
-            const sStr = document.getElementById('input-s').value;
-            const kStr = document.getElementById('input-k').value;
+            const nStr = document.getElementById('input-n').value;
+            const restrStr = document.getElementById('input-restr').value;
             const errEl = document.getElementById('input-error');
             errEl.classList.add('hidden');
 
             try {
-                if (!sStr || sStr.length === 0) throw new Error("Empty String");
-                const k = parseInt(kStr);
-                if (isNaN(k) || k < 0) throw new Error("Invalid K");
+                const n = parseInt(nStr);
+                if (isNaN(n) || n < 2 || n > 20) throw new Error("Invalid N");
+                
+                const restrictions = JSON.parse(restrStr);
+                if (!Array.isArray(restrictions)) throw new Error("Invalid JSON");
 
-                generateStates(sStr, k);
+                generateStates(n, restrictions);
                 pauseAnim();
                 currState = 0;
                 renderState(0);
@@ -543,128 +519,168 @@
 
             } catch (e) {
                 errEl.classList.remove('hidden');
+                console.error(e);
             }
         }
 
-        function generateStates(s, k) {
+        function generateStates(n, restrictions) {
             states = [];
-            let n = s.length;
-            
-            // Pre-calculate virtual lengths simulating getLength(s, i) for visualization purposes
-            let lengths = new Array(n).fill(0);
-            let curLen = 0;
-            for (let j = 0; j < n; j++) {
-                let char = s[j];
-                if (char === '*') curLen = Math.max(0, curLen - 1);
-                else if (char === '#') curLen *= 2;
-                else if (char === '%') { /* unchanged */ }
-                else curLen++;
-                lengths[j] = curLen;
-            }
+            let h = new Array(n + 1).fill(0);
+            let maxHeight = 0;
 
-            let finalLen = lengths[n - 1];
-
-            const pushState = (msg, line, vrs, hlSIdx, hlLenIdx) => {
-                states.push({
-                    msg: msg,
-                    activeLine: line,
-                    vars: JSON.parse(JSON.stringify(vrs)),
-                    visuals: {
-                        sArr: s.split('').map((char, idx) => ({ val: char, hl: idx === hlSIdx ? 'read' : null })),
-                        lenArr: lengths.map((l, idx) => ({ val: l, hl: idx === hlLenIdx ? 'write' : null })),
-                        currK: vrs.currK !== '-' ? vrs.currK : '?',
-                        prevLen: vrs.prevLen !== '-' ? vrs.prevLen : '?'
-                    }
+            // Visual Extractor mapping 1 to N
+            const getSnapshot = (hArr, hlWrite, hlRead) => {
+                return hArr.slice(1).map((val, idx) => {
+                    let actualIndex = idx + 1;
+                    return {
+                        val: val,
+                        hl: actualIndex === hlWrite ? 'write' : (actualIndex === hlRead ? 'read' : null)
+                    };
                 });
             };
 
-            let vrs = { i: '-', c: '-', prevLen: '-', currK: '-', action: 'Initialization' };
-            
-            pushState(`Initialize variables. n = ${n}`, "line-init-n", vrs, -1, -1);
-            
-            vrs.action = `Calculate total length`;
-            pushState(`Calculate final length of virtual string: finalLen = ${finalLen}`, "line-init-finalLen", vrs, -1, n-1);
+            const pushState = (msg, line, vrs, hlWrite = -1, hlRead = -1, maxMsg = "") => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)), 
+                    visuals: getSnapshot(h, hlWrite, hlRead),
+                    maxMsg: maxMsg
+                });
+            };
 
-            if (k >= finalLen) {
-                vrs.action = `Target K out of bounds`;
-                pushState(`K (${k}) >= finalLen (${finalLen}), string is too short. Return '.'`, "line-check-bounds", vrs, -1, -1);
-                return;
+            let vrs = { i: '-', changed: '-', hi: '-', comp: '-', max: '-', action: 'Initialization' };
+            
+            // Step 1: Initialization
+            pushState(`Initialize building height array size ${n+1}.`, "line-init", vrs);
+
+            for (let i = 1; i <= n; i++) {
+                vrs.i = i;
+                h[i] = i - 1;
+                vrs.hi = h[i];
+                vrs.action = `h[${i}] = ${i} - 1 = ${h[i]}`;
+                pushState(`Default max height for building ${i}`, "line-init-loop", vrs, i, -1);
             }
 
-            let currK = k;
-            vrs.currK = currK;
-            vrs.action = `Initialize currK with ${currK}`;
-            pushState(`Set our working target index currK = ${currK}`, "line-init-currK", vrs, -1, -1);
+            // Step 2: Apply restrictions
+            for (let i = 0; i < restrictions.length; i++) {
+                let r = restrictions[i];
+                let id = r[0];
+                let limit = r[1];
+                vrs.i = id;
+                let oldVal = h[id];
+                h[id] = Math.min(h[id], limit);
+                vrs.hi = h[id];
+                vrs.comp = `Limit: ${limit}`;
+                vrs.action = `Math.min(${oldVal}, ${limit}) = ${h[id]}`;
+                pushState(`Apply restriction at building ${id}`, "line-restr", vrs, id, -1);
+            }
 
-            for (let i = n - 1; i >= 0; i--) {
-                vrs.i = i;
-                vrs.action = `Starting iteration i=${i}`;
-                pushState(`Loop backwards at index i = ${i}`, "line-for", vrs, i, -1);
+            // Step 3: Propagation Sweep
+            vrs.i = '-'; vrs.comp = '-'; vrs.hi = '-';
+            let changed = true;
+            vrs.changed = 'true';
+            vrs.action = `Start propagation loop`;
+            pushState(`Begin While Loop`, "line-changed-true", vrs);
 
-                let prevLen = i > 0 ? lengths[i - 1] : 0;
-                vrs.prevLen = prevLen;
-                vrs.action = `Call getLength(s, ${i-1})`;
-                pushState(`Calculate prevLen = ${prevLen} (length before operation s[${i}])`, "line-prevLen", vrs, i, i > 0 ? i - 1 : -1);
+            let iterLimit = 20; // safety for UI
+            let iters = 0;
 
-                let c = s[i];
-                vrs.c = c;
-                vrs.action = `Read char c = '${c}'`;
-                pushState(`Current operation character c = '${c}'`, "line-char", vrs, i, -1);
+            while (changed && iters++ < iterLimit) {
+                pushState(`Check while(changed) -> true`, "line-while", vrs);
+                
+                changed = false;
+                vrs.changed = 'false';
+                pushState(`Reset changed = false`, "line-changed-false", vrs);
 
-                if (c === '%') {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is '%' (Reverse)`, "line-if-percent", vrs, i, -1);
-                    currK = prevLen - 1 - currK;
-                    vrs.currK = currK;
-                    vrs.action = `Reverse Target Index`;
-                    pushState(`Mapped currK to opposite side: ${prevLen} - 1 - ${vrs.currK} -> ${currK}`, "line-op-percent", vrs, i, -1);
-                } else if (c === '#') {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is '#' (Duplicate)`, "line-if-hash", vrs, i, -1);
-                    currK %= prevLen;
-                    vrs.currK = currK;
-                    vrs.action = `Modulo Target Index`;
-                    pushState(`Mapped currK to mirrored half: currK %= ${prevLen} -> ${currK}`, "line-op-hash", vrs, i, -1);
-                } else if (c === '*') {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is '*' (Delete)`, "line-if-star", vrs, i, -1);
-                    vrs.action = `No change needed`;
-                    pushState(`Deletions occurring after character placement don't affect indices. currK unchanged.`, "line-if-star", vrs, i, -1);
-                } else {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is a normal letter ('${c}')`, "line-if-char", vrs, i, -1);
+                // Sweep Left-to-Right
+                pushState(`Start Left-to-Right Sweep`, "line-lr-loop", vrs);
+                for (let i = 2; i <= n; i++) {
+                    vrs.i = i;
+                    vrs.hi = h[i];
+                    vrs.comp = h[i-1] + 1;
                     
-                    vrs.action = `Check if matched target`;
-                    pushState(`Does target currK (${currK}) match current length prevLen (${prevLen})?`, "line-check-match", vrs, i, -1);
+                    pushState(`Check if h[${i}] > h[${i-1}] + 1 (${h[i]} > ${h[i-1] + 1})`, "line-lr-check", vrs, -1, i-1);
                     
-                    if (currK === prevLen) {
-                        vrs.action = `Match Found!`;
-                        pushState(`Match found! Return character '${c}'`, "line-return-match", vrs, i, -1);
-                        return;
+                    if (h[i] > h[i-1] + 1) {
+                        h[i] = h[i-1] + 1;
+                        changed = true;
+                        vrs.changed = 'true';
+                        vrs.hi = h[i];
+                        vrs.action = `h[${i}] bounded to ${h[i]}`;
+                        pushState(`Update h[${i}] and set changed = true`, "line-lr-update", vrs, i, i-1);
+                    }
+                }
+
+                // Sweep Right-to-Left
+                vrs.i = '-'; vrs.hi = '-'; vrs.comp = '-';
+                pushState(`Start Right-to-Left Sweep`, "line-rl-loop", vrs);
+                for (let i = n - 1; i >= 1; i--) {
+                    vrs.i = i;
+                    vrs.hi = h[i];
+                    vrs.comp = h[i+1] + 1;
+                    
+                    pushState(`Check if h[${i}] > h[${i+1}] + 1 (${h[i]} > ${h[i+1] + 1})`, "line-rl-check", vrs, -1, i+1);
+                    
+                    if (h[i] > h[i+1] + 1) {
+                        h[i] = h[i+1] + 1;
+                        changed = true;
+                        vrs.changed = 'true';
+                        vrs.hi = h[i];
+                        vrs.action = `h[${i}] bounded to ${h[i]}`;
+                        pushState(`Update h[${i}] and set changed = true`, "line-rl-update", vrs, i, i+1);
                     }
                 }
             }
+            
+            vrs.i = '-'; vrs.hi = '-'; vrs.comp = '-'; vrs.action = 'Loop ends';
+            pushState(`changed is false. While loop exits.`, "line-while", vrs);
 
-            vrs.i = '-';
-            vrs.c = '-';
-            vrs.action = `Loop Finished`;
-            pushState(`Loop finished without matching target index. Return '.'`, "line-return-dot", vrs, -1, -1);
+            // Step 4: Max Height
+            maxHeight = 0;
+            vrs.max = 0;
+            vrs.action = `maxHeight = 0`;
+            pushState(`Initialize maxHeight search`, "line-max-init", vrs);
+
+            for (let i = 1; i <= n; i++) {
+                vrs.i = i;
+                vrs.hi = h[i];
+                let oldMax = maxHeight;
+                maxHeight = Math.max(maxHeight, h[i]);
+                vrs.max = maxHeight;
+                vrs.action = `Math.max(${oldMax}, ${h[i]})`;
+                pushState(`Compare h[${i}] with maxHeight`, "line-max-loop", vrs, -1, i, `Searching max: h[${i}]=${h[i]}, current max=${maxHeight}`);
+            }
+
+            vrs.i = '-'; vrs.hi = '-'; vrs.action = `Algorithm Finished`;
+            pushState(`Done! Returning the maximum height found: ${maxHeight}`, "line-return", vrs, -1, -1, `Final Answer: ${maxHeight}`);
         }
 
         function renderArrayDOM(containerId, dataArray) {
             const container = document.getElementById(containerId);
+            
+            // Calculate a scalar so the tallest building roughly fits within the canvas area
+            const maxVal = Math.max(...dataArray.map(item => item.val), 1);
+            const containerPxHeight = 250; 
+            const pxPerUnit = Math.min(25, containerPxHeight / maxVal); 
+
             container.innerHTML = dataArray.map((item, index) => {
+                let actualIndex = index + 1; // UI representation of building i
                 let hlClass = '';
                 if (item.hl === 'read') hlClass = 'highlight-read';
                 else if (item.hl === 'write') hlClass = 'highlight-write';
                 
-                let val = item.val !== '' ? item.val : '';
-                let boxClass = item.val === '' ? 'array-box empty-box' : `array-box ${hlClass}`;
+                let heightPx = item.val * pxPerUnit;
+                if (item.val === 0) heightPx = 4; // Minimal visual representation
+                
+                let baseColor = 'bg-primary/80';
                 
                 return `
-                    <div class="array-box-container">
-                        <span class="array-index">${index}</span>
-                        <div class="${boxClass}">${val}</div>
+                    <div class="building-col group">
+                        <div class="text-[10px] font-bold text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">${item.val}</div>
+                        <div class="building-bar ${hlClass || baseColor} w-6 md:w-8 lg:w-12 group-hover:bg-primary shadow-sm shadow-blue-500/10" style="height: ${heightPx}px;"></div>
+                        <div class="text-[9px] font-mono text-slate-500 mt-2 border-t border-slate-700 w-full text-center pt-1">i=${actualIndex}</div>
+                        <div class="text-xs font-mono font-bold text-slate-300">${item.val}</div>
                     </div>
                 `;
             }).join('');
@@ -672,13 +688,17 @@
 
         function renderState(idx) {
             const state = states[idx];
-            if (!state) return;
-
+            
             // Text updates
             document.getElementById('step-msg').innerText = state.msg;
             document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
-            document.getElementById('progress-bar').style.width = `${states.length > 1 ? (idx / (states.length - 1)) * 100 : 100}%`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
             
+            let maxMsgEl = document.getElementById('canvas-max-msg');
+            maxMsgEl.innerText = state.maxMsg || 'Tracking Heights...';
+            if(state.maxMsg) maxMsgEl.classList.add('text-syntaxYellow');
+            else maxMsgEl.classList.remove('text-syntaxYellow');
+
             if(isPlaying) {
                 document.getElementById('status-spinner').classList.remove('hidden');
                 document.getElementById('status-icon').classList.add('hidden');
@@ -687,21 +707,8 @@
                 document.getElementById('status-icon').classList.remove('hidden');
             }
 
-            // Render DOM Arrays
-            renderArrayDOM('canvas-s', state.visuals.sArr);
-            renderArrayDOM('canvas-len', state.visuals.lenArr);
-
-            // Render Logic Blocks
-            document.getElementById('visual-currK').innerText = state.visuals.currK;
-            document.getElementById('visual-prevLen').innerText = state.visuals.prevLen;
-            
-            // Highlight Logic Blocks if they changed
-            const bCurr = document.getElementById('block-currK');
-            const bPrev = document.getElementById('block-prevLen');
-            bCurr.classList.remove('active');
-            bPrev.classList.remove('active');
-            if (state.activeLine && state.activeLine.includes('op-')) bCurr.classList.add('active');
-            if (state.activeLine && state.activeLine.includes('prevLen')) bPrev.classList.add('active');
+            // Render Visualization
+            renderArrayDOM('canvas-buildings', state.visuals);
 
             // Variables Panel
             document.getElementById('empty-vars').classList.add('hidden');
@@ -711,9 +718,10 @@
             }
 
             document.getElementById('var-i').innerText = state.vars.i;
-            document.getElementById('var-c').innerText = state.vars.c !== '-' ? `'${state.vars.c}'` : '-';
-            document.getElementById('var-currK').innerText = state.vars.currK;
-            document.getElementById('var-prevLen').innerText = state.vars.prevLen;
+            document.getElementById('var-changed').innerText = state.vars.changed;
+            document.getElementById('var-hi').innerText = state.vars.hi;
+            document.getElementById('var-comp').innerText = state.vars.comp;
+            document.getElementById('var-max').innerText = state.vars.max;
             document.getElementById('var-action').innerText = state.vars.action;
 
             // Highlight Code Line
@@ -791,6 +799,7 @@
         window.onload = () => {
             initSimulationFromInputs();
             switchTab('dry-tab'); 
+            updateSpeed(document.querySelector('input[type="range"]').value);
         };
     </script>
 </body>

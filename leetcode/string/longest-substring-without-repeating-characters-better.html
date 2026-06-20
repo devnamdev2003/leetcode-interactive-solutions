@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoViz Canvas - Process String (Reverse Mapping)</title>
+    <title>AlgoViz Canvas - Longest Substring Without Repeating Characters</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -53,21 +53,24 @@
         /* Canvas Styles */
         .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
         
-        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; }
+        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; position: relative; }
         .array-box { 
             width: 44px; height: 44px; border: 2px solid #1e293b; background: #111827; 
             border-radius: 8px; display: flex; justify-content: center; align-items: center; 
-            font-weight: bold; font-size: 16px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: bold; font-size: 18px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .array-box.empty-box { color: transparent; border-color: #1e293b80; }
+        .array-box.in-window {
+            border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+        }
         .array-box.highlight-read { border-color: #f472b6; background: rgba(244, 114, 182, 0.1); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); transform: scale(1.1); z-index: 10;}
-        .array-box.highlight-write { border-color: #34d399; background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 12px rgba(52, 211, 153, 0.4); transform: scale(1.1); z-index: 10;}
-        .array-index { font-family: 'Fira Code', monospace; font-size: 10px; color: #64748b; }
-
-        /* Logic Block Styles */
-        .logic-block { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s ease; }
-        .logic-block.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); box-shadow: 0 0 16px rgba(59, 130, 246, 0.2); transform: scale(1.05); }
-        .logic-value { font-family: 'Fira Code', monospace; font-size: 24px; font-weight: bold; color: #f8fafc; margin-top: 8px;}
+        .array-index { font-family: 'Fira Code', monospace; font-size: 10px; color: #64748b; margin-top: 4px; }
+        
+        .pointer-l { position: absolute; bottom: -24px; font-size: 12px; font-weight: bold; color: #f472b6; text-shadow: 0 2px 4px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; }
+        .pointer-r { position: absolute; top: -28px; font-size: 12px; font-weight: bold; color: #34d399; text-shadow: 0 2px 4px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; }
+        
+        .set-container { border: 2px dashed #334155; border-radius: 12px; padding: 16px; min-height: 100px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; transition: all 0.3s; background: rgba(15, 23, 42, 0.4); }
+        .set-box { width: 36px; height: 36px; background: #1e293b; border: 2px solid #475569; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #f8fafc; animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* Speed Slider */
         input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
@@ -86,7 +89,7 @@
         .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
         .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
         
-        /* Drag Overlay classes */
+        /* Drag Overlay classes for smooth resizing */
         body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
         body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
     </style>
@@ -97,11 +100,11 @@
     <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
-                <i class="fas fa-backward"></i>
+                <i class="fas fa-expand-arrows-alt"></i>
             </div>
             <div>
                 <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
-                <p class="text-xs text-slate-500">Process String (Reverse Target Mapping)</p>
+                <p class="text-xs text-slate-500">Longest Substring Without Repeating Characters (Sliding Window)</p>
             </div>
         </div>
         
@@ -111,21 +114,17 @@
         </nav>
     </header>
 
-    <!-- Inputs Bar -->
+    <!-- Inputs Bar (Hidden on Theory Tab) -->
     <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
-        <div class="flex-1 w-full max-w-sm">
-            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Input String (s)</label>
-            <input type="text" id="input-s" class="input-field" value="ab#c%">
-        </div>
-        <div class="w-full md:w-32">
-            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Target Index (k)</label>
-            <input type="number" id="input-k" class="input-field" value="2" min="0">
+        <div class="flex-1 w-full max-w-2xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Input String (Max 20 chars recommended)</label>
+            <input type="text" id="input-string" class="input-field" value="abcabcbb">
         </div>
         <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
             <i class="fas fa-play text-xs"></i> Start Debugging
         </button>
     </section>
-    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please ensure the string is not empty and K >= 0.</div>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a valid string.</div>
 
     <!-- Main Workspace -->
     <main class="flex-grow flex overflow-hidden relative">
@@ -147,50 +146,46 @@
                 </div>
 
                 <!-- Canvas Content -->
-                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-10 transition-opacity duration-300">
                     
                     <!-- Status Overlay -->
-                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur max-w-sm">
                         <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
                         <i class="fas fa-info-circle text-primary" id="status-icon"></i>
                         <span id="step-msg">Waiting to begin...</span>
                     </div>
 
-                    <!-- String s Array -->
-                    <div class="mt-12">
-                        <div class="flex items-center gap-2 mb-3">
-                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">char[]</span> s (Operations)</h3>
-                            <span class="text-[10px] text-slate-500">(Input Operations Array)</span>
+                    <!-- String Array -->
+                    <div class="mt-14">
+                        <div class="flex items-center justify-between mb-8">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">String</span> s</h3>
+                                <span class="text-[10px] text-slate-500">(Character Array Representation)</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-[10px] font-mono">
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-syntaxPink inline-block"></span> Left Pointer (L)</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-syntaxGreen inline-block"></span> Right Pointer (R)</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 border border-primary bg-primary/20 inline-block rounded-sm"></span> Current Window</span>
+                            </div>
                         </div>
-                        <div id="canvas-s" class="flex gap-2 overflow-x-auto pb-4 pt-2 px-2"></div>
+                        <div id="canvas-string" class="flex gap-3 overflow-x-auto pb-8 pt-8 px-4 items-center"></div>
                     </div>
 
-                    <!-- Calculated Lengths Array (Simulating getLength) -->
+                    <!-- HashSet -->
                     <div>
                         <div class="flex items-center gap-2 mb-3">
-                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">long[]</span> virtual lengths</h3>
-                            <span class="text-[10px] text-slate-500">(Result of getLength(s, i) for visualization)</span>
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">Set&lt;Character&gt;</span> set</h3>
+                            <span class="text-[10px] text-slate-500">(Tracks unique chars in window)</span>
                         </div>
-                        <div id="canvas-len" class="flex gap-2 overflow-x-auto pb-4 pt-2 px-2"></div>
+                        <div id="canvas-set" class="set-container shadow-inner">
+                            <!-- Set boxes injected here -->
+                        </div>
                     </div>
-
-                    <!-- Target Tracking Panel -->
-                    <div class="flex gap-6 mt-4">
-                        <div id="block-currK" class="logic-block flex-1 max-w-[200px]">
-                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">currK</span>
-                            <span id="visual-currK" class="logic-value text-primary">-</span>
-                            <span class="text-[10px] text-slate-500 mt-2">Target Index</span>
-                        </div>
-                        
-                        <div class="flex items-center justify-center text-slate-500 text-2xl font-bold">
-                            <i class="fas fa-crosshairs text-borderMain mx-2"></i>
-                        </div>
-
-                        <div id="block-prevLen" class="logic-block flex-1 max-w-[200px]">
-                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">prevLen</span>
-                            <span id="visual-prevLen" class="logic-value text-syntaxPink">-</span>
-                            <span class="text-[10px] text-slate-500 mt-2">String Size Before Operation</span>
-                        </div>
+                    
+                    <!-- Result -->
+                    <div class="mt-auto self-end bg-bgPanel border border-borderMain rounded-lg p-4 shadow-lg min-w-[200px] text-center">
+                        <span class="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">Max Substring Length</span>
+                        <span id="canvas-max-length" class="text-4xl font-mono font-bold text-primary">0</span>
                     </div>
 
                 </div>
@@ -200,7 +195,7 @@
             <div id="resizer-v" class="resizer-v hidden lg:block"></div>
 
             <!-- Right: Debugger Panels -->
-            <div id="panel-right" style="flex: 0 0 500px; width: 500px; min-width: 320px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
                 
                 <!-- Variables Watch -->
                 <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
@@ -214,24 +209,24 @@
                         <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
                         <div id="active-vars" class="hidden grid grid-cols-2 gap-4">
                             <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i)</span>
-                                <span id="var-i" class="font-mono text-slate-200 text-lg">-</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">left</span>
+                                <span id="var-left" class="font-mono text-syntaxPink font-bold text-lg">-</span>
                             </div>
                             <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Char (c)</span>
-                                <span id="var-c" class="font-mono text-syntaxYellow font-bold text-lg">-</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">right</span>
+                                <span id="var-right" class="font-mono text-syntaxGreen font-bold text-lg">-</span>
                             </div>
                             <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">currK</span>
-                                <span id="var-currK" class="font-mono text-primary font-bold text-lg">-</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">currentChar</span>
+                                <span id="var-curr" class="font-mono text-slate-200 text-lg">-</span>
                             </div>
                             <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">prevLen</span>
-                                <span id="var-prevLen" class="font-mono text-syntaxPink font-bold text-lg">-</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">maxLength</span>
+                                <span id="var-max" class="font-mono text-primary font-bold text-lg">-</span>
                             </div>
                             <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">System Action</span>
-                                <span id="var-action" class="text-xs text-slate-300 font-medium">-</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
                             </div>
                         </div>
                     </div>
@@ -253,36 +248,27 @@
                     <!-- Code Content -->
                     <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
                         <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
-                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public char</span> processString(String s, <span class="text-syntaxPink">long</span> k) {</div></div>
-                        <div id="line-init-n" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = s.length();</div></div>
-                        <div id="line-init-finalLen" class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">long</span> finalLen = getLength(s, n - <span class="text-syntaxPink">1</span>);</div></div>
-                        <div class="debug-line"><div class="line-num">5</div><div class="code-content">        </div></div>
-                        <div id="line-check-bounds" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">if</span> (k >= finalLen) <span class="text-syntaxPink">return</span> <span class="text-syntaxYellow">'.'</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">        </div></div>
-                        <div id="line-init-currK" class="debug-line"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">long</span> currK = k;</div></div>
-                        <div class="debug-line"><div class="line-num">9</div><div class="code-content text-slate-500 italic">        // Work backwards</div></div>
-                        <div id="line-for" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = n - <span class="text-syntaxPink">1</span>; i >= <span class="text-syntaxPink">0</span>; i--) {</div></div>
-                        <div class="debug-line"><div class="line-num">11</div><div class="code-content text-slate-500 italic">            // Find length of string right before current operation</div></div>
-                        <div id="line-prevLen" class="debug-line"><div class="line-num">12</div><div class="code-content">            <span class="text-syntaxPink">long</span> prevLen = i > <span class="text-syntaxPink">0</span> ? getLength(s, i - <span class="text-syntaxPink">1</span>) : <span class="text-syntaxPink">0</span>;</div></div>
-                        <div id="line-char" class="debug-line"><div class="line-num">13</div><div class="code-content">            <span class="text-syntaxPink">char</span> c = s.charAt(i);</div></div>
-                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">            </div></div>
-                        <div id="line-if-percent" class="debug-line"><div class="line-num">15</div><div class="code-content">            <span class="text-syntaxPink">if</span> (c == <span class="text-syntaxYellow">'%'</span>) {</div></div>
-                        <div class="debug-line"><div class="line-num">16</div><div class="code-content text-slate-500 italic">                // Reversing maps index K to the opposite side</div></div>
-                        <div id="line-op-percent" class="debug-line"><div class="line-num">17</div><div class="code-content">                currK = prevLen - <span class="text-syntaxPink">1</span> - currK;</div></div>
-                        <div id="line-if-hash" class="debug-line"><div class="line-num">18</div><div class="code-content">            } <span class="text-syntaxPink">else if</span> (c == <span class="text-syntaxYellow">'#'</span>) {</div></div>
-                        <div class="debug-line"><div class="line-num">19</div><div class="code-content text-slate-500 italic">                // Duplicating means second half mirrors first</div></div>
-                        <div id="line-op-hash" class="debug-line"><div class="line-num">20</div><div class="code-content">                currK %= prevLen;</div></div>
-                        <div id="line-if-star" class="debug-line"><div class="line-num">21</div><div class="code-content">            } <span class="text-syntaxPink">else if</span> (c == <span class="text-syntaxYellow">'*'</span>) {</div></div>
-                        <div class="debug-line"><div class="line-num">22</div><div class="code-content text-slate-500 italic">                // Deletion after char placement doesn't affect index</div></div>
-                        <div id="line-if-char" class="debug-line"><div class="line-num">23</div><div class="code-content">            } <span class="text-syntaxPink">else</span> {</div></div>
-                        <div id="line-check-match" class="debug-line"><div class="line-num">24</div><div class="code-content">                <span class="text-syntaxPink">if</span> (currK == prevLen) {</div></div>
-                        <div id="line-return-match" class="debug-line"><div class="line-num">25</div><div class="code-content">                    <span class="text-syntaxPink">return</span> c;</div></div>
-                        <div class="debug-line"><div class="line-num">26</div><div class="code-content">                }</div></div>
-                        <div class="debug-line"><div class="line-num">27</div><div class="code-content">            }</div></div>
-                        <div class="debug-line"><div class="line-num">28</div><div class="code-content">        }</div></div>
-                        <div id="line-return-dot" class="debug-line"><div class="line-num">29</div><div class="code-content">        <span class="text-syntaxPink">return</span> <span class="text-syntaxYellow">'.'</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">30</div><div class="code-content">    }</div></div>
-                        <div class="debug-line"><div class="line-num">31</div><div class="code-content">}</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> lengthOfLongestSubstring(String s) {</div></div>
+                        <div id="line-init-1" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = s.length();</div></div>
+                        <div id="line-init-2" class="debug-line"><div class="line-num">4</div><div class="code-content">        Set&lt;Character&gt; set = <span class="text-syntaxPink">new</span> HashSet&lt;&gt;();</div></div>
+                        <div id="line-init-3" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">int</span> maxLength = 0, left = 0, right = 0;</div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content">        </div></div>
+                        <div id="line-while-outer" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">while</span> (right < n) {</div></div>
+                        <div id="line-char" class="debug-line"><div class="line-num">8</div><div class="code-content">            <span class="text-syntaxPink">char</span> currentChar = s.charAt(right);</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content text-slate-500 italic">            // If duplicate found, shrink window from left</div></div>
+                        <div id="line-while-inner" class="debug-line"><div class="line-num">10</div><div class="code-content">            <span class="text-syntaxPink">while</span> (set.contains(currentChar)) {</div></div>
+                        <div id="line-remove" class="debug-line"><div class="line-num">11</div><div class="code-content">                set.remove(s.charAt(left));</div></div>
+                        <div id="line-left-inc" class="debug-line"><div class="line-num">12</div><div class="code-content">                left++;</div></div>
+                        <div class="debug-line"><div class="line-num">13</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">14</div><div class="code-content text-slate-500 italic">            // Add current character & update max length</div></div>
+                        <div id="line-add" class="debug-line"><div class="line-num">15</div><div class="code-content">            set.add(currentChar);</div></div>
+                        <div id="line-max" class="debug-line"><div class="line-num">16</div><div class="code-content">            maxLength = Math.max(maxLength, right - left + 1);</div></div>
+                        <div id="line-right-inc" class="debug-line"><div class="line-num">17</div><div class="code-content">            right++;</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content">        </div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">20</div><div class="code-content">        <span class="text-syntaxPink">return</span> maxLength;</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">}</div></div>
                     </div>
                 </div>
             </div>
@@ -291,23 +277,22 @@
         <!-- Tab: Theory & Complexity -->
         <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
             <div class="max-w-4xl mx-auto">
-                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Reverse Target Mapping Logic</h2>
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
                 <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
-                    <p class="mb-4">This algorithm solves the problem of finding a character at a specific index <code>K</code> after generating a massive string from a set of operations. Instead of actually building the string (which could cause Memory/Time Limit Exceeded due to exponential growth from `#`), it works <strong>backwards</strong>.</p>
-                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Strategy:</h3>
+                    <p class="mb-4">This algorithm solves the "Longest Substring Without Repeating Characters" problem using the elegant <strong>Sliding Window</strong> technique combined with a <strong>HashSet</strong>. Instead of checking all possible substrings (which would take $O(N^3)$ or $O(N^2)$ time), this approach finds the answer in a single linear scan.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept: The Sliding Window</h3>
                     <ul class="list-disc pl-5 space-y-4 text-slate-300">
                         <li>
-                            <strong>Find Final Length:</strong> First, calculate the theoretical length of the final string. If `K` is out of bounds, instantly return <code>'.'</code>.
+                            <strong>Pointers:</strong> We maintain two pointers, <code>left</code> and <code>right</code>, which represent the boundaries of our current "window" (valid substring without duplicates). Both start at index 0.
                         </li>
                         <li>
-                            <strong>Trace Backwards:</strong> We iterate from the end of the operations string `s` down to `0`. At each step, we look at the operation and ask: <em>"If my target index is currently <code>currK</code>, where was this target located right before this operation occurred?"</em>
+                            <strong>Expanding the Window:</strong> We slide the <code>right</code> pointer across the string one character at a time. We add the character at <code>right</code> into our <code>HashSet</code> to keep track of unique characters currently in our window.
                         </li>
                         <li>
-                            <strong>The Operations:</strong>
-                            <br>- <code>%</code> (Reverse): Maps <code>currK</code> to the opposite side of the string. New index is <code>prevLen - 1 - currK</code>.
-                            <br>- <code>#</code> (Duplicate): If the target is in the duplicated half, it mirrors the exact character in the first half. So we take the modulo: <code>currK %= prevLen</code>.
-                            <br>- <code>*</code> (Delete): This deleted the character at the very end. It doesn't affect the relative indices of characters before it, so <code>currK</code> doesn't change.
-                            <br>- <code>Letter</code> (Append): If a letter was appended, its index is exactly <code>prevLen</code>. If our <code>currK</code> equals <code>prevLen</code>, we found our target character!
+                            <strong>Shrinking the Window:</strong> If we encounter a character that is <em>already</em> in our HashSet, we have found a duplicate! Our window is no longer valid. To fix this, we shrink the window from the left by moving the <code>left</code> pointer forward and removing <code>s.charAt(left)</code> from the HashSet. We repeat this <em>until the duplicate is removed</em>.
+                        </li>
+                        <li>
+                            <strong>Tracking the Maximum:</strong> At the end of every valid window expansion, we calculate its length (<code>right - left + 1</code>) and update our <code>maxLength</code> if this new length is larger than the previous maximum.
                         </li>
                     </ul>
                 </div>
@@ -316,14 +301,14 @@
                     <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
                         <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
-                        <span class="text-white text-2xl font-bold block mb-2">O(N²)</span>
-                        <p class="text-xs text-slate-400">Where $N$ is the length of `s`. Working backwards is $O(N)$, but the provided Java snippet calls <code>getLength(s, i-1)</code> inside the loop. <code>getLength</code> takes $O(N)$ time, resulting in $O(N^2)$ overall. <br><br><em>Optimization Note:</em> It can be optimized to $O(N)$ by pre-calculating the prefix lengths into an array.</p>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the length of the string. In the worst-case scenario, each character is visited exactly twice (once by the <code>right</code> pointer and once by the <code>left</code> pointer). Thus, $2N$ operations, which simplifies to $O(N)$.</p>
                     </div>
                     <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
                         <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
-                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
-                        <p class="text-xs text-slate-400">The algorithm only uses a few primitive variables (<code>i, currK, prevLen</code>) to track the state, completely avoiding the need to store massive strings in memory. Auxiliary space is strictly $O(1)$.</p>
+                        <span class="text-white text-2xl font-bold block mb-2">O(min(N, M))</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the length of string and $M$ is the size of the charset/alphabet. The HashSet can store at most the entire character set (e.g., 26 for English letters, 128 for ASCII). It requires $O(1)$ auxiliary space in practical competitive programming terms.</p>
                     </div>
                 </div>
             </div>
@@ -331,7 +316,7 @@
 
     </main>
 
-    <!-- Bottom Control Bar -->
+    <!-- Bottom Control Bar (Hidden on Theory Tab) -->
     <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
         <div class="flex items-center gap-3 w-full md:w-auto justify-center">
             <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
@@ -371,7 +356,7 @@
     <script>
         // UI State for Expand/Collapse Panels
         let isSplitView = true;
-        let rightPanelWidth = 500; 
+        let rightPanelWidth = 450; 
         let varsPanelHeight = 'flex: 1 1 0%';
 
         function toggleCanvasFullscreen() {
@@ -384,11 +369,11 @@
             if (isSplitView) {
                 panelRight.style.display = 'flex';
                 resizerV.style.display = 'block';
-                icon.className = 'fas fa-chevron-right';
+                icon.className = 'fas fa-chevron-right'; 
             } else {
                 panelRight.style.display = 'none';
                 resizerV.style.display = 'none';
-                icon.className = 'fas fa-chevron-left';
+                icon.className = 'fas fa-chevron-left'; 
             }
         }
 
@@ -522,162 +507,228 @@
         }
 
         function initSimulationFromInputs() {
-            const sStr = document.getElementById('input-s').value;
-            const kStr = document.getElementById('input-k').value;
+            const strInput = document.getElementById('input-string').value;
             const errEl = document.getElementById('input-error');
             errEl.classList.add('hidden');
 
-            try {
-                if (!sStr || sStr.length === 0) throw new Error("Empty String");
-                const k = parseInt(kStr);
-                if (isNaN(k) || k < 0) throw new Error("Invalid K");
-
-                generateStates(sStr, k);
-                pauseAnim();
-                currState = 0;
-                renderState(0);
-                
-                if(!document.getElementById('dry-tab').classList.contains('active')) {
-                    switchTab('dry-tab');
-                }
-
-            } catch (e) {
+            if (!strInput || strInput.length === 0) {
                 errEl.classList.remove('hidden');
-            }
-        }
-
-        function generateStates(s, k) {
-            states = [];
-            let n = s.length;
-            
-            // Pre-calculate virtual lengths simulating getLength(s, i) for visualization purposes
-            let lengths = new Array(n).fill(0);
-            let curLen = 0;
-            for (let j = 0; j < n; j++) {
-                let char = s[j];
-                if (char === '*') curLen = Math.max(0, curLen - 1);
-                else if (char === '#') curLen *= 2;
-                else if (char === '%') { /* unchanged */ }
-                else curLen++;
-                lengths[j] = curLen;
-            }
-
-            let finalLen = lengths[n - 1];
-
-            const pushState = (msg, line, vrs, hlSIdx, hlLenIdx) => {
-                states.push({
-                    msg: msg,
-                    activeLine: line,
-                    vars: JSON.parse(JSON.stringify(vrs)),
-                    visuals: {
-                        sArr: s.split('').map((char, idx) => ({ val: char, hl: idx === hlSIdx ? 'read' : null })),
-                        lenArr: lengths.map((l, idx) => ({ val: l, hl: idx === hlLenIdx ? 'write' : null })),
-                        currK: vrs.currK !== '-' ? vrs.currK : '?',
-                        prevLen: vrs.prevLen !== '-' ? vrs.prevLen : '?'
-                    }
-                });
-            };
-
-            let vrs = { i: '-', c: '-', prevLen: '-', currK: '-', action: 'Initialization' };
-            
-            pushState(`Initialize variables. n = ${n}`, "line-init-n", vrs, -1, -1);
-            
-            vrs.action = `Calculate total length`;
-            pushState(`Calculate final length of virtual string: finalLen = ${finalLen}`, "line-init-finalLen", vrs, -1, n-1);
-
-            if (k >= finalLen) {
-                vrs.action = `Target K out of bounds`;
-                pushState(`K (${k}) >= finalLen (${finalLen}), string is too short. Return '.'`, "line-check-bounds", vrs, -1, -1);
                 return;
             }
 
-            let currK = k;
-            vrs.currK = currK;
-            vrs.action = `Initialize currK with ${currK}`;
-            pushState(`Set our working target index currK = ${currK}`, "line-init-currK", vrs, -1, -1);
-
-            for (let i = n - 1; i >= 0; i--) {
-                vrs.i = i;
-                vrs.action = `Starting iteration i=${i}`;
-                pushState(`Loop backwards at index i = ${i}`, "line-for", vrs, i, -1);
-
-                let prevLen = i > 0 ? lengths[i - 1] : 0;
-                vrs.prevLen = prevLen;
-                vrs.action = `Call getLength(s, ${i-1})`;
-                pushState(`Calculate prevLen = ${prevLen} (length before operation s[${i}])`, "line-prevLen", vrs, i, i > 0 ? i - 1 : -1);
-
-                let c = s[i];
-                vrs.c = c;
-                vrs.action = `Read char c = '${c}'`;
-                pushState(`Current operation character c = '${c}'`, "line-char", vrs, i, -1);
-
-                if (c === '%') {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is '%' (Reverse)`, "line-if-percent", vrs, i, -1);
-                    currK = prevLen - 1 - currK;
-                    vrs.currK = currK;
-                    vrs.action = `Reverse Target Index`;
-                    pushState(`Mapped currK to opposite side: ${prevLen} - 1 - ${vrs.currK} -> ${currK}`, "line-op-percent", vrs, i, -1);
-                } else if (c === '#') {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is '#' (Duplicate)`, "line-if-hash", vrs, i, -1);
-                    currK %= prevLen;
-                    vrs.currK = currK;
-                    vrs.action = `Modulo Target Index`;
-                    pushState(`Mapped currK to mirrored half: currK %= ${prevLen} -> ${currK}`, "line-op-hash", vrs, i, -1);
-                } else if (c === '*') {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is '*' (Delete)`, "line-if-star", vrs, i, -1);
-                    vrs.action = `No change needed`;
-                    pushState(`Deletions occurring after character placement don't affect indices. currK unchanged.`, "line-if-star", vrs, i, -1);
-                } else {
-                    vrs.action = `Check char type`;
-                    pushState(`Character is a normal letter ('${c}')`, "line-if-char", vrs, i, -1);
-                    
-                    vrs.action = `Check if matched target`;
-                    pushState(`Does target currK (${currK}) match current length prevLen (${prevLen})?`, "line-check-match", vrs, i, -1);
-                    
-                    if (currK === prevLen) {
-                        vrs.action = `Match Found!`;
-                        pushState(`Match found! Return character '${c}'`, "line-return-match", vrs, i, -1);
-                        return;
-                    }
-                }
+            generateStates(strInput);
+            pauseAnim();
+            currState = 0;
+            renderState(0);
+            
+            if(!document.getElementById('dry-tab').classList.contains('active')) {
+                switchTab('dry-tab');
             }
-
-            vrs.i = '-';
-            vrs.c = '-';
-            vrs.action = `Loop Finished`;
-            pushState(`Loop finished without matching target index. Return '.'`, "line-return-dot", vrs, -1, -1);
         }
 
-        function renderArrayDOM(containerId, dataArray) {
-            const container = document.getElementById(containerId);
+        function generateStates(s) {
+            states = [];
+            let n = s.length;
+            let set = new Set();
+            let left = 0, right = 0, maxLength = 0;
+            
+            // Helper to get visual snapshot
+            const getSnapshot = (hlIdx = -1) => {
+                return {
+                    str: s.split('').map((char, i) => ({
+                        char: char,
+                        isLeft: i === left,
+                        isRight: i === right,
+                        inWindow: i >= left && i < right, // Window is technically left to right-1 initially, then left to right when added
+                        isHighlighted: i === hlIdx
+                    })),
+                    setElements: Array.from(set),
+                    maxLength: maxLength
+                };
+            };
+
+            const pushState = (msg, line, vrs, hlIdx = -1) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)), 
+                    visuals: getSnapshot(hlIdx)
+                });
+            };
+
+            let vrs = { left: '-', right: '-', curr: '-', max: '-', action: 'Initialization' };
+            
+            // Initializing Phase
+            vrs.action = `Init variables: left=0, right=0, max=0`;
+            pushState(`Initialize length of string n = ${n}.`, "line-init-1", vrs);
+            pushState(`Create empty HashSet to track unique characters.`, "line-init-2", vrs);
+            
+            vrs.left = 0; vrs.right = 0; vrs.max = 0;
+            pushState(`Initialize left pointer, right pointer, and maxLength to 0.`, "line-init-3", vrs);
+
+            // While loop
+            while (right < n) {
+                vrs.right = right;
+                vrs.action = `Checking right < ${n}`;
+                pushState(`Window boundary check: right pointer (${right}) < n (${n}). Entering loop.`, "line-while-outer", vrs);
+                
+                let currentChar = s.charAt(right);
+                vrs.curr = `'${currentChar}'`;
+                vrs.action = `Read char at right (${right}) = '${currentChar}'`;
+                pushState(`Extract current character '${currentChar}' at right index ${right}.`, "line-char", vrs, right);
+
+                // Check duplicates loop
+                vrs.action = `Checking if Set contains '${currentChar}'`;
+                pushState(`Check if '${currentChar}' is already in the HashSet.`, "line-while-inner", vrs, right);
+
+                while (set.has(currentChar)) {
+                    vrs.action = `Duplicate found! Need to shrink window from left.`;
+                    pushState(`'${currentChar}' is in Set! Window is invalid. Shrinking from left...`, "line-while-inner", vrs, right);
+
+                    let leftChar = s.charAt(left);
+                    set.delete(leftChar);
+                    vrs.action = `Remove '${leftChar}' at left (${left}) from Set.`;
+                    
+                    // Manually inject state for removal to reflect in UI immediately
+                    states.push({
+                        msg: `Remove character '${leftChar}' from HashSet to fix duplicate issue.`,
+                        activeLine: "line-remove",
+                        vars: JSON.parse(JSON.stringify(vrs)),
+                        visuals: {
+                            str: s.split('').map((c, i) => ({
+                                char: c, isLeft: i === left, isRight: i === right, inWindow: i >= left && i < right, isHighlighted: i === left
+                            })),
+                            setElements: Array.from(set),
+                            maxLength: maxLength
+                        }
+                    });
+
+                    left++;
+                    vrs.left = left;
+                    vrs.action = `Increment left pointer to ${left}.`;
+                    
+                    states.push({
+                        msg: `Move left pointer forward to ${left}.`,
+                        activeLine: "line-left-inc",
+                        vars: JSON.parse(JSON.stringify(vrs)),
+                        visuals: {
+                            str: s.split('').map((c, i) => ({
+                                char: c, isLeft: i === left, isRight: i === right, inWindow: i >= left && i < right, isHighlighted: -1
+                            })),
+                            setElements: Array.from(set),
+                            maxLength: maxLength
+                        }
+                    });
+                    
+                    pushState(`Check again if '${currentChar}' is in HashSet...`, "line-while-inner", vrs, right);
+                }
+
+                // Adding char
+                set.add(currentChar);
+                vrs.action = `Add '${currentChar}' to Set.`;
+                
+                // State for Add with updated visual window (now includes right)
+                states.push({
+                    msg: `HashSet does not contain '${currentChar}'. Add it to the Set.`,
+                    activeLine: "line-add",
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: {
+                        str: s.split('').map((c, i) => ({
+                            char: c, isLeft: i === left, isRight: i === right, inWindow: i >= left && i <= right, isHighlighted: right
+                        })),
+                        setElements: Array.from(set),
+                        maxLength: maxLength
+                    }
+                });
+
+                // Update max
+                let currentLen = right - left + 1;
+                maxLength = Math.max(maxLength, currentLen);
+                vrs.max = maxLength;
+                vrs.action = `Calculate length: ${right} - ${left} + 1 = ${currentLen}. Max is ${maxLength}.`;
+                
+                states.push({
+                    msg: `Valid window established! Length is ${currentLen}. Update maxLength to ${maxLength}.`,
+                    activeLine: "line-max",
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: {
+                        str: s.split('').map((c, i) => ({
+                            char: c, isLeft: i === left, isRight: i === right, inWindow: i >= left && i <= right, isHighlighted: -1
+                        })),
+                        setElements: Array.from(set),
+                        maxLength: maxLength
+                    }
+                });
+
+                // Increment Right
+                right++;
+                vrs.right = right;
+                vrs.curr = '-';
+                vrs.action = `Increment right pointer to ${right} to check next character.`;
+                
+                states.push({
+                    msg: `Expand window by moving right pointer forward to ${right}.`,
+                    activeLine: "line-right-inc",
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: {
+                        str: s.split('').map((c, i) => ({
+                            char: c, isLeft: i === left, isRight: i === right, inWindow: i >= left && i < right, isHighlighted: -1
+                        })),
+                        setElements: Array.from(set),
+                        maxLength: maxLength
+                    }
+                });
+            }
+
+            // Final
+            vrs.right = right;
+            vrs.action = `Algorithm Finished.`;
+            pushState(`Loop finished. Return maximum length found: ${maxLength}.`, "line-return", vrs);
+        }
+
+        function renderStringArrayDOM(dataArray) {
+            const container = document.getElementById('canvas-string');
+            
             container.innerHTML = dataArray.map((item, index) => {
-                let hlClass = '';
-                if (item.hl === 'read') hlClass = 'highlight-read';
-                else if (item.hl === 'write') hlClass = 'highlight-write';
-                
-                let val = item.val !== '' ? item.val : '';
-                let boxClass = item.val === '' ? 'array-box empty-box' : `array-box ${hlClass}`;
-                
+                let boxClass = 'array-box';
+                if (item.inWindow) boxClass += ' in-window';
+                if (item.isHighlighted === index) boxClass += ' highlight-read';
+
+                let pointers = '';
+                if (item.isRight) {
+                    pointers += `<div class="pointer-r"><i class="fas fa-caret-down mb-1"></i>R</div>`;
+                }
+                if (item.isLeft) {
+                    pointers += `<div class="pointer-l"><i class="fas fa-caret-up mt-1"></i>L</div>`;
+                }
+
                 return `
                     <div class="array-box-container">
+                        ${pointers}
+                        <div class="${boxClass}">${item.char}</div>
                         <span class="array-index">${index}</span>
-                        <div class="${boxClass}">${val}</div>
                     </div>
                 `;
             }).join('');
         }
 
+        function renderSetDOM(setElements) {
+            const container = document.getElementById('canvas-set');
+            if (setElements.length === 0) {
+                container.innerHTML = `<span class="text-slate-500 italic text-sm w-full text-center py-4">Set is empty</span>`;
+                return;
+            }
+            container.innerHTML = setElements.map(char => `<div class="set-box shadow-lg">${char}</div>`).join('');
+        }
+
         function renderState(idx) {
             const state = states[idx];
             if (!state) return;
-
+            
             // Text updates
             document.getElementById('step-msg').innerText = state.msg;
             document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
-            document.getElementById('progress-bar').style.width = `${states.length > 1 ? (idx / (states.length - 1)) * 100 : 100}%`;
+            document.getElementById('progress-bar').style.width = states.length > 1 ? `${(idx / (states.length - 1)) * 100}%` : '0%';
             
             if(isPlaying) {
                 document.getElementById('status-spinner').classList.remove('hidden');
@@ -687,21 +738,10 @@
                 document.getElementById('status-icon').classList.remove('hidden');
             }
 
-            // Render DOM Arrays
-            renderArrayDOM('canvas-s', state.visuals.sArr);
-            renderArrayDOM('canvas-len', state.visuals.lenArr);
-
-            // Render Logic Blocks
-            document.getElementById('visual-currK').innerText = state.visuals.currK;
-            document.getElementById('visual-prevLen').innerText = state.visuals.prevLen;
-            
-            // Highlight Logic Blocks if they changed
-            const bCurr = document.getElementById('block-currK');
-            const bPrev = document.getElementById('block-prevLen');
-            bCurr.classList.remove('active');
-            bPrev.classList.remove('active');
-            if (state.activeLine && state.activeLine.includes('op-')) bCurr.classList.add('active');
-            if (state.activeLine && state.activeLine.includes('prevLen')) bPrev.classList.add('active');
+            // Render Visuals
+            renderStringArrayDOM(state.visuals.str);
+            renderSetDOM(state.visuals.setElements);
+            document.getElementById('canvas-max-length').innerText = state.visuals.maxLength;
 
             // Variables Panel
             document.getElementById('empty-vars').classList.add('hidden');
@@ -710,10 +750,10 @@
                 document.getElementById('active-vars').classList.add('grid');
             }
 
-            document.getElementById('var-i').innerText = state.vars.i;
-            document.getElementById('var-c').innerText = state.vars.c !== '-' ? `'${state.vars.c}'` : '-';
-            document.getElementById('var-currK').innerText = state.vars.currK;
-            document.getElementById('var-prevLen').innerText = state.vars.prevLen;
+            document.getElementById('var-left').innerText = state.vars.left;
+            document.getElementById('var-right').innerText = state.vars.right;
+            document.getElementById('var-curr').innerText = state.vars.curr;
+            document.getElementById('var-max').innerText = state.vars.max;
             document.getElementById('var-action').innerText = state.vars.action;
 
             // Highlight Code Line
@@ -722,6 +762,7 @@
                 let activeEl = document.getElementById(state.activeLine);
                 if(activeEl) {
                     activeEl.classList.add('active');
+                    // smooth scrolling context specific
                     activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }

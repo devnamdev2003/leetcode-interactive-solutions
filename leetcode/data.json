@@ -395,5 +395,55 @@
         "url": "array/best-time-to-buy-and-sell-stock.html"
       }
     ]
+  },
+  {
+    "id": "3",
+    "title": "Longest Substring Without Repeating Characters",
+    "difficulty": "Medium",
+    "tags": [
+      "Staff",
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/description/",
+    "solutions": [
+      {
+        "name": "Better",
+        "url": "string/longest-substring-without-repeating-characters-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "string/longest-substring-without-repeating-characters.html"
+      }
+    ]
+  },
+  {
+    "id": "1840",
+    "title": "Maximum Building Height",
+    "difficulty": "Hard",
+    "tags": [
+      "Senior Staff",
+      "Array",
+      "Math",
+      "Sorting"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/maximum-building-height/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "array/maximum-building-height-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "array/maximum-building-height-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "array/maximum-building-height.html"
+      }
+    ]
   }
 ]
