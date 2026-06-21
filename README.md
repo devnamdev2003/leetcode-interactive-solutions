@@ -1,4 +1,4 @@
-# 🚀 LeetCode & Algorithms Vault
+# [🚀 LeetCode & Algorithms Vault](https://algoflows.netlify.app/)
 
 Welcome to the **LeetCode & Algorithms Vault**!
 
@@ -18,54 +18,6 @@ Unlike traditional solution repositories that only contain source code, each pro
 
 ---
 
-## 🛠️ How to Use
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/your-username/your-repo-name.git
-```
-
-### Navigate to the Project
-
-```bash
-cd your-repo-name/leetcode
-```
-
-### Open the Dashboard
-
-Simply open:
-
-```text
-index.html
-```
-
-in your preferred web browser to browse and search through all available solutions.
-
-### Direct Access
-
-You can also open any individual HTML file directly to view the explanation, approach, complexity analysis, and implementation for a specific problem.
-
----
-
-## 📁 Repository Structure
-
-```text
-leetcode/
-│
-├── category-folders/
-│   ├── problem-1.html
-│   ├── problem-2.html
-│   └── ...
-│
-├── algorithms/
-│
-├── index.html
-├── data.json
-└── README.md
-```
-
----
 
 ## 🎯 Repository Goal
 
@@ -89,14 +41,6 @@ If you'd like to contribute:
 3. Commit your changes
 4. Push your branch
 5. Open a Pull Request
-
----
-
-## 📝 License
-
-Distributed under the MIT License.
-
-See the `LICENSE` file for more information.
 
 ---
 
