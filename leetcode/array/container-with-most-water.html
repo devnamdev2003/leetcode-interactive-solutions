@@ -434,113 +434,35 @@
                 </div>
 
                 <!-- Code Execution -->
-                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300"
-                    style="flex-grow: 2; flex-basis: 0; min-height: 37px;">
+                 <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex-grow: 2; flex-basis: 0; min-height: 37px;">
                     <!-- Code Header -->
-                    <div
-                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
-                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code
-                            Execution</div>
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
                         <div class="flex items-center gap-3">
                             <span class="text-slate-500 normal-case">Java</span>
-                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i
-                                    id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
                         </div>
                     </div>
                     <!-- Code Content -->
-                    <div id="content-code"
-                        class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
-                        <div id="line-func" class="debug-line">
-                            <div class="line-num">1</div>
-                            <div class="code-content"><span class="text-syntaxPink">public int</span> <span
-                                    class="text-syntaxBlue">maxArea</span>(<span class="text-syntaxPink">int</span>[]
-                                height) {</div>
-                        </div>
-                        <div id="line-init1" class="debug-line">
-                            <div class="line-num">2</div>
-                            <div class="code-content"> <span class="text-syntaxPink">int</span> left = <span
-                                    class="text-syntaxPink">0</span>;</div>
-                        </div>
-                        <div id="line-init2" class="debug-line">
-                            <div class="line-num">3</div>
-                            <div class="code-content"> <span class="text-syntaxPink">int</span> right = height.<span
-                                    class="text-syntaxBlue">length</span> - <span class="text-syntaxPink">1</span>;
-                            </div>
-                        </div>
-                        <div id="line-init3" class="debug-line">
-                            <div class="line-num">4</div>
-                            <div class="code-content"> <span class="text-syntaxPink">int</span> maxArea = <span
-                                    class="text-syntaxPink">0</span>;</div>
-                        </div>
-                        <div id="line-while" class="debug-line">
-                            <div class="line-num">5</div>
-                            <div class="code-content"> <span class="text-syntaxPink">while</span> (left < right) {</div>
-                            </div>
-                            <div id="line-ch" class="debug-line">
-                                <div class="line-num">6</div>
-                                <div class="code-content"> <span class="text-syntaxPink">int</span> currentHeight =
-                                    <span class="text-syntaxPink">Math</span>.<span
-                                        class="text-syntaxBlue">min</span>(height[left], height[right]);</div>
-                            </div>
-                            <div id="line-cw" class="debug-line">
-                                <div class="line-num">7</div>
-                                <div class="code-content"> <span class="text-syntaxPink">int</span> currentWidth = right
-                                    - left;</div>
-                            </div>
-                            <div id="line-ca" class="debug-line">
-                                <div class="line-num">8</div>
-                                <div class="code-content"> <span class="text-syntaxPink">int</span> currentArea =
-                                    currentHeight * currentWidth;</div>
-                            </div>
-                            <div class="debug-line">
-                                <div class="line-num">9</div>
-                                <div class="code-content"> </div>
-                            </div>
-                            <div id="line-ma" class="debug-line">
-                                <div class="line-num">10</div>
-                                <div class="code-content"> maxArea = <span class="text-syntaxPink">Math</span>.<span
-                                        class="text-syntaxBlue">max</span>(maxArea, currentArea);</div>
-                            </div>
-                            <div class="debug-line">
-                                <div class="line-num">11</div>
-                                <div class="code-content"> </div>
-                            </div>
-                            <div id="line-if" class="debug-line">
-                                <div class="line-num">12</div>
-                                <div class="code-content"> <span class="text-syntaxPink">if</span> (height[left] <
-                                        height[right]) {</div>
-                                </div>
-                                <div id="line-left" class="debug-line">
-                                    <div class="line-num">13</div>
-                                    <div class="code-content"> left++;</div>
-                                </div>
-                                <div id="line-else" class="debug-line">
-                                    <div class="line-num">14</div>
-                                    <div class="code-content"> } <span class="text-syntaxPink">else</span> {</div>
-                                </div>
-                                <div id="line-right" class="debug-line">
-                                    <div class="line-num">15</div>
-                                    <div class="code-content"> right--;</div>
-                                </div>
-                                <div id="line-endif" class="debug-line">
-                                    <div class="line-num">16</div>
-                                    <div class="code-content"> }</div>
-                                </div>
-                                <div id="line-endwhile" class="debug-line">
-                                    <div class="line-num">17</div>
-                                    <div class="code-content"> }</div>
-                                </div>
-                                <div id="line-return" class="debug-line">
-                                    <div class="line-num">18</div>
-                                    <div class="code-content"> <span class="text-syntaxPink">return</span> maxArea;
-                                    </div>
-                                </div>
-                                <div id="line-endfunc" class="debug-line">
-                                    <div class="line-num">19</div>
-                                    <div class="code-content">}</div>
-                                </div>
-                            </div>
-                        </div>
+                    <div id="content-code" class="flex-grow p-2 overflow-y-auto font-mono text-xs leading-5 transition-opacity duration-300">
+                        <div id="line-func" class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">public int</span> <span class="text-syntaxBlue">maxArea</span>(<span class="text-syntaxPink">int</span>[] height) {</div></div>
+                        <div id="line-init1" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">int</span> left = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-init2" class="debug-line"><div class="line-num">3</div><div class="code-content">    <span class="text-syntaxPink">int</span> right = height.<span class="text-syntaxBlue">length</span> - <span class="text-syntaxPink">1</span>;</div></div>
+                        <div id="line-init3" class="debug-line"><div class="line-num">4</div><div class="code-content">    <span class="text-syntaxPink">int</span> maxArea = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-while" class="debug-line"><div class="line-num">5</div><div class="code-content">    <span class="text-syntaxPink">while</span> (left < right) {</div></div>
+                        <div id="line-ch" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">int</span> currentHeight = <span class="text-syntaxPink">Math</span>.<span class="text-syntaxBlue">min</span>(height[left], height[right]);</div></div>
+                        <div id="line-cw" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">int</span> currentWidth = right - left;</div></div>
+                        <div id="line-ca" class="debug-line"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">int</span> currentArea = currentHeight * currentWidth;</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">        </div></div>
+                        <div id="line-ma" class="debug-line"><div class="line-num">10</div><div class="code-content">        maxArea = <span class="text-syntaxPink">Math</span>.<span class="text-syntaxBlue">max</span>(maxArea, currentArea);</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content">        </div></div>
+                        <div id="line-if" class="debug-line"><div class="line-num">12</div><div class="code-content">        <span class="text-syntaxPink">if</span> (height[left] < height[right]) {</div></div>
+                        <div id="line-left" class="debug-line"><div class="line-num">13</div><div class="code-content">            left++;</div></div>
+                        <div id="line-else" class="debug-line"><div class="line-num">14</div><div class="code-content">        } <span class="text-syntaxPink">else</span> {</div></div>
+                        <div id="line-right" class="debug-line"><div class="line-num">15</div><div class="code-content">            right--;</div></div>
+                        <div id="line-endif" class="debug-line"><div class="line-num">16</div><div class="code-content">        }</div></div>
+                        <div id="line-endwhile" class="debug-line"><div class="line-num">17</div><div class="code-content">    }</div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">18</div><div class="code-content">    <span class="text-syntaxPink">return</span> maxArea;</div></div>
+                        <div id="line-endfunc" class="debug-line"><div class="line-num">19</div><div class="code-content">}</div></div>
                     </div>
                 </div>
 

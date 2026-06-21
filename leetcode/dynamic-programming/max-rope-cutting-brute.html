@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,21 +9,19 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
-                    colors: {
-                        bgBase: '#0b1120',
-                        bgPanel: '#111827',
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
                         bgInput: '#0f172a',
                         borderMain: '#1e293b',
-                        primary: '#3b82f6',
+                        primary: '#3b82f6', 
                         success: '#10b981',
                         codeBg: '#0f1423',
                         syntaxPink: '#f472b6',
@@ -37,187 +34,53 @@
         }
     </script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b1120;
-            color: #f8fafc;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        .tab-content {
-            display: none;
-            height: 100%;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
         /* Form Inputs */
-        .input-field {
-            background-color: #0b1120;
-            border: 1px solid #1e293b;
-            color: #f8fafc;
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
-            transition: all 0.2s;
-            font-size: 0.875rem;
-            outline: none;
-            font-family: 'Fira Code', monospace;
-        }
-
-        .input-field:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 1px #3b82f6;
-        }
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
 
         /* Canvas Styles */
-        .dotted-bg {
-            background-size: 24px 24px;
-            background-image: radial-gradient(circle, #334155 1px, transparent 1px);
-        }
-
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
         /* Speed Slider */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100px;
-            background: transparent;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 14px;
-            width: 14px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            margin-top: -5px;
-        }
-
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #334155;
-            border-radius: 2px;
-        }
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
 
         /* Code Debugger Styles */
-        .debug-line {
-            transition: all 0.2s;
-            padding: 2px 8px;
-            border-left: 3px solid transparent;
-            display: flex;
-            border-radius: 0 4px 4px 0;
-        }
-
-        .debug-line.active {
-            background-color: rgba(59, 130, 246, 0.15);
-            border-left-color: #3b82f6;
-        }
-
-        .line-num {
-            width: 24px;
-            text-align: right;
-            margin-right: 16px;
-            color: #475569;
-            user-select: none;
-            flex-shrink: 0;
-        }
-
-        .code-content {
-            white-space: pre;
-        }
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
 
         /* Resizer Styles */
-        .resizer-v {
-            width: 6px;
-            background-color: #1e293b;
-            cursor: col-resize;
-            flex-shrink: 0;
-            transition: background-color 0.2s;
-            z-index: 30;
-        }
-
-        .resizer-v:hover,
-        .resizer-v.active {
-            background-color: #3b82f6;
-        }
-
-        .resizer-h {
-            height: 6px;
-            background-color: #1e293b;
-            cursor: row-resize;
-            flex-shrink: 0;
-            transition: background-color 0.2s;
-            z-index: 30;
-        }
-
-        .resizer-h:hover,
-        .resizer-h.active {
-            background-color: #3b82f6;
-        }
-
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
         /* Drag Overlay classes for smooth resizing */
-        body.resizing,
-        body.resizing * {
-            cursor: col-resize !important;
-            user-select: none !important;
-            pointer-events: none !important;
-        }
-
-        body.resizing-h,
-        body.resizing-h * {
-            cursor: row-resize !important;
-            user-select: none !important;
-            pointer-events: none !important;
-        }
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
     </style>
 </head>
-
 <body class="text-slate-300">
 
     <!-- Top Header -->
     <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
         <div class="flex items-center gap-3">
-            <div
-                class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
                 <i class="fas fa-sitemap"></i>
             </div>
             <div>
@@ -225,63 +88,49 @@
                 <p class="text-xs text-slate-500">Max Product / Integer Break (Recursion)</p>
             </div>
         </div>
-
+        
         <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
-            <button onclick="switchTab('dry-tab')" id="btn-dry-tab"
-                class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive
-                Debugger</button>
-            <button onclick="switchTab('theory-tab')" id="btn-theory-tab"
-                class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory &
-                Complexity</button>
+            <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+            <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
         </nav>
     </header>
 
     <!-- Inputs Bar -->
-    <section id="inputs-bar"
-        class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
         <div class="flex-1 w-full max-w-[200px]">
-            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Rope Length (N)
-                [Max 6]</label>
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Rope Length (N) [Max 6]</label>
             <input type="number" id="input-n" class="input-field" value="4" min="2" max="6">
         </div>
-        <button onclick="initSimulationFromInputs()"
-            class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
             <i class="fas fa-play text-xs"></i> Visualize Tree
         </button>
     </section>
-    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i
-            class="fas fa-exclamation-triangle mr-1"></i> Invalid input. N must be between 2 and 6 for visualization.
-    </div>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. N must be between 2 and 6 for visualization.</div>
 
     <!-- Main Workspace -->
     <main class="flex-grow flex overflow-hidden relative">
-
+        
         <!-- Tab: Interactive Debugger -->
         <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
-
+            
             <!-- Left: Canvas -->
-            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;"
-                class="relative flex flex-col transition-all duration-300">
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
                 <!-- Canvas Header -->
-                <div id="canvas-header"
-                    class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
                     <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
-                        <i class="fas fa-eye text-primary"></i>
+                        <i class="fas fa-eye text-primary"></i> 
                         <span>Call Stack & Rope Cuts Visualization</span>
                     </div>
-                    <button onclick="toggleCanvasFullscreen()"
-                        class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
                         <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
                     </button>
                 </div>
 
                 <!-- Canvas Content -->
-                <div id="panel-canvas-content"
-                    class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
-
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+                    
                     <!-- Status Overlay -->
-                    <div
-                        class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
                         <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
                         <i class="fas fa-info-circle text-primary" id="status-icon"></i>
                         <span id="step-msg">Waiting to begin...</span>
@@ -291,36 +140,24 @@
                         <!-- Recursion Call Stack -->
                         <div class="w-full">
                             <div class="flex items-center gap-2 mb-3">
-                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i
-                                        class="fas fa-layer-group text-syntaxPink mr-1"></i> Call Stack</h3>
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i class="fas fa-layer-group text-syntaxPink mr-1"></i> Call Stack</h3>
                                 <span class="text-[10px] text-slate-500">(Top frame is currently executing)</span>
                             </div>
-                            <div id="canvas-stack"
-                                class="flex flex-col gap-2 p-3 bg-bgPanel/50 border border-borderMain rounded-lg min-h-[250px] max-h-[500px] overflow-y-auto">
-                            </div>
+                            <div id="canvas-stack" class="flex flex-col gap-2 p-3 bg-bgPanel/50 border border-borderMain rounded-lg min-h-[250px] max-h-[500px] overflow-y-auto"></div>
                         </div>
 
                         <!-- Current Rope Visualization -->
                         <div class="w-full">
                             <div class="flex items-center gap-2 mb-3">
-                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i
-                                        class="fas fa-cut text-emerald-400 mr-1"></i> Current Rope Operation</h3>
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i class="fas fa-cut text-emerald-400 mr-1"></i> Current Rope Operation</h3>
                             </div>
-                            <div id="canvas-rope"
-                                class="p-6 bg-bgPanel/50 border border-borderMain rounded-lg min-h-[160px] flex flex-col justify-center items-center">
-                            </div>
-
+                            <div id="canvas-rope" class="p-6 bg-bgPanel/50 border border-borderMain rounded-lg min-h-[160px] flex flex-col justify-center items-center"></div>
+                            
                             <!-- Legend -->
                             <div class="mt-4 flex justify-center gap-4 text-[10px] text-slate-500 font-mono">
-                                <div class="flex items-center gap-1"><span
-                                        class="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500 block"></span>
-                                    Cut length (i)</div>
-                                <div class="flex items-center gap-1"><span
-                                        class="w-3 h-3 rounded-sm bg-blue-500/20 border border-blue-500 block"></span>
-                                    Remaining (n-i)</div>
-                                <div class="flex items-center gap-1"><span
-                                        class="w-3 h-3 rounded-sm bg-slate-700 border border-slate-600 block"></span>
-                                    Uncut Rope (n)</div>
+                                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500 block"></span> Cut length (i)</div>
+                                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-blue-500/20 border border-blue-500 block"></span> Remaining (n-i)</div>
+                                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-slate-700 border border-slate-600 block"></span> Uncut Rope (n)</div>
                             </div>
                         </div>
                     </div>
@@ -332,25 +169,18 @@
             <div id="resizer-v" class="resizer-v hidden lg:block"></div>
 
             <!-- Right: Debugger Panels -->
-            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;"
-                class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
-
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
                 <!-- Variables Watch -->
-                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300"
-                    style="flex: 1 1 0%; min-height: 150px;">
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
                     <!-- Vars Header -->
-                    <div
-                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
-                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables
-                            Watch</div>
-                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i
-                                id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
                     </div>
                     <!-- Vars Content -->
-                    <div id="content-vars"
-                        class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
-                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...
-                        </div>
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
                         <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
                             <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
                                 <span class="block text-[9px] text-slate-500 uppercase mb-1">n (length)</span>
@@ -369,13 +199,11 @@
                                 <span id="var-cmax" class="font-mono text-syntaxYellow text-sm">-</span>
                             </div>
                             <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
-                                <span class="block text-[9px] text-slate-500 uppercase mb-1 truncate"
-                                    title="productWithNoMoreCuts">pNoMoreCuts</span>
+                                <span class="block text-[9px] text-slate-500 uppercase mb-1 truncate" title="productWithNoMoreCuts">pNoMoreCuts</span>
                                 <span id="var-p1" class="font-mono text-emerald-400 text-sm">-</span>
                             </div>
                             <div class="bg-bgBase border border-borderMain p-2 rounded-lg shadow-sm">
-                                <span class="block text-[9px] text-slate-500 uppercase mb-1 truncate"
-                                    title="productWithMoreCuts">pMoreCuts</span>
+                                <span class="block text-[9px] text-slate-500 uppercase mb-1 truncate" title="productWithMoreCuts">pMoreCuts</span>
                                 <span id="var-p2" class="font-mono text-blue-400 text-sm">-</span>
                             </div>
                             <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
@@ -390,213 +218,108 @@
                 <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
 
                 <!-- Code Execution -->
-                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300"
-                    style="flex: 2 1 0%; min-height: 150px;">
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
                     <!-- Code Header -->
-                    <div
-                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
-                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code
-                            Execution</div>
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
                         <div class="flex items-center gap-3">
                             <span class="text-slate-500 normal-case">Java</span>
-                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i
-                                    id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
                         </div>
                     </div>
                     <!-- Code Content -->
-                    <div id="content-code"
-                        class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
-                        <div class="debug-line">
-                            <div class="line-num">1</div>
-                            <div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div>
-                        </div>
-                        <div id="line-func" class="debug-line">
-                            <div class="line-num">2</div>
-                            <div class="code-content"> <span class="text-syntaxPink">public int</span> maxProduct(<span
-                                    class="text-syntaxPink">int</span> n) {</div>
-                        </div>
-                        <div class="debug-line">
-                            <div class="line-num">3</div>
-                            <div class="code-content text-slate-500 italic"> // Base cases: if rope is length 1, we
-                                can't cut it.</div>
-                        </div>
-                        <div id="line-base" class="debug-line">
-                            <div class="line-num">4</div>
-                            <div class="code-content"> <span class="text-syntaxPink">if</span> (n <= <span
-                                    class="text-syntaxPink">1</span>) <span class="text-syntaxPink">return</span> <span
-                                        class="text-syntaxPink">0</span>;</div>
-                        </div>
-                        <div class="debug-line">
-                            <div class="line-num">5</div>
-                            <div class="code-content"> </div>
-                        </div>
-                        <div id="line-init" class="debug-line">
-                            <div class="line-num">6</div>
-                            <div class="code-content"> <span class="text-syntaxPink">int</span> maxProd = <span
-                                    class="text-syntaxPink">0</span>;</div>
-                        </div>
-                        <div class="debug-line">
-                            <div class="line-num">7</div>
-                            <div class="code-content"> </div>
-                        </div>
-                        <div class="debug-line">
-                            <div class="line-num">8</div>
-                            <div class="code-content text-slate-500 italic"> // Try every possible first cut</div>
-                        </div>
-                        <div id="line-for" class="debug-line">
-                            <div class="line-num">9</div>
-                            <div class="code-content"> <span class="text-syntaxPink">for</span> (<span
-                                    class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">1</span>; i <
-                                    n; i++) {</div>
-                            </div>
-                            <div id="line-p1" class="debug-line">
-                                <div class="line-num">10</div>
-                                <div class="code-content"> <span class="text-syntaxPink">int</span>
-                                    productWithNoMoreCuts = i * (n - i);</div>
-                            </div>
-                            <div id="line-p2" class="debug-line">
-                                <div class="line-num">11</div>
-                                <div class="code-content"> <span class="text-syntaxPink">int</span> productWithMoreCuts
-                                    = i * maxProduct(n - i);</div>
-                            </div>
-                            <div class="debug-line">
-                                <div class="line-num">12</div>
-                                <div class="code-content"> </div>
-                            </div>
-                            <div id="line-cmax" class="debug-line">
-                                <div class="line-num">13</div>
-                                <div class="code-content"> <span class="text-syntaxPink">int</span> currentMax =
-                                    Math.max(productWithNoMoreCuts, productWithMoreCuts);</div>
-                            </div>
-                            <div id="line-upd" class="debug-line">
-                                <div class="line-num">14</div>
-                                <div class="code-content"> maxProd = Math.max(maxProd, currentMax);</div>
-                            </div>
-                            <div class="debug-line">
-                                <div class="line-num">15</div>
-                                <div class="code-content"> }</div>
-                            </div>
-                            <div class="debug-line">
-                                <div class="line-num">16</div>
-                                <div class="code-content"> </div>
-                            </div>
-                            <div id="line-ret" class="debug-line">
-                                <div class="line-num">17</div>
-                                <div class="code-content"> <span class="text-syntaxPink">return</span> maxProd;</div>
-                            </div>
-                            <div class="debug-line">
-                                <div class="line-num">18</div>
-                                <div class="code-content"> }</div>
-                            </div>
-                            <div class="debug-line">
-                                <div class="line-num">19</div>
-                                <div class="code-content">}</div>
-                            </div>
-                        </div>
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-func" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> maxProduct(<span class="text-syntaxPink">int</span> n) {</div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content text-slate-500 italic">        // Base cases: if rope is length 1, we can't cut it.</div></div>
+                        <div id="line-base" class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">if</span> (n <= <span class="text-syntaxPink">1</span>) <span class="text-syntaxPink">return</span> <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">5</div><div class="code-content">        </div></div>
+                        <div id="line-init" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">int</span> maxProd = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">        </div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content text-slate-500 italic">        // Try every possible first cut</div></div>
+                        <div id="line-for" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">1</span>; i < n; i++) {</div></div>
+                        <div id="line-p1" class="debug-line"><div class="line-num">10</div><div class="code-content">            <span class="text-syntaxPink">int</span> productWithNoMoreCuts = i * (n - i);</div></div>
+                        <div id="line-p2" class="debug-line"><div class="line-num">11</div><div class="code-content">            <span class="text-syntaxPink">int</span> productWithMoreCuts = i * maxProduct(n - i);</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content">            </div></div>
+                        <div id="line-cmax" class="debug-line"><div class="line-num">13</div><div class="code-content">            <span class="text-syntaxPink">int</span> currentMax = Math.max(productWithNoMoreCuts, productWithMoreCuts);</div></div>
+                        <div id="line-upd" class="debug-line"><div class="line-num">14</div><div class="code-content">            maxProd = Math.max(maxProd, currentMax);</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">        </div></div>
+                        <div id="line-ret" class="debug-line"><div class="line-num">17</div><div class="code-content">        <span class="text-syntaxPink">return</span> maxProd;</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content">}</div></div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Tab: Theory & Complexity -->
-            <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
-                <div class="max-w-4xl mx-auto">
-                    <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i
-                            class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
-                    <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
-                        <p class="mb-4">This algorithm solves the "Integer Break" or "Max Product of Cut Rope" problem
-                            using a purely <strong>Recursive Top-Down Approach</strong>. The core idea is that to find
-                            the maximum product for a rope of length <code>N</code>, we must test cutting it at every
-                            possible integer length <code>i</code> (from 1 to N-1) and recursively finding the max
-                            product of the remaining piece.</p>
-                        <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
-                        <ul class="list-disc pl-5 space-y-4 text-slate-300">
-                            <li>
-                                <strong>Recursive Choice:</strong><br>
-                                At any point, if we make a cut of length <code>i</code>, the remaining piece has length
-                                <code>n - i</code>. We have two choices for this remaining piece:
-                                <br>1. <strong>Don't cut it anymore:</strong> The product is <code>i * (n - i)</code>.
-                                <br>2. <strong>Cut it further:</strong> The product is
-                                <code>i * maxProduct(n - i)</code>.
-                            </li>
-                            <li>
-                                <strong>Overlapping Subproblems:</strong><br>
-                                Because the function `maxProduct(n-i)` is called repeatedly for the same values (for
-                                example, `maxProduct(2)` will be called multiple times in a larger tree), the algorithm
-                                forms an overlapping subproblem tree. <em>(Note: In competitive programming, this would
-                                    typically be optimized to $O(N^2)$ using Dynamic Programming Memoization or
-                                    Tabulation).</em>
-                            </li>
-                        </ul>
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This algorithm solves the "Integer Break" or "Max Product of Cut Rope" problem using a purely <strong>Recursive Top-Down Approach</strong>. The core idea is that to find the maximum product for a rope of length <code>N</code>, we must test cutting it at every possible integer length <code>i</code> (from 1 to N-1) and recursively finding the max product of the remaining piece.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Recursive Choice:</strong><br>
+                            At any point, if we make a cut of length <code>i</code>, the remaining piece has length <code>n - i</code>. We have two choices for this remaining piece:
+                            <br>1. <strong>Don't cut it anymore:</strong> The product is <code>i * (n - i)</code>.
+                            <br>2. <strong>Cut it further:</strong> The product is <code>i * maxProduct(n - i)</code>.
+                        </li>
+                        <li>
+                            <strong>Overlapping Subproblems:</strong><br>
+                            Because the function `maxProduct(n-i)` is called repeatedly for the same values (for example, `maxProduct(2)` will be called multiple times in a larger tree), the algorithm forms an overlapping subproblem tree. <em>(Note: In competitive programming, this would typically be optimized to $O(N^2)$ using Dynamic Programming Memoization or Tabulation).</em>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(2<sup>N</sup>)</span>
+                        <p class="text-xs text-slate-400">Without memoization, the recursive tree explores all possible cutting combinations. The recurrence relation is roughly $T(N) = \sum_{i=1}^{N-1} T(N-i)$, which simplifies to $O(2^N)$ representing an exponential explosion of redundant calls.</p>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div
-                            class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
-                            <div
-                                class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors">
-                            </div>
-                            <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
-                            <span class="text-white text-2xl font-bold block mb-2">O(2<sup>N</sup>)</span>
-                            <p class="text-xs text-slate-400">Without memoization, the recursive tree explores all
-                                possible cutting combinations. The recurrence relation is roughly $T(N) =
-                                \sum_{i=1}^{N-1} T(N-i)$, which simplifies to $O(2^N)$ representing an exponential
-                                explosion of redundant calls.</p>
-                        </div>
-                        <div
-                            class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
-                            <div
-                                class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors">
-                            </div>
-                            <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
-                            <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
-                            <p class="text-xs text-slate-400">The space complexity is defined by the maximum depth of
-                                the Recursion Call Stack. The deepest recursive path goes down to $N=1$, making the
-                                stack depth strictly bounded by $O(N)$.</p>
-                        </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The space complexity is defined by the maximum depth of the Recursion Call Stack. The deepest recursive path goes down to $N=1$, making the stack depth strictly bounded by $O(N)$.</p>
                     </div>
                 </div>
             </div>
+        </div>
 
     </main>
 
     <!-- Bottom Control Bar -->
-    <footer id="control-bar"
-        class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
         <div class="flex items-center gap-3 w-full md:w-auto justify-center">
-            <button onclick="prevStep()"
-                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
-                title="Previous Step">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
                 <i class="fas fa-step-backward text-sm"></i>
             </button>
-            <button onclick="togglePlay()" id="playBtn"
-                class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
                 <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
             </button>
-            <button onclick="nextStep()"
-                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
-                title="Next Step">
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
                 <i class="fas fa-step-forward text-sm"></i>
             </button>
-            <button onclick="skipToEnd()"
-                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
-                title="Skip to End">
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
                 <i class="fas fa-fast-forward text-sm"></i>
             </button>
-            <button onclick="resetAnim()"
-                class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
-                title="Restart">
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
                 <i class="fas fa-redo text-sm"></i>
             </button>
         </div>
-
+        
         <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
             <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
                 <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
                     <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
                 </div>
             </div>
-            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0
-            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
         </div>
 
         <div class="flex items-center justify-center gap-3 w-full md:w-auto">
@@ -610,16 +333,16 @@
     <script>
         // UI Layout Logic
         let isSplitView = true;
-        let rightPanelWidth = 450;
+        let rightPanelWidth = 450; 
         let varsPanelHeight = 'flex: 1 1 0%';
 
         function toggleCanvasFullscreen() {
             const panelRight = document.getElementById('panel-right');
             const resizerV = document.getElementById('resizer-v');
             const icon = document.getElementById('canvas-toggle-icon');
-
+            
             isSplitView = !isSplitView;
-
+            
             if (isSplitView) {
                 panelRight.style.display = 'flex';
                 resizerV.style.display = 'block';
@@ -638,12 +361,12 @@
             const panel = document.getElementById(`panel-${panelName}`);
             const icon = document.getElementById(`${panelName}-toggle-icon`);
             const resizerH = document.getElementById('resizer-h');
-
+            
             panelsState[panelName] = !panelsState[panelName];
-
-            if (panelsState[panelName]) {
+            
+            if(panelsState[panelName]) {
                 content.classList.remove('hidden');
-                if (panelName === 'vars') {
+                if(panelName === 'vars') {
                     panel.style.flex = varsPanelHeight;
                     resizerH.style.display = 'block';
                 } else {
@@ -654,7 +377,7 @@
             } else {
                 content.classList.add('hidden');
                 panel.style.flex = '0 0 37px';
-                if (panelName === 'vars') resizerH.style.display = 'none';
+                if(panelName === 'vars') resizerH.style.display = 'none';
                 icon.className = 'fas fa-chevron-up';
             }
         }
@@ -665,7 +388,7 @@
             const resizerH = document.getElementById('resizer-h');
             const panelRight = document.getElementById('panel-right');
             const panelVars = document.getElementById('panel-vars');
-
+            
             let isResizingV = false;
             let isResizingH = false;
 
@@ -722,20 +445,20 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-
+            
             document.querySelectorAll('nav button').forEach(el => {
                 el.classList.remove('bg-primary', 'text-white', 'shadow');
                 el.classList.add('text-slate-400');
             });
             const btn = document.getElementById('btn-' + tabId);
-            if (btn) {
+            if(btn) {
                 btn.classList.remove('text-slate-400');
                 btn.classList.add('bg-primary', 'text-white', 'shadow');
             }
 
             const inputsBar = document.getElementById('inputs-bar');
             const controlBar = document.getElementById('control-bar');
-
+            
             if (tabId === 'theory-tab') {
                 inputsBar.style.display = 'none';
                 controlBar.style.display = 'none';
@@ -750,10 +473,10 @@
         let currState = 0;
         let playInterval = null;
         let isPlaying = false;
-        let animSpeed = 1500;
+        let animSpeed = 1500; 
 
         function updateSpeed(val) {
-            animSpeed = 3000 - (val * 27);
+            animSpeed = 3000 - (val * 27); 
             if (isPlaying) {
                 clearInterval(playInterval);
                 playInterval = setInterval(nextStep, animSpeed);
@@ -774,8 +497,8 @@
                 pauseAnim();
                 currState = 0;
                 renderState(0);
-
-                if (!document.getElementById('dry-tab').classList.contains('active')) {
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
                     switchTab('dry-tab');
                 }
 
@@ -805,61 +528,61 @@
             function recurse(n, depth) {
                 let callFrame = { n, maxProd: '-', i: '-', p1: '-', p2: '-', cmax: '-' };
                 stack.push(callFrame);
-
+                
                 let ropeInfo = { n, i: null };
                 pushS(`Entering maxProduct(${n})`, 'line-func', callFrame, ropeInfo);
-
+                
                 if (n <= 1) {
                     pushS(`Base case: n <= 1. Returning 0.`, 'line-base', callFrame, ropeInfo);
                     stack.pop();
                     return 0;
                 }
-
+                
                 let maxProd = 0;
                 callFrame.maxProd = maxProd;
                 pushS(`Initialize maxProd = 0`, 'line-init', callFrame, ropeInfo);
-
+                
                 for (let i = 1; i < n; i++) {
                     callFrame.i = i;
                     callFrame.p1 = '-'; callFrame.p2 = '-'; callFrame.cmax = '-';
                     ropeInfo.i = i;
                     pushS(`Try cut length i = ${i}`, 'line-for', callFrame, ropeInfo);
-
+                    
                     let p1 = i * (n - i);
                     callFrame.p1 = p1;
                     pushS(`pNoMoreCuts = i * (n - i) = ${i} * ${n - i} = ${p1}`, 'line-p1', callFrame, ropeInfo);
-
+                    
                     pushS(`Recursive call for remaining piece: maxProduct(${n - i})`, 'line-p2', callFrame, ropeInfo);
                     let subResult = recurse(n - i, depth + 1);
-
+                    
                     let p2 = i * subResult;
                     callFrame.p2 = p2;
                     pushS(`Returned! pMoreCuts = i * maxProduct(${n - i}) = ${i} * ${subResult} = ${p2}`, 'line-p2', callFrame, ropeInfo);
-
+                    
                     let cmax = Math.max(p1, p2);
                     callFrame.cmax = cmax;
                     pushS(`Find max of both options: max(${p1}, ${p2}) = ${cmax}`, 'line-cmax', callFrame, ropeInfo);
-
+                    
                     maxProd = Math.max(maxProd, cmax);
                     callFrame.maxProd = maxProd;
                     pushS(`Update global maxProd to ${maxProd}`, 'line-upd', callFrame, ropeInfo);
                 }
-
+                
                 callFrame.i = '-'; callFrame.p1 = '-'; callFrame.p2 = '-'; callFrame.cmax = '-';
                 ropeInfo.i = null;
                 pushS(`Finished all cuts for n = ${n}. Returning maxProd = ${maxProd}`, 'line-ret', callFrame, ropeInfo);
-
+                
                 stack.pop();
                 return maxProd;
             }
-
+            
             recurse(rootN, 0);
-
+            
             // Push final empty state denoting end
             states.push({
-                msg: `Algorithm finished! Maximum product is ${states[states.length - 1].vars.maxProd}`,
+                msg: `Algorithm finished! Maximum product is ${states[states.length-1].vars.maxProd}`,
                 activeLine: null,
-                vars: { n: '-', i: '-', maxProd: states[states.length - 1].vars.maxProd, p1: '-', p2: '-', cmax: '-', action: "Done" },
+                vars: { n: '-', i: '-', maxProd: states[states.length-1].vars.maxProd, p1: '-', p2: '-', cmax: '-', action: "Done" },
                 visuals: { stack: [], ropeInfo: { n: rootN, i: null } }
             });
         }
@@ -875,12 +598,12 @@
             let html = '';
             // Reverse stack to show active frame at the top visually
             const reversed = [...stack].reverse();
-
+            
             reversed.forEach((frame, idx) => {
                 let isTop = (idx === 0);
                 let borderClass = isTop ? 'border-primary shadow-[0_0_12px_rgba(59,130,246,0.3)]' : 'border-borderMain opacity-50';
                 let bgClass = isTop ? 'bg-blue-900/20' : 'bg-bgBase';
-
+                
                 html += `
                 <div class="p-3 rounded-lg border ${borderClass} ${bgClass} transition-all">
                     <div class="text-sm font-bold text-slate-200 mb-2">maxProduct(<span class="text-syntaxPink">${frame.n}</span>)</div>
@@ -901,11 +624,11 @@
                 container.innerHTML = '<div class="text-slate-500 italic text-xs">No active rope</div>';
                 return;
             }
-
+            
             let html = '<div class="flex flex-wrap gap-2 justify-center">';
-            for (let k = 0; k < ropeInfo.n; k++) {
+            for(let k = 0; k < ropeInfo.n; k++) {
                 let colorClass = 'bg-slate-700 border-slate-600 text-slate-400'; // Default uncut
-
+                
                 if (ropeInfo.i !== null) {
                     if (k < ropeInfo.i) {
                         // Left cut piece
@@ -915,11 +638,11 @@
                         colorClass = 'bg-blue-500/20 border-blue-500 text-blue-400';
                     }
                 }
-
-                html += `<div class="w-10 h-10 border-2 rounded-md flex items-center justify-center font-bold font-mono transition-all ${colorClass}">${k + 1}</div>`;
+                
+                html += `<div class="w-10 h-10 border-2 rounded-md flex items-center justify-center font-bold font-mono transition-all ${colorClass}">${k+1}</div>`;
             }
             html += '</div>';
-
+            
             // Labels
             if (ropeInfo.i !== null) {
                 html += `<div class="mt-4 text-xs font-mono text-center">
@@ -930,19 +653,19 @@
             } else {
                 html += `<div class="mt-4 text-xs font-mono text-center text-slate-400">Total Length: ${ropeInfo.n}</div>`;
             }
-
+            
             container.innerHTML = html;
         }
 
         function renderState(idx) {
             const state = states[idx];
-
+            
             // Texts & Progress
             document.getElementById('step-msg').innerText = state.msg;
             document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
             document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
-
-            if (isPlaying) {
+            
+            if(isPlaying) {
                 document.getElementById('status-spinner').classList.remove('hidden');
                 document.getElementById('status-icon').classList.add('hidden');
             } else {
@@ -956,7 +679,7 @@
 
             // Variables Panel Updates
             document.getElementById('empty-vars').classList.add('hidden');
-            if (panelsState.vars) {
+            if(panelsState.vars) {
                 document.getElementById('active-vars').classList.remove('hidden');
                 document.getElementById('active-vars').classList.add('grid');
             }
@@ -971,9 +694,9 @@
 
             // Highlight active code block
             document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
-            if (state.activeLine) {
+            if(state.activeLine) {
                 let activeEl = document.getElementById(state.activeLine);
-                if (activeEl) {
+                if(activeEl) {
                     activeEl.classList.add('active');
                     activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
@@ -1010,29 +733,29 @@
         }
 
         function playAnim() {
-            if (currState >= states.length - 1) currState = 0;
+            if (currState >= states.length - 1) currState = 0; 
             isPlaying = true;
-
+            
             const pBtn = document.getElementById('playIcon');
             const pTxt = document.getElementById('playText');
             pBtn.className = 'fas fa-pause text-xs';
             pTxt.innerText = 'Pause';
             document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
-
+            
             renderState(currState);
-            playInterval = setInterval(nextStep, animSpeed);
+            playInterval = setInterval(nextStep, animSpeed); 
         }
 
         function pauseAnim() {
             isPlaying = false;
             clearInterval(playInterval);
-
+            
             const pBtn = document.getElementById('playIcon');
             const pTxt = document.getElementById('playText');
             pBtn.className = 'fas fa-play text-xs ml-0.5';
             pTxt.innerText = 'Play';
             document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
-            renderState(currState);
+            renderState(currState); 
         }
 
         function resetAnim() {
@@ -1043,9 +766,8 @@
 
         window.onload = () => {
             initSimulationFromInputs();
-            switchTab('dry-tab');
+            switchTab('dry-tab'); 
         };
     </script>
 </body>
-
 </html>
