@@ -1,5 +1,40 @@
 [
   {
+    "id": "a-8",
+    "title": "Quick Sort, a Divide and Conquer algorithm",
+    "difficulty": "Medium",
+    "tags": [
+      "Divide and Conquer",
+      "Sorting",
+      "Algorithm"
+    ],
+    "platform": "GeeksForGeeks",
+    "platformUrl": "https://www.geeksforgeeks.org/problems/quick-sort/1",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "algorithm/quick-sort.html"
+      }
+    ]
+  },
+  {
+    "id": "40",
+    "title": "Combination Sum II",
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Backtracking"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/combination-sum-ii/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "array/combination-sum-ii.html"
+      }
+    ]
+  },
+  {
     "id": 11,
     "title": "Container With Most Water",
     "difficulty": "Easy",
@@ -56,7 +91,7 @@
     ]
   },
   {
-    "id": "a-12",
+    "id": "a-1",
     "title": "Binary Tree Boundary Traversal",
     "difficulty": "Hard",
     "tags": [
@@ -126,7 +161,7 @@
     ]
   },
   {
-    "id": "a-6",
+    "id": "a-2",
     "title": "Kadane's Algorithm",
     "difficulty": "Hard",
     "tags": [
@@ -142,7 +177,7 @@
     ]
   },
   {
-    "id": "a-7",
+    "id": "a-3",
     "title": "Moore's Voting",
     "difficulty": "Hard",
     "tags": [

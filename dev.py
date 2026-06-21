@@ -35,8 +35,8 @@ if any(item["id"] == new_id for item in data):
     print(f"ID {new_id} already exists.")
     exit()
 
-# Add at the end
-data.append(new_entry)
+# Add at the beginning
+data.insert(0, new_entry)
 
 # Save
 with open(DATA_FILE, "w", encoding="utf-8") as f:

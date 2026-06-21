@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Combination Sum II</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 44px; position: relative; margin-bottom: 24px;}
+        .array-box { 
+            width: 44px; height: 44px; border: 2px solid #1e293b; background: #111827; 
+            border-radius: 8px; display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; font-size: 16px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: 'Fira Code', monospace;
+        }
+        
+        /* Highlight States */
+        .highlight-start { border-color: #60a5fa; box-shadow: 0 0 12px rgba(96, 165, 250, 0.4); z-index: 10;}
+        .highlight-i { border-color: #c084fc; box-shadow: 0 0 12px rgba(192, 132, 252, 0.4); transform: translateY(-4px); z-index: 11;}
+        .highlight-chosen { border-color: #fcd34d; background: rgba(252, 211, 77, 0.15); box-shadow: 0 0 16px rgba(252, 211, 77, 0.4); transform: scale(1.1); z-index: 12;}
+        .highlight-pruned { border-color: #64748b; background: #1e293b; opacity: 0.5; }
+        .highlight-exit { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 16px rgba(239, 68, 68, 0.5); }
+        
+        .array-index { font-family: 'Fira Code', monospace; font-size: 11px; color: #64748b; }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+
+        /* Combination Chip */
+        .combo-chip { background: #1e293b; border: 1px solid #334155; padding: 4px 10px; border-radius: 16px; font-family: 'Fira Code', monospace; font-size: 12px; color: #34d399; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-tree"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Combination Sum II (Backtracking)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-md">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Candidates Array (Comma separated)</label>
+            <input type="text" id="input-arr" class="input-field" value="10, 1, 2, 7, 6, 1, 5" placeholder="e.g. 10,1,2,7,6,1,5">
+        </div>
+        <div class="w-full md:w-32">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Target</label>
+            <input type="number" id="input-target" class="input-field" value="8" placeholder="8">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Use numbers only, up to 10 elements.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Remain Target Display -->
+                    <div class="flex justify-between items-end w-full max-w-2xl mt-4">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-bgPanel border border-borderMain rounded-lg p-4 shadow-sm text-center">
+                                <span class="block text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-1">Target</span>
+                                <span id="canvas-target" class="font-mono text-2xl text-white font-bold">-</span>
+                            </div>
+                            <i class="fas fa-minus text-slate-600"></i>
+                            <div class="bg-bgPanel border border-borderMain rounded-lg p-4 shadow-sm text-center relative overflow-hidden">
+                                <div id="remain-bg" class="absolute inset-0 bg-primary/5 transition-colors"></div>
+                                <span class="block text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-1 relative z-10">Remain</span>
+                                <span id="canvas-remain" class="font-mono text-2xl text-primary font-bold relative z-10">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Array Canvas -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3 w-full max-w-2xl">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[]</span> candidates</h3>
+                                <span class="text-[10px] text-slate-500">(Sorted)</span>
+                            </div>
+                            <div class="flex gap-3 text-[10px] font-mono text-slate-400">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400"></span> start</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-400"></span> i</span>
+                            </div>
+                        </div>
+                        <div id="canvas-array" class="flex gap-3 overflow-x-auto pb-4 pt-4 px-2 min-h-[100px]"></div>
+                    </div>
+                    
+                    <!-- Current List -->
+                    <div class="w-full max-w-2xl bg-bgPanel/30 border border-borderMain rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxYellow">List</span> current</h3>
+                            <span class="text-[10px] text-slate-500">(Current Path)</span>
+                        </div>
+                        <div id="canvas-current" class="flex gap-2 flex-wrap min-h-[44px]">
+                            <div class="text-slate-600 text-sm italic py-2">Empty</div>
+                        </div>
+                    </div>
+
+                    <!-- Answers List -->
+                    <div class="w-full max-w-2xl">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-success">List&lt;List&gt;</span> ans</h3>
+                            <span class="text-[10px] text-slate-500">(Valid Combinations)</span>
+                        </div>
+                        <div id="canvas-ans" class="flex gap-2 flex-wrap min-h-[50px] p-4 bg-bgPanel/50 border border-borderMain rounded-lg">
+                            <div class="text-slate-600 text-sm italic">No valid combinations found yet...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Remain</span>
+                                <span id="var-remain" class="font-mono text-primary font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Start Ptr</span>
+                                <span id="var-start" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i)</span>
+                                <span id="var-i" class="font-mono text-purple-400 text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Ans Size</span>
+                                <span id="var-ans-size" class="font-mono text-success text-lg">0</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm col-span-2">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current List</span>
+                                <span id="var-curr" class="font-mono text-slate-200 text-md break-all">[]</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-main-func" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> <span class="text-syntaxYellow">List</span>&lt;<span class="text-syntaxYellow">List</span>&lt;<span class="text-syntaxPink">Integer</span>&gt;&gt; combinationSum2(<span class="text-syntaxPink">int</span>[] candidates, <span class="text-syntaxPink">int</span> target) {</div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxYellow">List</span>&lt;<span class="text-syntaxYellow">List</span>&lt;<span class="text-syntaxPink">Integer</span>&gt;&gt; ans = <span class="text-syntaxPink">new</span> ArrayList<>();</div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content text-slate-500 italic">        // Sorting is crucial for pruning duplicates and early exits</div></div>
+                        <div id="line-sort" class="debug-line"><div class="line-num">5</div><div class="code-content">        Arrays.sort(candidates); </div></div>
+                        <div id="line-initial-call" class="debug-line"><div class="line-num">6</div><div class="code-content">        backtrack(ans, <span class="text-syntaxPink">new</span> ArrayList<>(), candidates, target, <span class="text-syntaxPink">0</span>);</div></div>
+                        <div id="line-return-ans" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">return</span> ans;</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content"></div></div>
+                        <div id="line-func" class="debug-line"><div class="line-num">10</div><div class="code-content">    <span class="text-syntaxPink">private void</span> backtrack(<span class="text-syntaxYellow">List</span>&lt;<span class="text-syntaxYellow">List</span>&lt;<span class="text-syntaxPink">Integer</span>&gt;&gt; ans, <span class="text-syntaxYellow">List</span>&lt;<span class="text-syntaxPink">Integer</span>&gt; current, <span class="text-syntaxPink">int</span>[] candidates, <span class="text-syntaxPink">int</span> remain, <span class="text-syntaxPink">int</span> start) {</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content text-slate-500 italic">        // Base case: we hit the target sum</div></div>
+                        <div id="line-base-case" class="debug-line"><div class="line-num">12</div><div class="code-content">        <span class="text-syntaxPink">if</span> (remain == <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-add-ans" class="debug-line"><div class="line-num">13</div><div class="code-content">            ans.add(<span class="text-syntaxPink">new</span> ArrayList<>(current));</div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">14</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content text-slate-500 italic">        // Iterate through choices starting from 'start'</div></div>
+                        <div id="line-for" class="debug-line"><div class="line-num">18</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = start; i < candidates.length; i++) {</div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content text-slate-500 italic">            // Prune duplicate branches at the same depth level</div></div>
+                        <div id="line-prune" class="debug-line"><div class="line-num">20</div><div class="code-content">            <span class="text-syntaxPink">if</span> (i > start && candidates[i] == candidates[i - <span class="text-syntaxPink">1</span>]) {</div></div>
+                        <div id="line-continue" class="debug-line"><div class="line-num">21</div><div class="code-content">                <span class="text-syntaxPink">continue</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">            </div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content text-slate-500 italic">            // Early exit: array is sorted, subsequent elements will exceed too</div></div>
+                        <div id="line-exit" class="debug-line"><div class="line-num">25</div><div class="code-content">            <span class="text-syntaxPink">if</span> (candidates[i] > remain) {</div></div>
+                        <div id="line-break" class="debug-line"><div class="line-num">26</div><div class="code-content">                <span class="text-syntaxPink">break</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">27</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">28</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">29</div><div class="code-content text-slate-500 italic">            // Choose</div></div>
+                        <div id="line-choose" class="debug-line"><div class="line-num">30</div><div class="code-content">            current.add(candidates[i]);</div></div>
+                        <div class="debug-line"><div class="line-num">31</div><div class="code-content">            </div></div>
+                        <div class="debug-line"><div class="line-num">32</div><div class="code-content text-slate-500 italic">            // Explore (Note: i + 1 because we cannot reuse the same element)</div></div>
+                        <div id="line-explore" class="debug-line"><div class="line-num">33</div><div class="code-content">            backtrack(ans, current, candidates, remain - candidates[i], i + <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">34</div><div class="code-content">            </div></div>
+                        <div class="debug-line"><div class="line-num">35</div><div class="code-content text-slate-500 italic">            // Un-choose (Backtrack)</div></div>
+                        <div id="line-unchoose" class="debug-line"><div class="line-num">36</div><div class="code-content">            current.remove(current.size() - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">37</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">38</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">39</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution utilizes <strong>Backtracking</strong> to explore all potential combinations that sum up to the target. To satisfy the requirement that each number can only be used once per combination and to prevent duplicate combinations, specific pruning strategies are applied.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps & Strategies:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Sorting (Crucial Step):</strong><br>
+                            The array is sorted at the very beginning. This groups duplicate numbers together (essential for the duplication pruning step) and allows for the <em>Early Exit</em> optimization.
+                        </li>
+                        <li>
+                            <strong>Duplicate Pruning:</strong><br>
+                            <code>if (i > start && candidates[i] == candidates[i - 1]) continue;</code><br>
+                            This line ensures that at any specific depth level in our recursive tree, we do not start branches with the exact same number if we have already explored it. Since the array is sorted, duplicates are adjacent.
+                        </li>
+                        <li>
+                            <strong>Early Exit Optimization:</strong><br>
+                            <code>if (candidates[i] > remain) break;</code><br>
+                            If the current candidate is strictly greater than the remaining target, it's impossible to form a valid combination. Because the array is sorted, all subsequent candidates will also be larger, so we can completely <code>break</code> out of the loop instead of just <code>continue</code>.
+                        </li>
+                        <li>
+                            <strong>Choose, Explore, Un-choose:</strong><br>
+                            The classic backtracking template. We add the candidate to the path, recursively call the function with updated remaining target and advancing the start index (<code>i + 1</code> to avoid reusing), and then remove the candidate from the path when the recursion returns to explore the next option.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(2^N)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the length of the candidates array. In the worst-case scenario (e.g., all 1s and a large target), the algorithm explores a binary decision tree of depth $N$. However, the sorting, duplicate pruning, and early exits significantly reduce the constant factor, making it run much faster in practice.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The space complexity is dominated by the recursion stack. In the worst case, the recursive call stack depth will be equal to the length of the candidates array, $N$. The <code>current</code> list also uses at most $O(N)$ space. (Note: Output space for storing valid combinations is generally not counted towards auxiliary space complexity).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left'; 
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000; 
+        let globalTarget = 0;
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const arrStr = document.getElementById('input-arr').value;
+            const targetStr = document.getElementById('input-target').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                let arr = arrStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+                let target = parseInt(targetStr);
+
+                if (arr.length === 0 || isNaN(target)) {
+                    throw new Error("Invalid Input");
+                }
+                if (arr.length > 12) {
+                    arr = arr.slice(0, 12);
+                    document.getElementById('input-arr').value = arr.join(', ');
+                    alert("Array truncated to 12 elements to prevent browser freezing during exponential time simulation.");
+                }
+
+                globalTarget = target;
+                document.getElementById('canvas-target').innerText = target;
+
+                generateStates(arr, target);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Logic Implementation to Generate States
+        function generateStates(initialArr, target) {
+            states = [];
+            let candidates = [...initialArr];
+            let ans = [];
+            let current = [];
+            let vrs = { remain: target, start: '-', i: '-', current: [], ansSize: 0, action: 'Initialization' };
+
+            const getSnapshot = (arr, highlightMap) => {
+                return arr.map((val, idx) => ({
+                    val: val,
+                    isStart: idx === highlightMap.start,
+                    isI: idx === highlightMap.i,
+                    isChosen: idx === highlightMap.chosen,
+                    isPruned: highlightMap.pruned === true && idx === highlightMap.i,
+                    isExit: highlightMap.exit === true && idx === highlightMap.i
+                }));
+            };
+
+            const pushState = (msg, line, vrsUpdate, hlMap) => {
+                let updatedVars = { ...vrs, ...vrsUpdate };
+                // Keep the global vrs reference updated for the next steps
+                vrs = { ...updatedVars }; 
+                
+                // Deep copy current array for state
+                updatedVars.currentStr = `[${updatedVars.current.join(', ')}]`;
+
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(updatedVars)),
+                    visuals: {
+                        candidates: getSnapshot(candidates, hlMap),
+                        currentList: [...updatedVars.current],
+                        ansList: JSON.parse(JSON.stringify(ans)),
+                        remain: updatedVars.remain
+                    }
+                });
+            };
+
+            // Start State Gen
+            pushState("Initial setup. Preparing to sort candidates.", "line-main-func", {}, {});
+            
+            candidates.sort((a, b) => a - b);
+            pushState(`Sorted candidates array: [${candidates.join(', ')}]`, "line-sort", {}, {});
+
+            pushState(`Calling backtrack function for the first time.`, "line-initial-call", {}, {});
+
+            // The recursive backtrack function
+            function backtrack(remain, start) {
+                // Breakout safety for recursion depth (shouldn't happen with valid inputs but safe)
+                if(states.length > 3000) return;
+
+                pushState(`Entered backtrack. remain=${remain}, start=${start}`, "line-func", { remain: remain, start: start, i: '-' }, { start: start });
+
+                pushState(`Check base case: is remain ( ${remain} ) == 0?`, "line-base-case", {}, { start: start });
+                if (remain === 0) {
+                    ans.push([...current]);
+                    pushState(`Target reached! Found valid combination.`, "line-add-ans", { ansSize: ans.length }, { start: start });
+                    pushState(`Returning from this recursive branch.`, "line-return", {}, { start: start });
+                    return;
+                }
+
+                pushState(`Start looping through choices from start=${start}`, "line-for", {}, { start: start });
+                for (let i = start; i < candidates.length; i++) {
+                    pushState(`Loop iteration: i=${i}, value=${candidates[i]}`, "line-for", { i: i, action: `Evaluating candidates[${i}]` }, { start: start, i: i });
+
+                    pushState(`Check duplicate pruning condition.`, "line-prune", { action: `Check if ${candidates[i]} is duplicate` }, { start: start, i: i });
+                    if (i > start && candidates[i] === candidates[i - 1]) {
+                        pushState(`Duplicate found (candidates[${i}] == candidates[${i-1}]). Pruning branch!`, "line-continue", { action: 'Duplicate -> Skip' }, { start: start, i: i, pruned: true });
+                        continue;
+                    }
+
+                    pushState(`Check early exit optimization.`, "line-exit", { action: `Is ${candidates[i]} > ${remain}?` }, { start: start, i: i });
+                    if (candidates[i] > remain) {
+                        pushState(`Candidate ${candidates[i]} exceeds remaining target ${remain}. Breaking loop early!`, "line-break", { action: 'Exceeds remain -> Break' }, { start: start, i: i, exit: true });
+                        break;
+                    }
+
+                    pushState(`Choose candidate ${candidates[i]}.`, "line-choose", { action: `Add ${candidates[i]} to path` }, { start: start, i: i, chosen: i });
+                    current.push(candidates[i]);
+                    // Update state to show the newly added item
+                    pushState(`Added ${candidates[i]} to current path.`, "line-choose", { current: [...current] }, { start: start, i: i, chosen: i });
+
+                    pushState(`Explore next level recursively. remain=${remain - candidates[i]}, nextStart=${i + 1}`, "line-explore", { action: 'Recursive call' }, { start: start, i: i });
+                    
+                    backtrack(remain - candidates[i], i + 1);
+
+                    // Returned from recursion
+                    // State before unchoose
+                    pushState(`Returned to loop i=${i}. Prepare to un-choose.`, "line-unchoose", { remain: remain, start: start, i: i, action: 'Backtracking' }, { start: start, i: i });
+                    let removed = current.pop();
+                    pushState(`Removed ${removed} from current path (Backtracked).`, "line-unchoose", { current: [...current], action: `Removed ${removed}` }, { start: start, i: i });
+                }
+            }
+
+            backtrack(target, 0);
+
+            pushState(`Algorithm Finished. Returning answer list of size ${ans.length}.`, "line-return-ans", { start: '-', i: '-', remain: target, action: 'Done' }, {});
+        }
+
+        function renderDOMCanvas(stateVisuals) {
+            // 1. Remain Box styling
+            const remainEl = document.getElementById('canvas-remain');
+            const remainBg = document.getElementById('remain-bg');
+            remainEl.innerText = stateVisuals.remain;
+            
+            if(stateVisuals.remain === 0) {
+                remainEl.classList.replace('text-primary', 'text-success');
+                remainBg.className = 'absolute inset-0 bg-success/20 transition-colors';
+            } else if (stateVisuals.remain < 0) {
+                remainEl.classList.replace('text-primary', 'text-danger');
+                remainBg.className = 'absolute inset-0 bg-danger/20 transition-colors';
+            } else {
+                remainEl.classList.remove('text-success', 'text-danger');
+                remainEl.classList.add('text-primary');
+                remainBg.className = 'absolute inset-0 bg-primary/5 transition-colors';
+            }
+
+            // 2. Candidates Array
+            const arrContainer = document.getElementById('canvas-array');
+            arrContainer.innerHTML = stateVisuals.candidates.map((item, index) => {
+                let boxClass = 'array-box';
+                if (item.isChosen) boxClass += ' highlight-chosen';
+                else if (item.isExit) boxClass += ' highlight-exit';
+                else if (item.isPruned) boxClass += ' highlight-pruned';
+                else if (item.isI) boxClass += ' highlight-i';
+                else if (item.isStart) boxClass += ' highlight-start';
+
+                let labels = [];
+                if (item.isStart) labels.push('<span class="text-blue-400 font-bold bg-slate-800/80 px-1 rounded shadow" title="Start Index">S</span>');
+                if (item.isI) labels.push('<span class="text-purple-400 font-bold bg-slate-800/80 px-1 rounded shadow" title="Current Loop Index (i)">i</span>');
+                
+                let labelHtml = '';
+                if (labels.length > 0) {
+                    labelHtml = `<div class="absolute -bottom-6 text-[11px] flex gap-1 z-20 whitespace-nowrap">${labels.join('')}</div>`;
+                }
+
+                return `
+                    <div class="array-box-container">
+                        <span class="array-index mb-1">${index}</span>
+                        <div class="${boxClass}">${item.val}</div>
+                        ${labelHtml}
+                    </div>
+                `;
+            }).join('');
+
+            // 3. Current List
+            const currContainer = document.getElementById('canvas-current');
+            if(stateVisuals.currentList.length === 0) {
+                currContainer.innerHTML = `<div class="text-slate-600 text-sm italic py-2">Empty</div>`;
+            } else {
+                currContainer.innerHTML = stateVisuals.currentList.map(val => 
+                    `<div class="w-10 h-10 border border-syntaxYellow bg-syntaxYellow/10 text-syntaxYellow rounded-lg flex items-center justify-center font-bold font-mono shadow-[0_0_8px_rgba(252,211,77,0.2)]">${val}</div>`
+                ).join('<i class="fas fa-plus text-slate-600 mt-3 text-xs mx-1"></i>');
+            }
+
+            // 4. Ans List
+            const ansContainer = document.getElementById('canvas-ans');
+            if(stateVisuals.ansList.length === 0) {
+                ansContainer.innerHTML = `<div class="text-slate-600 text-sm italic">No valid combinations found yet...</div>`;
+            } else {
+                ansContainer.innerHTML = stateVisuals.ansList.map(comb => 
+                    `<div class="combo-chip">[ ${comb.join(', ')} ]</div>`
+                ).join('');
+            }
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Visuals
+            renderDOMCanvas(state.visuals);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-remain').innerText = state.vars.remain;
+            document.getElementById('var-start').innerText = state.vars.start;
+            document.getElementById('var-i').innerText = state.vars.i;
+            document.getElementById('var-ans-size').innerText = state.vars.ansSize;
+            document.getElementById('var-curr').innerText = state.vars.currentStr;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); // Init speed based on default slider value
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
