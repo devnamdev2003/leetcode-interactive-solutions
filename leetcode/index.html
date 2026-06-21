@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSA Dashboard V2</title>
+    <title>Algo Flows</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,7 +147,7 @@
             <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 text-indigo-400 shadow-inner">
                 <i data-lucide="code-2" class="w-5 h-5"></i>
             </div>
-            <h1 class="font-extrabold text-xl tracking-tight">DSA<span class="text-indigo-400">Tracker</span></h1>
+            <h1 class="font-extrabold text-xl tracking-tight">Algo<span class="text-indigo-400">Flows</span></h1>
         </div>
 
         <div class="flex-1 overflow-y-auto p-6 pt-0 md:pt-2 space-y-8 custom-scrollbar pb-10">
@@ -244,10 +244,6 @@
                     <button onclick="resetAllFilters()" class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition flex-shrink-0" title="Clear Filters">
                         <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     </button>
-                    <!-- Add Problem Button Header -->
-                    <button onclick="openDrawer()" class="flex items-center justify-center gap-2 px-3 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-indigo-900/20 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 flex-shrink-0" title="Add Problem">
-                        <i data-lucide="plus" class="w-4 h-4"></i> <span class="hidden sm:block">Add</span>
-                    </button>
                 </div>
             </div>
 
@@ -265,135 +261,6 @@
         </div>
     </main>
 
-    <!-- ========================================== -->
-    <!--          ADD PROBLEM DRAWER (SLIDE-OVER)   -->
-    <!-- ========================================== -->
-    <div id="addDrawerWrapper" class="fixed inset-0 z-[100] hidden">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDrawer()"></div>
-        
-        <!-- Drawer Panel -->
-        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-zinc-950 border-l border-zinc-800 shadow-2xl flex flex-col animate-slide-in-right">
-            
-            <div class="p-5 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
-                <div>
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i data-lucide="code-square" class="w-5 h-5 text-indigo-400"></i> Generate JSON
-                    </h2>
-                    <p class="text-xs text-zinc-400 mt-1">Add to your data.json file</p>
-                </div>
-                <button onclick="closeDrawer()" class="p-2 text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-
-            <!-- Drawer Body: Form -->
-            <div id="drawerFormView" class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                <form id="newEntryForm" class="space-y-5">
-                    <div class="grid grid-cols-4 gap-3">
-                        <div class="col-span-1">
-                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">ID</label>
-                            <input type="text" id="entryID" required placeholder="1" class="form-input">
-                        </div>
-                        <div class="col-span-3">
-                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Title</label>
-                            <input type="text" id="entryTitle" required placeholder="Two Sum" class="form-input">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Difficulty</label>
-                            <select id="entryDiff" required class="form-input">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="Easy">Easy</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Hard">Hard</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Platform</label>
-                            <input type="text" id="entryPlatform" list="platform-suggestions" required placeholder="LeetCode" class="form-input">
-                            <datalist id="platform-suggestions"></datalist>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Platform URL</label>
-                        <input type="url" id="entryUrl" required placeholder="https://..." class="form-input text-sm">
-                    </div>
-
-                    <!-- Interactive Tags Builder -->
-                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
-                        <label class="block text-xs font-semibold text-zinc-400 mb-2 uppercase">Tags *</label>
-                        
-                        <!-- Selected Tags Display -->
-                        <div id="selectedTagsContainer" class="flex flex-wrap gap-2 mb-3 empty:hidden"></div>
-                        
-                        <!-- Tag Autocomplete Input -->
-                        <div class="relative">
-                            <div class="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-lg px-3 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
-                                <i data-lucide="tag" class="w-4 h-4 text-zinc-500"></i>
-                                <input type="text" id="tagInputBox" placeholder="Search or add a tag..."
-                                    class="w-full bg-transparent border-none text-sm text-zinc-200 focus:outline-none focus:ring-0 py-2"
-                                    autocomplete="off" onfocus="showTagDropdown()" oninput="showTagDropdown()"
-                                    onkeydown="handleTagKeydown(event)">
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-600"></i>
-                            </div>
-
-                            <!-- Dropdown Menu -->
-                            <div id="tagAutocompleteDropdown" class="hidden absolute z-50 w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden custom-scrollbar max-h-48 overflow-y-auto">
-                                <!-- Injected via JS -->
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-zinc-500 mt-2">First tag will be used as the primary category.</p>
-                    </div>
-
-                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <label class="block text-xs font-semibold text-zinc-400 uppercase">Solutions</label>
-                            <button type="button" onclick="addSolutionRow()" class="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium">
-                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
-                            </button>
-                        </div>
-                        <div id="solutionsListContainer" class="space-y-2"></div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Drawer Body: Result -->
-            <div id="drawerResultView" class="flex-1 overflow-y-auto p-6 hidden flex-col">
-                <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl mb-4 text-sm flex items-start gap-3">
-                    <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i>
-                    <div>
-                        <p class="font-bold">Success!</p>
-                        <p class="text-emerald-500/80 mt-0.5 text-xs">Copy this and append it to your data.json array.</p>
-                    </div>
-                </div>
-                <div class="relative flex-1 min-h-[300px]">
-                    <textarea id="jsonOutputArea" readonly class="w-full h-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-300 font-mono focus:outline-none custom-scrollbar resize-none"></textarea>
-                    <button onclick="copyGeneratedJson()" id="copyJsonBtn" class="absolute top-3 right-3 bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1.5 transition-colors shadow">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span>Copy</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Drawer Footer -->
-            <div class="p-5 border-t border-zinc-800 bg-zinc-900/80 flex gap-3">
-                <button type="button" onclick="closeDrawer()" class="flex-1 px-4 py-2.5 text-sm font-medium text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-colors">
-                    Close
-                </button>
-                <button type="submit" form="newEntryForm" id="generateBtn" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
-                    Generate
-                </button>
-                <button type="button" onclick="resetDrawer()" id="makeAnotherBtn" class="hidden flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
-                    Create Another
-                </button>
-            </div>
-        </div>
-    </div>
-
-
     <!-- Application Logic -->
     <script>
         // Fallback Data
@@ -409,7 +276,6 @@
         let completedProblems = JSON.parse(localStorage.getItem('dsaTrackerCompleted') || '[]');
         let globalUniqueTags = [];
         let globalUniquePlatforms = [];
-        let formBuilderTags = [];
         
         // Active Filters
         let state = {
@@ -423,15 +289,6 @@
         // DOM Elements
         const listContainer = document.getElementById('problemList');
         const searchInput = document.getElementById('searchInput');
-
-        // Close tag dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('tagAutocompleteDropdown');
-            const inputContainer = document.getElementById('tagInputBox')?.parentElement;
-            if (dropdown && !dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && inputContainer && !inputContainer.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
 
         // Helpers
         function getDifficultyColor(difficulty) {
@@ -490,9 +347,6 @@
             });
             globalUniqueTags = Array.from(allTags).sort();
             globalUniquePlatforms = Array.from(allPlatforms).sort();
-
-            // Populate Datalist for Drawer
-            document.getElementById('platform-suggestions').innerHTML = globalUniquePlatforms.map(plat => `<option value="${plat}">`).join('');
         }
 
         // Update UI functions
@@ -529,14 +383,14 @@
         function renderTagChips() {
             const container = document.getElementById('tags-container');
             let html = `
-                <button onclick="setTagFilter('All')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${state.tag === 'All' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-600'}">
+                <button onclick="setTagFilter('All')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${state.tag === 'All' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 active:border-zinc-600'}">
                     All Tags
                 </button>
             `;
             globalUniqueTags.forEach(tag => {
                 const isActive = state.tag === tag;
                 html += `
-                    <button onclick="setTagFilter('${tag}')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-600'}">
+                    <button onclick="setTagFilter('${tag}')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 active:border-zinc-600'}">
                         ${tag}
                     </button>
                 `;
@@ -598,7 +452,7 @@
             }
         }
 
-        // NEW: Function to reset progress for a specific category
+        // Function to reset progress for a specific category
         function resetCategoryProgress(categoryEncoded) {
             const categoryName = decodeURIComponent(categoryEncoded);
             if (confirm(`Are you sure you want to reset your progress for the entire "${categoryName}" category?`)) {
@@ -765,212 +619,6 @@
 
             listContainer.innerHTML = html;
             lucide.createIcons();
-        }
-
-        // ==========================================
-        //         ADD PROBLEM DRAWER LOGIC
-        // ==========================================
-
-        function openDrawer() {
-            document.getElementById('addDrawerWrapper').classList.remove('hidden');
-            resetDrawer();
-        }
-
-        function closeDrawer() {
-            document.getElementById('addDrawerWrapper').classList.add('hidden');
-        }
-
-        function resetDrawer() {
-            document.getElementById('newEntryForm').reset();
-            document.getElementById('drawerFormView').classList.remove('hidden');
-            document.getElementById('drawerResultView').classList.add('hidden');
-            document.getElementById('drawerResultView').classList.remove('flex');
-            document.getElementById('generateBtn').style.display = 'block';
-            document.getElementById('makeAnotherBtn').style.display = 'none';
-
-            // Reset Tags
-            formBuilderTags = [];
-            renderModalTags();
-            document.getElementById('tagInputBox').value = '';
-
-            document.getElementById('solutionsListContainer').innerHTML = '';
-            addSolutionRow();
-        }
-
-        // --- Tag Autocomplete Builder Logic ---
-        function showTagDropdown() {
-            const input = document.getElementById('tagInputBox');
-            const val = input.value.trim().toLowerCase();
-            const dropdown = document.getElementById('tagAutocompleteDropdown');
-            dropdown.innerHTML = '';
-
-            const available = globalUniqueTags.filter(t => !formBuilderTags.includes(t));
-            const filtered = val ? available.filter(t => t.toLowerCase().includes(val)) : available;
-
-            let html = '';
-            const exactMatch = available.find(t => t.toLowerCase() === val);
-
-            // Option to create new if no exact match exists
-            if (val && !exactMatch && !formBuilderTags.some(t => t.toLowerCase() === val)) {
-                const rawVal = input.value.trim();
-                html += `
-                    <div onclick="addModalTag('${rawVal}', true)" class="px-4 py-2.5 hover:bg-indigo-500/10 cursor-pointer text-sm text-indigo-400 font-medium flex items-center gap-2 border-b border-zinc-800">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add "${rawVal}"
-                    </div>`;
-            }
-
-            // Render available options
-            if (filtered.length === 0 && !val) {
-                html += `<div class="px-4 py-3 text-sm text-zinc-500 italic text-center">No more tags available</div>`;
-            } else {
-                filtered.forEach(tag => {
-                    html += `
-                        <div onclick="addModalTag('${tag}', true)" class="px-4 py-2.5 hover:bg-zinc-800 cursor-pointer text-sm text-zinc-300 transition-colors flex items-center justify-between group">
-                            <span>${tag}</span>
-                            <i data-lucide="plus" class="w-3 h-3 text-zinc-500 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </div>`;
-                });
-            }
-
-            dropdown.innerHTML = html;
-            dropdown.classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        function handleTagKeydown(e) {
-            const val = document.getElementById('tagInputBox').value.trim();
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (val) addModalTag(val, true);
-            }
-        }
-
-        function addModalTag(tag, clearInput = false) {
-            if (!formBuilderTags.includes(tag)) {
-                formBuilderTags.push(tag);
-                renderModalTags();
-
-                // Add to global dictionary to appear later if deleted
-                if (!globalUniqueTags.includes(tag)) {
-                    globalUniqueTags.push(tag);
-                    globalUniqueTags.sort();
-                }
-
-                if (clearInput) {
-                    const input = document.getElementById('tagInputBox');
-                    input.value = '';
-                    document.getElementById('tagAutocompleteDropdown').classList.add('hidden');
-                    input.focus();
-                }
-            }
-        }
-
-        function removeModalTag(tag) {
-            formBuilderTags = formBuilderTags.filter(t => t !== tag);
-            renderModalTags();
-            if (document.activeElement === document.getElementById('tagInputBox')) {
-                showTagDropdown();
-            }
-        }
-
-        function renderModalTags() {
-            const selectedContainer = document.getElementById('selectedTagsContainer');
-            selectedContainer.innerHTML = formBuilderTags.map(tag => `
-                <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 rounded text-xs font-medium">
-                    ${tag}
-                    <button type="button" onclick="removeModalTag('${tag}')" class="hover:text-white bg-indigo-500/20 p-0.5 rounded-sm transition-colors">
-                        <i data-lucide="x" class="w-3 h-3"></i>
-                    </button>
-                </span>
-            `).join('');
-            lucide.createIcons();
-        }
-
-
-        // --- Solutions Builder Logic ---
-        function addSolutionRow() {
-            const container = document.getElementById('solutionsListContainer');
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'flex gap-2 items-center solution-row bg-zinc-950 p-2 rounded-lg border border-zinc-800';
-            rowDiv.innerHTML = `
-                <select required class="form-input text-sm sol-name w-1/3 py-1.5">
-                    <option value="" disabled selected>Type</option>
-                    <option value="Brute">Brute</option>
-                    <option value="Better">Better</option>
-                    <option value="Optimal">Optimal</option>
-                </select>
-                <input type="text" placeholder="URL path..." required class="form-input text-sm sol-url flex-1 py-1.5">
-                <button type="button" onclick="this.closest('.solution-row').remove()" class="text-zinc-500 hover:text-rose-400 p-1 transition-colors">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            `;
-            container.appendChild(rowDiv);
-            lucide.createIcons();
-        }
-
-        document.getElementById('newEntryForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            if (formBuilderTags.length === 0) { 
-                alert("Please enter at least one tag."); 
-                return; 
-            }
-
-            const tagsArray = formBuilderTags;
-
-            const solutionsData = [];
-            document.querySelectorAll('.solution-row').forEach(row => {
-                const n = row.querySelector('.sol-name').value;
-                const u = row.querySelector('.sol-url').value.trim();
-                if (n && u) solutionsData.push({ name: n, url: u });
-            });
-
-            if (solutionsData.length === 0) { alert("Please add a solution."); return; }
-
-            const newEntry = {
-                id: String(document.getElementById('entryID').value.trim()),
-                title: document.getElementById('entryTitle').value.trim(),
-                difficulty: document.getElementById('entryDiff').value,
-                tags: tagsArray,
-                platform: document.getElementById('entryPlatform').value.trim(),
-                platformUrl: document.getElementById('entryUrl').value.trim(),
-                solutions: solutionsData
-            };
-
-            document.getElementById('jsonOutputArea').value = JSON.stringify(newEntry, null, 4);
-
-            document.getElementById('drawerFormView').classList.add('hidden');
-            document.getElementById('drawerResultView').classList.remove('hidden');
-            document.getElementById('drawerResultView').classList.add('flex');
-
-            document.getElementById('generateBtn').style.display = 'none';
-            document.getElementById('makeAnotherBtn').style.display = 'block';
-        });
-
-        function copyGeneratedJson() {
-            const textarea = document.getElementById('jsonOutputArea');
-            const btn = document.getElementById('copyJsonBtn');
-            const originalHTML = btn.innerHTML;
-
-            textarea.select();
-            textarea.setSelectionRange(0, 99999);
-            
-            try {
-                document.execCommand('copy');
-                btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> <span>Copied!</span>`;
-                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
-                btn.classList.remove('bg-zinc-800', 'hover:bg-zinc-700');
-                lucide.createIcons();
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
-                    btn.classList.add('bg-zinc-800', 'hover:bg-zinc-700');
-                    lucide.createIcons();
-                }, 2000);
-            } catch (err) {
-                alert("Failed to copy. Please copy manually.");
-            }
         }
 
         // Boot
