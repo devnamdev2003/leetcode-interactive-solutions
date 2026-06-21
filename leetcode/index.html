@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My DSA Journey</title>
+    <title>DSA Dashboard V2</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,34 +17,35 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Tailwind Config for Custom Colors/Fonts -->
+    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Fira Code', 'monospace'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        slate: {
-                            850: '#151e2e',
-                            900: '#0f172a',
+                        zinc: {
+                            850: '#202024',
+                            900: '#18181b',
+                            950: '#09090b',
                         }
                     },
                     animation: {
-                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
-                        'scale-in': 'scaleIn 0.2s ease-out forwards',
+                        'slide-in-right': 'slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'fade-in': 'fadeIn 0.2s ease-out forwards',
                     },
                     keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(0)' },
                         },
-                        scaleIn: {
-                            '0%': { opacity: '0', transform: 'scale(0.95)' },
-                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
                         }
                     }
                 }
@@ -55,975 +54,750 @@
     </script>
 
     <style>
-        :root {
-            color-scheme: dark;
-        }
-
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            background-image:
-                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.1) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.1) 0, transparent 50%);
-            background-attachment: fixed;
+            background-color: #09090b; /* Zinc 950 */
+            color: #f4f4f5;
         }
 
-        /* Custom Global Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+        /* Hide scrollbar for chip lists but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Custom Checkbox */
+        .custom-checkbox {
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.25em;
+            height: 1.25em;
+            border: 2px solid #52525b;
+            border-radius: 0.35em;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .custom-checkbox::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+            transform: scale(0);
+            background-color: #09090b;
+            transition: 120ms transform ease-in-out;
+        }
+        .custom-checkbox:checked {
+            background-color: #10b981; /* Emerald 500 */
+            border-color: #10b981;
+        }
+        .custom-checkbox:checked::before {
+            transform: scale(1);
         }
 
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
+        /* Circular Progress */
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; }
+        .circle-bg { fill: none; stroke: #27272a; stroke-width: 3.8; }
+        .circle { 
+            fill: none; 
+            stroke-width: 2.8; 
+            stroke-linecap: round; 
+            transition: stroke-dasharray 1s ease-out;
         }
-
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        /* Custom Scrollbar for Dropdowns & Modals */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
-
-        /* Glassmorphism utility */
-        .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .glass-solid {
-            background: rgb(30, 41, 59);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Form Inputs */
+        
         .form-input {
             width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid #334155;
+            background: #18181b;
+            border: 1px solid #3f3f46;
             border-radius: 0.5rem;
             padding: 0.5rem 0.75rem;
-            color: #f8fafc;
+            color: #f4f4f5;
             transition: all 0.2s;
+            font-size: 0.875rem;
         }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-        }
-
-        /* Fix for native select dropdown options */
-        select option {
-            background-color: #1e293b;
-            color: #f8fafc;
-        }
-
-        /* Category Collapse Animations */
-        .category-content {
-            display: grid;
-            grid-template-rows: 1fr;
-            transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out;
-            opacity: 1;
-        }
-        .category-content.collapsed {
-            grid-template-rows: 0fr;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .category-inner {
-            overflow: hidden;
-        }
+        .form-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
     </style>
 </head>
 
-<body class="min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+<body class="h-screen w-full antialiased flex flex-col md:flex-row overflow-hidden selection:bg-indigo-500/30">
 
-    <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <!-- Mobile Header -->
+    <header class="md:hidden flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur z-20 flex-shrink-0">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-400">
+                <i data-lucide="terminal" class="w-4 h-4"></i>
+            </div>
+            <h1 class="font-bold text-lg tracking-tight">DSA<span class="text-indigo-400">Tracker</span></h1>
+        </div>
+        <button onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')" class="p-2 text-zinc-400 hover:text-white bg-zinc-900 rounded-lg border border-zinc-800">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+    </header>
 
-        <!-- Header -->
-        <header class="mb-12 animate-fade-in-up">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <div
-                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-indigo-400 text-sm font-medium mb-4">
-                        <i data-lucide="code-2" class="w-4 h-4"></i>
-                        <span>Algorithm & Data Structures</span>
-                    </div>
-                    <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-2">
-                        My <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Coding</span>
-                        Sheet
-                    </h1>
-                    <p class="text-slate-400 text-lg max-w-2xl">
-                        A modern repository of my solved problems, conceptual notes, and multiple solution approaches
-                        across various platforms.
-                    </p>
+    <!-- Sidebar / Stats Panel -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-zinc-950 border-r border-zinc-800 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col h-full max-h-screen">
+        <div class="p-6 hidden md:flex items-center gap-3 flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 text-indigo-400 shadow-inner">
+                <i data-lucide="code-2" class="w-5 h-5"></i>
+            </div>
+            <h1 class="font-extrabold text-xl tracking-tight">DSA<span class="text-indigo-400">Tracker</span></h1>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 pt-0 md:pt-2 space-y-8 custom-scrollbar pb-10">
+            
+            <!-- Progress Section -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Your Progress</h2>
+                    <button onclick="resetProgress()" class="text-zinc-500 hover:text-rose-400 transition-colors bg-zinc-900/50 hover:bg-rose-500/10 p-1.5 rounded-md border border-zinc-800/50 hover:border-rose-500/30" title="Reset All Progress">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    </button>
                 </div>
-
-                <!-- Stats Overview -->
-                <div class="flex flex-wrap gap-3 sm:gap-4">
-                    <div
-                        class="glass px-5 py-3 rounded-2xl border-t border-t-indigo-500/30 flex flex-col justify-center text-center">
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total</p>
-                        <p class="text-2xl font-bold text-indigo-400" id="count-total">0</p>
-                    </div>
-                    <div
-                        class="glass px-5 py-3 rounded-2xl border-t border-t-emerald-500/30 flex flex-col justify-center text-center">
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Easy</p>
-                        <p class="text-2xl font-bold text-emerald-400" id="count-easy">0</p>
-                    </div>
-                    <div
-                        class="glass px-5 py-3 rounded-2xl border-t border-t-amber-500/30 flex flex-col justify-center text-center">
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Medium</p>
-                        <p class="text-2xl font-bold text-amber-400" id="count-medium">0</p>
-                    </div>
-                    <div
-                        class="glass px-5 py-3 rounded-2xl border-t border-t-rose-500/30 flex flex-col justify-center text-center">
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Hard</p>
-                        <p class="text-2xl font-bold text-rose-400" id="count-hard">0</p>
+                <div class="relative flex items-center justify-center bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800/50">
+                    <svg viewBox="0 0 36 36" class="circular-chart w-32 h-32">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle stroke-indigo-500" stroke-dasharray="0, 100" id="progress-circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="absolute flex flex-col items-center justify-center">
+                        <span class="text-2xl font-bold text-white" id="progress-percent">0%</span>
+                        <span class="text-[10px] text-zinc-400 font-medium">Completed</span>
                     </div>
                 </div>
             </div>
-        </header>
 
-        <!-- Controls (Search & Filters) -->
-        <div class="mb-8 flex flex-col lg:flex-row gap-4 animate-fade-in-up relative z-30"
-            style="animation-delay: 0.1s;">
-            <!-- Search Bar -->
-            <div class="relative flex-grow">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+            <!-- Stats Grid -->
+            <div>
+                <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Difficulty Stats</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-zinc-900 rounded-xl p-3 border border-zinc-800 flex flex-col justify-center cursor-pointer hover:border-zinc-600 transition" onclick="setDiffFilter('All')">
+                        <span class="text-xl font-bold text-white" id="stat-total">0</span>
+                        <span class="text-[11px] text-zinc-400">Total Problems</span>
+                    </div>
+                    <div class="bg-emerald-500/5 rounded-xl p-3 border border-emerald-500/10 flex flex-col justify-center cursor-pointer hover:border-emerald-500/30 transition" onclick="setDiffFilter('Easy')">
+                        <span class="text-xl font-bold text-emerald-400" id="stat-easy">0</span>
+                        <span class="text-[11px] text-emerald-500/70">Easy</span>
+                    </div>
+                    <div class="bg-amber-500/5 rounded-xl p-3 border border-amber-500/10 flex flex-col justify-center cursor-pointer hover:border-amber-500/30 transition" onclick="setDiffFilter('Medium')">
+                        <span class="text-xl font-bold text-amber-400" id="stat-medium">0</span>
+                        <span class="text-[11px] text-amber-500/70">Medium</span>
+                    </div>
+                    <div class="bg-rose-500/5 rounded-xl p-3 border border-rose-500/10 flex flex-col justify-center cursor-pointer hover:border-rose-500/30 transition" onclick="setDiffFilter('Hard')">
+                        <span class="text-xl font-bold text-rose-400" id="stat-hard">0</span>
+                        <span class="text-[11px] text-rose-500/70">Hard</span>
+                    </div>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search by ID, problems, tags, or platform..."
-                    class="block w-full pl-10 pr-3 py-3 border border-slate-700 rounded-xl leading-5 bg-slate-800/50 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all sm:text-sm glass">
             </div>
 
-            <!-- Custom Dropdowns & Actions -->
-            <div class="flex flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto">
-
-                <!-- Sort Dropdown -->
-                <div class="relative w-full sm:w-48 lg:w-40 xl:w-48 shrink-0">
-                    <button onclick="toggleSortMenu(event)" id="sort-btn"
-                        class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
-                        <span id="sort-selected-text" class="truncate">Sort: Default</span>
-                        <i data-lucide="arrow-up-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
-                            id="sort-chevron"></i>
+            <!-- Primary Filters Sidebar -->
+            <div>
+                <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Completion</h2>
+                <div class="flex flex-col gap-2">
+                    <button onclick="setStatusFilter('All')" id="btn-status-all" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors bg-zinc-800 text-white font-medium">
+                        <span>All Problems</span> <span id="count-all-badge" class="bg-zinc-700 px-2 py-0.5 rounded text-xs">0</span>
                     </button>
-                    <div id="sort-menu"
-                        class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden transition-all duration-200 glass origin-top">
-                        <ul class="max-h-60 overflow-y-auto py-1.5 custom-scrollbar outline-none">
-                            <li onclick="selectSort(event, 'default', 'Sort: Default')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
-                                data-value="default">
-                                <span>Default</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-indigo-400 check-icon"></i>
-                            </li>
-                            <li onclick="selectSort(event, 'idAsc', 'ID: Low to High')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
-                                data-value="idAsc">
-                                <span>ID: Low to High</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-transparent check-icon"></i>
-                            </li>
-                            <li onclick="selectSort(event, 'titleAsc', 'Title: A to Z')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
-                                data-value="titleAsc">
-                                <span>Title: A to Z</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-transparent check-icon"></i>
-                            </li>
-                            <li onclick="selectSort(event, 'diffAsc', 'Difficulty: Asc')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
-                                data-value="diffAsc">
-                                <span>Difficulty: Asc</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-transparent check-icon"></i>
-                            </li>
-                            <li onclick="selectSort(event, 'diffDesc', 'Difficulty: Desc')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group sort-option"
-                                data-value="diffDesc">
-                                <span>Difficulty: Desc</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-transparent check-icon"></i>
-                            </li>
-                        </ul>
+                    <button onclick="setStatusFilter('Done')" id="btn-status-done" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200">
+                        <span>Completed</span> <span id="count-done-badge" class="bg-zinc-800 px-2 py-0.5 rounded text-xs">0</span>
+                    </button>
+                    <button onclick="setStatusFilter('Todo')" id="btn-status-todo" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200">
+                        <span>To Do</span> <span id="count-todo-badge" class="bg-zinc-800 px-2 py-0.5 rounded text-xs">0</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#09090b] relative">
+        <!-- Close sidebar overlay -->
+        <div id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.add('-translate-x-full')" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+        <!-- Top Toolbar -->
+        <div class="flex-shrink-0 border-b border-zinc-800 bg-zinc-950/50 backdrop-blur-md z-10 p-4 md:px-8 md:py-6">
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                
+                <!-- Search -->
+                <div class="relative w-full sm:max-w-md">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"></i>
+                    <input type="text" id="searchInput" placeholder="Search problems, tags..." 
+                        class="w-full pl-9 pr-12 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-zinc-500 bg-zinc-800 border border-zinc-700 rounded shadow-sm">/</kbd>
                     </div>
                 </div>
 
-                <!-- Custom Difficulty Dropdown -->
-                <div class="relative w-full sm:w-40 shrink-0">
-                    <button onclick="toggleDiffMenu(event)" id="diff-btn"
-                        class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
-                        <span id="diff-selected-text" class="truncate">All Levels</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
-                            id="diff-chevron"></i>
-                    </button>
-                    <div id="diff-menu"
-                        class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden transition-all duration-200 glass origin-top">
-                        <ul class="max-h-60 overflow-y-auto py-1.5 custom-scrollbar outline-none">
-                            <li onclick="selectDifficulty(event, 'All', 'All Levels')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group diff-option"
-                                data-value="All">
-                                <span>All Levels</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-indigo-400 check-icon"></i>
-                            </li>
-                            <li onclick="selectDifficulty(event, 'Easy', 'Easy')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-emerald-400 text-sm transition-colors flex items-center justify-between group diff-option"
-                                data-value="Easy">
-                                <span>Easy</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-transparent check-icon"></i>
-                            </li>
-                            <li onclick="selectDifficulty(event, 'Medium', 'Medium')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-amber-400 text-sm transition-colors flex items-center justify-between group diff-option"
-                                data-value="Medium">
-                                <span>Medium</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-transparent check-icon"></i>
-                            </li>
-                            <li onclick="selectDifficulty(event, 'Hard', 'Hard')"
-                                class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-rose-400 text-sm transition-colors flex items-center justify-between group diff-option"
-                                data-value="Hard">
-                                <span>Hard</span> <i data-lucide="check"
-                                    class="w-4 h-4 text-transparent check-icon"></i>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Custom Tag Dropdown -->
-                <div class="relative w-full sm:flex-1 min-w-[200px] shrink-0">
-                    <button onclick="toggleTagMenu(event)" id="tag-btn"
-                        class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
-                        <span id="tag-selected-text" class="truncate">All Tags</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
-                            id="tag-chevron"></i>
-                    </button>
-                    <div id="tag-menu"
-                        class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden transition-all duration-200 glass origin-top">
-                        <ul id="tag-menu-list" class="max-h-60 overflow-y-auto py-1.5 custom-scrollbar outline-none">
-                            <!-- Populated dynamically by JS -->
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="flex gap-2 shrink-0">
-                    <!-- Collapse / Expand All Button (Icon Only) -->
-                    <button onclick="toggleAllCategories()" id="toggle-all-btn"
-                        class="flex items-center justify-center shrink-0 w-[46px] h-[46px] bg-slate-800/50 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 transition-all shadow-sm glass focus:outline-none focus:ring-2 focus:ring-slate-500"
-                        title="Collapse All">
-                        <i data-lucide="fold-vertical" id="toggle-all-icon" class="w-5 h-5"></i>
-                    </button>
-
-                    <!-- Reset Filters Button -->
-                    <button onclick="resetFilters()"
-                        class="flex items-center justify-center gap-2 px-4 py-3 shrink-0 bg-slate-800/50 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 text-sm transition-all shadow-sm glass focus:outline-none focus:ring-2 focus:ring-slate-500"
-                        title="Reset all filters">
+                <!-- Sort & Actions -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="sortSelect" onchange="handleSortChange(event)" class="form-input py-2.5 bg-zinc-900 border-zinc-800 text-sm cursor-pointer hover:border-zinc-700">
+                        <option value="default">Default Sort</option>
+                        <option value="diffAsc">Difficulty: Easy to Hard</option>
+                        <option value="diffDesc">Difficulty: Hard to Easy</option>
+                        <option value="titleAsc">Title: A to Z</option>
+                    </select>
+                    <button onclick="resetAllFilters()" class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition flex-shrink-0" title="Clear Filters">
                         <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                        <span class="hidden xl:inline font-medium">Reset</span>
                     </button>
-
-                    <!-- Add New Entry Button -->
-                    <button onclick="openAddEntryModal()"
-                        class="flex items-center justify-center gap-2 px-4 py-3 shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-400 whitespace-nowrap">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Add Problem</span>
+                    <!-- Add Problem Button Header -->
+                    <button onclick="openDrawer()" class="flex items-center justify-center gap-2 px-3 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-indigo-900/20 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 flex-shrink-0" title="Add Problem">
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span class="hidden sm:block">Add</span>
                     </button>
                 </div>
+            </div>
 
+            <!-- Tags Filter Chips -->
+            <div class="mt-4 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="tags-container">
+                <!-- Injected via JS -->
             </div>
         </div>
 
-        <!-- Problem List -->
-        <!-- Changed to space-y-8 to account for category grouping gaps -->
-        <div id="problemList" class="space-y-8 pb-20 relative z-10">
-            <!-- Items injected by JS -->
+        <!-- Problem List Scrollable Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar scroll-smooth" id="main-scroll-area">
+            <div id="problemList" class="max-w-5xl mx-auto space-y-6 pb-20">
+                <!-- Items injected by JS -->
+            </div>
         </div>
-
-    </div>
+    </main>
 
     <!-- ========================================== -->
-    <!--          ADD NEW ENTRY MODAL               -->
+    <!--          ADD PROBLEM DRAWER (SLIDE-OVER)   -->
     <!-- ========================================== -->
-    <div id="addEntryModal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-        <!-- Modal Content Container -->
-        <div class="glass-solid w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scale-in">
-
-            <!-- Header -->
-            <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-2xl">
+    <div id="addDrawerWrapper" class="fixed inset-0 z-[100] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDrawer()"></div>
+        
+        <!-- Drawer Panel -->
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-zinc-950 border-l border-zinc-800 shadow-2xl flex flex-col animate-slide-in-right">
+            
+            <div class="p-5 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
-                        <i data-lucide="file-json" class="w-5 h-5 text-indigo-400"></i> Generate JSON Entry
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i data-lucide="code-square" class="w-5 h-5 text-indigo-400"></i> Generate JSON
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">Fill details to create a new problem entry for data.json</p>
+                    <p class="text-xs text-zinc-400 mt-1">Add to your data.json file</p>
                 </div>
-                <button onclick="closeAddEntryModal()"
-                    class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button onclick="closeDrawer()" class="p-2 text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <!-- Body: Form View -->
-            <div id="modalFormView" class="p-6 overflow-y-auto custom-scrollbar flex-grow">
+            <!-- Drawer Body: Form -->
+            <div id="drawerFormView" class="flex-1 overflow-y-auto p-6 custom-scrollbar">
                 <form id="newEntryForm" class="space-y-5">
-
-                    <!-- ID & Title Row -->
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <div class="sm:col-span-1">
-                            <label class="block text-sm font-medium text-slate-300 mb-1">ID *</label>
-                            <input type="text" id="entryID" required placeholder="e.g., 1" class="form-input">
+                    <div class="grid grid-cols-4 gap-3">
+                        <div class="col-span-1">
+                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">ID</label>
+                            <input type="text" id="entryID" required placeholder="1" class="form-input">
                         </div>
-                        <div class="sm:col-span-3">
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Title *</label>
-                            <input type="text" id="entryTitle" required placeholder="e.g., Two Sum" class="form-input">
+                        <div class="col-span-3">
+                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Title</label>
+                            <input type="text" id="entryTitle" required placeholder="Two Sum" class="form-input">
                         </div>
                     </div>
 
-                    <!-- Difficulty & Platform Row -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Difficulty *</label>
-                            <select id="entryDiff" required class="form-input appearance-none">
-                                <option value="" disabled selected class="bg-slate-800 text-slate-200">Select Level
-                                </option>
-                                <option value="Easy" class="bg-slate-800 text-slate-200">Easy</option>
-                                <option value="Medium" class="bg-slate-800 text-slate-200">Medium</option>
-                                <option value="Hard" class="bg-slate-800 text-slate-200">Hard</option>
+                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Difficulty</label>
+                            <select id="entryDiff" required class="form-input">
+                                <option value="" disabled selected>Select...</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Platform *</label>
-                            <input type="text" id="entryPlatform" list="platform-suggestions" required
-                                placeholder="e.g., LeetCode" class="form-input">
-                            <datalist id="platform-suggestions">
-                                <!-- Populated dynamically -->
-                            </datalist>
+                            <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Platform</label>
+                            <input type="text" id="entryPlatform" list="platform-suggestions" required placeholder="LeetCode" class="form-input">
+                            <datalist id="platform-suggestions"></datalist>
                         </div>
                     </div>
 
-                    <!-- Platform URL -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Platform URL *</label>
-                        <input type="url" id="entryUrl" required placeholder="https://leetcode.com/problems/..."
-                            class="form-input text-sm">
+                        <label class="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Platform URL</label>
+                        <input type="url" id="entryUrl" required placeholder="https://..." class="form-input text-sm">
                     </div>
 
-                    <!-- Tags Selection (Autocomplete Dropdown) -->
-                    <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/30">
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Tags *</label>
-
+                    <!-- Interactive Tags Builder -->
+                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
+                        <label class="block text-xs font-semibold text-zinc-400 mb-2 uppercase">Tags *</label>
+                        
                         <!-- Selected Tags Display -->
                         <div id="selectedTagsContainer" class="flex flex-wrap gap-2 mb-3 empty:hidden"></div>
-
+                        
                         <!-- Tag Autocomplete Input -->
                         <div class="relative">
-                            <div
-                                class="flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-lg px-3 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all shadow-inner">
-                                <i data-lucide="tag" class="w-4 h-4 text-slate-400"></i>
-                                <input type="text" id="tagInputBox" placeholder="Type to search or add tag..."
-                                    class="w-full bg-transparent border-none text-sm text-slate-200 focus:outline-none focus:ring-0 py-2.5"
+                            <div class="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-lg px-3 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
+                                <i data-lucide="tag" class="w-4 h-4 text-zinc-500"></i>
+                                <input type="text" id="tagInputBox" placeholder="Search or add a tag..."
+                                    class="w-full bg-transparent border-none text-sm text-zinc-200 focus:outline-none focus:ring-0 py-2"
                                     autocomplete="off" onfocus="showTagDropdown()" oninput="showTagDropdown()"
                                     onkeydown="handleTagKeydown(event)">
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-600"></i>
                             </div>
 
                             <!-- Dropdown Menu -->
-                            <div id="tagAutocompleteDropdown"
-                                class="hidden absolute z-50 w-full mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-2xl overflow-hidden custom-scrollbar max-h-48 overflow-y-auto">
+                            <div id="tagAutocompleteDropdown" class="hidden absolute z-50 w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden custom-scrollbar max-h-48 overflow-y-auto">
                                 <!-- Injected via JS -->
                             </div>
                         </div>
+                        <p class="text-[10px] text-zinc-500 mt-2">First tag will be used as the primary category.</p>
                     </div>
 
-                    <!-- Solutions Array -->
-                    <div class="border border-slate-700/50 rounded-xl p-4 bg-slate-900/30">
+                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
                         <div class="flex justify-between items-center mb-3">
-                            <label class="block text-sm font-medium text-slate-300">Solutions *</label>
-                            <button type="button" onclick="addSolutionRow()"
-                                class="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded">
-                                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Solution
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase">Solutions</label>
+                            <button type="button" onclick="addSolutionRow()" class="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
                             </button>
                         </div>
-
-                        <div id="solutionsListContainer" class="space-y-3">
-                            <!-- Solution Rows go here -->
-                        </div>
+                        <div id="solutionsListContainer" class="space-y-2"></div>
                     </div>
-
                 </form>
             </div>
 
-            <!-- Body: Result View (Hidden by default) -->
-            <div id="modalResultView" class="p-6 hidden flex-col flex-grow">
-                <div
-                    class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg mb-4 text-sm flex items-start gap-3">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+            <!-- Drawer Body: Result -->
+            <div id="drawerResultView" class="flex-1 overflow-y-auto p-6 hidden flex-col">
+                <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl mb-4 text-sm flex items-start gap-3">
+                    <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i>
                     <div>
-                        <p class="font-medium">JSON Generated Successfully!</p>
-                        <p class="text-emerald-500/80 mt-1">Copy the snippet below and paste it into your <code
-                                class="font-mono bg-emerald-900/40 px-1 rounded text-emerald-300">data.json</code> file,
-                            remembering to add a comma if it's not the last item.</p>
+                        <p class="font-bold">Success!</p>
+                        <p class="text-emerald-500/80 mt-0.5 text-xs">Copy this and append it to your data.json array.</p>
                     </div>
                 </div>
-
-                <div class="relative flex-grow">
-                    <textarea id="jsonOutputArea" readonly
-                        class="w-full h-64 bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 font-mono focus:outline-none custom-scrollbar resize-none"></textarea>
-                    <button onclick="copyGeneratedJson()" id="copyJsonBtn"
-                        class="absolute top-3 right-3 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shadow-lg">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span>Copy JSON</span>
+                <div class="relative flex-1 min-h-[300px]">
+                    <textarea id="jsonOutputArea" readonly class="w-full h-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-300 font-mono focus:outline-none custom-scrollbar resize-none"></textarea>
+                    <button onclick="copyGeneratedJson()" id="copyJsonBtn" class="absolute top-3 right-3 bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1.5 transition-colors shadow">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span>Copy</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="p-5 border-t border-slate-700 bg-slate-800/50 rounded-b-2xl flex justify-end gap-3">
-                <button type="button" onclick="closeAddEntryModal()"
-                    class="px-5 py-2.5 text-sm font-medium text-slate-300 hover:text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 rounded-xl transition-colors">
-                    Cancel
+            <!-- Drawer Footer -->
+            <div class="p-5 border-t border-zinc-800 bg-zinc-900/80 flex gap-3">
+                <button type="button" onclick="closeDrawer()" class="flex-1 px-4 py-2.5 text-sm font-medium text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-colors">
+                    Close
                 </button>
-                <button type="submit" form="newEntryForm" id="generateBtn"
-                    class="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2">
-                    <i data-lucide="zap" class="w-4 h-4"></i> Generate JSON
+                <button type="submit" form="newEntryForm" id="generateBtn" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+                    Generate
                 </button>
-                <button type="button" onclick="resetModalView()" id="makeAnotherBtn"
-                    class="hidden px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20 items-center gap-2">
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Create Another
+                <button type="button" onclick="resetDrawer()" id="makeAnotherBtn" class="hidden flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+                    Create Another
                 </button>
             </div>
         </div>
     </div>
 
 
-    <!-- Application Logic & Data -->
+    <!-- Application Logic -->
     <script>
-        // Fallback Data used if fetching data.json fails
+        // Fallback Data
         const fallbackData = [
-            {
-                "id": 11,
-                "title": "Container With Most Water",
-                "difficulty": "Easy",
-                "tags": ["Array", "Greedy", "Two Pointers"],
-                "platform": "LeetCode",
-                "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/",
-                "solutions": [
-                    { "name": "Brute Force", "url": "#" },
-                    { "name": "Optimal", "url": "array/container-with-most-water.html" }
-                ]
-            },
-            {
-                "id": 2751,
-                "title": "Robot Collisions",
-                "difficulty": "Hard",
-                "tags": ["Senior Staff", "Array", "Stack", "Sorting", "Simulation"],
-                "platform": "LeetCode",
-                "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
-                "solutions": [
-                    { "name": "Optimal", "url": "array/robot-collisions.html" }
-                ]
-            },
-            {
-                "id": "15",
-                "title": "3Sum",
-                "difficulty": "Medium",
-                "tags": ["Array", "Two Pointers", "Sorting"],
-                "platform": "LeetCode",
-                "platformUrl": "https://leetcode.com/problems/3sum/description/",
-                "solutions": [
-                    { "name": "Optimal", "url": "algorithm/3sum.html" }
-                ]
-            },
-            {
-                "id": "g-1",
-                "title": "Construct List using XOR Queries",
-                "difficulty": "Medium",
-                "tags": ["Array", "Bit Magic", "Data Structures"],
-                "platform": "GeeksForGeeks",
-                "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
-                "solutions": [
-                    { "name": "Optimal", "url": "array/construct-list-using-given-q-xor-queries.html" }
-                ]
-            }
+            { "id": 11, "title": "Container With Most Water", "difficulty": "Easy", "tags": ["Array", "Greedy", "Two Pointers"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/", "solutions": [{ "name": "Brute Force", "url": "#" }, { "name": "Optimal", "url": "array/container-with-most-water.html" }] },
+            { "id": 2751, "title": "Robot Collisions", "difficulty": "Hard", "tags": ["Stack", "Array", "Sorting", "Simulation"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/robot-collisions/description/", "solutions": [{ "name": "Optimal", "url": "array/robot-collisions.html" }] },
+            { "id": "15", "title": "3Sum", "difficulty": "Medium", "tags": ["Array", "Two Pointers", "Sorting"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/3sum/description/", "solutions": [{ "name": "Optimal", "url": "algorithm/3sum.html" }] },
+            { "id": "70", "title": "Climbing Stairs", "difficulty": "Easy", "tags": ["Dynamic Programming", "Math", "Memoization"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/climbing-stairs/description/", "solutions": [{ "name": "Optimal", "url": "dynamic-programming/climbing-stairs.html" }] }
         ];
 
-        // State
+        // State Management
         let problemData = [];
-        let currentFilter = 'All';
-        let currentSort = 'default';
-        let selectedTags = [];
-        let searchQuery = '';
-        
-        // Category State Management
-        let collapsedCategories = new Set();
-        let isAllCollapsed = false;
-
-        // Dropdown open states
-        let isDiffOpen = false;
-        let isTagOpen = false;
-        let isSortOpen = false;
-
-        // Modal State
-        let formBuilderTags = [];
+        let completedProblems = JSON.parse(localStorage.getItem('dsaTrackerCompleted') || '[]');
         let globalUniqueTags = [];
         let globalUniquePlatforms = [];
+        let formBuilderTags = [];
+        
+        // Active Filters
+        let state = {
+            search: '',
+            difficulty: 'All', // All, Easy, Medium, Hard
+            tag: 'All',        // All or specific tag
+            status: 'All',     // All, Done, Todo
+            sort: 'default'
+        };
 
         // DOM Elements
         const listContainer = document.getElementById('problemList');
         const searchInput = document.getElementById('searchInput');
 
-        // Helper: Get Difficulty Styling
-        function getDifficultyClasses(difficulty) {
+        // Close tag dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('tagAutocompleteDropdown');
+            const inputContainer = document.getElementById('tagInputBox')?.parentElement;
+            if (dropdown && !dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && inputContainer && !inputContainer.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Helpers
+        function getDifficultyColor(difficulty) {
             switch (difficulty) {
-                case 'Easy': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-                case 'Medium': return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
-                case 'Hard': return 'text-rose-400 bg-rose-400/10 border-rose-400/20';
-                default: return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
+                case 'Easy': return 'text-emerald-400 bg-emerald-400/10 border-emerald-500/20';
+                case 'Medium': return 'text-amber-400 bg-amber-400/10 border-amber-500/20';
+                case 'Hard': return 'text-rose-400 bg-rose-400/10 border-rose-500/20';
+                default: return 'text-zinc-400 bg-zinc-400/10 border-zinc-500/20';
             }
         }
 
-        // Helper: Get Platform Config (Icon & Colors)
         function getPlatformConfig(platform) {
             const p = (platform || '').toLowerCase();
-            if (p.includes('leetcode')) return { icon: 'code', text: 'LeetCode', colorClass: 'text-amber-400 hover:bg-amber-400/10 hover:border-amber-400/20' };
-            if (p.includes('geeks') || p.includes('gfg')) return { icon: 'book-open', text: 'GFG', colorClass: 'text-green-400 hover:bg-green-400/10 hover:border-green-400/20' };
-            if (p.includes('codeforces')) return { icon: 'bar-chart-2', text: 'Codeforces', colorClass: 'text-red-400 hover:bg-red-400/10 hover:border-red-400/20' };
-            if (p.includes('hackerrank')) return { icon: 'terminal', text: 'HackerRank', colorClass: 'text-emerald-400 hover:bg-emerald-400/10 hover:border-emerald-400/20' };
-
-            return { icon: 'globe', text: platform || 'Link', colorClass: 'text-slate-400 hover:bg-slate-400/10 hover:border-slate-400/20' };
+            if (p.includes('leetcode')) return { icon: 'code', text: 'LeetCode', color: 'text-amber-500' };
+            if (p.includes('geeks') || p.includes('gfg')) return { icon: 'book-open', text: 'GFG', color: 'text-emerald-500' };
+            if (p.includes('codeforces')) return { icon: 'bar-chart-2', text: 'Codeforces', color: 'text-rose-500' };
+            return { icon: 'external-link', text: platform || 'Link', color: 'text-zinc-400' };
         }
 
-        // Helper: Extract Category from URL
-        function getCategoryFromProblem(problem) {
-            if (problem.solutions && problem.solutions.length > 0) {
-                for (const sol of problem.solutions) {
-                    if (sol.url && sol.url.includes('/')) {
-                        const slug = sol.url.split('/')[0];
-                        // Format the slug (e.g. "dynamic-programming" -> "Dynamic Programming")
-                        return slug.split('-')
-                                   .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                   .join(' ');
-                    }
-                }
+        function getPrimaryCategory(problem) {
+            if (problem.tags && problem.tags.length > 0) {
+                return problem.tags[0]; // Intelligent grouping based on primary tag
             }
             return "Uncategorized";
         }
 
-        // Initialize and Update Stats
-        function updateStats() {
-            const counts = { Easy: 0, Medium: 0, Hard: 0 };
-            problemData.forEach(p => { if (counts[p.difficulty] !== undefined) counts[p.difficulty]++; });
+        // Initialize & Process Data
+        async function initApp() {
+            try {
+                const response = await fetch('data.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                problemData = await response.json();
+            } catch (error) {
+                console.warn("Could not fetch data.json. Using fallback data.", error);
+                problemData = fallbackData;
+            }
 
-            document.getElementById('count-total').innerText = problemData.length;
-            document.getElementById('count-easy').innerText = counts.Easy;
-            document.getElementById('count-medium').innerText = counts.Medium;
-            document.getElementById('count-hard').innerText = counts.Hard;
+            extractMetadata();
+            updateDashboard();
+
+            // Keyboard shortcut for search
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement !== searchInput && document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
         }
 
-        // Populate Main Dropdown Tags and Global Data for Modal
-        function populateTagsAndPlatforms() {
+        function extractMetadata() {
             const allTags = new Set();
             const allPlatforms = new Set();
-
             problemData.forEach(p => {
                 (p.tags || []).forEach(tag => allTags.add(tag));
                 if (p.platform) allPlatforms.add(p.platform);
             });
-
             globalUniqueTags = Array.from(allTags).sort();
             globalUniquePlatforms = Array.from(allPlatforms).sort();
 
-            // Populate Main UI Filter dropdown
-            const tagList = document.getElementById('tag-menu-list');
+            // Populate Datalist for Drawer
+            document.getElementById('platform-suggestions').innerHTML = globalUniquePlatforms.map(plat => `<option value="${plat}">`).join('');
+        }
+
+        // Update UI functions
+        function updateDashboard() {
+            updateStats();
+            renderTagChips();
+            renderProblems();
+        }
+
+        function updateStats() {
+            const counts = { Easy: 0, Medium: 0, Hard: 0, Done: 0, Todo: 0 };
+            
+            problemData.forEach(p => { 
+                if (counts[p.difficulty] !== undefined) counts[p.difficulty]++; 
+                if (completedProblems.includes(String(p.id))) counts.Done++;
+                else counts.Todo++;
+            });
+
+            document.getElementById('stat-total').innerText = problemData.length;
+            document.getElementById('stat-easy').innerText = counts.Easy;
+            document.getElementById('stat-medium').innerText = counts.Medium;
+            document.getElementById('stat-hard').innerText = counts.Hard;
+
+            document.getElementById('count-all-badge').innerText = problemData.length;
+            document.getElementById('count-done-badge').innerText = counts.Done;
+            document.getElementById('count-todo-badge').innerText = counts.Todo;
+
+            // Circular Progress
+            const percentage = problemData.length === 0 ? 0 : Math.round((counts.Done / problemData.length) * 100);
+            document.getElementById('progress-percent').innerText = `${percentage}%`;
+            document.getElementById('progress-circle').setAttribute('stroke-dasharray', `${percentage}, 100`);
+        }
+
+        function renderTagChips() {
+            const container = document.getElementById('tags-container');
             let html = `
-                <li onclick="toggleTagSelect(event, 'All')" class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-200 text-sm transition-colors flex items-center justify-between group tag-option" data-value="All">
-                    <span>All Tags</span> <i data-lucide="check" class="w-4 h-4 text-indigo-400 check-icon"></i>
-                </li>
+                <button onclick="setTagFilter('All')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${state.tag === 'All' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-600'}">
+                    All Tags
+                </button>
             `;
             globalUniqueTags.forEach(tag => {
+                const isActive = state.tag === tag;
                 html += `
-                    <li onclick="toggleTagSelect(event, '${tag}')" class="cursor-pointer px-4 py-2.5 hover:bg-slate-700/50 text-slate-300 text-sm transition-colors flex items-center justify-between group tag-option" data-value="${tag}">
-                        <span>${tag}</span> <i data-lucide="check" class="w-4 h-4 text-transparent check-icon"></i>
-                    </li>
+                    <button onclick="setTagFilter('${tag}')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-600'}">
+                        ${tag}
+                    </button>
                 `;
             });
-            tagList.innerHTML = html;
-
-            // Populate Modal Platform Datalist
-            const platformDatalist = document.getElementById('platform-suggestions');
-            platformDatalist.innerHTML = globalUniquePlatforms.map(plat => `<option value="${plat}">`).join('');
-
-            lucide.createIcons();
+            container.innerHTML = html;
         }
 
-        // --- Custom Dropdown Logic ---
-        function toggleDiffMenu(e) { e.stopPropagation(); isDiffOpen = !isDiffOpen; isTagOpen = false; isSortOpen = false; renderDropdownState(); }
-        function toggleTagMenu(e) { e.stopPropagation(); isTagOpen = !isTagOpen; isDiffOpen = false; isSortOpen = false; renderDropdownState(); }
-        function toggleSortMenu(e) { e.stopPropagation(); isSortOpen = !isSortOpen; isDiffOpen = false; isTagOpen = false; renderDropdownState(); }
-
-        function renderDropdownState() {
-            const menus = [
-                { id: 'diff', isOpen: isDiffOpen },
-                { id: 'tag', isOpen: isTagOpen },
-                { id: 'sort', isOpen: isSortOpen }
-            ];
-
-            menus.forEach(m => {
-                const menuEl = document.getElementById(`${m.id}-menu`);
-                const chevEl = document.getElementById(`${m.id}-chevron`);
-                if (m.isOpen) {
-                    menuEl.classList.remove('hidden');
-                    if (m.id !== 'sort') chevEl.style.transform = 'rotate(180deg)';
+        // Action Handlers
+        searchInput.addEventListener('input', (e) => { state.search = e.target.value; renderProblems(); });
+        
+        function setDiffFilter(diff) { state.difficulty = diff; updateDashboard(); }
+        function setTagFilter(tag) { state.tag = tag; renderTagChips(); renderProblems(); }
+        
+        function setStatusFilter(status) {
+            state.status = status;
+            // Update UI active state
+            ['all', 'done', 'todo'].forEach(s => {
+                const btn = document.getElementById(`btn-status-${s}`);
+                if (s.toLowerCase() === status.toLowerCase()) {
+                    btn.classList.replace('bg-transparent', 'bg-zinc-800');
+                    btn.classList.replace('text-zinc-400', 'text-white');
+                    btn.classList.add('bg-zinc-800', 'text-white', 'font-medium');
                 } else {
-                    menuEl.classList.add('hidden');
-                    if (m.id !== 'sort') chevEl.style.transform = 'rotate(0deg)';
+                    btn.classList.remove('bg-zinc-800', 'text-white', 'font-medium');
+                    btn.classList.add('text-zinc-400');
                 }
-            });
-        }
-
-        // Close dropdowns on outside click
-        document.addEventListener('click', (e) => {
-            if (isDiffOpen || isTagOpen || isSortOpen) {
-                isDiffOpen = false; isTagOpen = false; isSortOpen = false;
-                renderDropdownState();
-            }
-
-            // Tag Autocomplete Modal Dropdown
-            const tagInputContainer = document.getElementById('tagInputBox')?.parentElement;
-            const tagDropdown = document.getElementById('tagAutocompleteDropdown');
-            if (tagInputContainer && tagDropdown && !tagInputContainer.contains(e.target) && !tagDropdown.contains(e.target)) {
-                tagDropdown.classList.add('hidden');
-            }
-        });
-
-        function selectDifficulty(e, value, text) {
-            if (e) e.stopPropagation();
-            currentFilter = value;
-            document.getElementById('diff-selected-text').innerText = text;
-
-            document.querySelectorAll('.diff-option').forEach(el => {
-                const icon = el.querySelector('.check-icon');
-                if (el.dataset.value === value) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
-                else { icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400'); }
-            });
-
-            isDiffOpen = false; renderDropdownState(); renderProblems();
-        }
-
-        function selectSort(e, value, text) {
-            if (e) e.stopPropagation();
-            currentSort = value;
-            document.getElementById('sort-selected-text').innerText = text;
-
-            document.querySelectorAll('.sort-option').forEach(el => {
-                const icon = el.querySelector('.check-icon');
-                if (el.dataset.value === value) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
-                else { icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400'); }
-            });
-
-            isSortOpen = false; renderDropdownState(); renderProblems();
-        }
-
-        function toggleTagSelect(e, tag) {
-            if (e) e.stopPropagation();
-            if (tag === 'All') { selectedTags = []; }
-            else {
-                const index = selectedTags.indexOf(tag);
-                if (index > -1) selectedTags.splice(index, 1);
-                else selectedTags.push(tag);
-            }
-
-            const tagText = document.getElementById('tag-selected-text');
-            if (selectedTags.length === 0) tagText.innerText = 'All Tags';
-            else if (selectedTags.length === 1) tagText.innerText = selectedTags[0];
-            else tagText.innerText = `${selectedTags.length} Tags Selected`;
-
-            document.querySelectorAll('.tag-option').forEach(el => {
-                const icon = el.querySelector('.check-icon');
-                const val = el.dataset.value;
-                if (val === 'All' && selectedTags.length === 0) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
-                else if (val !== 'All' && selectedTags.includes(val)) { icon.classList.remove('text-transparent'); icon.classList.add('text-indigo-400'); }
-                else { icon.classList.add('text-transparent'); icon.classList.remove('text-indigo-400'); }
             });
             renderProblems();
         }
 
-        function resetFilters() {
-            searchQuery = '';
-            document.getElementById('searchInput').value = '';
-            selectDifficulty(null, 'All', 'All Levels');
-            selectSort(null, 'default', 'Sort: Default');
-            toggleTagSelect(null, 'All');
-            isDiffOpen = false; isTagOpen = false; isSortOpen = false;
-            renderDropdownState();
+        function handleSortChange(e) { state.sort = e.target.value; renderProblems(); }
+        
+        function resetAllFilters() {
+            state = { search: '', difficulty: 'All', tag: 'All', status: 'All', sort: 'default' };
+            searchInput.value = '';
+            document.getElementById('sortSelect').value = 'default';
+            setStatusFilter('All');
+            updateDashboard();
         }
 
-        // Sorting Logic
-        function getSortedData(data) {
-            const diffValues = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
-            let sorted = [...data];
-
-            sorted.sort((a, b) => {
-                if (currentSort === 'idAsc') {
-                    const strA = String(a.id); const strB = String(b.id);
-                    const numA = parseInt(strA.match(/\d+/)?.[0] || '-1'); const numB = parseInt(strB.match(/\d+/)?.[0] || '-1');
-                    if (numA !== -1 && numB !== -1 && numA !== numB) return numA - numB;
-                    return strA.localeCompare(strB);
-                }
-                if (currentSort === 'titleAsc') return a.title.localeCompare(b.title);
-                if (currentSort === 'diffAsc') return (diffValues[a.difficulty] || 0) - (diffValues[b.difficulty] || 0);
-                if (currentSort === 'diffDesc') return (diffValues[b.difficulty] || 0) - (diffValues[a.difficulty] || 0);
-                return 0;
-            });
-            return sorted;
+        function toggleProblemStatus(id) {
+            const strId = String(id);
+            if (completedProblems.includes(strId)) {
+                completedProblems = completedProblems.filter(i => i !== strId);
+            } else {
+                completedProblems.push(strId);
+            }
+            localStorage.setItem('dsaTrackerCompleted', JSON.stringify(completedProblems));
+            updateStats();
+            // Optional: If filtered by Done/Todo, re-render to hide/show dynamically
+            if(state.status !== 'All') renderProblems(); 
         }
 
-        // Toggle Category Visibility with Smooth Animation
+        function resetProgress() {
+            if (confirm("Are you sure you want to reset all your solved problems? This cannot be undone.")) {
+                completedProblems = [];
+                localStorage.removeItem('dsaTrackerCompleted');
+                updateDashboard();
+            }
+        }
+
+        // NEW: Function to reset progress for a specific category
+        function resetCategoryProgress(categoryEncoded) {
+            const categoryName = decodeURIComponent(categoryEncoded);
+            if (confirm(`Are you sure you want to reset your progress for the entire "${categoryName}" category?`)) {
+                // Find all problem IDs that belong to this category
+                const problemsInCategory = problemData.filter(p => getPrimaryCategory(p) === categoryName);
+                const problemIdsToReset = problemsInCategory.map(p => String(p.id));
+
+                // Filter them out of the completed storage
+                completedProblems = completedProblems.filter(id => !problemIdsToReset.includes(id));
+                localStorage.setItem('dsaTrackerCompleted', JSON.stringify(completedProblems));
+                
+                // Refresh UI
+                updateDashboard();
+            }
+        }
+
         function toggleCategory(categoryId) {
             const content = document.getElementById(`category-${categoryId}`);
-            const chevron = document.getElementById(`chevron-${categoryId}`);
-            
-            if (collapsedCategories.has(categoryId)) {
-                collapsedCategories.delete(categoryId);
-                content.classList.remove('collapsed');
-                chevron.style.transform = 'rotate(0deg)';
-            } else {
-                collapsedCategories.add(categoryId);
-                content.classList.add('collapsed');
-                chevron.style.transform = 'rotate(180deg)';
-            }
-            
-            updateToggleAllButtonState();
+            const icon = document.getElementById(`icon-${categoryId}`);
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
         }
-        
-        // Collapse or Expand All Categories
-        function toggleAllCategories() {
-            isAllCollapsed = !isAllCollapsed;
-            
-            const categoryElements = document.querySelectorAll('[id^="category-"]');
-            
-            categoryElements.forEach(el => {
-                const categoryId = el.id.replace('category-', '');
-                const chevron = document.getElementById(`chevron-${categoryId}`);
+
+        // Sorting & Filtering Logic
+        function getFilteredAndSortedData() {
+            let filtered = problemData.filter(p => {
+                const searchStr = `${p.id} ${p.title} ${p.tags.join(' ')} ${p.platform}`.toLowerCase();
+                const matchesSearch = searchStr.includes(state.search.toLowerCase());
+                const matchesDiff = state.difficulty === 'All' || p.difficulty === state.difficulty;
+                const matchesTag = state.tag === 'All' || (p.tags || []).includes(state.tag);
                 
-                if (isAllCollapsed) {
-                    collapsedCategories.add(categoryId);
-                    el.classList.add('collapsed');
-                    if(chevron) chevron.style.transform = 'rotate(180deg)';
-                } else {
-                    collapsedCategories.delete(categoryId);
-                    el.classList.remove('collapsed');
-                    if(chevron) chevron.style.transform = 'rotate(0deg)';
-                }
+                const isDone = completedProblems.includes(String(p.id));
+                const matchesStatus = state.status === 'All' || (state.status === 'Done' && isDone) || (state.status === 'Todo' && !isDone);
+                
+                return matchesSearch && matchesDiff && matchesTag && matchesStatus;
             });
-            
-            updateToggleAllButtonState();
-        }
-        
-        function updateToggleAllButtonState() {
-            const btnIcon = document.getElementById('toggle-all-icon');
-            const btn = document.getElementById('toggle-all-btn');
-            
-            const categoryElements = document.querySelectorAll('[id^="category-"]');
-            let allAreCollapsed = true;
-            
-            if(categoryElements.length === 0) allAreCollapsed = false;
-            
-            categoryElements.forEach(el => {
-                if(!el.classList.contains('collapsed')) allAreCollapsed = false;
+
+            const diffVal = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+            filtered.sort((a, b) => {
+                if (state.sort === 'titleAsc') return a.title.localeCompare(b.title);
+                if (state.sort === 'diffAsc') return (diffVal[a.difficulty] || 0) - (diffVal[b.difficulty] || 0);
+                if (state.sort === 'diffDesc') return (diffVal[b.difficulty] || 0) - (diffVal[a.difficulty] || 0);
+                // Default: By ID roughly
+                const numA = parseInt(String(a.id).match(/\d+/)?.[0] || '9999');
+                const numB = parseInt(String(b.id).match(/\d+/)?.[0] || '9999');
+                return numA - numB;
             });
-            
-            isAllCollapsed = allAreCollapsed;
-            
-            if (isAllCollapsed) {
-                if(btnIcon) btnIcon.setAttribute('data-lucide', 'unfold-vertical');
-                if(btn) btn.setAttribute('title', 'Expand All');
-            } else {
-                if(btnIcon) btnIcon.setAttribute('data-lucide', 'fold-vertical');
-                if(btn) btn.setAttribute('title', 'Collapse All');
-            }
-            lucide.createIcons();
+
+            return filtered;
         }
 
-        // List Rendering
+        // Main Render
         function renderProblems() {
-            let filteredData = problemData.filter(p => {
-                const platformName = p.platform || 'LeetCode';
-                const searchStr = `${p.id} ${p.title} ${p.tags.join(' ')} ${platformName}`.toLowerCase();
-                const matchesSearch = searchStr.includes(searchQuery.toLowerCase());
-                const matchesDiffFilter = currentFilter === 'All' || p.difficulty === currentFilter;
-                const matchesTagFilter = selectedTags.length === 0 || selectedTags.some(t => (p.tags || []).includes(t));
-                return matchesSearch && matchesDiffFilter && matchesTagFilter;
+            const data = getFilteredAndSortedData();
+
+            if (data.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-20 px-4">
+                        <div class="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-4 text-zinc-600">
+                            <i data-lucide="search-x" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-white mb-1">No problems found</h3>
+                        <p class="text-zinc-400 text-sm">Try adjusting your filters or search query.</p>
+                        <button onclick="resetAllFilters()" class="mt-4 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm transition-colors text-white">Clear Filters</button>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            // Group by Primary Tag
+            const grouped = {};
+            data.forEach(p => {
+                const cat = getPrimaryCategory(p);
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(p);
             });
 
-            filteredData = getSortedData(filteredData);
+            const sortedCategories = Object.keys(grouped).sort();
+            let html = '';
 
-            if (filteredData.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-12 glass rounded-2xl border-dashed border-2 border-slate-700">
-                        <i data-lucide="ghost" class="w-12 h-12 text-slate-500 mx-auto mb-4"></i>
-                        <p class="text-slate-400 text-lg">No problems found matching your criteria.</p>
-                    </div>`;
-            } else {
-                // Group the sorted data by category
-                const groupedData = {};
-                filteredData.forEach((p, index) => {
-                    const category = getCategoryFromProblem(p);
-                    if (!groupedData[category]) {
-                        groupedData[category] = [];
-                    }
-                    groupedData[category].push({ problem: p, globalIndex: index });
-                });
-
-                // Generate HTML for each group
-                const categories = Object.keys(groupedData).sort();
-                let htmlOutput = '';
-
-                categories.forEach(category => {
-                    // Create safe, unique ID for the category string
-                    const categoryId = category.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                    const isCollapsed = collapsedCategories.has(categoryId);
-                    const contentClass = isCollapsed ? 'category-content collapsed' : 'category-content';
-                    const chevronTransform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
-                    
-                    htmlOutput += `
-                        <div class="animate-fade-in-up">
-                            <button onclick="toggleCategory('${categoryId}')" class="w-full flex items-center justify-between text-left text-lg font-bold text-slate-200 mb-2 pb-2 border-b border-slate-700/50 group focus:outline-none hover:border-slate-500 transition-colors">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="folder-code" class="w-5 h-5 text-indigo-400 group-hover:text-indigo-300 transition-colors"></i> ${category}
-                                    <span class="text-[11px] font-medium text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full ml-1 border border-slate-700">${groupedData[category].length}</span>
-                                </div>
-                                <i data-lucide="chevron-up" id="chevron-${categoryId}" class="w-5 h-5 text-slate-500 transition-transform duration-300" style="transform: ${chevronTransform}"></i>
+            sortedCategories.forEach(category => {
+                const categoryId = category.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                const problems = grouped[category];
+                const encodedCategory = encodeURIComponent(category);
+                
+                // Render custom category header with the embedded Reset Button
+                html += `
+                    <div class="mb-6 animate-fade-in">
+                        <div class="w-full flex items-center justify-between py-2 group">
+                            <button onclick="toggleCategory('${categoryId}')" class="flex items-center gap-3 text-left focus:outline-none flex-shrink-0">
+                                <i data-lucide="folder" class="w-4 h-4 text-zinc-500 group-hover:text-indigo-400 transition-colors"></i>
+                                <span class="text-sm font-bold tracking-wider uppercase text-zinc-300 group-hover:text-white transition-colors">${category}</span>
+                                <span class="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">${problems.length}</span>
                             </button>
-                            <div id="category-${categoryId}" class="${contentClass}">
-                                <div class="category-inner flex flex-col gap-3 pt-2 pb-3">
-                    `;
+                            
+                            <div class="flex-1 h-px bg-zinc-800 mx-4"></div>
+                            
+                            <div class="flex items-center gap-1 flex-shrink-0">
+                                <button onclick="resetCategoryProgress('${encodedCategory}')" class="p-1.5 text-zinc-500 hover:text-rose-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all rounded hover:bg-zinc-800 focus:outline-none" title="Reset this Category">
+                                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button onclick="toggleCategory('${categoryId}')" class="p-1.5 text-zinc-500 hover:text-white transition-colors focus:outline-none">
+                                    <i data-lucide="chevron-down" id="icon-${categoryId}" class="w-4 h-4 transition-transform"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="category-${categoryId}" class="mt-3 grid gap-2">
+                `;
 
-                    groupedData[category].forEach(item => {
-                        const p = item.problem;
-                        const index = item.globalIndex; // Use global index for staggered animation
-                        const diffClass = getDifficultyClasses(p.difficulty);
-                        const animationDelay = (index % 20) * 0.02;
-                        const platformName = p.platform || 'LeetCode';
-                        const platformUrl = p.platformUrl || p.leetcodeUrl || '#';
-                        const platformConfig = getPlatformConfig(platformName);
+                problems.forEach(p => {
+                    const isDone = completedProblems.includes(String(p.id));
+                    const diffClass = getDifficultyColor(p.difficulty);
+                    const platformCfg = getPlatformConfig(p.platform);
+                    const solutions = p.solutions || [];
 
-                        let solutionsList = p.solutions || [];
-                        if (solutionsList.length === 0 && p.algovizUrl && p.algovizUrl !== "#") {
-                            solutionsList = [{ name: 'AlgoViz', url: p.algovizUrl }];
-                        }
-
-                        let solutionsHtml = '';
-                        if (solutionsList.length > 0) {
-                            solutionsHtml = `
-                                <div class="flex items-center gap-1.5 border-l border-slate-700/50 pl-2 sm:pl-3 ml-1 sm:ml-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
-                                    ${solutionsList.map(sol => `
-                                        <a href="${sol.url}" target="_blank" rel="noopener noreferrer"
-                                           class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/40 transition-all text-[11px] sm:text-xs font-medium whitespace-nowrap">
-                                            <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> ${sol.name}
-                                        </a>
-                                    `).join('')}
+                    html += `
+                        <div class="group relative flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800/60 hover:border-zinc-700 rounded-xl transition-all gap-4">
+                            
+                            <!-- Left: Status & Title -->
+                            <div class="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                                <div class="pt-0.5 sm:pt-0">
+                                    <input type="checkbox" class="custom-checkbox" ${isDone ? 'checked' : ''} onchange="toggleProblemStatus('${p.id}')" title="Mark as done">
                                 </div>
-                            `;
-                        }
-
-                        htmlOutput += `
-                            <div class="glass rounded-xl border border-slate-700/50 hover:border-slate-500 hover:bg-slate-800/40 transition-all duration-200 group flex flex-col md:flex-row md:items-center justify-between p-3.5 sm:p-4 gap-3 sm:gap-4" style="animation-delay: ${animationDelay}s;">
-                                <div class="flex items-start md:items-center gap-3 sm:gap-4 flex-grow min-w-0">
-                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all mt-0.5 md:mt-0">
-                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0 flex-grow">
-                                        <h3 class="text-base font-medium text-slate-200 truncate group-hover:text-white transition-colors" title="${p.id}. ${p.title}">
-                                            <span class="text-slate-500 text-sm font-mono mr-1">${p.id}.</span>${p.title}
+                                <div class="flex flex-col gap-1 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono text-zinc-500">#${p.id}</span>
+                                        <h3 class="text-sm sm:text-base font-semibold text-zinc-200 truncate group-hover:text-white" title="${p.title}">
+                                            ${p.title}
                                         </h3>
-                                        <div class="flex items-center gap-2">
-                                            <span class="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold border ${diffClass} flex-shrink-0">
-                                                ${p.difficulty}
-                                            </span>
+                                    </div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold border ${diffClass}">
+                                            ${p.difficulty}
+                                        </span>
+                                        <span class="flex items-center gap-1 text-[11px] text-zinc-400">
+                                            <i data-lucide="${platformCfg.icon}" class="w-3 h-3 ${platformCfg.color}"></i> ${platformCfg.text}
+                                        </span>
+                                        <div class="hidden sm:flex items-center gap-1.5 border-l border-zinc-800 pl-2 ml-1">
+                                            ${(p.tags || []).slice(1, 3).map(t => `<span class="text-[10px] text-zinc-500 bg-zinc-950 px-1.5 py-0.5 rounded">${t}</span>`).join('')}
+                                            ${(p.tags || []).length > 3 ? `<span class="text-[10px] text-zinc-600">...</span>` : ''}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto">
-                                    <div class="hidden lg:flex flex-wrap items-center justify-end gap-1.5 w-48 flex-shrink-0 mr-2">
-                                        ${(p.tags || []).slice(0, 2).map(tag => `<span class="px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 text-[10px] font-mono border border-slate-700/80 truncate max-w-[80px]" title="${tag}">${tag}</span>`).join('')}
-                                        ${(p.tags || []).length > 2 ? `<span class="text-slate-500 text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/80" title="${p.tags.slice(2).join(', ')}">+${p.tags.length - 2}</span>` : ''}
-                                    </div>
-                                    <div class="flex items-center w-full md:w-auto overflow-hidden">
-                                        <a href="${platformUrl}" target="_blank" rel="noopener noreferrer" 
-                                        class="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-transparent transition-all flex-shrink-0 ${platformConfig.colorClass}" title="View on ${platformConfig.text}">
-                                            <i data-lucide="${platformConfig.icon}" class="w-4 h-4"></i>
-                                            <span class="text-xs font-medium hidden sm:block">${platformConfig.text}</span>
-                                        </a>
-                                        ${solutionsHtml}
-                                    </div>
-                                </div>
                             </div>
-                        `;
-                    });
 
-                    htmlOutput += `</div></div></div>`; // Close grid wrappers
+                            <!-- Right: Actions -->
+                            <div class="flex items-center gap-2 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity pl-8 sm:pl-0">
+                                <a href="${p.platformUrl || '#'}" target="_blank" class="p-2 bg-zinc-950 border border-zinc-800 hover:border-zinc-600 rounded-lg text-zinc-400 hover:text-white transition-colors shadow-sm" title="Open on ${platformCfg.text}">
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                </a>
+                                ${solutions.map(sol => `
+                                    <a href="${sol.url}" target="_blank" class="flex items-center gap-1.5 px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg text-indigo-300 text-xs font-medium transition-colors shadow-sm whitespace-nowrap">
+                                        <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> ${sol.name}
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
                 });
 
-                listContainer.innerHTML = htmlOutput;
-                updateToggleAllButtonState(); // Update main toggle button correctly
-            }
+                html += `</div></div>`;
+            });
+
+            listContainer.innerHTML = html;
             lucide.createIcons();
         }
 
-        searchInput.addEventListener('input', (e) => { searchQuery = e.target.value; renderProblems(); });
-
         // ==========================================
-        //         ADD NEW ENTRY MODAL LOGIC
+        //         ADD PROBLEM DRAWER LOGIC
         // ==========================================
 
-        function openAddEntryModal() {
-            document.getElementById('addEntryModal').classList.remove('hidden');
-            document.getElementById('addEntryModal').classList.add('flex');
-            resetModalView(); // Reset form & data
+        function openDrawer() {
+            document.getElementById('addDrawerWrapper').classList.remove('hidden');
+            resetDrawer();
         }
 
-        function closeAddEntryModal() {
-            document.getElementById('addEntryModal').classList.add('hidden');
-            document.getElementById('addEntryModal').classList.remove('flex');
+        function closeDrawer() {
+            document.getElementById('addDrawerWrapper').classList.add('hidden');
         }
 
-        function resetModalView() {
+        function resetDrawer() {
             document.getElementById('newEntryForm').reset();
-            document.getElementById('modalFormView').classList.remove('hidden');
-            document.getElementById('modalResultView').classList.add('hidden');
-            document.getElementById('generateBtn').classList.remove('hidden');
-            document.getElementById('makeAnotherBtn').classList.add('hidden');
+            document.getElementById('drawerFormView').classList.remove('hidden');
+            document.getElementById('drawerResultView').classList.add('hidden');
+            document.getElementById('drawerResultView').classList.remove('flex');
+            document.getElementById('generateBtn').style.display = 'block';
             document.getElementById('makeAnotherBtn').style.display = 'none';
-            document.getElementById('generateBtn').style.display = 'flex';
 
+            // Reset Tags
             formBuilderTags = [];
             renderModalTags();
+            document.getElementById('tagInputBox').value = '';
 
-            // Reset Solutions list
             document.getElementById('solutionsListContainer').innerHTML = '';
-            addSolutionRow(); // Add one empty row initially
+            addSolutionRow();
         }
 
-        // --- Tags Builder Logic (Autocomplete) ---
+        // --- Tag Autocomplete Builder Logic ---
         function showTagDropdown() {
             const input = document.getElementById('tagInputBox');
             const val = input.value.trim().toLowerCase();
@@ -1037,23 +811,23 @@
             const exactMatch = available.find(t => t.toLowerCase() === val);
 
             // Option to create new if no exact match exists
-            if (val && !exactMatch) {
+            if (val && !exactMatch && !formBuilderTags.some(t => t.toLowerCase() === val)) {
                 const rawVal = input.value.trim();
                 html += `
-                    <div onclick="addModalTag('${rawVal}', true)" class="px-4 py-2.5 hover:bg-indigo-500/10 cursor-pointer text-sm text-indigo-400 font-medium flex items-center gap-2 border-b border-slate-700/50">
+                    <div onclick="addModalTag('${rawVal}', true)" class="px-4 py-2.5 hover:bg-indigo-500/10 cursor-pointer text-sm text-indigo-400 font-medium flex items-center gap-2 border-b border-zinc-800">
                         <i data-lucide="plus-circle" class="w-4 h-4"></i> Add "${rawVal}"
                     </div>`;
             }
 
             // Render available options
             if (filtered.length === 0 && !val) {
-                html += `<div class="px-4 py-3 text-sm text-slate-500 italic text-center">No more tags available</div>`;
+                html += `<div class="px-4 py-3 text-sm text-zinc-500 italic text-center">No more tags available</div>`;
             } else {
                 filtered.forEach(tag => {
                     html += `
-                        <div onclick="addModalTag('${tag}', true)" class="px-4 py-2.5 hover:bg-slate-700/50 cursor-pointer text-sm text-slate-300 transition-colors flex items-center justify-between group">
+                        <div onclick="addModalTag('${tag}', true)" class="px-4 py-2.5 hover:bg-zinc-800 cursor-pointer text-sm text-zinc-300 transition-colors flex items-center justify-between group">
                             <span>${tag}</span>
-                            <i data-lucide="plus" class="w-3 h-3 text-slate-500 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            <i data-lucide="plus" class="w-3 h-3 text-zinc-500 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                         </div>`;
                 });
             }
@@ -1067,9 +841,7 @@
             const val = document.getElementById('tagInputBox').value.trim();
             if (e.key === 'Enter') {
                 e.preventDefault();
-                if (val) {
-                    addModalTag(val, true);
-                }
+                if (val) addModalTag(val, true);
             }
         }
 
@@ -1096,7 +868,6 @@
         function removeModalTag(tag) {
             formBuilderTags = formBuilderTags.filter(t => t !== tag);
             renderModalTags();
-            // Optional: Show dropdown again to reflect the newly available tag
             if (document.activeElement === document.getElementById('tagInputBox')) {
                 showTagDropdown();
             }
@@ -1105,9 +876,9 @@
         function renderModalTags() {
             const selectedContainer = document.getElementById('selectedTagsContainer');
             selectedContainer.innerHTML = formBuilderTags.map(tag => `
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-medium">
+                <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 rounded text-xs font-medium">
                     ${tag}
-                    <button type="button" onclick="removeModalTag('${tag}')" class="hover:text-white bg-indigo-500/20 p-0.5 rounded-md transition-colors">
+                    <button type="button" onclick="removeModalTag('${tag}')" class="hover:text-white bg-indigo-500/20 p-0.5 rounded-sm transition-colors">
                         <i data-lucide="x" class="w-3 h-3"></i>
                     </button>
                 </span>
@@ -1115,143 +886,96 @@
             lucide.createIcons();
         }
 
+
         // --- Solutions Builder Logic ---
         function addSolutionRow() {
             const container = document.getElementById('solutionsListContainer');
-
             const rowDiv = document.createElement('div');
-            rowDiv.className = 'flex flex-col sm:flex-row gap-2 items-start sm:items-center solution-row bg-slate-950/50 p-3 rounded-lg border border-slate-800';
-
+            rowDiv.className = 'flex gap-2 items-center solution-row bg-zinc-950 p-2 rounded-lg border border-zinc-800';
             rowDiv.innerHTML = `
-                <div class="w-full sm:w-1/3 relative">
-                    <select required class="form-input text-sm sol-name cursor-pointer appearance-none pr-8">
-                        <option value="" disabled selected class="bg-slate-800 text-slate-200">Select Type</option>
-                        <option value="Brute" class="bg-slate-800 text-slate-200">Brute</option>
-                        <option value="Better" class="bg-slate-800 text-slate-200">Better</option>
-                        <option value="Optimal" class="bg-slate-800 text-slate-200">Optimal</option>
-                    </select>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                </div>
-                <div class="w-full flex-grow flex gap-2">
-                    <input type="text" placeholder="Path/URL (e.g. array/prob.html)" required class="form-input text-sm sol-url w-full">
-                    <button type="button" onclick="this.closest('.solution-row').remove()" class="text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 p-2 rounded-lg transition-colors flex-shrink-0" title="Remove">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
+                <select required class="form-input text-sm sol-name w-1/3 py-1.5">
+                    <option value="" disabled selected>Type</option>
+                    <option value="Brute">Brute</option>
+                    <option value="Better">Better</option>
+                    <option value="Optimal">Optimal</option>
+                </select>
+                <input type="text" placeholder="URL path..." required class="form-input text-sm sol-url flex-1 py-1.5">
+                <button type="button" onclick="this.closest('.solution-row').remove()" class="text-zinc-500 hover:text-rose-400 p-1 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             `;
             container.appendChild(rowDiv);
             lucide.createIcons();
         }
 
-        // --- Form Submission & JSON Generation ---
         document.getElementById('newEntryForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
-            if (formBuilderTags.length === 0) {
-                alert("Please add at least one tag.");
-                return;
+            if (formBuilderTags.length === 0) { 
+                alert("Please enter at least one tag."); 
+                return; 
             }
 
-            // Extract values
-            const rawId = document.getElementById('entryID').value.trim();
-            // Always store ID as a string, even if it only contains numbers
-            const idVal = String(rawId);
+            const tagsArray = formBuilderTags;
 
-            const titleVal = document.getElementById('entryTitle').value.trim();
-            const diffVal = document.getElementById('entryDiff').value;
-            const platformVal = document.getElementById('entryPlatform').value.trim();
-            const urlVal = document.getElementById('entryUrl').value.trim();
-
-            // Extract Solutions
-            const solutionRows = document.querySelectorAll('.solution-row');
             const solutionsData = [];
-            solutionRows.forEach(row => {
-                const n = row.querySelector('.sol-name').value.trim();
+            document.querySelectorAll('.solution-row').forEach(row => {
+                const n = row.querySelector('.sol-name').value;
                 const u = row.querySelector('.sol-url').value.trim();
                 if (n && u) solutionsData.push({ name: n, url: u });
             });
 
-            if (solutionsData.length === 0) {
-                alert("Please add at least one valid solution.");
-                return;
-            }
+            if (solutionsData.length === 0) { alert("Please add a solution."); return; }
 
-            // Build Object
             const newEntry = {
-                id: idVal,
-                title: titleVal,
-                difficulty: diffVal,
-                tags: formBuilderTags,
-                platform: platformVal,
-                platformUrl: urlVal,
+                id: String(document.getElementById('entryID').value.trim()),
+                title: document.getElementById('entryTitle').value.trim(),
+                difficulty: document.getElementById('entryDiff').value,
+                tags: tagsArray,
+                platform: document.getElementById('entryPlatform').value.trim(),
+                platformUrl: document.getElementById('entryUrl').value.trim(),
                 solutions: solutionsData
             };
 
-            // Convert to formatted JSON
-            const jsonString = JSON.stringify(newEntry, null, 4);
+            document.getElementById('jsonOutputArea').value = JSON.stringify(newEntry, null, 4);
 
-            // Display Result
-            document.getElementById('jsonOutputArea').value = jsonString;
-
-            document.getElementById('modalFormView').classList.add('hidden');
-            document.getElementById('modalResultView').classList.remove('hidden');
-            document.getElementById('modalResultView').classList.add('flex');
+            document.getElementById('drawerFormView').classList.add('hidden');
+            document.getElementById('drawerResultView').classList.remove('hidden');
+            document.getElementById('drawerResultView').classList.add('flex');
 
             document.getElementById('generateBtn').style.display = 'none';
-            document.getElementById('makeAnotherBtn').style.display = 'flex';
-            document.getElementById('makeAnotherBtn').classList.remove('hidden');
+            document.getElementById('makeAnotherBtn').style.display = 'block';
         });
 
-        // --- Copy to Clipboard ---
         function copyGeneratedJson() {
             const textarea = document.getElementById('jsonOutputArea');
             const btn = document.getElementById('copyJsonBtn');
             const originalHTML = btn.innerHTML;
 
-            // Note: Canvas iframe restricts modern navigator.clipboard sometimes, fallback to execCommand
             textarea.select();
-            textarea.setSelectionRange(0, 99999); // For mobile devices
-
+            textarea.setSelectionRange(0, 99999);
+            
             try {
                 document.execCommand('copy');
-                // Visual feedback
                 btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> <span>Copied!</span>`;
                 btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
-                btn.classList.remove('bg-slate-700', 'hover:bg-slate-600');
+                btn.classList.remove('bg-zinc-800', 'hover:bg-zinc-700');
                 lucide.createIcons();
-
+                
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
                     btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
-                    btn.classList.add('bg-slate-700', 'hover:bg-slate-600');
+                    btn.classList.add('bg-zinc-800', 'hover:bg-zinc-700');
                     lucide.createIcons();
                 }, 2000);
             } catch (err) {
-                alert("Failed to copy. Please select the text and copy manually.");
+                alert("Failed to copy. Please copy manually.");
             }
         }
 
-        // ==========================================
-        //               INITIALIZATION
-        // ==========================================
-        async function initApp() {
-            try {
-                const response = await fetch('data.json');
-                if (!response.ok) throw new Error('Network response was not ok');
-                problemData = await response.json();
-            } catch (error) {
-                console.warn("Could not fetch data.json (likely running in Canvas sandbox). Using fallback data.", error);
-                problemData = fallbackData;
-            }
-
-            updateStats();
-            populateTagsAndPlatforms();
-            renderProblems();
-        }
-
+        // Boot
         initApp();
 
     </script>
 </body>
-
 </html>
