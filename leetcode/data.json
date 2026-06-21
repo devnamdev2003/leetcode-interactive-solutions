@@ -471,5 +471,33 @@
         "url": "string/longest-palindromic-substring.html"
       }
     ]
+  },
+  {
+    "id": "1833",
+    "title": "Maximum Ice Cream Bars",
+    "difficulty": "Medium",
+    "tags": [
+      "Sorting",
+      "Senior",
+      "Greedy",
+      "Counting Sort",
+      "Sorting"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/maximum-ice-cream-bars/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "array/maximum-ice-cream-bars-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "array/maximum-ice-cream-bars-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "array/maximum-ice-cream-bars.html"
+      }
+    ]
   }
 ]
