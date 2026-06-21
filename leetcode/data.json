@@ -1,5 +1,47 @@
 [
   {
+    "id": "90",
+    "title": "Subsets II",
+    "difficulty": "Medium",
+    "tags": ["Array", "Backtracking", "Bit Manipulation"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/subsets-ii/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "backtracking/subsets-ii.html"
+      }
+    ]
+  },
+  {
+    "id": "78",
+    "title": "Subsets",
+    "difficulty": "Medium",
+    "tags": ["Array", "Backtracking", "Bit Manipulation"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/subsets/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "backtracking/subsets.html"
+      }
+    ]
+  },
+  {
+    "id": "39",
+    "title": "Combination Sum",
+    "difficulty": "Medium",
+    "tags": ["Array", "Backtracking"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/combination-sum/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "array/combination-sum.html"
+      }
+    ]
+  },
+  {
     "id": "g-1",
     "title": "Quick Sort, a Divide and Conquer algorithm",
     "difficulty": "Medium",
