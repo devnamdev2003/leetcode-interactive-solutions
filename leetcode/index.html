@@ -141,6 +141,22 @@
             background-color: #1e293b;
             color: #f8fafc;
         }
+
+        /* Category Collapse Animations */
+        .category-content {
+            display: grid;
+            grid-template-rows: 1fr;
+            transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+        .category-content.collapsed {
+            grid-template-rows: 0fr;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .category-inner {
+            overflow: hidden;
+        }
     </style>
 </head>
 
@@ -207,10 +223,10 @@
             </div>
 
             <!-- Custom Dropdowns & Actions -->
-            <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full lg:w-auto">
+            <div class="flex flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto">
 
                 <!-- Sort Dropdown -->
-                <div class="relative w-full sm:w-48">
+                <div class="relative w-full sm:w-48 lg:w-40 xl:w-48 shrink-0">
                     <button onclick="toggleSortMenu(event)" id="sort-btn"
                         class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
                         <span id="sort-selected-text" class="truncate">Sort: Default</span>
@@ -255,7 +271,7 @@
                 </div>
 
                 <!-- Custom Difficulty Dropdown -->
-                <div class="relative w-full sm:w-40">
+                <div class="relative w-full sm:w-40 shrink-0">
                     <button onclick="toggleDiffMenu(event)" id="diff-btn"
                         class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
                         <span id="diff-selected-text" class="truncate">All Levels</span>
@@ -294,7 +310,7 @@
                 </div>
 
                 <!-- Custom Tag Dropdown -->
-                <div class="relative w-full sm:w-56">
+                <div class="relative w-full sm:flex-1 min-w-[200px] shrink-0">
                     <button onclick="toggleTagMenu(event)" id="tag-btn"
                         class="flex items-center justify-between w-full pl-4 pr-3 py-3 text-base border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-slate-800/50 text-slate-200 glass transition-all shadow-sm">
                         <span id="tag-selected-text" class="truncate">All Tags</span>
@@ -309,26 +325,36 @@
                     </div>
                 </div>
 
-                <!-- Reset Filters Button -->
-                <button onclick="resetFilters()"
-                    class="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800/50 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 text-sm transition-all shadow-sm glass focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    title="Reset all filters">
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    <span class="hidden xl:inline font-medium">Reset</span>
-                </button>
+                <div class="flex gap-2 shrink-0">
+                    <!-- Collapse / Expand All Button (Icon Only) -->
+                    <button onclick="toggleAllCategories()" id="toggle-all-btn"
+                        class="flex items-center justify-center shrink-0 w-[46px] h-[46px] bg-slate-800/50 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 transition-all shadow-sm glass focus:outline-none focus:ring-2 focus:ring-slate-500"
+                        title="Collapse All">
+                        <i data-lucide="fold-vertical" id="toggle-all-icon" class="w-5 h-5"></i>
+                    </button>
 
-                <!-- Add New Entry Button -->
-                <button onclick="openAddEntryModal()"
-                    class="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-400 ml-auto lg:ml-0 whitespace-nowrap">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Add Problem</span>
-                </button>
+                    <!-- Reset Filters Button -->
+                    <button onclick="resetFilters()"
+                        class="flex items-center justify-center gap-2 px-4 py-3 shrink-0 bg-slate-800/50 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 text-sm transition-all shadow-sm glass focus:outline-none focus:ring-2 focus:ring-slate-500"
+                        title="Reset all filters">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span class="hidden xl:inline font-medium">Reset</span>
+                    </button>
+
+                    <!-- Add New Entry Button -->
+                    <button onclick="openAddEntryModal()"
+                        class="flex items-center justify-center gap-2 px-4 py-3 shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-400 whitespace-nowrap">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Add Problem</span>
+                    </button>
+                </div>
 
             </div>
         </div>
 
         <!-- Problem List -->
-        <div id="problemList" class="space-y-3 pb-20 relative z-10">
+        <!-- Changed to space-y-8 to account for category grouping gaps -->
+        <div id="problemList" class="space-y-8 pb-20 relative z-10">
             <!-- Items injected by JS -->
         </div>
 
@@ -512,7 +538,7 @@
                 "platform": "LeetCode",
                 "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
                 "solutions": [
-                    { "name": "AlgoViz", "url": "array/robot-collisions.html" }
+                    { "name": "Optimal", "url": "array/robot-collisions.html" }
                 ]
             },
             {
@@ -523,7 +549,7 @@
                 "platform": "LeetCode",
                 "platformUrl": "https://leetcode.com/problems/3sum/description/",
                 "solutions": [
-                    { "name": "AlgoViz", "url": "algorithm/3sum.html" }
+                    { "name": "Optimal", "url": "algorithm/3sum.html" }
                 ]
             },
             {
@@ -534,7 +560,7 @@
                 "platform": "GeeksForGeeks",
                 "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
                 "solutions": [
-                    { "name": "AlgoViz", "url": "array/construct-list-using-given-q-xor-queries.html" }
+                    { "name": "Optimal", "url": "array/construct-list-using-given-q-xor-queries.html" }
                 ]
             }
         ];
@@ -545,6 +571,10 @@
         let currentSort = 'default';
         let selectedTags = [];
         let searchQuery = '';
+        
+        // Category State Management
+        let collapsedCategories = new Set();
+        let isAllCollapsed = false;
 
         // Dropdown open states
         let isDiffOpen = false;
@@ -579,6 +609,22 @@
             if (p.includes('hackerrank')) return { icon: 'terminal', text: 'HackerRank', colorClass: 'text-emerald-400 hover:bg-emerald-400/10 hover:border-emerald-400/20' };
 
             return { icon: 'globe', text: platform || 'Link', colorClass: 'text-slate-400 hover:bg-slate-400/10 hover:border-slate-400/20' };
+        }
+
+        // Helper: Extract Category from URL
+        function getCategoryFromProblem(problem) {
+            if (problem.solutions && problem.solutions.length > 0) {
+                for (const sol of problem.solutions) {
+                    if (sol.url && sol.url.includes('/')) {
+                        const slug = sol.url.split('/')[0];
+                        // Format the slug (e.g. "dynamic-programming" -> "Dynamic Programming")
+                        return slug.split('-')
+                                   .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                   .join(' ');
+                    }
+                }
+            }
+            return "Uncategorized";
         }
 
         // Initialize and Update Stats
@@ -750,6 +796,73 @@
             return sorted;
         }
 
+        // Toggle Category Visibility with Smooth Animation
+        function toggleCategory(categoryId) {
+            const content = document.getElementById(`category-${categoryId}`);
+            const chevron = document.getElementById(`chevron-${categoryId}`);
+            
+            if (collapsedCategories.has(categoryId)) {
+                collapsedCategories.delete(categoryId);
+                content.classList.remove('collapsed');
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                collapsedCategories.add(categoryId);
+                content.classList.add('collapsed');
+                chevron.style.transform = 'rotate(180deg)';
+            }
+            
+            updateToggleAllButtonState();
+        }
+        
+        // Collapse or Expand All Categories
+        function toggleAllCategories() {
+            isAllCollapsed = !isAllCollapsed;
+            
+            const categoryElements = document.querySelectorAll('[id^="category-"]');
+            
+            categoryElements.forEach(el => {
+                const categoryId = el.id.replace('category-', '');
+                const chevron = document.getElementById(`chevron-${categoryId}`);
+                
+                if (isAllCollapsed) {
+                    collapsedCategories.add(categoryId);
+                    el.classList.add('collapsed');
+                    if(chevron) chevron.style.transform = 'rotate(180deg)';
+                } else {
+                    collapsedCategories.delete(categoryId);
+                    el.classList.remove('collapsed');
+                    if(chevron) chevron.style.transform = 'rotate(0deg)';
+                }
+            });
+            
+            updateToggleAllButtonState();
+        }
+        
+        function updateToggleAllButtonState() {
+            const btnIcon = document.getElementById('toggle-all-icon');
+            const btn = document.getElementById('toggle-all-btn');
+            
+            const categoryElements = document.querySelectorAll('[id^="category-"]');
+            let allAreCollapsed = true;
+            
+            if(categoryElements.length === 0) allAreCollapsed = false;
+            
+            categoryElements.forEach(el => {
+                if(!el.classList.contains('collapsed')) allAreCollapsed = false;
+            });
+            
+            isAllCollapsed = allAreCollapsed;
+            
+            if (isAllCollapsed) {
+                if(btnIcon) btnIcon.setAttribute('data-lucide', 'unfold-vertical');
+                if(btn) btn.setAttribute('title', 'Expand All');
+            } else {
+                if(btnIcon) btnIcon.setAttribute('data-lucide', 'fold-vertical');
+                if(btn) btn.setAttribute('title', 'Collapse All');
+            }
+            lucide.createIcons();
+        }
+
         // List Rendering
         function renderProblems() {
             let filteredData = problemData.filter(p => {
@@ -770,66 +883,108 @@
                         <p class="text-slate-400 text-lg">No problems found matching your criteria.</p>
                     </div>`;
             } else {
-                listContainer.innerHTML = filteredData.map((p, index) => {
-                    const diffClass = getDifficultyClasses(p.difficulty);
-                    const animationDelay = (index % 20) * 0.02;
-                    const platformName = p.platform || 'LeetCode';
-                    const platformUrl = p.platformUrl || p.leetcodeUrl || '#';
-                    const platformConfig = getPlatformConfig(platformName);
-
-                    let solutionsList = p.solutions || [];
-                    if (solutionsList.length === 0 && p.algovizUrl && p.algovizUrl !== "#") {
-                        solutionsList = [{ name: 'AlgoViz', url: p.algovizUrl }];
+                // Group the sorted data by category
+                const groupedData = {};
+                filteredData.forEach((p, index) => {
+                    const category = getCategoryFromProblem(p);
+                    if (!groupedData[category]) {
+                        groupedData[category] = [];
                     }
+                    groupedData[category].push({ problem: p, globalIndex: index });
+                });
 
-                    let solutionsHtml = '';
-                    if (solutionsList.length > 0) {
-                        solutionsHtml = `
-                            <div class="flex items-center gap-1.5 border-l border-slate-700/50 pl-2 sm:pl-3 ml-1 sm:ml-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
-                                ${solutionsList.map(sol => `
-                                    <a href="${sol.url}" target="_blank" rel="noopener noreferrer"
-                                       class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/40 transition-all text-[11px] sm:text-xs font-medium whitespace-nowrap">
-                                        <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> ${sol.name}
-                                    </a>
-                                `).join('')}
-                            </div>
-                        `;
-                    }
+                // Generate HTML for each group
+                const categories = Object.keys(groupedData).sort();
+                let htmlOutput = '';
 
-                    return `
-                        <div class="glass rounded-xl border border-slate-700/50 hover:border-slate-500 hover:bg-slate-800/40 transition-all duration-200 animate-fade-in-up group flex flex-col md:flex-row md:items-center justify-between p-3.5 sm:p-4 gap-3 sm:gap-4" style="animation-delay: ${animationDelay}s;">
-                            <div class="flex items-start md:items-center gap-3 sm:gap-4 flex-grow min-w-0">
-                                <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all mt-0.5 md:mt-0">
-                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                categories.forEach(category => {
+                    // Create safe, unique ID for the category string
+                    const categoryId = category.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                    const isCollapsed = collapsedCategories.has(categoryId);
+                    const contentClass = isCollapsed ? 'category-content collapsed' : 'category-content';
+                    const chevronTransform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+                    
+                    htmlOutput += `
+                        <div class="animate-fade-in-up">
+                            <button onclick="toggleCategory('${categoryId}')" class="w-full flex items-center justify-between text-left text-lg font-bold text-slate-200 mb-2 pb-2 border-b border-slate-700/50 group focus:outline-none hover:border-slate-500 transition-colors">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="folder-code" class="w-5 h-5 text-indigo-400 group-hover:text-indigo-300 transition-colors"></i> ${category}
+                                    <span class="text-[11px] font-medium text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full ml-1 border border-slate-700">${groupedData[category].length}</span>
                                 </div>
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0 flex-grow">
-                                    <h3 class="text-base font-medium text-slate-200 truncate group-hover:text-white transition-colors" title="${p.id}. ${p.title}">
-                                        <span class="text-slate-500 text-sm font-mono mr-1">${p.id}.</span>${p.title}
-                                    </h3>
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold border ${diffClass} flex-shrink-0">
-                                            ${p.difficulty}
-                                        </span>
+                                <i data-lucide="chevron-up" id="chevron-${categoryId}" class="w-5 h-5 text-slate-500 transition-transform duration-300" style="transform: ${chevronTransform}"></i>
+                            </button>
+                            <div id="category-${categoryId}" class="${contentClass}">
+                                <div class="category-inner flex flex-col gap-3 pt-2 pb-3">
+                    `;
+
+                    groupedData[category].forEach(item => {
+                        const p = item.problem;
+                        const index = item.globalIndex; // Use global index for staggered animation
+                        const diffClass = getDifficultyClasses(p.difficulty);
+                        const animationDelay = (index % 20) * 0.02;
+                        const platformName = p.platform || 'LeetCode';
+                        const platformUrl = p.platformUrl || p.leetcodeUrl || '#';
+                        const platformConfig = getPlatformConfig(platformName);
+
+                        let solutionsList = p.solutions || [];
+                        if (solutionsList.length === 0 && p.algovizUrl && p.algovizUrl !== "#") {
+                            solutionsList = [{ name: 'AlgoViz', url: p.algovizUrl }];
+                        }
+
+                        let solutionsHtml = '';
+                        if (solutionsList.length > 0) {
+                            solutionsHtml = `
+                                <div class="flex items-center gap-1.5 border-l border-slate-700/50 pl-2 sm:pl-3 ml-1 sm:ml-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
+                                    ${solutionsList.map(sol => `
+                                        <a href="${sol.url}" target="_blank" rel="noopener noreferrer"
+                                           class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/40 transition-all text-[11px] sm:text-xs font-medium whitespace-nowrap">
+                                            <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> ${sol.name}
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+
+                        htmlOutput += `
+                            <div class="glass rounded-xl border border-slate-700/50 hover:border-slate-500 hover:bg-slate-800/40 transition-all duration-200 group flex flex-col md:flex-row md:items-center justify-between p-3.5 sm:p-4 gap-3 sm:gap-4" style="animation-delay: ${animationDelay}s;">
+                                <div class="flex items-start md:items-center gap-3 sm:gap-4 flex-grow min-w-0">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all mt-0.5 md:mt-0">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 min-w-0 flex-grow">
+                                        <h3 class="text-base font-medium text-slate-200 truncate group-hover:text-white transition-colors" title="${p.id}. ${p.title}">
+                                            <span class="text-slate-500 text-sm font-mono mr-1">${p.id}.</span>${p.title}
+                                        </h3>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold border ${diffClass} flex-shrink-0">
+                                                ${p.difficulty}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto">
+                                    <div class="hidden lg:flex flex-wrap items-center justify-end gap-1.5 w-48 flex-shrink-0 mr-2">
+                                        ${(p.tags || []).slice(0, 2).map(tag => `<span class="px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 text-[10px] font-mono border border-slate-700/80 truncate max-w-[80px]" title="${tag}">${tag}</span>`).join('')}
+                                        ${(p.tags || []).length > 2 ? `<span class="text-slate-500 text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/80" title="${p.tags.slice(2).join(', ')}">+${p.tags.length - 2}</span>` : ''}
+                                    </div>
+                                    <div class="flex items-center w-full md:w-auto overflow-hidden">
+                                        <a href="${platformUrl}" target="_blank" rel="noopener noreferrer" 
+                                        class="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-transparent transition-all flex-shrink-0 ${platformConfig.colorClass}" title="View on ${platformConfig.text}">
+                                            <i data-lucide="${platformConfig.icon}" class="w-4 h-4"></i>
+                                            <span class="text-xs font-medium hidden sm:block">${platformConfig.text}</span>
+                                        </a>
+                                        ${solutionsHtml}
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto">
-                                <div class="hidden lg:flex flex-wrap items-center justify-end gap-1.5 w-48 flex-shrink-0 mr-2">
-                                    ${(p.tags || []).slice(0, 2).map(tag => `<span class="px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 text-[10px] font-mono border border-slate-700/80 truncate max-w-[80px]" title="${tag}">${tag}</span>`).join('')}
-                                    ${(p.tags || []).length > 2 ? `<span class="text-slate-500 text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/80" title="${p.tags.slice(2).join(', ')}">+${p.tags.length - 2}</span>` : ''}
-                                </div>
-                                <div class="flex items-center w-full md:w-auto overflow-hidden">
-                                    <a href="${platformUrl}" target="_blank" rel="noopener noreferrer" 
-                                    class="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-transparent transition-all flex-shrink-0 ${platformConfig.colorClass}" title="View on ${platformConfig.text}">
-                                        <i data-lucide="${platformConfig.icon}" class="w-4 h-4"></i>
-                                        <span class="text-xs font-medium hidden sm:block">${platformConfig.text}</span>
-                                    </a>
-                                    ${solutionsHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                        `;
+                    });
+
+                    htmlOutput += `</div></div></div>`; // Close grid wrappers
+                });
+
+                listContainer.innerHTML = htmlOutput;
+                updateToggleAllButtonState(); // Update main toggle button correctly
             }
             lucide.createIcons();
         }
