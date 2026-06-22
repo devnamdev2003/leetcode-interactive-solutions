@@ -20,7 +20,7 @@ class Colors:
 def print_banner():
     """Prints a modern, attractive banner for the CLI."""
     print(f"\n{Colors.OKCYAN}{Colors.BOLD}╔════════════════════════════════════════════════════╗{Colors.ENDC}")
-    print(f"{Colors.OKCYAN}{Colors.BOLD}║             🚀 LeetCode Scraper Pro 🚀             ║{Colors.ENDC}")
+    print(f"{Colors.OKCYAN}{Colors.BOLD}║            🚀 LeetCode Scraper Pro 🚀            ║{Colors.ENDC}")
     print(f"{Colors.OKCYAN}{Colors.BOLD}╚════════════════════════════════════════════════════╝{Colors.ENDC}\n")
 
 
@@ -29,7 +29,6 @@ def fetch_leetcode_data(url):
     Takes a LeetCode problem URL, queries the LeetCode GraphQL API,
     and returns the title slug and raw question data.
     """
-
     # 1. Extract the title slug from the URL
     match = re.search(r"leetcode\.com/problems/([^/]+)", url)
     if not match:
@@ -83,17 +82,29 @@ def fetch_leetcode_data(url):
     return title_slug, question_data
 
 
-def format_problem_data(url, title_slug, question_data, folder_to_use):
+def format_problem_data(url, title_slug, question_data, folder_to_use, selected_solutions):
     """
-    Formats the raw GraphQL data into the final dictionary structure.
+    Formats the raw GraphQL data into the final dictionary structure,
+    only including the solution files the user requested.
     """
     tags = [tag["name"] for tag in question_data.get("topicTags", [])]
 
-    solutions = [
-        {"name": "Brute", "url": f"{folder_to_use}/{title_slug}-brute.html"},
-        {"name": "Better", "url": f"{folder_to_use}/{title_slug}-better.html"},
-        {"name": "Optimal", "url": f"{folder_to_use}/{title_slug}.html"},
-    ]
+    # Map the solution types to their respective file name suffixes
+    solution_configs = {
+        "Brute": {"name": "Brute", "suffix": "-brute.html"},
+        "Better": {"name": "Better", "suffix": "-better.html"},
+        "Optimal": {"name": "Optimal", "suffix": ".html"}
+    }
+
+    solutions = []
+    # We iterate over this specific list to ensure the logical order is preserved 
+    # (Brute -> Better -> Optimal) regardless of how the user typed it.
+    for key in ["Brute", "Better", "Optimal"]:
+        if key in selected_solutions:
+            solutions.append({
+                "name": solution_configs[key]["name"],
+                "url": f"{folder_to_use}/{title_slug}{solution_configs[key]['suffix']}"
+            })
 
     result = {
         "id": question_data["questionId"],
@@ -259,7 +270,7 @@ if __name__ == "__main__":
             diff_color = Colors.OKGREEN if question_data['difficulty'] == "Easy" else (Colors.WARNING if question_data['difficulty'] == "Medium" else Colors.FAIL)
             print(f"{Colors.HEADER}📊 Difficulty:{Colors.ENDC} {diff_color}{question_data['difficulty']}{Colors.ENDC}")
 
-            # 2. Extract tags
+            # 2. Extract tags & Prompt for Folder
             tags_data = question_data.get("topicTags", [])
             if not tags_data:
                 tags_data = [{"name": "Miscellaneous", "slug": "misc"}]
@@ -273,12 +284,10 @@ if __name__ == "__main__":
             print(f"   - Type a {Colors.BOLD}custom name{Colors.ENDC} to create a specific folder.")
             print(f"   - Press {Colors.BOLD}Enter{Colors.ENDC} to use the default [{Colors.BOLD}{tags_data[0]['slug']}{Colors.ENDC}].")
 
-            # 3. Prompt user for custom folder name
             user_choice = input(f"\n{Colors.OKGREEN}[?] Your choice:{Colors.ENDC} ").strip()
             
             # Determine which folder string to use
             folder_to_use = tags_data[0]['slug'] # Default
-            
             if user_choice.isdigit() and 1 <= int(user_choice) <= len(tags_data):
                 folder_to_use = tags_data[int(user_choice) - 1]['slug']
             elif user_choice != "":
@@ -286,8 +295,41 @@ if __name__ == "__main__":
 
             print(f"\n{Colors.OKGREEN}📂 Target Folder set to:{Colors.ENDC} {Colors.BOLD}{folder_to_use}{Colors.ENDC}")
 
+
+            # 3. Prompt for Solution Files to Create
+            print(f"\n{Colors.OKCYAN}📄 Which solution files do you want to create?{Colors.ENDC}")
+            print(f"   {Colors.BOLD}[1]{Colors.ENDC} Brute")
+            print(f"   {Colors.BOLD}[2]{Colors.ENDC} Better")
+            print(f"   {Colors.BOLD}[3]{Colors.ENDC} Optimal")
+            
+            print(f"\n{Colors.OKBLUE}💡 Options:{Colors.ENDC}")
+            print(f"   - Enter {Colors.BOLD}comma-separated numbers{Colors.ENDC} (e.g., '1,3' for Brute and Optimal).")
+            print(f"   - Enter {Colors.BOLD}'3'{Colors.ENDC} for Optimal only.")
+            print(f"   - Press {Colors.BOLD}Enter{Colors.ENDC} to create ALL three (Default).")
+
+            file_choice = input(f"\n{Colors.OKGREEN}[?] Your choice:{Colors.ENDC} ").strip()
+            
+            solution_map = {"1": "Brute", "2": "Better", "3": "Optimal"}
+            selected_solutions = []
+
+            # Parse user input for files
+            if not file_choice:
+                 selected_solutions = ["Brute", "Better", "Optimal"]
+            else:
+                 parts = file_choice.split(',')
+                 for p in parts:
+                     p = p.strip()
+                     if p in solution_map and solution_map[p] not in selected_solutions:
+                         selected_solutions.append(solution_map[p])
+
+            if not selected_solutions:
+                print(f"   {Colors.WARNING}⚠️ Invalid choice. Defaulting to ALL.{Colors.ENDC}")
+                selected_solutions = ["Brute", "Better", "Optimal"]
+
+            print(f"\n{Colors.OKGREEN}🛠️  Files to generate:{Colors.ENDC} {Colors.BOLD}{', '.join(selected_solutions)}{Colors.ENDC}")
+
             # 4. Format the final dictionary
-            problem_data = format_problem_data(user_url, title_slug, question_data, folder_to_use)
+            problem_data = format_problem_data(user_url, title_slug, question_data, folder_to_use, selected_solutions)
 
             # 5. Save it to data.json
             print(f"\n{Colors.OKBLUE}⏳ Updating JSON data...{Colors.ENDC}")

@@ -1,5 +1,47 @@
 [
   {
+    "id": "1297",
+    "title": "Maximum Number of Balloons",
+    "difficulty": "Easy",
+    "tags": ["Hash Table", "String", "Counting"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/maximum-number-of-balloons/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "string/maximum-number-of-balloons.html"
+      }
+    ]
+  },
+  {
+    "id": "216",
+    "title": "Combination Sum III",
+    "difficulty": "Medium",
+    "tags": ["Array", "Backtracking"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/combination-sum-iii/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "backtracking/combination-sum-iii.html"
+      }
+    ]
+  },
+  {
+    "id": "46",
+    "title": "Permutations",
+    "difficulty": "Medium",
+    "tags": ["Array", "Backtracking"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/permutations/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "backtracking/permutations.html"
+      }
+    ]
+  },
+  {
     "id": "90",
     "title": "Subsets II",
     "difficulty": "Medium",
