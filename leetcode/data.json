@@ -1,5 +1,27 @@
 [
   {
+    "id": "3962",
+    "title": "Number of ZigZag Arrays I",
+    "difficulty": "Hard",
+    "tags": ["Dynamic Programming", "Prefix Sum"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/number-of-zigzag-arrays-i/description",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "dynamic-programming/number-of-zigzag-arrays-i-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "dynamic-programming/number-of-zigzag-arrays-i-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "dynamic-programming/number-of-zigzag-arrays-i.html"
+      }
+    ]
+  },
+  {
     "id": "1297",
     "title": "Maximum Number of Balloons",
     "difficulty": "Easy",
