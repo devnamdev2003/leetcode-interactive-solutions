@@ -400,17 +400,22 @@
       function navigateTo(category, replace = false) {
         if (state.activeCategory !== category || replace) {
             state.activeCategory = category;
-            let url = window.location.pathname;
-            if (category && !["Search Results", "Filtered Topics", "Sorted Topics", "Random Pick"].includes(category)) {
-                url += "?category=" + encodeURIComponent(category);
-            } else if (category) {
-                url += "?view=" + encodeURIComponent(category);
+            
+            // Reset scroll position on navigation
+            const scrollArea = document.getElementById("main-scroll-area");
+            if (scrollArea) scrollArea.scrollTop = 0;
+
+            try {
+                // Pass null for the URL to avoid SecurityError in restricted environments (like blob: URLs)
+                if (replace) {
+                    history.replaceState({ activeCategory: category }, "", null);
+                } else {
+                    history.pushState({ activeCategory: category }, "", null);
+                }
+            } catch (e) {
+                console.warn("History API restricted:", e);
             }
-            if (replace) {
-                history.replaceState({ activeCategory: category }, "", url);
-            } else {
-                history.pushState({ activeCategory: category }, "", url);
-            }
+            
             updateDashboard();
         }
       }
@@ -421,6 +426,11 @@
         } else {
             state.activeCategory = null;
         }
+        
+        // Reset scroll position when navigating back/forward
+        const scrollArea = document.getElementById("main-scroll-area");
+        if (scrollArea) scrollArea.scrollTop = 0;
+
         updateDashboard();
       });
 
