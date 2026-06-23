@@ -1,0 +1,1952 @@
+[
+  {
+    "id": 101,
+    "title": "How the Internet Works",
+    "category": "Networking & Foundations",
+    "difficulty": "Easy",
+    "tags": ["internet", "basics"],
+    "resources": [
+      {
+        "name": "MDN Internet Basics",
+        "url": "https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/How_does_the_Internet_work"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "title": "OSI Model vs TCP/IP",
+    "category": "Networking & Foundations",
+    "difficulty": "Easy",
+    "tags": ["networking", "theory"],
+    "resources": [
+      {
+        "name": "Cloudflare OSI Model",
+        "url": "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "title": "IP Addressing, Ports & Sockets",
+    "category": "Networking & Foundations",
+    "difficulty": "Easy",
+    "tags": ["networking", "ip", "ports"],
+    "resources": [
+      {
+        "name": "Cloudflare IP Address",
+        "url": "https://www.cloudflare.com/learning/dns/glossary/what-is-my-ip-address/"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "title": "TCP vs UDP",
+    "category": "Networking & Foundations",
+    "difficulty": "Easy",
+    "tags": ["networking", "protocols"],
+    "resources": [
+      {
+        "name": "ByteByteGo TCP vs UDP",
+        "url": "https://blog.bytebytego.com/p/tcp-vs-udp"
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "title": "DNS (Domain Name System)",
+    "category": "Networking & Foundations",
+    "difficulty": "Easy",
+    "tags": ["dns", "networking"],
+    "resources": [
+      {
+        "name": "Cloudflare DNS",
+        "url": "https://www.cloudflare.com/learning/dns/what-is-dns/"
+      }
+    ]
+  },
+  {
+    "id": 106,
+    "title": "HTTP & HTTPS",
+    "category": "Networking & Foundations",
+    "difficulty": "Easy",
+    "tags": ["http", "https"],
+    "resources": [
+      {
+        "name": "MDN HTTP",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP"
+      }
+    ]
+  },
+  {
+    "id": 107,
+    "title": "TLS/SSL & HTTPS Handshake",
+    "category": "Networking & Foundations",
+    "difficulty": "Medium",
+    "tags": ["security", "tls"],
+    "resources": [
+      {
+        "name": "Cloudflare SSL Guide",
+        "url": "https://www.cloudflare.com/learning/ssl/what-is-ssl/"
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "title": "REST APIs & API Design",
+    "category": "Networking & Foundations",
+    "difficulty": "Easy",
+    "tags": ["api", "rest"],
+    "resources": [
+      {
+        "name": "Microsoft REST API Guidelines",
+        "url": "https://github.com/microsoft/api-guidelines"
+      }
+    ]
+  },
+  {
+    "id": 201,
+    "title": "Relational Databases Basics",
+    "category": "Databases",
+    "difficulty": "Easy",
+    "tags": ["database", "sql"],
+    "resources": [
+      {
+        "name": "PostgreSQL Docs",
+        "url": "https://www.postgresql.org/docs/"
+      }
+    ]
+  },
+  {
+    "id": 202,
+    "title": "ACID Properties",
+    "category": "Databases",
+    "difficulty": "Medium",
+    "tags": ["database", "transactions"],
+    "resources": [
+      {
+        "name": "IBM ACID",
+        "url": "https://www.ibm.com/topics/acid-transactions"
+      }
+    ]
+  },
+  {
+    "id": 203,
+    "title": "Database Indexing",
+    "category": "Databases",
+    "difficulty": "Medium",
+    "tags": ["database", "performance"],
+    "resources": [
+      {
+        "name": "Use The Index Luke",
+        "url": "https://use-the-index-luke.com/"
+      }
+    ]
+  },
+  {
+    "id": 204,
+    "title": "SQL vs NoSQL",
+    "category": "Databases",
+    "difficulty": "Easy",
+    "tags": ["database", "nosql"],
+    "resources": [
+      {
+        "name": "MongoDB SQL vs NoSQL",
+        "url": "https://www.mongodb.com/nosql-explained/nosql-vs-sql"
+      }
+    ]
+  },
+  {
+    "id": 301,
+    "title": "Scalability Basics (Vertical vs Horizontal)",
+    "category": "Distributed Systems",
+    "difficulty": "Easy",
+    "tags": ["scaling", "distributed"],
+    "resources": [
+      {
+        "name": "AWS Scaling",
+        "url": "https://aws.amazon.com/what-is/scalability/"
+      }
+    ]
+  },
+  {
+    "id": 302,
+    "title": "CAP Theorem",
+    "category": "Distributed Systems",
+    "difficulty": "Medium",
+    "tags": ["distributed", "cap"],
+    "resources": [
+      {
+        "name": "IBM CAP Theorem",
+        "url": "https://www.ibm.com/topics/cap-theorem"
+      }
+    ]
+  },
+  {
+    "id": 303,
+    "title": "PACELC Theorem",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["distributed", "pacelc"],
+    "resources": [
+      {
+        "name": "Wikipedia PACELC",
+        "url": "https://en.wikipedia.org/wiki/PACELC_theorem"
+      }
+    ]
+  },
+  {
+    "id": 304,
+    "title": "Load Balancing",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["load-balancer", "scaling"],
+    "resources": [
+      {
+        "name": "NGINX Load Balancing",
+        "url": "https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/"
+      }
+    ]
+  },
+  {
+    "id": 305,
+    "title": "Forward Proxy vs Reverse Proxy",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["proxy", "networking"],
+    "resources": [
+      {
+        "name": "Cloudflare Reverse Proxy",
+        "url": "https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/"
+      }
+    ]
+  },
+  {
+    "id": 306,
+    "title": "Caching Fundamentals",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["cache", "performance"],
+    "resources": [
+      {
+        "name": "AWS Caching",
+        "url": "https://aws.amazon.com/caching/"
+      }
+    ]
+  },
+  {
+    "id": 307,
+    "title": "Caching Strategies (Cache Aside, Write Through, Write Back)",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["cache", "redis"],
+    "resources": [
+      {
+        "name": "Redis Caching Patterns",
+        "url": "https://redis.io/learn/howtos/solutions/caching"
+      }
+    ]
+  },
+  {
+    "id": 308,
+    "title": "Content Delivery Network (CDN)",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["cdn", "performance"],
+    "resources": [
+      {
+        "name": "Cloudflare CDN",
+        "url": "https://www.cloudflare.com/learning/cdn/what-is-a-cdn/"
+      }
+    ]
+  },
+  {
+    "id": 309,
+    "title": "Message Queues",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["queue", "rabbitmq", "async"],
+    "resources": [
+      {
+        "name": "RabbitMQ Tutorials",
+        "url": "https://www.rabbitmq.com/tutorials.html"
+      }
+    ]
+  },
+  {
+    "id": 310,
+    "title": "Publish Subscribe (Pub/Sub)",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["pubsub", "messaging"],
+    "resources": [
+      {
+        "name": "Confluent Event Streaming",
+        "url": "https://developer.confluent.io/learn-kafka/"
+      }
+    ]
+  },
+  {
+    "id": 311,
+    "title": "Apache Kafka Fundamentals",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["kafka", "streaming"],
+    "resources": [
+      {
+        "name": "Kafka Introduction",
+        "url": "https://kafka.apache.org/intro"
+      }
+    ]
+  },
+  {
+    "id": 312,
+    "title": "API Gateway Pattern",
+    "category": "Architecture Styles",
+    "difficulty": "Medium",
+    "tags": ["gateway", "microservices"],
+    "resources": [
+      {
+        "name": "Microservices.io API Gateway",
+        "url": "https://microservices.io/patterns/apigateway.html"
+      }
+    ]
+  },
+  {
+    "id": 313,
+    "title": "Service Discovery",
+    "category": "Architecture Styles",
+    "difficulty": "Medium",
+    "tags": ["service-discovery", "eureka"],
+    "resources": [
+      {
+        "name": "Microservices.io Service Discovery",
+        "url": "https://microservices.io/patterns/service-registry.html"
+      }
+    ]
+  },
+  {
+    "id": 314,
+    "title": "WebSockets & Real-Time Communication",
+    "category": "Architecture Styles",
+    "difficulty": "Medium",
+    "tags": ["websocket", "realtime"],
+    "resources": [
+      {
+        "name": "MDN WebSockets",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API"
+      }
+    ]
+  },
+  {
+    "id": 315,
+    "title": "Rate Limiting",
+    "category": "Scalability Patterns",
+    "difficulty": "Medium",
+    "tags": ["rate-limit", "api"],
+    "resources": [
+      {
+        "name": "Stripe Rate Limiting",
+        "url": "https://stripe.com/blog/rate-limiters"
+      }
+    ]
+  },
+  {
+    "id": 316,
+    "title": "Consistent Hashing",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["hashing", "distribution"],
+    "resources": [
+      {
+        "name": "Toptal Consistent Hashing",
+        "url": "https://www.toptal.com/big-data/consistent-hashing"
+      }
+    ]
+  },
+  {
+    "id": 317,
+    "title": "Database Replication",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["replication", "database"],
+    "resources": [
+      {
+        "name": "AWS Replication Concepts",
+        "url": "https://aws.amazon.com/what-is/database-replication/"
+      }
+    ]
+  },
+  {
+    "id": 318,
+    "title": "Database Partitioning & Sharding",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["sharding", "partitioning"],
+    "resources": [
+      {
+        "name": "MongoDB Sharding",
+        "url": "https://www.mongodb.com/docs/manual/sharding/"
+      }
+    ]
+  },
+  {
+    "id": 319,
+    "title": "Distributed Locking",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["distributed", "locking", "redis"],
+    "resources": [
+      {
+        "name": "Redis Distributed Locks",
+        "url": "https://redis.io/docs/latest/develop/use/patterns/distributed-locks/"
+      }
+    ]
+  },
+  {
+    "id": 320,
+    "title": "Idempotency",
+    "category": "Distributed Systems",
+    "difficulty": "Medium",
+    "tags": ["api", "reliability"],
+    "resources": [
+      {
+        "name": "Stripe Idempotency",
+        "url": "https://stripe.com/docs/idempotency"
+      }
+    ]
+  },
+  {
+    "id": 321,
+    "title": "Bloom Filters",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["probabilistic", "optimization"],
+    "resources": [
+      {
+        "name": "Redis Bloom",
+        "url": "https://redis.io/docs/latest/develop/data-types/probabilistic/bloom-filter/"
+      }
+    ]
+  },
+  {
+    "id": 322,
+    "title": "Leader Election",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["consensus", "zookeeper"],
+    "resources": [
+      {
+        "name": "ZooKeeper Leader Election",
+        "url": "https://zookeeper.apache.org/doc/current/recipes.html#sc_leaderElection"
+      }
+    ]
+  },
+  {
+    "id": 323,
+    "title": "Consensus Algorithms Overview",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["consensus", "distributed"],
+    "resources": [
+      {
+        "name": "Martin Kleppmann Consensus",
+        "url": "https://martin.kleppmann.com/"
+      }
+    ]
+  },
+  {
+    "id": 324,
+    "title": "Raft Consensus Algorithm",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["raft", "consensus"],
+    "resources": [
+      {
+        "name": "Raft Official Website",
+        "url": "https://raft.github.io/"
+      }
+    ]
+  },
+  {
+    "id": 325,
+    "title": "Paxos Consensus Algorithm",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["paxos", "consensus"],
+    "resources": [
+      {
+        "name": "Paxos Made Simple",
+        "url": "https://lamport.azurewebsites.net/pubs/paxos-simple.pdf"
+      }
+    ]
+  },
+  {
+    "id": 326,
+    "title": "Eventual Consistency",
+    "category": "Distributed Systems",
+    "difficulty": "Medium",
+    "tags": ["consistency", "distributed"],
+    "resources": [
+      {
+        "name": "Amazon Dynamo Paper",
+        "url": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+      }
+    ]
+  },
+  {
+    "id": 327,
+    "title": "Distributed Transactions",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["transactions", "distributed"],
+    "resources": [
+      {
+        "name": "Microservices.io Transactions",
+        "url": "https://microservices.io/patterns/data/"
+      }
+    ]
+  },
+  {
+    "id": 328,
+    "title": "Two Phase Commit (2PC)",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["2pc", "transactions"],
+    "resources": [
+      {
+        "name": "Wikipedia 2PC",
+        "url": "https://en.wikipedia.org/wiki/Two-phase_commit_protocol"
+      }
+    ]
+  },
+  {
+    "id": 329,
+    "title": "Saga Pattern",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["saga", "microservices"],
+    "resources": [
+      {
+        "name": "Microservices.io Saga",
+        "url": "https://microservices.io/patterns/data/saga.html"
+      }
+    ]
+  },
+  {
+    "id": 330,
+    "title": "CQRS (Command Query Responsibility Segregation)",
+    "category": "Architecture Styles",
+    "difficulty": "Hard",
+    "tags": ["cqrs", "architecture"],
+    "resources": [
+      {
+        "name": "Microsoft CQRS",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs"
+      }
+    ]
+  },
+  {
+    "id": 331,
+    "title": "Event Sourcing",
+    "category": "Architecture Styles",
+    "difficulty": "Hard",
+    "tags": ["event-sourcing", "architecture"],
+    "resources": [
+      {
+        "name": "Microsoft Event Sourcing",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing"
+      }
+    ]
+  },
+  {
+    "id": 332,
+    "title": "Monolith vs Microservices",
+    "category": "Architecture Styles",
+    "difficulty": "Medium",
+    "tags": ["monolith", "microservices"],
+    "resources": [
+      {
+        "name": "Martin Fowler Microservices",
+        "url": "https://martinfowler.com/articles/microservices.html"
+      }
+    ]
+  },
+  {
+    "id": 333,
+    "title": "Event Driven Architecture",
+    "category": "Architecture Styles",
+    "difficulty": "Medium",
+    "tags": ["eda", "events"],
+    "resources": [
+      {
+        "name": "AWS Event Driven Architecture",
+        "url": "https://aws.amazon.com/event-driven-architecture/"
+      }
+    ]
+  },
+  {
+    "id": 334,
+    "title": "Circuit Breaker Pattern",
+    "category": "Reliability Patterns",
+    "difficulty": "Medium",
+    "tags": ["resilience", "fault-tolerance"],
+    "resources": [
+      {
+        "name": "Microsoft Circuit Breaker",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker"
+      }
+    ]
+  },
+  {
+    "id": 335,
+    "title": "Retry Pattern & Exponential Backoff",
+    "category": "Reliability Patterns",
+    "difficulty": "Medium",
+    "tags": ["retry", "resilience"],
+    "resources": [
+      {
+        "name": "AWS Retry Backoff",
+        "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/retry-backoff.html"
+      }
+    ]
+  },
+  {
+    "id": 336,
+    "title": "Database Storage Engines Overview",
+    "category": "Database Internals",
+    "difficulty": "Medium",
+    "tags": ["database", "storage-engine"],
+    "resources": [
+      {
+        "name": "Designing Data-Intensive Applications Notes",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 337,
+    "title": "B-Tree & B+ Tree Indexes",
+    "category": "Database Internals",
+    "difficulty": "Hard",
+    "tags": ["database", "indexing", "btree"],
+    "resources": [
+      {
+        "name": "CMU Database Indexing",
+        "url": "https://15445.courses.cs.cmu.edu/"
+      }
+    ]
+  },
+  {
+    "id": 338,
+    "title": "LSM Trees",
+    "category": "Database Internals",
+    "difficulty": "Hard",
+    "tags": ["lsm", "cassandra", "rocksdb"],
+    "resources": [
+      {
+        "name": "DDIA Book",
+        "url": "https://dataintensive.net/"
+      }
+    ]
+  },
+  {
+    "id": 339,
+    "title": "Read Replicas",
+    "category": "Database Internals",
+    "difficulty": "Medium",
+    "tags": ["replication", "database"],
+    "resources": [
+      {
+        "name": "AWS Read Replicas",
+        "url": "https://aws.amazon.com/rds/features/read-replicas/"
+      }
+    ]
+  },
+  {
+    "id": 340,
+    "title": "Master-Slave vs Master-Master Replication",
+    "category": "Database Internals",
+    "difficulty": "Hard",
+    "tags": ["replication", "database"],
+    "resources": [
+      {
+        "name": "MySQL Replication",
+        "url": "https://dev.mysql.com/doc/refman/8.0/en/replication.html"
+      }
+    ]
+  },
+  {
+    "id": 341,
+    "title": "Quorum Reads & Writes",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["quorum", "consistency"],
+    "resources": [
+      {
+        "name": "Dynamo Paper",
+        "url": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+      }
+    ]
+  },
+  {
+    "id": 342,
+    "title": "Vector Clocks",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["vector-clock", "consistency"],
+    "resources": [
+      {
+        "name": "Dynamo Paper",
+        "url": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf"
+      }
+    ]
+  },
+  {
+    "id": 343,
+    "title": "Gossip Protocol",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["gossip", "distributed"],
+    "resources": [
+      {
+        "name": "High Scalability Gossip Protocol",
+        "url": "http://highscalability.com/gossip-protocol-explained/"
+      }
+    ]
+  },
+  {
+    "id": 344,
+    "title": "Heartbeats & Failure Detection",
+    "category": "Distributed Systems",
+    "difficulty": "Medium",
+    "tags": ["heartbeat", "monitoring"],
+    "resources": [
+      {
+        "name": "Distributed Systems Concepts",
+        "url": "https://martin.kleppmann.com/"
+      }
+    ]
+  },
+  {
+    "id": 345,
+    "title": "Service Mesh Fundamentals",
+    "category": "Cloud Native",
+    "difficulty": "Medium",
+    "tags": ["service-mesh", "microservices"],
+    "resources": [
+      {
+        "name": "Istio Concepts",
+        "url": "https://istio.io/latest/docs/concepts/what-is-istio/"
+      }
+    ]
+  },
+  {
+    "id": 346,
+    "title": "gRPC",
+    "category": "Cloud Native",
+    "difficulty": "Medium",
+    "tags": ["grpc", "rpc"],
+    "resources": [
+      {
+        "name": "gRPC Official Docs",
+        "url": "https://grpc.io/docs/"
+      }
+    ]
+  },
+  {
+    "id": 347,
+    "title": "Object Storage (Amazon S3)",
+    "category": "Storage Systems",
+    "difficulty": "Medium",
+    "tags": ["s3", "storage"],
+    "resources": [
+      {
+        "name": "AWS S3 Guide",
+        "url": "https://aws.amazon.com/s3/"
+      }
+    ]
+  },
+  {
+    "id": 348,
+    "title": "Data Lakes",
+    "category": "Storage Systems",
+    "difficulty": "Medium",
+    "tags": ["data-lake", "analytics"],
+    "resources": [
+      {
+        "name": "AWS Data Lake",
+        "url": "https://aws.amazon.com/what-is/data-lake/"
+      }
+    ]
+  },
+  {
+    "id": 349,
+    "title": "Search Systems (Elasticsearch)",
+    "category": "Storage Systems",
+    "difficulty": "Medium",
+    "tags": ["elasticsearch", "search"],
+    "resources": [
+      {
+        "name": "Elastic Docs",
+        "url": "https://www.elastic.co/guide/index.html"
+      }
+    ]
+  },
+  {
+    "id": 350,
+    "title": "Observability Fundamentals",
+    "category": "Monitoring & Operations",
+    "difficulty": "Medium",
+    "tags": ["observability", "monitoring"],
+    "resources": [
+      {
+        "name": "OpenTelemetry Docs",
+        "url": "https://opentelemetry.io/docs/"
+      }
+    ]
+  },
+  {
+    "id": 351,
+    "title": "Centralized Logging",
+    "category": "Monitoring & Operations",
+    "difficulty": "Easy",
+    "tags": ["logging", "elk"],
+    "resources": [
+      {
+        "name": "Elastic Logging",
+        "url": "https://www.elastic.co/observability/log-monitoring"
+      }
+    ]
+  },
+  {
+    "id": 352,
+    "title": "Metrics Monitoring (Prometheus)",
+    "category": "Monitoring & Operations",
+    "difficulty": "Medium",
+    "tags": ["prometheus", "metrics"],
+    "resources": [
+      {
+        "name": "Prometheus Docs",
+        "url": "https://prometheus.io/docs/introduction/overview/"
+      }
+    ]
+  },
+  {
+    "id": 353,
+    "title": "Distributed Tracing",
+    "category": "Monitoring & Operations",
+    "difficulty": "Medium",
+    "tags": ["tracing", "jaeger"],
+    "resources": [
+      {
+        "name": "Jaeger Documentation",
+        "url": "https://www.jaegertracing.io/docs/"
+      }
+    ]
+  },
+  {
+    "id": 354,
+    "title": "OpenTelemetry",
+    "category": "Monitoring & Operations",
+    "difficulty": "Medium",
+    "tags": ["otel", "observability"],
+    "resources": [
+      {
+        "name": "OpenTelemetry Docs",
+        "url": "https://opentelemetry.io/docs/"
+      }
+    ]
+  },
+  {
+    "id": 355,
+    "title": "Authentication vs Authorization",
+    "category": "Security",
+    "difficulty": "Easy",
+    "tags": ["security", "auth"],
+    "resources": [
+      {
+        "name": "Auth0 Authentication vs Authorization",
+        "url": "https://auth0.com/docs/get-started/identity-fundamentals/authentication-and-authorization"
+      }
+    ]
+  },
+  {
+    "id": 356,
+    "title": "Session-Based Authentication",
+    "category": "Security",
+    "difficulty": "Easy",
+    "tags": ["session", "security"],
+    "resources": [
+      {
+        "name": "OWASP Session Management",
+        "url": "https://owasp.org/www-project-cheat-sheets/cheatsheets/Session_Management_Cheat_Sheet.html"
+      }
+    ]
+  },
+  {
+    "id": 357,
+    "title": "JWT Authentication",
+    "category": "Security",
+    "difficulty": "Medium",
+    "tags": ["jwt", "token"],
+    "resources": [
+      {
+        "name": "JWT.io",
+        "url": "https://jwt.io/introduction"
+      }
+    ]
+  },
+  {
+    "id": 358,
+    "title": "OAuth 2.0",
+    "category": "Security",
+    "difficulty": "Medium",
+    "tags": ["oauth2", "security"],
+    "resources": [
+      {
+        "name": "OAuth 2.0 Explained",
+        "url": "https://oauth.net/2/"
+      }
+    ]
+  },
+  {
+    "id": 359,
+    "title": "OpenID Connect (OIDC)",
+    "category": "Security",
+    "difficulty": "Medium",
+    "tags": ["oidc", "oauth"],
+    "resources": [
+      {
+        "name": "OpenID Connect",
+        "url": "https://openid.net/connect/"
+      }
+    ]
+  },
+  {
+    "id": 360,
+    "title": "Single Sign-On (SSO)",
+    "category": "Security",
+    "difficulty": "Medium",
+    "tags": ["sso", "identity"],
+    "resources": [
+      {
+        "name": "Auth0 SSO",
+        "url": "https://auth0.com/docs/authenticate/single-sign-on"
+      }
+    ]
+  },
+  {
+    "id": 361,
+    "title": "API Security Best Practices",
+    "category": "Security",
+    "difficulty": "Medium",
+    "tags": ["api", "security"],
+    "resources": [
+      {
+        "name": "OWASP API Security",
+        "url": "https://owasp.org/www-project-api-security/"
+      }
+    ]
+  },
+  {
+    "id": 362,
+    "title": "Zero Trust Architecture",
+    "category": "Security",
+    "difficulty": "Hard",
+    "tags": ["zero-trust", "security"],
+    "resources": [
+      {
+        "name": "Microsoft Zero Trust",
+        "url": "https://learn.microsoft.com/en-us/security/zero-trust/"
+      }
+    ]
+  },
+  {
+    "id": 363,
+    "title": "Redis Deep Dive",
+    "category": "Technology Deep Dives",
+    "difficulty": "Medium",
+    "tags": ["redis", "cache"],
+    "resources": [
+      {
+        "name": "Redis Documentation",
+        "url": "https://redis.io/docs/latest/"
+      }
+    ]
+  },
+  {
+    "id": 364,
+    "title": "Kafka Deep Dive",
+    "category": "Technology Deep Dives",
+    "difficulty": "Hard",
+    "tags": ["kafka", "streaming"],
+    "resources": [
+      {
+        "name": "Confluent Kafka Course",
+        "url": "https://developer.confluent.io/learn-kafka/"
+      }
+    ]
+  },
+  {
+    "id": 365,
+    "title": "UUIDs and Unique ID Generation",
+    "category": "Design Building Blocks",
+    "difficulty": "Easy",
+    "tags": ["uuid", "ids"],
+    "resources": [
+      {
+        "name": "UUID Guide",
+        "url": "https://en.wikipedia.org/wiki/Universally_unique_identifier"
+      }
+    ]
+  },
+  {
+    "id": 366,
+    "title": "Snowflake ID Generation",
+    "category": "Design Building Blocks",
+    "difficulty": "Medium",
+    "tags": ["snowflake", "ids"],
+    "resources": [
+      {
+        "name": "Twitter Snowflake",
+        "url": "https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake"
+      }
+    ]
+  },
+  {
+    "id": 367,
+    "title": "Notification System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Medium",
+    "tags": ["notifications", "case-study"],
+    "resources": [
+      {
+        "name": "ByteByteGo Notification System",
+        "url": "https://blog.bytebytego.com/p/design-a-notification-system"
+      }
+    ]
+  },
+  {
+    "id": 368,
+    "title": "URL Shortener Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Medium",
+    "tags": ["url-shortener", "case-study"],
+    "resources": [
+      {
+        "name": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      }
+    ]
+  },
+  {
+    "id": 369,
+    "title": "News Feed System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["news-feed", "social-media"],
+    "resources": [
+      {
+        "name": "Facebook News Feed Design",
+        "url": "https://www.educative.io/courses/grokking-the-system-design-interview"
+      }
+    ]
+  },
+  {
+    "id": 370,
+    "title": "WhatsApp / Chat System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["chat", "websocket"],
+    "resources": [
+      {
+        "name": "ByteByteGo Chat System",
+        "url": "https://blog.bytebytego.com/p/design-a-chat-system"
+      }
+    ]
+  },
+  {
+    "id": 371,
+    "title": "Instagram System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["instagram", "social-media"],
+    "resources": [
+      {
+        "name": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      }
+    ]
+  },
+  {
+    "id": 372,
+    "title": "YouTube / Video Streaming System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["video", "streaming"],
+    "resources": [
+      {
+        "name": "ByteByteGo Video Streaming",
+        "url": "https://blog.bytebytego.com/p/a-framework-for-designing-video"
+      }
+    ]
+  },
+  {
+    "id": 373,
+    "title": "Uber System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["uber", "location"],
+    "resources": [
+      {
+        "name": "Uber Engineering",
+        "url": "https://www.uber.com/en-IN/blog/engineering/"
+      }
+    ]
+  },
+  {
+    "id": 374,
+    "title": "Hotel Booking System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["booking", "reservation"],
+    "resources": [
+      {
+        "name": "High Scalability",
+        "url": "http://highscalability.com/"
+      }
+    ]
+  },
+  {
+    "id": 375,
+    "title": "E-Commerce System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["ecommerce", "marketplace"],
+    "resources": [
+      {
+        "name": "Amazon Architecture Concepts",
+        "url": "https://aws.amazon.com/architecture/"
+      }
+    ]
+  },
+  {
+    "id": 376,
+    "title": "Payment System Design",
+    "category": "System Design Case Studies",
+    "difficulty": "Hard",
+    "tags": ["payment", "transactions"],
+    "resources": [
+      {
+        "name": "Stripe Engineering",
+        "url": "https://stripe.com/blog/engineering"
+      }
+    ]
+  },
+  {
+    "id": 377,
+    "title": "System Design Interview Framework",
+    "category": "Interview Preparation",
+    "difficulty": "Medium",
+    "tags": ["interview", "framework"],
+    "resources": [
+      {
+        "name": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      }
+    ]
+  },
+  {
+    "id": 378,
+    "title": "Database Transactions",
+    "category": "Database Internals",
+    "difficulty": "Medium",
+    "tags": ["transactions", "database"],
+    "resources": [
+      {
+        "name": "PostgreSQL Transactions",
+        "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html"
+      }
+    ]
+  },
+  {
+    "id": 379,
+    "title": "Transaction Isolation Levels",
+    "category": "Database Internals",
+    "difficulty": "Hard",
+    "tags": ["isolation", "acid"],
+    "resources": [
+      {
+        "name": "PostgreSQL Isolation Levels",
+        "url": "https://www.postgresql.org/docs/current/transaction-iso.html"
+      }
+    ]
+  },
+  {
+    "id": 380,
+    "title": "Dirty Read, Non-Repeatable Read & Phantom Read",
+    "category": "Database Internals",
+    "difficulty": "Hard",
+    "tags": ["database", "consistency"],
+    "resources": [
+      {
+        "name": "SQL Isolation Phenomena",
+        "url": "https://en.wikipedia.org/wiki/Isolation_(database_systems)"
+      }
+    ]
+  },
+  {
+    "id": 381,
+    "title": "Optimistic Locking",
+    "category": "Database Internals",
+    "difficulty": "Medium",
+    "tags": ["locking", "jpa"],
+    "resources": [
+      {
+        "name": "Hibernate Optimistic Locking",
+        "url": "https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#locking-optimistic"
+      }
+    ]
+  },
+  {
+    "id": 382,
+    "title": "Pessimistic Locking",
+    "category": "Database Internals",
+    "difficulty": "Medium",
+    "tags": ["locking", "database"],
+    "resources": [
+      {
+        "name": "Hibernate Pessimistic Locking",
+        "url": "https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#locking-pessimistic"
+      }
+    ]
+  },
+  {
+    "id": 383,
+    "title": "N+1 Query Problem",
+    "category": "Database Performance",
+    "difficulty": "Medium",
+    "tags": ["jpa", "hibernate", "performance"],
+    "resources": [
+      {
+        "name": "Baeldung N+1 Problem",
+        "url": "https://www.baeldung.com/spring-hibernate-n1-problem"
+      }
+    ]
+  },
+  {
+    "id": 384,
+    "title": "Connection Pooling",
+    "category": "Database Performance",
+    "difficulty": "Medium",
+    "tags": ["hikari", "jdbc"],
+    "resources": [
+      {
+        "name": "HikariCP Wiki",
+        "url": "https://github.com/brettwooldridge/HikariCP"
+      }
+    ]
+  },
+  {
+    "id": 385,
+    "title": "Database Connection Management",
+    "category": "Database Performance",
+    "difficulty": "Medium",
+    "tags": ["jdbc", "database"],
+    "resources": [
+      {
+        "name": "HikariCP Configuration",
+        "url": "https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing"
+      }
+    ]
+  },
+  {
+    "id": 386,
+    "title": "Outbox Pattern",
+    "category": "Reliability Patterns",
+    "difficulty": "Hard",
+    "tags": ["outbox", "microservices"],
+    "resources": [
+      {
+        "name": "Microservices.io Transactional Outbox",
+        "url": "https://microservices.io/patterns/data/transactional-outbox.html"
+      }
+    ]
+  },
+  {
+    "id": 387,
+    "title": "Inbox Pattern",
+    "category": "Reliability Patterns",
+    "difficulty": "Hard",
+    "tags": ["inbox", "messaging"],
+    "resources": [
+      {
+        "name": "Event Driven Patterns",
+        "url": "https://microservices.io/"
+      }
+    ]
+  },
+  {
+    "id": 388,
+    "title": "Dead Letter Queue (DLQ)",
+    "category": "Messaging Systems",
+    "difficulty": "Medium",
+    "tags": ["kafka", "rabbitmq", "dlq"],
+    "resources": [
+      {
+        "name": "Confluent DLQ",
+        "url": "https://www.confluent.io/learn/kafka-dead-letter-queue/"
+      }
+    ]
+  },
+  {
+    "id": 389,
+    "title": "Bulkhead Pattern",
+    "category": "Reliability Patterns",
+    "difficulty": "Medium",
+    "tags": ["resilience", "microservices"],
+    "resources": [
+      {
+        "name": "Microsoft Bulkhead Pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead"
+      }
+    ]
+  },
+  {
+    "id": 390,
+    "title": "Backpressure",
+    "category": "Messaging Systems",
+    "difficulty": "Hard",
+    "tags": ["streaming", "reactive"],
+    "resources": [
+      {
+        "name": "Reactive Streams",
+        "url": "https://www.reactive-streams.org/"
+      }
+    ]
+  },
+  {
+    "id": 391,
+    "title": "At Most Once, At Least Once & Exactly Once Delivery",
+    "category": "Messaging Systems",
+    "difficulty": "Hard",
+    "tags": ["kafka", "delivery-guarantees"],
+    "resources": [
+      {
+        "name": "Kafka Delivery Semantics",
+        "url": "https://kafka.apache.org/documentation/#semantics"
+      }
+    ]
+  },
+  {
+    "id": 392,
+    "title": "Kafka Consumer Groups",
+    "category": "Messaging Systems",
+    "difficulty": "Medium",
+    "tags": ["kafka", "consumer"],
+    "resources": [
+      {
+        "name": "Confluent Consumer Groups",
+        "url": "https://developer.confluent.io/learn-kafka/consumer-groups/"
+      }
+    ]
+  },
+  {
+    "id": 393,
+    "title": "Kafka Partitioning Strategy",
+    "category": "Messaging Systems",
+    "difficulty": "Medium",
+    "tags": ["kafka", "partitioning"],
+    "resources": [
+      {
+        "name": "Kafka Partitions",
+        "url": "https://developer.confluent.io/learn-kafka/partitions/"
+      }
+    ]
+  },
+  {
+    "id": 394,
+    "title": "Database Migration Strategy",
+    "category": "Deployment & Operations",
+    "difficulty": "Medium",
+    "tags": ["migration", "database"],
+    "resources": [
+      {
+        "name": "Flyway Documentation",
+        "url": "https://flywaydb.org/documentation/"
+      }
+    ]
+  },
+  {
+    "id": 395,
+    "title": "Blue-Green Deployment",
+    "category": "Deployment & Operations",
+    "difficulty": "Medium",
+    "tags": ["deployment", "devops"],
+    "resources": [
+      {
+        "name": "AWS Blue Green Deployment",
+        "url": "https://docs.aws.amazon.com/whitepapers/latest/overview-deployment-options/blue-green-deployments.html"
+      }
+    ]
+  },
+  {
+    "id": 396,
+    "title": "Canary Deployment",
+    "category": "Deployment & Operations",
+    "difficulty": "Medium",
+    "tags": ["deployment", "release"],
+    "resources": [
+      {
+        "name": "Google SRE Canarying",
+        "url": "https://sre.google/sre-book/reliable-product-launches/"
+      }
+    ]
+  },
+  {
+    "id": 397,
+    "title": "Feature Flags / Feature Toggles",
+    "category": "Deployment & Operations",
+    "difficulty": "Medium",
+    "tags": ["feature-flags", "release-management"],
+    "resources": [
+      {
+        "name": "LaunchDarkly Guide",
+        "url": "https://launchdarkly.com/docs/home/flags/"
+      }
+    ]
+  },
+  {
+    "id": 398,
+    "title": "Docker Fundamentals",
+    "category": "Cloud Native",
+    "difficulty": "Easy",
+    "tags": ["docker", "containers"],
+    "resources": [
+      {
+        "name": "Docker Docs",
+        "url": "https://docs.docker.com/get-started/"
+      }
+    ]
+  },
+  {
+    "id": 399,
+    "title": "Kubernetes Fundamentals",
+    "category": "Cloud Native",
+    "difficulty": "Medium",
+    "tags": ["kubernetes", "containers"],
+    "resources": [
+      {
+        "name": "Kubernetes Basics",
+        "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/"
+      }
+    ]
+  },
+  {
+    "id": 400,
+    "title": "Kubernetes Services & Ingress",
+    "category": "Cloud Native",
+    "difficulty": "Medium",
+    "tags": ["kubernetes", "networking"],
+    "resources": [
+      {
+        "name": "Kubernetes Services",
+        "url": "https://kubernetes.io/docs/concepts/services-networking/service/"
+      }
+    ]
+  },
+  {
+    "id": 401,
+    "title": "Horizontal Pod Autoscaling (HPA)",
+    "category": "Cloud Native",
+    "difficulty": "Medium",
+    "tags": ["kubernetes", "autoscaling"],
+    "resources": [
+      {
+        "name": "Kubernetes HPA",
+        "url": "https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/"
+      }
+    ]
+  },
+  {
+    "id": 402,
+    "title": "Terraform Basics",
+    "category": "Infrastructure",
+    "difficulty": "Medium",
+    "tags": ["terraform", "iac"],
+    "resources": [
+      {
+        "name": "Terraform Documentation",
+        "url": "https://developer.hashicorp.com/terraform/docs"
+      }
+    ]
+  },
+  {
+    "id": 403,
+    "title": "Object Storage vs Block Storage vs File Storage",
+    "category": "Storage Systems",
+    "difficulty": "Medium",
+    "tags": ["storage", "cloud"],
+    "resources": [
+      {
+        "name": "AWS Storage Types",
+        "url": "https://aws.amazon.com/compare/the-difference-between-block-file-object-storage/"
+      }
+    ]
+  },
+  {
+    "id": 404,
+    "title": "SLA vs SLO vs SLI",
+    "category": "Reliability Engineering",
+    "difficulty": "Medium",
+    "tags": ["sre", "reliability"],
+    "resources": [
+      {
+        "name": "Google SRE",
+        "url": "https://sre.google/sre-book/service-level-objectives/"
+      }
+    ]
+  },
+  {
+    "id": 405,
+    "title": "Health Checks",
+    "category": "Reliability Engineering",
+    "difficulty": "Easy",
+    "tags": ["monitoring", "health"],
+    "resources": [
+      {
+        "name": "Spring Boot Actuator",
+        "url": "https://docs.spring.io/spring-boot/reference/actuator/endpoints.html"
+      }
+    ]
+  },
+  {
+    "id": 406,
+    "title": "Graceful Shutdown",
+    "category": "Reliability Engineering",
+    "difficulty": "Medium",
+    "tags": ["shutdown", "reliability"],
+    "resources": [
+      {
+        "name": "Spring Boot Graceful Shutdown",
+        "url": "https://docs.spring.io/spring-boot/reference/web/graceful-shutdown.html"
+      }
+    ]
+  },
+  {
+    "id": 407,
+    "title": "Chaos Engineering",
+    "category": "Reliability Engineering",
+    "difficulty": "Hard",
+    "tags": ["chaos", "testing"],
+    "resources": [
+      {
+        "name": "Principles of Chaos Engineering",
+        "url": "https://principlesofchaos.org/"
+      }
+    ]
+  },
+  {
+    "id": 408,
+    "title": "Cache Stampede",
+    "category": "Caching",
+    "difficulty": "Medium",
+    "tags": ["cache", "performance"],
+    "resources": [
+      {
+        "name": "Cloudflare Cache Stampede",
+        "url": "https://blog.cloudflare.com/sometimes-i-cache/"
+      }
+    ]
+  },
+  {
+    "id": 409,
+    "title": "Cache Avalanche",
+    "category": "Caching",
+    "difficulty": "Medium",
+    "tags": ["cache", "distributed"],
+    "resources": [
+      {
+        "name": "Redis Cache Patterns",
+        "url": "https://redis.io/"
+      }
+    ]
+  },
+  {
+    "id": 410,
+    "title": "Cache Penetration",
+    "category": "Caching",
+    "difficulty": "Medium",
+    "tags": ["cache", "bloom-filter"],
+    "resources": [
+      {
+        "name": "Redis Bloom Filter",
+        "url": "https://redis.io/docs/latest/develop/data-types/probabilistic/bloom-filter/"
+      }
+    ]
+  },
+  {
+    "id": 411,
+    "title": "Multi Region Architecture",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["multi-region", "availability"],
+    "resources": [
+      {
+        "name": "AWS Multi Region",
+        "url": "https://aws.amazon.com/blogs/architecture/tag/multi-region/"
+      }
+    ]
+  },
+  {
+    "id": 412,
+    "title": "Geo Replication",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["replication", "geo"],
+    "resources": [
+      {
+        "name": "Azure Geo Replication",
+        "url": "https://learn.microsoft.com/en-us/azure/azure-sql/database/active-geo-replication-overview"
+      }
+    ]
+  },
+  {
+    "id": 413,
+    "title": "Lamport Timestamps",
+    "category": "Distributed Systems",
+    "difficulty": "Hard",
+    "tags": ["lamport", "ordering"],
+    "resources": [
+      {
+        "name": "Lamport Paper",
+        "url": "https://lamport.azurewebsites.net/pubs/time-clocks.pdf"
+      }
+    ]
+  },
+  {
+    "id": 414,
+    "title": "Distributed Cron Jobs",
+    "category": "Distributed Systems",
+    "difficulty": "Medium",
+    "tags": ["cron", "scheduling"],
+    "resources": [
+      {
+        "name": "Quartz Scheduler",
+        "url": "https://www.quartz-scheduler.org/documentation/"
+      }
+    ]
+  },
+  {
+    "id": 415,
+    "title": "NTP & Clock Synchronization",
+    "category": "Distributed Systems",
+    "difficulty": "Medium",
+    "tags": ["ntp", "time"],
+    "resources": [
+      {
+        "name": "NTP Overview",
+        "url": "https://www.ntp.org/documentation/"
+      }
+    ]
+  },
+  {
+    "id": 416,
+    "title": "Strangler Fig Pattern",
+    "category": "Architecture Patterns",
+    "difficulty": "Medium",
+    "tags": ["migration", "microservices"],
+    "resources": [
+      {
+        "name": "Martin Fowler Strangler Fig",
+        "url": "https://martinfowler.com/bliki/StranglerFigApplication.html"
+      }
+    ]
+  },
+  {
+    "id": 417,
+    "title": "Hexagonal Architecture",
+    "category": "Architecture Patterns",
+    "difficulty": "Medium",
+    "tags": ["hexagonal", "architecture"],
+    "resources": [
+      {
+        "name": "Cockburn Hexagonal Architecture",
+        "url": "https://alistair.cockburn.us/hexagonal-architecture/"
+      }
+    ]
+  },
+  {
+    "id": 418,
+    "title": "Clean Architecture",
+    "category": "Architecture Patterns",
+    "difficulty": "Medium",
+    "tags": ["clean-architecture", "design"],
+    "resources": [
+      {
+        "name": "Clean Architecture Overview",
+        "url": "https://blog.cleancoder.com/"
+      }
+    ]
+  },
+  {
+    "id": 501,
+    "title": "Design TinyURL",
+    "category": "HLD Case Studies",
+    "difficulty": "Medium",
+    "tags": ["url-shortener", "hld"],
+    "resources": [
+      {
+        "name": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      }
+    ]
+  },
+  {
+    "id": 502,
+    "title": "Design Pastebin",
+    "category": "HLD Case Studies",
+    "difficulty": "Medium",
+    "tags": ["pastebin", "storage"],
+    "resources": [
+      {
+        "name": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      }
+    ]
+  },
+  {
+    "id": 503,
+    "title": "Design Dropbox / Google Drive",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["storage", "distributed-filesystem"],
+    "resources": [
+      {
+        "name": "Dropbox Engineering",
+        "url": "https://dropbox.tech/"
+      }
+    ]
+  },
+  {
+    "id": 504,
+    "title": "Design Netflix",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["streaming", "cdn"],
+    "resources": [
+      {
+        "name": "Netflix Tech Blog",
+        "url": "https://netflixtechblog.com/"
+      }
+    ]
+  },
+  {
+    "id": 505,
+    "title": "Design Twitter / X",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["social-media", "feed"],
+    "resources": [
+      {
+        "name": "Twitter Engineering",
+        "url": "https://blog.twitter.com/engineering"
+      }
+    ]
+  },
+  {
+    "id": 506,
+    "title": "Design Facebook News Feed",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["feed", "social-media"],
+    "resources": [
+      {
+        "name": "Meta Engineering",
+        "url": "https://engineering.fb.com/"
+      }
+    ]
+  },
+  {
+    "id": 507,
+    "title": "Design Instagram Feed",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["instagram", "feed"],
+    "resources": [
+      {
+        "name": "Instagram Engineering",
+        "url": "https://instagram-engineering.com/"
+      }
+    ]
+  },
+  {
+    "id": 508,
+    "title": "Design WhatsApp",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["chat", "websocket"],
+    "resources": [
+      {
+        "name": "ByteByteGo Chat System",
+        "url": "https://blog.bytebytego.com/p/design-a-chat-system"
+      }
+    ]
+  },
+  {
+    "id": 509,
+    "title": "Design Zoom / Google Meet",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["video", "realtime"],
+    "resources": [
+      {
+        "name": "WebRTC",
+        "url": "https://webrtc.org/"
+      }
+    ]
+  },
+  {
+    "id": 510,
+    "title": "Design Google Maps",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["maps", "geospatial"],
+    "resources": [
+      {
+        "name": "Google Maps Platform",
+        "url": "https://developers.google.com/maps"
+      }
+    ]
+  },
+  {
+    "id": 511,
+    "title": "Design Search Autocomplete",
+    "category": "HLD Case Studies",
+    "difficulty": "Medium",
+    "tags": ["search", "trie"],
+    "resources": [
+      {
+        "name": "System Design Primer",
+        "url": "https://github.com/donnemartin/system-design-primer"
+      }
+    ]
+  },
+  {
+    "id": 512,
+    "title": "Design Web Crawler",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["crawler", "distributed"],
+    "resources": [
+      {
+        "name": "Google Search Central",
+        "url": "https://developers.google.com/search/docs/crawling-indexing"
+      }
+    ]
+  },
+  {
+    "id": 513,
+    "title": "Design Distributed Cache",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["cache", "redis"],
+    "resources": [
+      {
+        "name": "Redis Docs",
+        "url": "https://redis.io/docs/latest/"
+      }
+    ]
+  },
+  {
+    "id": 514,
+    "title": "Design Distributed File Storage",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["storage", "distributed"],
+    "resources": [
+      {
+        "name": "Google File System Paper",
+        "url": "https://research.google/pubs/pub51/"
+      }
+    ]
+  },
+  {
+    "id": 515,
+    "title": "Design API Rate Limiter",
+    "category": "HLD Case Studies",
+    "difficulty": "Medium",
+    "tags": ["rate-limiter", "api"],
+    "resources": [
+      {
+        "name": "Stripe Rate Limiter",
+        "url": "https://stripe.com/blog/rate-limiters"
+      }
+    ]
+  },
+  {
+    "id": 516,
+    "title": "Design Ticket Booking System",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["booking", "concurrency"],
+    "resources": [
+      {
+        "name": "BookMyShow Engineering",
+        "url": "https://medium.com/bookmyshow"
+      }
+    ]
+  },
+  {
+    "id": 517,
+    "title": "Design Ride Sharing Service",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["uber", "location"],
+    "resources": [
+      {
+        "name": "Uber Engineering",
+        "url": "https://www.uber.com/blog/engineering/"
+      }
+    ]
+  },
+  {
+    "id": 518,
+    "title": "Design Food Delivery System",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["delivery", "location"],
+    "resources": [
+      {
+        "name": "DoorDash Engineering",
+        "url": "https://doordash.engineering/"
+      }
+    ]
+  },
+  {
+    "id": 519,
+    "title": "Design Stock Trading Platform",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["trading", "finance"],
+    "resources": [
+      {
+        "name": "Nasdaq Architecture",
+        "url": "https://www.nasdaq.com/solutions/market-infrastructure"
+      }
+    ]
+  },
+  {
+    "id": 520,
+    "title": "Design Distributed Logging System",
+    "category": "HLD Case Studies",
+    "difficulty": "Hard",
+    "tags": ["logging", "elk"],
+    "resources": [
+      {
+        "name": "Elastic Observability",
+        "url": "https://www.elastic.co/observability"
+      }
+    ]
+  }
+]
