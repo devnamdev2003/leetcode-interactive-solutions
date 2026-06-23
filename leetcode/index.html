@@ -17,6 +17,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Canvas Confetti for Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <!-- Tailwind Config -->
     <script>
         tailwind.config = {
@@ -55,7 +58,7 @@
 
     <style>
         body {
-            background-color: #09090b; /* Zinc 950 */
+            background-color: #09090b;
             color: #f4f4f5;
         }
 
@@ -65,7 +68,6 @@
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
-        /* Hide scrollbar for chip lists but allow scrolling */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -95,7 +97,7 @@
             transition: 120ms transform ease-in-out;
         }
         .custom-checkbox:checked {
-            background-color: #10b981; /* Emerald 500 */
+            background-color: #10b981; 
             border-color: #10b981;
         }
         .custom-checkbox:checked::before {
@@ -123,40 +125,26 @@
             font-size: 0.875rem;
         }
         .form-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-
-        /* Focus Mode Overrides */
-        body.focus-mode-active aside { display: none !important; }
-        body.focus-mode-active .top-toolbar { display: none !important; }
-        body.focus-mode-active header { display: none !important; }
-        #exit-focus-btn { display: none; }
-        body.focus-mode-active #exit-focus-btn { display: flex; }
     </style>
 </head>
 
 <body class="h-screen w-full antialiased flex flex-col md:flex-row overflow-hidden selection:bg-indigo-500/30 relative">
 
-    <!-- Focus Mode Exit Button -->
-    <button id="exit-focus-btn" onclick="toggleFocusMode()" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/90 backdrop-blur-md border border-zinc-700 shadow-2xl px-5 py-2.5 rounded-full items-center gap-2 text-sm font-bold text-zinc-200 hover:bg-zinc-800 hover:text-white transition-all transform hover:scale-105">
-        <i data-lucide="minimize-2" class="w-4 h-4"></i> Exit Focus Mode
-    </button>
-
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-[60] flex flex-col gap-2"></div>
 
-    <!-- Floating Timer (Enhanced with Custom Dropdown) -->
+    <!-- Floating Timer -->
     <div id="floating-timer" class="fixed bottom-4 left-4 z-[50] bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl p-2.5 flex items-center gap-3 transition-transform hover:-translate-y-1">
         <div class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-400 shrink-0">
             <i data-lucide="timer" class="w-4 h-4"></i>
         </div>
         
         <div class="flex flex-col relative">
-            <!-- Custom Dropdown Trigger -->
             <button onclick="toggleTimerMenu()" id="timer-mode-btn" class="flex items-center gap-1 bg-transparent text-[10px] uppercase font-bold tracking-wider text-zinc-500 focus:outline-none cursor-pointer hover:text-zinc-300 transition-colors -mb-1 w-max">
                 <span id="timer-mode-label">Stopwatch</span>
                 <i data-lucide="chevron-up" class="w-3 h-3"></i>
             </button>
             
-            <!-- Custom Dropdown Menu -->
             <div id="timer-menu" class="absolute bottom-full left-0 mb-2 w-44 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden hidden flex-col z-[70] py-1.5 origin-bottom animate-fade-in">
                 <button onclick="setTimerMode('stopwatch', 'Stopwatch')" class="text-left px-3 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors">Stopwatch</button>
                 <button onclick="setTimerMode('pomodoro', 'Pomodoro (25m)')" class="text-left px-3 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors">Pomodoro (25m)</button>
@@ -196,38 +184,6 @@
         </div>
     </div>
 
-    <!-- Shortcuts Modal -->
-    <div id="shortcuts-modal" class="fixed inset-0 bg-black/70 z-[70] hidden items-center justify-center backdrop-blur-sm" onclick="if(event.target === this) closeShortcuts()">
-        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-transform duration-200" id="shortcuts-modal-content">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="keyboard" class="w-5 h-5 text-indigo-400"></i>
-                    <h3 class="text-lg font-bold text-white">Keyboard Shortcuts</h3>
-                </div>
-                <button onclick="closeShortcuts()" class="text-zinc-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            
-            <div class="space-y-4">
-                <div class="flex items-center justify-between p-3 rounded-xl bg-zinc-950/50 border border-zinc-800/50">
-                    <span class="text-sm font-medium text-zinc-300">Global Search</span>
-                    <kbd class="px-2 py-1 text-xs font-mono text-zinc-400 bg-zinc-800 border border-zinc-700 rounded-md shadow-sm">/</kbd>
-                </div>
-                <div class="flex items-center justify-between p-3 rounded-xl bg-zinc-950/50 border border-zinc-800/50">
-                    <span class="text-sm font-medium text-zinc-300">Close Modals / Exit Focus</span>
-                    <kbd class="px-2 py-1 text-xs font-mono text-zinc-400 bg-zinc-800 border border-zinc-700 rounded-md shadow-sm">ESC</kbd>
-                </div>
-                <div class="flex items-center justify-between p-3 rounded-xl bg-zinc-950/50 border border-zinc-800/50">
-                    <span class="text-sm font-medium text-zinc-300">Show Shortcuts</span>
-                    <kbd class="px-2 py-1 text-xs font-mono text-zinc-400 bg-zinc-800 border border-zinc-700 rounded-md shadow-sm">?</kbd>
-                </div>
-            </div>
-            
-            <div class="mt-6 text-center">
-                <button onclick="closeShortcuts()" class="w-full px-4 py-2.5 rounded-xl text-sm font-medium bg-zinc-800 text-white hover:bg-zinc-700 transition">Got it</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Confirm Modal -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[70] hidden items-center justify-center backdrop-blur-sm">
         <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-transform duration-200" id="confirm-modal-content">
@@ -246,7 +202,7 @@
             <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-400">
                 <i data-lucide="terminal" class="w-4 h-4"></i>
             </div>
-            <h1 class="font-bold text-lg tracking-tight">DSA<span class="text-indigo-400">Tracker</span></h1>
+            <h1 class="font-bold text-lg tracking-tight">Algo<span class="text-indigo-400">Flows</span></h1>
         </div>
         <button onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')" class="p-2 text-zinc-400 hover:text-white bg-zinc-900 rounded-lg border border-zinc-800">
             <i data-lucide="menu" class="w-5 h-5"></i>
@@ -270,10 +226,11 @@
                     <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Your Progress</h2>
                     <div class="flex items-center gap-1">
                         <input type="file" id="import-file" class="hidden" accept=".json" onchange="importProgress(event)">
-                        <button onclick="triggerImport()" class="text-zinc-500 hover:text-indigo-400 transition-colors bg-zinc-900/50 hover:bg-indigo-500/10 p-1.5 rounded-md border border-zinc-800/50 hover:border-indigo-500/30" title="Import Progress">
+                        
+                        <button onclick="triggerImport()" class="text-zinc-500 hover:text-indigo-400 transition-colors bg-zinc-900/50 hover:bg-indigo-500/10 p-1.5 rounded-md border border-zinc-800/50 hover:border-indigo-500/30" title="Import JSON Progress">
                             <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                         </button>
-                        <button onclick="exportProgress()" class="text-zinc-500 hover:text-emerald-400 transition-colors bg-zinc-900/50 hover:bg-emerald-500/10 p-1.5 rounded-md border border-zinc-800/50 hover:border-emerald-500/30" title="Export Progress & Data">
+                        <button onclick="exportProgress()" class="text-zinc-500 hover:text-emerald-400 transition-colors bg-zinc-900/50 hover:bg-emerald-500/10 p-1.5 rounded-md border border-zinc-800/50 hover:border-emerald-500/30" title="Export JSON Data">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         </button>
                         <button onclick="resetProgress()" class="text-zinc-500 hover:text-rose-400 transition-colors bg-zinc-900/50 hover:bg-rose-500/10 p-1.5 rounded-md border border-zinc-800/50 hover:border-rose-500/30" title="Reset All Progress">
@@ -281,6 +238,7 @@
                         </button>
                     </div>
                 </div>
+
                 <div class="relative flex items-center justify-center bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800/50">
                     <svg viewBox="0 0 36 36" class="circular-chart w-32 h-32">
                         <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
@@ -297,21 +255,48 @@
             <div>
                 <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Difficulty Stats</h2>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-zinc-900 rounded-xl p-3 border border-zinc-800 flex flex-col justify-center cursor-pointer hover:border-zinc-600 transition" onclick="setDiffFilter('All')">
+                    <div class="bg-zinc-900 rounded-xl p-3 border border-zinc-800 flex flex-col justify-center cursor-pointer hover:border-zinc-700 transition" onclick="setDiffFilter('All')">
                         <span class="text-xl font-bold text-white" id="stat-total">0</span>
-                        <span class="text-[11px] text-zinc-400">Total Problems</span>
+                        <span class="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Total Problems</span>
                     </div>
-                    <div class="bg-emerald-500/5 rounded-xl p-3 border border-emerald-500/10 flex flex-col justify-center cursor-pointer hover:border-emerald-500/30 transition" onclick="setDiffFilter('Easy')">
-                        <span class="text-xl font-bold text-emerald-400" id="stat-easy">0</span>
-                        <span class="text-[11px] text-emerald-500/70">Easy</span>
+                    
+                    <!-- Easy Progress Card -->
+                    <div class="bg-emerald-500/5 rounded-xl p-3 border border-emerald-500/10 cursor-pointer hover:border-emerald-500/30 transition relative overflow-hidden group" onclick="setDiffFilter('Easy')">
+                        <div class="absolute bottom-0 left-0 h-1 bg-emerald-500/10 w-full"></div>
+                        <div class="absolute bottom-0 left-0 h-1 bg-emerald-500 transition-all duration-500" id="pb-easy" style="width: 0%"></div>
+                        <div class="flex flex-col relative z-10">
+                            <span class="text-xl font-bold text-emerald-400 flex items-baseline gap-1">
+                                <span id="stat-easy-done">0</span>
+                                <span class="text-xs text-emerald-500/50 font-medium">/ <span id="stat-easy">0</span></span>
+                            </span>
+                            <span class="text-[11px] text-emerald-500/70 uppercase tracking-wider font-semibold">Easy</span>
+                        </div>
                     </div>
-                    <div class="bg-amber-500/5 rounded-xl p-3 border border-amber-500/10 flex flex-col justify-center cursor-pointer hover:border-amber-500/30 transition" onclick="setDiffFilter('Medium')">
-                        <span class="text-xl font-bold text-amber-400" id="stat-medium">0</span>
-                        <span class="text-[11px] text-amber-500/70">Medium</span>
+
+                    <!-- Medium Progress Card -->
+                    <div class="bg-amber-500/5 rounded-xl p-3 border border-amber-500/10 cursor-pointer hover:border-amber-500/30 transition relative overflow-hidden group" onclick="setDiffFilter('Medium')">
+                        <div class="absolute bottom-0 left-0 h-1 bg-amber-500/10 w-full"></div>
+                        <div class="absolute bottom-0 left-0 h-1 bg-amber-500 transition-all duration-500" id="pb-medium" style="width: 0%"></div>
+                        <div class="flex flex-col relative z-10">
+                            <span class="text-xl font-bold text-amber-400 flex items-baseline gap-1">
+                                <span id="stat-medium-done">0</span>
+                                <span class="text-xs text-amber-500/50 font-medium">/ <span id="stat-medium">0</span></span>
+                            </span>
+                            <span class="text-[11px] text-amber-500/70 uppercase tracking-wider font-semibold">Medium</span>
+                        </div>
                     </div>
-                    <div class="bg-rose-500/5 rounded-xl p-3 border border-rose-500/10 flex flex-col justify-center cursor-pointer hover:border-rose-500/30 transition" onclick="setDiffFilter('Hard')">
-                        <span class="text-xl font-bold text-rose-400" id="stat-hard">0</span>
-                        <span class="text-[11px] text-rose-500/70">Hard</span>
+
+                    <!-- Hard Progress Card -->
+                    <div class="bg-rose-500/5 rounded-xl p-3 border border-rose-500/10 cursor-pointer hover:border-rose-500/30 transition relative overflow-hidden group" onclick="setDiffFilter('Hard')">
+                        <div class="absolute bottom-0 left-0 h-1 bg-rose-500/10 w-full"></div>
+                        <div class="absolute bottom-0 left-0 h-1 bg-rose-500 transition-all duration-500" id="pb-hard" style="width: 0%"></div>
+                        <div class="flex flex-col relative z-10">
+                            <span class="text-xl font-bold text-rose-400 flex items-baseline gap-1">
+                                <span id="stat-hard-done">0</span>
+                                <span class="text-xs text-rose-500/50 font-medium">/ <span id="stat-hard">0</span></span>
+                            </span>
+                            <span class="text-[11px] text-rose-500/70 uppercase tracking-wider font-semibold">Hard</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -325,14 +310,17 @@
                         <span id="count-all-badge" class="bg-zinc-700 px-2 py-0.5 rounded text-xs">0</span>
                     </button>
                     <button onclick="setStatusFilter('Done')" id="btn-status-done" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200">
-                        <span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Completed</span> 
+                        <span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500/70"></i> Completed</span> 
                         <span id="count-done-badge" class="bg-zinc-800 px-2 py-0.5 rounded text-xs">0</span>
                     </button>
                     <button onclick="setStatusFilter('Todo')" id="btn-status-todo" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200">
                         <span class="flex items-center gap-2"><i data-lucide="circle-dashed" class="w-4 h-4"></i> To Do</span> 
                         <span id="count-todo-badge" class="bg-zinc-800 px-2 py-0.5 rounded text-xs">0</span>
                     </button>
-                    <button onclick="setStatusFilter('Favorites')" id="btn-status-favorites" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 mt-2 border-t border-zinc-800/50 pt-3">
+                    
+                    <div class="border-t border-zinc-800/50 my-1 pt-2"></div>
+                    
+                    <button onclick="setStatusFilter('Favorites')" id="btn-status-favorites" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200">
                         <span class="flex items-center gap-2 text-amber-500/80"><i data-lucide="star" class="w-4 h-4"></i> Favorites</span> 
                         <span id="count-fav-badge" class="bg-zinc-800 px-2 py-0.5 rounded text-xs">0</span>
                     </button>
@@ -344,47 +332,39 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#09090b] relative">
-        <!-- Close sidebar overlay -->
         <div id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.add('-translate-x-full')" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
 
-        <!-- Top Toolbar -->
+        <!-- Top Toolbar - Fixed flex layout to ensure Random/Sort/Reset never hide -->
         <div class="top-toolbar flex-shrink-0 border-b border-zinc-800 bg-zinc-950/50 backdrop-blur-md z-10 p-4 md:px-8 md:py-6">
-            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">
                 
                 <!-- Search -->
-                <div class="relative w-full sm:max-w-md">
+                <div class="relative w-full xl:max-w-md">
                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"></i>
                     <input type="text" id="searchInput" placeholder="Search problems, tags..." 
-                        class="w-full pl-9 pr-12 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
-                    <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-zinc-500 bg-zinc-800 border border-zinc-700 rounded shadow-sm">/</kbd>
-                    </div>
+                        class="w-full pl-9 pr-12 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-sm">
                 </div>
 
-                <!-- Sort & Actions -->
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <select id="sortSelect" onchange="handleSortChange(event)" class="form-input py-2.5 bg-zinc-900 border-zinc-800 text-sm cursor-pointer hover:border-zinc-700">
-                        <option value="default">Default Sort (List Order)</option>
-                        <option value="diffAsc">Difficulty: Easy to Hard</option>
-                        <option value="diffDesc">Difficulty: Hard to Easy</option>
+                <!-- Sort & Actions (Wrapped securely) -->
+                <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+                    
+                    <select id="platformSelect" onchange="handlePlatformChange(event)" class="form-input py-2.5 bg-zinc-900 border-zinc-800 text-sm cursor-pointer hover:border-zinc-700 min-w-[130px] w-auto shrink-0 shadow-sm">
+                        <option value="All">All Platforms</option>
+                        <!-- Injected by JS -->
+                    </select>
+
+                    <select id="sortSelect" onchange="handleSortChange(event)" class="form-input py-2.5 bg-zinc-900 border-zinc-800 text-sm cursor-pointer hover:border-zinc-700 min-w-[140px] w-auto shrink-0 shadow-sm">
+                        <option value="default">Default Sort</option>
+                        <option value="diffAsc">Diff: Easy -> Hard</option>
+                        <option value="diffDesc">Diff: Hard -> Easy</option>
                         <option value="titleAsc">Title: A to Z</option>
                     </select>
                     
-                    <button onclick="pickRandom()" class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/20 hover:border-indigo-500/40 transition flex-shrink-0" title="Pick Random Unsolved Problem">
+                    <button onclick="pickRandom()" class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/20 hover:border-indigo-500/40 transition flex-shrink-0 shadow-sm" title="Pick Random Unsolved Problem">
                         <i data-lucide="dices" class="w-4 h-4"></i>
                     </button>
 
-                    <button onclick="toggleFocusMode()" class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-500/80 hover:text-emerald-400 hover:border-emerald-500/50 transition flex-shrink-0" title="Toggle Focus Mode">
-                        <i data-lucide="maximize" class="w-4 h-4"></i>
-                    </button>
-
-                    <div class="h-6 w-px bg-zinc-800 mx-1 hidden sm:block"></div>
-
-                    <button onclick="openShortcuts()" class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition flex-shrink-0" title="Keyboard Shortcuts">
-                        <i data-lucide="keyboard" class="w-4 h-4"></i>
-                    </button>
-
-                    <button onclick="resetAllFilters()" class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition flex-shrink-0" title="Clear Filters">
+                    <button onclick="resetAllFilters()" class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition flex-shrink-0 shadow-sm" title="Clear Filters">
                         <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -411,30 +391,22 @@
 
     <!-- Application Logic -->
     <script>
-        // Fallback Data
-        const fallbackData = [
-            { "id": 11, "title": "Container With Most Water", "difficulty": "Easy", "tags": ["Array", "Greedy", "Two Pointers"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/", "solutions": [{ "name": "Brute Force", "url": "#" }, { "name": "Optimal", "url": "array/container-with-most-water.html" }] },
-            { "id": 2751, "title": "Robot Collisions", "difficulty": "Hard", "tags": ["Stack", "Array", "Sorting", "Simulation"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/robot-collisions/description/", "solutions": [{ "name": "Optimal", "url": "array/robot-collisions.html" }] },
-            { "id": "15", "title": "3Sum", "difficulty": "Medium", "tags": ["Array", "Two Pointers", "Sorting"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/3sum/description/", "solutions": [{ "name": "Optimal", "url": "algorithm/3sum.html" }] },
-            { "id": "70", "title": "Climbing Stairs", "difficulty": "Easy", "tags": ["Dynamic Programming", "Math", "Memoization"], "platform": "LeetCode", "platformUrl": "https://leetcode.com/problems/climbing-stairs/description/", "solutions": [{ "name": "Optimal", "url": "dynamic-programming/climbing-stairs.html" }] }
-        ];
-
         // Core State Management
         let problemData = [];
         let completedProblems = JSON.parse(localStorage.getItem('dsaTrackerCompleted') || '[]');
         let favoriteProblems = JSON.parse(localStorage.getItem('dsaTrackerFavorites') || '[]');
         let problemNotes = JSON.parse(localStorage.getItem('dsaTrackerNotes') || '{}');
+
         let globalUniqueTags = [];
         let globalUniquePlatforms = [];
         let isTagsExpanded = false;
-        let isFocusMode = false;
         let activeNoteId = null; 
 
         // Timer State
         let currentTimerMode = 'stopwatch';
         let timerInterval = null;
         let timerSeconds = 0;
-        let timerDirection = 1; // 1 for count up, -1 for count down
+        let timerDirection = 1;
         let timerIsRunning = false;
         
         // Active Filters
@@ -442,6 +414,7 @@
             search: '',
             difficulty: 'All', 
             selectedTags: [],  
+            platform: 'All',
             status: 'All',     // All, Done, Todo, Favorites
             sort: 'default'
         };
@@ -500,37 +473,17 @@
 
         // --- Advanced Features ---
 
-        // Focus Mode
-        function toggleFocusMode() {
-            isFocusMode = !isFocusMode;
-            if (isFocusMode) {
-                document.body.classList.add('focus-mode-active');
-                showToast("Focus Mode Activated. Press ESC to exit.", "success");
-            } else {
-                document.body.classList.remove('focus-mode-active');
-            }
+        // Confetti Celebration
+        function triggerConfetti(x, y) {
+            confetti({
+                particleCount: 80,
+                spread: 60,
+                origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+                colors: ['#10b981', '#6366f1', '#fcd34d']
+            });
         }
 
-        // Shortcuts
-        function openShortcuts() {
-            const modal = document.getElementById('shortcuts-modal');
-            const content = document.getElementById('shortcuts-modal-content');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => content.classList.remove('scale-95'), 10);
-        }
-
-        function closeShortcuts() {
-            const modal = document.getElementById('shortcuts-modal');
-            const content = document.getElementById('shortcuts-modal-content');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 200);
-        }
-
-        // --- Enhanced Timer Logic (Custom Dropdown) ---
+        // --- Timer Logic ---
         function formatTime(sec) {
             const h = Math.floor(sec / 3600).toString().padStart(2, '0');
             const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
@@ -556,7 +509,6 @@
             resetTimer();
         }
 
-        // Close custom menu when clicking outside
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('timer-menu');
             const btn = document.getElementById('timer-mode-btn');
@@ -577,13 +529,11 @@
                 btn.classList.replace('text-indigo-400', 'text-zinc-400');
                 btn.classList.replace('bg-indigo-500/10', 'hover:bg-zinc-800');
             } else {
-                // Pre-check for countdowns
                 if (timerDirection === -1 && timerSeconds <= 0) resetTimer();
 
                 timerInterval = setInterval(() => {
                     timerSeconds += timerDirection;
                     
-                    // Handle Countdown finish
                     if (timerDirection === -1 && timerSeconds <= 0) {
                         clearInterval(timerInterval);
                         timerIsRunning = false;
@@ -606,20 +556,12 @@
 
         function resetTimer() {
             const mode = currentTimerMode;
-            
-            if (mode === 'pomodoro') {
-                timerSeconds = 25 * 60;
-                timerDirection = -1;
-            } else if (mode === 'break') {
-                timerSeconds = 5 * 60;
-                timerDirection = -1;
-            } else {
-                timerSeconds = 0;
-                timerDirection = 1;
-            }
+            if (mode === 'pomodoro') { timerSeconds = 25 * 60; timerDirection = -1; }
+            else if (mode === 'break') { timerSeconds = 5 * 60; timerDirection = -1; } 
+            else { timerSeconds = 0; timerDirection = 1; }
 
             document.getElementById('timer-display').innerText = formatTime(timerSeconds);
-            if (timerIsRunning) toggleTimer(); // auto pause if running
+            if (timerIsRunning) toggleTimer(); 
         }
 
         // --- Notes Logic ---
@@ -657,12 +599,12 @@
             if (text) {
                 problemNotes[activeNoteId] = text;
             } else {
-                delete problemNotes[activeNoteId]; // Clean up empty notes
+                delete problemNotes[activeNoteId];
             }
             localStorage.setItem('dsaTrackerNotes', JSON.stringify(problemNotes));
             showToast("Note saved successfully.");
             closeNotes();
-            renderProblems(); // Refresh list to update note icon
+            renderProblems();
         }
 
         // --- Favorites Logic ---
@@ -676,8 +618,30 @@
             }
             localStorage.setItem('dsaTrackerFavorites', JSON.stringify(favoriteProblems));
             updateStats();
-            if(state.status === 'Favorites') renderProblems(); // Force refresh if filtering
-            else renderProblems(); // Always refresh to update star icon
+            renderProblems(); 
+        }
+
+        function toggleProblemStatus(id, event) {
+            const strId = String(id);
+            const isChecked = event.target.checked;
+
+            if (isChecked) {
+                if (!completedProblems.includes(strId)) {
+                    completedProblems.push(strId);
+                    showToast(`Problem #${id} marked as done!`, 'success');
+
+                    // Confetti!
+                    const rect = event.target.getBoundingClientRect();
+                    triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                }
+            } else {
+                completedProblems = completedProblems.filter(i => i !== strId);
+            }
+            
+            localStorage.setItem('dsaTrackerCompleted', JSON.stringify(completedProblems));
+            updateStats();
+            
+            if(state.status === 'Done' || state.status === 'Todo') renderProblems(); 
         }
 
         // Helpers
@@ -705,37 +669,22 @@
                 const response = await fetch('data.json');
                 if (!response.ok) throw new Error('Network response was not ok');
                 const rawData = await response.json();
-                // Map the data to include the original index for sorting
                 problemData = rawData.map((item, index) => ({ ...item, originalIndex: index }));
             } catch (error) {
-                console.warn("Could not fetch data.json. Using fallback data.", error);
-                problemData = fallbackData.map((item, index) => ({ ...item, originalIndex: index }));
+                console.warn("Could not fetch data.json. Waiting for data...");
+                problemData = [];
             }
 
             extractMetadata();
+            populatePlatformDropdown();
             updateDashboard();
 
-            // Keyboard shortcut for search, notes, focus, etc.
             document.addEventListener('keydown', (e) => {
-                const isTyping = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
-                
-                if (e.key === '/' && !isTyping) {
-                    e.preventDefault();
-                    searchInput.focus();
-                }
-                if (e.key === '?' && !isTyping) {
-                    openShortcuts();
-                }
                 if (e.key === 'Escape') {
                     if (activeNoteId) closeNotes();
-                    if (!document.getElementById('shortcuts-modal').classList.contains('hidden')) closeShortcuts();
-                    if (isFocusMode) toggleFocusMode();
-                    
-                    // close timer menu if open
                     const menu = document.getElementById('timer-menu');
                     if (menu && !menu.classList.contains('hidden')) {
-                        menu.classList.add('hidden');
-                        menu.classList.remove('flex');
+                        menu.classList.add('hidden'); menu.classList.remove('flex');
                     }
                 }
             });
@@ -752,6 +701,16 @@
             globalUniquePlatforms = Array.from(allPlatforms).sort();
         }
 
+        function populatePlatformDropdown() {
+            const select = document.getElementById('platformSelect');
+            select.innerHTML = '<option value="All">All Platforms</option>';
+            globalUniquePlatforms.forEach(plat => {
+                const opt = document.createElement('option');
+                opt.value = plat; opt.textContent = plat;
+                select.appendChild(opt);
+            });
+        }
+
         // Update UI functions
         function updateDashboard() {
             updateStats();
@@ -761,18 +720,40 @@
 
         function updateStats() {
             const counts = { Easy: 0, Medium: 0, Hard: 0, Done: 0, Todo: 0, Fav: favoriteProblems.length };
+            const doneCounts = { Easy: 0, Medium: 0, Hard: 0 };
             
             problemData.forEach(p => { 
                 if (counts[p.difficulty] !== undefined) counts[p.difficulty]++; 
-                if (completedProblems.includes(String(p.id))) counts.Done++;
-                else counts.Todo++;
+                if (completedProblems.includes(String(p.id))) {
+                    counts.Done++;
+                    if (doneCounts[p.difficulty] !== undefined) doneCounts[p.difficulty]++;
+                } else {
+                    counts.Todo++;
+                }
             });
 
             document.getElementById('stat-total').innerText = problemData.length;
+            
+            // Total Counts
             document.getElementById('stat-easy').innerText = counts.Easy;
             document.getElementById('stat-medium').innerText = counts.Medium;
             document.getElementById('stat-hard').innerText = counts.Hard;
+            
+            // Done Counts
+            document.getElementById('stat-easy-done').innerText = doneCounts.Easy;
+            document.getElementById('stat-medium-done').innerText = doneCounts.Medium;
+            document.getElementById('stat-hard-done').innerText = doneCounts.Hard;
 
+            // Progress Bars Calculation
+            const pEasy = counts.Easy ? (doneCounts.Easy / counts.Easy * 100) : 0;
+            const pMedium = counts.Medium ? (doneCounts.Medium / counts.Medium * 100) : 0;
+            const pHard = counts.Hard ? (doneCounts.Hard / counts.Hard * 100) : 0;
+
+            document.getElementById('pb-easy').style.width = `${pEasy}%`;
+            document.getElementById('pb-medium').style.width = `${pMedium}%`;
+            document.getElementById('pb-hard').style.width = `${pHard}%`;
+
+            // Badges
             document.getElementById('count-all-badge').innerText = problemData.length;
             document.getElementById('count-done-badge').innerText = counts.Done;
             document.getElementById('count-todo-badge').innerText = counts.Todo;
@@ -788,30 +769,20 @@
             const container = document.getElementById('tags-container');
             const isAll = state.selectedTags.length === 0;
 
-            let html = `
-                <button onclick="toggleTagFilter('All')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isAll ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700'}">
-                    All Tags
-                </button>
-            `;
+            let html = `<button onclick="toggleTagFilter('All')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isAll ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700'}">All Tags</button>`;
+            
             globalUniqueTags.forEach(tag => {
                 const isActive = state.selectedTags.includes(tag);
-                html += `
-                    <button onclick="toggleTagFilter('${tag}')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700'}">
-                        ${tag}
-                    </button>
-                `;
+                html += `<button onclick="toggleTagFilter('${tag}')" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700'}">${tag}</button>`;
             });
             container.innerHTML = html;
 
-            // Check if tags wrap to multiple lines to show/hide expand button
             setTimeout(() => {
                 const btn = document.getElementById('expand-tags-btn');
                 if (container.scrollHeight > 36) { 
-                    btn.classList.remove('hidden');
-                    btn.classList.add('flex');
+                    btn.classList.remove('hidden'); btn.classList.add('flex');
                 } else {
-                    btn.classList.add('hidden');
-                    btn.classList.remove('flex');
+                    btn.classList.add('hidden'); btn.classList.remove('flex');
                 }
             }, 10);
         }
@@ -821,16 +792,14 @@
         
         function setDiffFilter(diff) { state.difficulty = diff; updateDashboard(); }
         
+        function handlePlatformChange(e) { state.platform = e.target.value; renderProblems(); }
+
         function toggleTagFilter(tag) { 
-            if (tag === 'All') {
-                state.selectedTags = [];
-            } else {
+            if (tag === 'All') state.selectedTags = [];
+            else {
                 const idx = state.selectedTags.indexOf(tag);
-                if (idx > -1) {
-                    state.selectedTags.splice(idx, 1);
-                } else {
-                    state.selectedTags.push(tag);
-                }
+                if (idx > -1) state.selectedTags.splice(idx, 1);
+                else state.selectedTags.push(tag);
             }
             renderTagChips(); 
             renderProblems(); 
@@ -842,28 +811,27 @@
             const icon = document.getElementById('expand-tags-icon');
             
             if (isTagsExpanded) {
-                container.classList.remove('max-h-[32px]');
-                container.classList.add('max-h-[800px]');
+                container.classList.remove('max-h-[32px]'); container.classList.add('max-h-[800px]');
                 icon.classList.add('rotate-180');
             } else {
-                container.classList.remove('max-h-[800px]');
-                container.classList.add('max-h-[32px]');
+                container.classList.remove('max-h-[800px]'); container.classList.add('max-h-[32px]');
                 icon.classList.remove('rotate-180');
             }
         }
         
         function setStatusFilter(status) {
             state.status = status;
-            // Update UI active state
             ['all', 'done', 'todo', 'favorites'].forEach(s => {
                 const btn = document.getElementById(`btn-status-${s}`);
-                if (s.toLowerCase() === status.toLowerCase()) {
-                    btn.classList.replace('bg-transparent', 'bg-zinc-800');
-                    btn.classList.replace('text-zinc-400', 'text-white');
-                    btn.classList.add('bg-zinc-800', 'text-white', 'font-medium');
-                } else {
-                    btn.classList.remove('bg-zinc-800', 'text-white', 'font-medium');
-                    btn.classList.add('text-zinc-400');
+                if (btn) {
+                    if (s.toLowerCase() === status.toLowerCase()) {
+                        btn.classList.replace('bg-transparent', 'bg-zinc-800');
+                        btn.classList.replace('text-zinc-400', 'text-white');
+                        btn.classList.add('bg-zinc-800', 'text-white', 'font-medium');
+                    } else {
+                        btn.classList.remove('bg-zinc-800', 'text-white', 'font-medium');
+                        btn.classList.add('text-zinc-400');
+                    }
                 }
             });
             renderProblems();
@@ -872,32 +840,17 @@
         function handleSortChange(e) { state.sort = e.target.value; renderProblems(); }
         
         function resetAllFilters() {
-            state = { search: '', difficulty: 'All', selectedTags: [], status: 'All', sort: 'default' };
+            state = { search: '', difficulty: 'All', selectedTags: [], platform: 'All', status: 'All', sort: 'default' };
             searchInput.value = '';
             document.getElementById('sortSelect').value = 'default';
+            document.getElementById('platformSelect').value = 'All';
             setStatusFilter('All');
             updateDashboard();
         }
 
-        function toggleProblemStatus(id) {
-            const strId = String(id);
-            if (completedProblems.includes(strId)) {
-                completedProblems = completedProblems.filter(i => i !== strId);
-            } else {
-                completedProblems.push(strId);
-                showToast(`Problem #${id} marked as done!`, 'success');
-            }
-            localStorage.setItem('dsaTrackerCompleted', JSON.stringify(completedProblems));
-            updateStats();
-            // Optional: If filtered by Done/Todo, re-render to hide/show dynamically
-            if(state.status === 'Done' || state.status === 'Todo') renderProblems(); 
-        }
-
         function resetProgress() {
             openConfirm("Reset All Data", "This will clear all your completed problems, favorites, and notes. This action cannot be undone.", () => {
-                completedProblems = [];
-                favoriteProblems = [];
-                problemNotes = {};
+                completedProblems = []; favoriteProblems = []; problemNotes = {};
                 localStorage.removeItem('dsaTrackerCompleted');
                 localStorage.removeItem('dsaTrackerFavorites');
                 localStorage.removeItem('dsaTrackerNotes');
@@ -934,12 +887,10 @@
                     const imported = JSON.parse(e.target.result);
                     
                     if (Array.isArray(imported)) {
-                        // Backwards compatible old format (array of strings)
                         completedProblems = imported.map(String);
                         localStorage.setItem('dsaTrackerCompleted', JSON.stringify(completedProblems));
                         showToast("Legacy progress imported successfully!", "success");
                     } else if (imported && typeof imported === 'object') {
-                        // New format
                         completedProblems = imported.completed || [];
                         favoriteProblems = imported.favorites || [];
                         problemNotes = imported.notes || {};
@@ -950,8 +901,7 @@
                         
                         showToast("Full backup imported successfully!", "success");
                     } else {
-                        showToast("Invalid file format.", "error");
-                        return;
+                        showToast("Invalid file format.", "error"); return;
                     }
                     updateDashboard();
                 } catch (err) {
@@ -959,30 +909,24 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Reset input
+            event.target.value = ''; 
         }
 
         function pickRandom() {
             const data = getFilteredAndSortedData().filter(p => !completedProblems.includes(String(p.id)));
             if (data.length === 0) {
-                showToast("No unsolved problems found with current filters!", "error");
-                return;
+                showToast("No unsolved problems found with current filters!", "error"); return;
             }
-            
             const randomIdx = Math.floor(Math.random() * data.length);
             const selected = data[randomIdx];
-            
             const el = document.getElementById(`prob-${selected.id}`);
             if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 el.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-500/20');
-                setTimeout(() => {
-                    el.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-500/20');
-                }, 1500);
+                setTimeout(() => el.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-500/20'), 1500);
                 showToast(`Picked: ${selected.title}`, 'success');
             }
         }
-
 
         // Sorting & Filtering Logic
         function getFilteredAndSortedData() {
@@ -990,8 +934,8 @@
                 const searchStr = `${p.id} ${p.title} ${(p.tags||[]).join(' ')} ${p.platform}`.toLowerCase();
                 const matchesSearch = searchStr.includes(state.search.toLowerCase());
                 const matchesDiff = state.difficulty === 'All' || p.difficulty === state.difficulty;
-                
                 const matchesTag = state.selectedTags.length === 0 || state.selectedTags.some(t => (p.tags || []).includes(t));
+                const matchesPlatform = state.platform === 'All' || p.platform === state.platform;
                 
                 const isDone = completedProblems.includes(String(p.id));
                 const isFav = favoriteProblems.includes(String(p.id));
@@ -1001,7 +945,7 @@
                                      (state.status === 'Todo' && !isDone) ||
                                      (state.status === 'Favorites' && isFav);
                 
-                return matchesSearch && matchesDiff && matchesTag && matchesStatus;
+                return matchesSearch && matchesDiff && matchesTag && matchesPlatform && matchesStatus;
             });
 
             const diffVal = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
@@ -1055,8 +999,8 @@
                         
                         <!-- Left: Status & Title -->
                         <div class="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                            <div class="pt-0.5 sm:pt-0 flex items-center gap-3">
-                                <input type="checkbox" class="custom-checkbox" ${isDone ? 'checked' : ''} onchange="toggleProblemStatus('${p.id}')" title="Mark as done">
+                            <div class="pt-0.5 sm:pt-0 flex items-center gap-3 shrink-0">
+                                <input type="checkbox" class="custom-checkbox" ${isDone ? 'checked' : ''} onchange="toggleProblemStatus('${p.id}', event)" title="Mark as done">
                                 <button onclick="toggleFavorite('${p.id}')" class="focus:outline-none" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
                                     <i data-lucide="star" class="w-4 h-4 transition-colors ${isFav ? 'text-amber-400 fill-amber-400' : 'text-zinc-600 hover:text-amber-400/50'}"></i>
                                 </button>
@@ -1076,7 +1020,7 @@
                                         <i data-lucide="${platformCfg.icon}" class="w-3 h-3 ${platformCfg.color}"></i> ${platformCfg.text}
                                     </span>
                                     <div class="hidden sm:flex items-center gap-1.5 border-l border-zinc-800 pl-2 ml-1">
-                                        ${(p.tags || []).slice(0, 3).map(t => `<span class="text-[10px] text-zinc-500 bg-zinc-950 px-1.5 py-0.5 rounded">${t}</span>`).join('')}
+                                        ${(p.tags || []).slice(0, 3).map(t => `<span class="text-[10px] text-zinc-500 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800/50">${t}</span>`).join('')}
                                         ${(p.tags || []).length > 3 ? `<span class="text-[10px] text-zinc-600">...</span>` : ''}
                                     </div>
                                 </div>
@@ -1084,7 +1028,7 @@
                         </div>
 
                         <!-- Right: Actions -->
-                        <div class="flex items-center gap-2 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity pl-12 sm:pl-0">
+                        <div class="flex items-center gap-2 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity pl-12 sm:pl-0 shrink-0 flex-wrap sm:flex-nowrap">
                             
                             <!-- Notes Button -->
                             <button onclick="openNotes('${p.id}')" class="p-2 bg-zinc-950 border ${hasNote ? 'border-indigo-500/50 text-indigo-400' : 'border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white'} rounded-lg transition-colors shadow-sm relative" title="${hasNote ? 'Edit Notes' : 'Add Notes'}">
