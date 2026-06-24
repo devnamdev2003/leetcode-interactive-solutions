@@ -12,3 +12,5 @@ public class Array2d {
         System.out.println(list);
     }
 }
+
+// Test
