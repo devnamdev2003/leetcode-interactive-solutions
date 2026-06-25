@@ -1,5 +1,51 @@
 [
   {
+    "id": "3227",
+    "title": "Find Missing and Repeated Values",
+    "difficulty": "Easy",
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Math",
+      "Matrix"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/find-missing-and-repeated-values/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "Sorting/find-missing-and-repeated-values-brute.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "Sorting/find-missing-and-repeated-values.html"
+      }
+    ]
+  },
+  {
+    "id": "3227",
+    "title": "Find Missing and Repeated Values",
+    "difficulty": "Easy",
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Math",
+      "Matrix"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/find-missing-and-repeated-values/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "matrix/find-missing-and-repeated-values-brute.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "matrix/find-missing-and-repeated-values.html"
+      }
+    ]
+  },
+  {
     "id": "169",
     "title": "Majority Element",
     "difficulty": "Easy",
