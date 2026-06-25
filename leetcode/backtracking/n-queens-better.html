@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoViz Canvas - N-Queens</title>
+    <title>AlgoViz Canvas - N-Queens (HashSet Optimization)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -54,12 +54,87 @@
         /* Canvas Styles */
         .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
         
-        /* Chess Board Styles */
-        .chess-cell { display: flex; justify-content: center; align-items: center; position: relative; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .cell-eval { border-color: #fcd34d !important; background-color: rgba(252, 211, 77, 0.2) !important; transform: scale(1.1); z-index: 10; box-shadow: 0 0 16px rgba(252, 211, 77, 0.5); border: 2px solid; }
-        .cell-unsafe { border-color: #ef4444 !important; background-color: rgba(239, 68, 68, 0.3) !important; transform: scale(1.1); z-index: 10; box-shadow: 0 0 16px rgba(239, 68, 68, 0.5); border: 2px solid; }
-        .cell-safe { border-color: #34d399 !important; background-color: rgba(52, 211, 153, 0.3) !important; transform: scale(1.1); z-index: 10; box-shadow: 0 0 16px rgba(52, 211, 153, 0.5); border: 2px solid; }
-        .cell-backtrack { border-color: #f97316 !important; background-color: rgba(249, 115, 22, 0.3) !important; transform: scale(1.1); z-index: 10; box-shadow: 0 0 16px rgba(249, 115, 22, 0.5); border: 2px solid; }
+        /* Chessboard Styles */
+        .board-container {
+            display: grid;
+            gap: 2px;
+            padding: 8px;
+            background: #1e293b;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            width: max-content;
+        }
+        
+        .board-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .cell-light { background-color: #475569; }
+        .cell-dark { background-color: #334155; }
+        
+        .board-cell.highlight-checking { 
+            background-color: rgba(252, 211, 77, 0.4); 
+            box-shadow: inset 0 0 10px rgba(252, 211, 77, 0.8); 
+            z-index: 10;
+        }
+        .board-cell.highlight-placed { 
+            background-color: rgba(52, 211, 153, 0.4); 
+            box-shadow: inset 0 0 15px rgba(52, 211, 153, 0.9);
+            z-index: 10;
+        }
+        .board-cell.highlight-invalid { 
+            background-color: rgba(239, 68, 68, 0.4); 
+            box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.9);
+            z-index: 10;
+        }
+        .board-cell.highlight-backtrack { 
+            background-color: rgba(244, 114, 182, 0.3); 
+            z-index: 10;
+        }
+
+        .mini-board-container {
+            display: grid;
+            gap: 1px;
+            padding: 4px;
+            background: #1e293b;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            width: max-content;
+        }
+        .mini-board-cell {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 11px;
+        }
+        .sol-index {
+            text-align: center;
+            font-size: 10px;
+            color: #64748b;
+            margin-bottom: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .queen-icon {
+            color: #f8fafc;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         /* Speed Slider */
         input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
@@ -85,14 +160,14 @@
 <body class="text-slate-300">
 
     <!-- Top Header -->
-    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
-                <i class="fas fa-chess-board"></i>
+                <i class="fas fa-chess-queen"></i>
             </div>
             <div>
                 <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
-                <p class="text-xs text-slate-500">N-Queens (Backtracking)</p>
+                <p class="text-xs text-slate-500">N-Queens (HashSet Optimization)</p>
             </div>
         </div>
         
@@ -109,17 +184,16 @@
     </header>
 
     <!-- Inputs Bar -->
-    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
-        <div class="flex-1 w-full max-w-[200px]">
-            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Board Size (N)</label>
-            <input type="number" id="input-n" min="4" max="6" class="input-field" value="4">
-            <div class="text-[9px] text-slate-500 mt-1">Recommended: 4 to 6</div>
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-xs">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Board Size (N) - Max 8</label>
+            <input type="number" id="input-n" min="1" max="8" class="input-field" value="4">
         </div>
         <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
             <i class="fas fa-play text-xs"></i> Start Debugging
         </button>
     </section>
-    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Board size must be between 4 and 6 to prevent browser crash.</div>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a number between 1 and 8.</div>
 
     <!-- Main Workspace -->
     <main class="flex-grow flex overflow-hidden relative">
@@ -135,13 +209,18 @@
                         <i class="fas fa-eye text-primary"></i> 
                         <span>Live Memory Canvas</span>
                     </div>
-                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
-                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Canvas Content -->
-                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300 items-center justify-start">
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300 justify-start items-center pt-16">
                     
                     <!-- Status Overlay -->
                     <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
@@ -150,31 +229,28 @@
                         <span id="step-msg">Waiting to begin...</span>
                     </div>
 
-                    <!-- Chess Board Rendering Area -->
-                    <div class="flex flex-col items-center mt-6">
-                        <div class="flex items-center gap-2 mb-4 w-full justify-between">
-                            <div>
-                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">char[][]</span> board</h3>
-                                <span class="text-[10px] text-slate-500">(N x N Grid)</span>
-                            </div>
-                            <div class="flex gap-4">
-                                <div class="flex items-center gap-1 text-[10px] text-slate-400"><i class="fas fa-times text-red-500/50"></i> Attacked</div>
-                                <div class="flex items-center gap-1 text-[10px] text-slate-400"><div class="w-3 h-3 bg-green-500/30 border border-green-400 rounded-sm"></div> Safe / Placed</div>
-                            </div>
+                    <!-- Visual Board -->
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">char[][]</span> board</h3>
+                            <span class="text-[10px] text-slate-500">(NxN Grid)</span>
                         </div>
-                        
-                        <div id="canvas-board" class="shadow-2xl shadow-black/50"></div>
-                    </div>
-
-                    <!-- Solutions Gallery -->
-                    <div id="solutions-gallery" class="w-full mt-4 hidden flex-col items-center pb-8">
-                        <div class="flex items-center gap-2 mb-4 w-full justify-center">
-                            <i class="fas fa-trophy text-yellow-500 text-lg"></i>
-                            <h3 class="text-sm font-bold text-success uppercase tracking-widest">Valid Solutions</h3>
+                        <div id="canvas-board" class="board-container">
+                            <!-- Board generated via JS -->
                         </div>
-                        <div id="solutions-grid" class="flex flex-wrap justify-center gap-6 w-full max-w-2xl"></div>
                     </div>
-
+                    
+                    <!-- Solutions Area -->
+                    <div id="solutions-area" class="w-full flex flex-col items-center mt-8 pb-12 hidden">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-success">List&lt;List&lt;String&gt;&gt;</span> result</h3>
+                            <span class="text-[10px] text-slate-500">(Valid Configurations)</span>
+                        </div>
+                        <div id="solutions-container" class="flex flex-wrap gap-4 justify-center w-full max-w-full px-4">
+                            <!-- Solution boards generated via JS -->
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
 
@@ -192,31 +268,44 @@
                         <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
                     </div>
                     <!-- Vars Content -->
-                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
-                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
                         <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
                             <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Row (r)</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Row</span>
                                 <span id="var-row" class="font-mono text-blue-400 font-bold text-lg">-</span>
                             </div>
                             <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Col (c)</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Col</span>
                                 <span id="var-col" class="font-mono text-purple-400 font-bold text-lg">-</span>
                             </div>
-                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Diag1 (r - c)</span>
-                                <span id="var-diag1" class="font-mono text-yellow-400 text-lg">-</span>
-                            </div>
-                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Diag2 (r + c)</span>
-                                <span id="var-diag2" class="font-mono text-orange-400 text-lg">-</span>
-                            </div>
-                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm col-span-2 flex justify-between items-center">
-                                <div>
-                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Valid Solutions Found</span>
-                                    <span id="var-found" class="font-mono text-success font-bold text-2xl">0</span>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm col-span-2">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Valid Solutions Found</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span id="var-solutions" class="font-mono text-success text-xl font-bold">0</span>
                                 </div>
                             </div>
+
+                            <!-- Hash Sets Trackers -->
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2">
+                                <span class="block text-[10px] text-slate-500 uppercase">HashSets Contents</span>
+                                
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-[10px] text-slate-400 font-mono">occupiedCols</span>
+                                    <div id="var-cols" class="flex flex-wrap justify-end gap-1"></div>
+                                </div>
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-[10px] text-slate-400 font-mono">occupiedDiag1</span>
+                                    <div id="var-diag1" class="flex flex-wrap justify-end gap-1"></div>
+                                </div>
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-[10px] text-slate-400 font-mono">occupiedDiag2</span>
+                                    <div id="var-diag2" class="flex flex-wrap justify-end gap-1"></div>
+                                </div>
+                            </div>
+
                             <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
                                 <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
                                 <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
@@ -241,43 +330,51 @@
                     <!-- Code Content -->
                     <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
                         <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
-                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">private</span> Set&lt;<span class="text-syntaxBlue">Integer</span>&gt; occupiedCols = <span class="text-syntaxPink">new</span> HashSet&lt;&gt;();</div></div>
-                        <div class="debug-line"><div class="line-num">3</div><div class="code-content">    <span class="text-syntaxPink">private</span> Set&lt;<span class="text-syntaxBlue">Integer</span>&gt; occupiedDiag1 = <span class="text-syntaxPink">new</span> HashSet&lt;&gt;(); <span class="text-slate-500 italic">// row - col</span></div></div>
-                        <div class="debug-line"><div class="line-num">4</div><div class="code-content">    <span class="text-syntaxPink">private</span> Set&lt;<span class="text-syntaxBlue">Integer</span>&gt; occupiedDiag2 = <span class="text-syntaxPink">new</span> HashSet&lt;&gt;(); <span class="text-slate-500 italic">// row + col</span></div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">private</span> Set&lt;Integer&gt; occupiedCols = <span class="text-syntaxPink">new</span> HashSet&lt;&gt;();</div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content">    <span class="text-syntaxPink">private</span> Set&lt;Integer&gt; occupiedDiag1 = <span class="text-syntaxPink">new</span> HashSet&lt;&gt;(); <span class="text-slate-500 italic">// row - col</span></div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content">    <span class="text-syntaxPink">private</span> Set&lt;Integer&gt; occupiedDiag2 = <span class="text-syntaxPink">new</span> HashSet&lt;&gt;(); <span class="text-slate-500 italic">// row + col</span></div></div>
                         <div class="debug-line"><div class="line-num">5</div><div class="code-content"></div></div>
-                        <div id="line-solve-start" class="debug-line"><div class="line-num">6</div><div class="code-content">    <span class="text-syntaxPink">private void</span> solve(<span class="text-syntaxPink">int</span> row, <span class="text-syntaxPink">char</span>[][] board, List&lt;List&lt;<span class="text-syntaxBlue">String</span>&gt;&gt; result) {</div></div>
-                        <div id="line-base-case" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">if</span> (row == board.length) {</div></div>
-                        <div id="line-add-result" class="debug-line"><div class="line-num">8</div><div class="code-content">            result.add(constructBoard(board));</div></div>
-                        <div id="line-return" class="debug-line"><div class="line-num">9</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">10</div><div class="code-content">        }</div></div>
-                        <div class="debug-line"><div class="line-num">11</div><div class="code-content"></div></div>
-                        <div id="line-for-col" class="debug-line"><div class="line-num">12</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> col = <span class="text-syntaxPink">0</span>; col < board.length; col++) {</div></div>
-                        <div id="line-calc-diag" class="debug-line"><div class="line-num">13</div><div class="code-content">            <span class="text-syntaxPink">int</span> diag1 = row - col;</div></div>
-                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">            <span class="text-syntaxPink">int</span> diag2 = row + col;</div></div>
-                        <div class="debug-line"><div class="line-num">15</div><div class="code-content"></div></div>
-                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">            <span class="text-slate-500 italic">// O(1) safety check using sets</span></div></div>
-                        <div id="line-check-safe" class="debug-line"><div class="line-num">17</div><div class="code-content">            <span class="text-syntaxPink">if</span> (occupiedCols.contains(col) || </div></div>
-                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">                occupiedDiag1.contains(diag1) || </div></div>
-                        <div class="debug-line"><div class="line-num">19</div><div class="code-content">                occupiedDiag2.contains(diag2)) {</div></div>
-                        <div id="line-continue" class="debug-line"><div class="line-num">20</div><div class="code-content">                <span class="text-syntaxPink">continue</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">            }</div></div>
-                        <div class="debug-line"><div class="line-num">22</div><div class="code-content"></div></div>
-                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">            <span class="text-slate-500 italic">// Mark column and diagonals as attacked</span></div></div>
-                        <div id="line-mark" class="debug-line"><div class="line-num">24</div><div class="code-content">            occupiedCols.add(col);</div></div>
-                        <div class="debug-line"><div class="line-num">25</div><div class="code-content">            occupiedDiag1.add(diag1);</div></div>
-                        <div class="debug-line"><div class="line-num">26</div><div class="code-content">            occupiedDiag2.add(diag2);</div></div>
-                        <div id="line-place-queen" class="debug-line"><div class="line-num">27</div><div class="code-content">            board[row][col] = <span class="text-syntaxGreen">'Q'</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">28</div><div class="code-content"></div></div>
-                        <div id="line-recurse" class="debug-line"><div class="line-num">29</div><div class="code-content">            solve(row + <span class="text-syntaxPink">1</span>, board, result);</div></div>
+                        <div id="line-entry" class="debug-line"><div class="line-num">6</div><div class="code-content">    <span class="text-syntaxPink">public</span> List&lt;List&lt;String&gt;&gt; solveNQueens(<span class="text-syntaxPink">int</span> n) {</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">        List&lt;List&lt;String&gt;&gt; result = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">char</span>[][] board = <span class="text-syntaxPink">new char</span>[n][n];</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; n; i++) Arrays.fill(board[i], <span class="text-syntaxGreen">'.'</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">10</div><div class="code-content">        </div></div>
+                        <div id="line-initial-call" class="debug-line"><div class="line-num">11</div><div class="code-content">        solve(<span class="text-syntaxPink">0</span>, board, result);</div></div>
+                        <div id="line-return-res" class="debug-line"><div class="line-num">12</div><div class="code-content">        <span class="text-syntaxPink">return</span> result;</div></div>
+                        <div class="debug-line"><div class="line-num">13</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">14</div><div class="code-content"></div></div>
+                        <div id="line-solve" class="debug-line"><div class="line-num">15</div><div class="code-content">    <span class="text-syntaxPink">private void</span> solve(<span class="text-syntaxPink">int</span> row, <span class="text-syntaxPink">char</span>[][] board, List&lt;List&lt;String&gt;&gt; result) {</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = board.length;</div></div>
+                        <div id="line-base-case" class="debug-line"><div class="line-num">17</div><div class="code-content">        <span class="text-syntaxPink">if</span> (row == n) {</div></div>
+                        <div id="line-add-res" class="debug-line"><div class="line-num">18</div><div class="code-content">            result.add(constructBoard(board));</div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content"></div></div>
+                        <div id="line-for-col" class="debug-line"><div class="line-num">22</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> col = <span class="text-syntaxPink">0</span>; col &lt; n; col++) {</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">            <span class="text-syntaxPink">int</span> diag1 = row - col;</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">            <span class="text-syntaxPink">int</span> diag2 = row + col;</div></div>
+                        <div class="debug-line"><div class="line-num">25</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">26</div><div class="code-content text-slate-500 italic">            // O(1) safety check using sets</div></div>
+                        <div id="line-if-safe" class="debug-line"><div class="line-num">27</div><div class="code-content">            <span class="text-syntaxPink">if</span> (occupiedCols.contains(col) || occupiedDiag1.contains(diag1) || occupiedDiag2.contains(diag2)) {</div></div>
+                        <div id="line-continue" class="debug-line"><div class="line-num">28</div><div class="code-content">                <span class="text-syntaxPink">continue</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">29</div><div class="code-content">            }</div></div>
                         <div class="debug-line"><div class="line-num">30</div><div class="code-content"></div></div>
-                        <div class="debug-line"><div class="line-num">31</div><div class="code-content">            <span class="text-slate-500 italic">// Backtrack: Free the column and diagonals</span></div></div>
-                        <div id="line-backtrack" class="debug-line"><div class="line-num">32</div><div class="code-content">            board[row][col] = <span class="text-syntaxGreen">'.'</span>;</div></div>
-                        <div id="line-unmark" class="debug-line"><div class="line-num">33</div><div class="code-content">            occupiedCols.remove(col);</div></div>
-                        <div class="debug-line"><div class="line-num">34</div><div class="code-content">            occupiedDiag1.remove(diag1);</div></div>
-                        <div class="debug-line"><div class="line-num">35</div><div class="code-content">            occupiedDiag2.remove(diag2);</div></div>
-                        <div class="debug-line"><div class="line-num">36</div><div class="code-content">        }</div></div>
-                        <div class="debug-line"><div class="line-num">37</div><div class="code-content">    }</div></div>
-                        <div class="debug-line"><div class="line-num">38</div><div class="code-content">}</div></div>
+                        <div class="debug-line"><div class="line-num">31</div><div class="code-content text-slate-500 italic">            // Mark column and diagonals as attacked</div></div>
+                        <div id="line-place-q" class="debug-line"><div class="line-num">32</div><div class="code-content">            occupiedCols.add(col);</div></div>
+                        <div class="debug-line"><div class="line-num">33</div><div class="code-content">            occupiedDiag1.add(diag1);</div></div>
+                        <div class="debug-line"><div class="line-num">34</div><div class="code-content">            occupiedDiag2.add(diag2);</div></div>
+                        <div class="debug-line"><div class="line-num">35</div><div class="code-content">            board[row][col] = <span class="text-syntaxGreen">'Q'</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">36</div><div class="code-content"></div></div>
+                        <div id="line-recurse" class="debug-line"><div class="line-num">37</div><div class="code-content">            solve(row + <span class="text-syntaxPink">1</span>, board, result);</div></div>
+                        <div class="debug-line"><div class="line-num">38</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">39</div><div class="code-content text-slate-500 italic">            // Backtrack: Free the column and diagonals</div></div>
+                        <div id="line-backtrack" class="debug-line"><div class="line-num">40</div><div class="code-content">            board[row][col] = <span class="text-syntaxGreen">'.'</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">41</div><div class="code-content">            occupiedCols.remove(col);</div></div>
+                        <div class="debug-line"><div class="line-num">42</div><div class="code-content">            occupiedDiag1.remove(diag1);</div></div>
+                        <div class="debug-line"><div class="line-num">43</div><div class="code-content">            occupiedDiag2.remove(diag2);</div></div>
+                        <div class="debug-line"><div class="line-num">44</div><div class="code-content">        }</div></div>
+                        <div id="line-end-solve" class="debug-line"><div class="line-num">45</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">46</div><div class="code-content">}</div></div>
                     </div>
                 </div>
             </div>
@@ -288,27 +385,23 @@
             <div class="max-w-4xl mx-auto">
                 <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
                 <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
-                    <p class="mb-4">The N-Queens problem asks us to place N chess queens on an N×N chessboard so that no two queens attack each other. This means no two queens can share the same row, column, or diagonal.</p>
-                    <p class="mb-4">This solution leverages a classic <strong>Backtracking</strong> paradigm combined with HashSets to perform incredibly fast constraint checking.</p>
-                    
-                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <p class="mb-4">This solution uses a highly optimized <strong>Backtracking</strong> approach combined with <strong>HashSets</strong> to solve the N-Queens problem efficiently. Standard validation requires scanning the board ($O(N)$), but this method reduces safety checks to $O(1)$ time by leveraging Java's `HashSet` collection.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concepts:</h3>
                     <ul class="list-disc pl-5 space-y-4 text-slate-300">
                         <li>
-                            <strong>Row-by-Row Placement:</strong><br>
-                            We try placing exactly one queen per row. When we are at <code>row</code>, we iterate through every <code>col</code> from 0 to N-1.
+                            <strong>Row-by-Row Isolation:</strong><br>
+                            We only process one row per recursive call. This implicitly guarantees that no two Queens will ever share the same row, removing the need for a "Row HashSet".
                         </li>
                         <li>
-                            <strong>O(1) Constraint Checking:</strong><br>
-                            Instead of iterating across the board to see if a spot is safe, we use three Sets to memorize attacked lines:
-                            <ul class="list-circle pl-5 mt-2 space-y-1">
-                                <li><code>occupiedCols</code> stores which columns have a queen.</li>
-                                <li><code>occupiedDiag1</code> handles the main diagonals (top-left to bottom-right). Every cell on a specific main diagonal shares the same <code>row - col</code> value.</li>
-                                <li><code>occupiedDiag2</code> handles the anti-diagonals (top-right to bottom-left). Every cell on a specific anti-diagonal shares the same <code>row + col</code> value.</li>
-                            </ul>
+                            <strong>O(1) HashSet Validation:</strong><br>
+                            Before placing a Queen at <code>(row, col)</code>, we check if the cell is under attack using three sets:
+                            <br><code>occupiedCols</code>: Stores column indices currently containing a Queen.
+                            <br><code>occupiedDiag1 (row - col)</code>: Maps the primary \ diagonal. Any cells on the same \ diagonal will mathematically yield the identical difference <code>row - col</code>. Since this can be negative, a HashSet elegantly handles it without the array indexing adjustments required by boolean arrays.
+                            <br><code>occupiedDiag2 (row + col)</code>: Maps the secondary / diagonal. Any cells on the same / diagonal will yield the identical sum <code>row + col</code>.
                         </li>
                         <li>
-                            <strong>Backtracking (The "Undo"):</strong><br>
-                            If placing a queen in <code>(row, col)</code> leads to a dead end, we return from the recursion, remove the queen from the board, remove the column and diagonals from our sets, and continue the loop to try the next column.
+                            <strong>Backtracking Phase:</strong><br>
+                            If placement is safe, we register the `col`, `diag1`, and `diag2` values into their respective HashSets and recursively jump to the next row. Upon returning from the recursion, we <strong>backtrack</strong> by explicitly removing those values from the Sets, unlocking those attack lines for alternative choices.
                         </li>
                     </ul>
                 </div>
@@ -318,13 +411,13 @@
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
                         <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
                         <span class="text-white text-2xl font-bold block mb-2">O(N!)</span>
-                        <p class="text-xs text-slate-400">In the first row, we have N choices. For the second row, we have at most N-1 choices, and so on. This bounds the time complexity to O(N!). The O(1) set lookups drastically reduce the constant factors, making it practically much faster than naive checking.</p>
+                        <p class="text-xs text-slate-400">Placing the 1st Queen has N options. The 2nd has at most N-1 options, the 3rd at most N-2 options. Although our $O(1)$ HashSets drastically reduce the constant factor compared to scanning loops, the theoretical upper bound of paths explored is inherently factorial $O(N!)$.</p>
                     </div>
                     <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
                         <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
                         <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
-                        <p class="text-xs text-slate-400">The space complexity is bounded by the recursion stack which can go N levels deep, and the HashSets which each store at most N elements. (Storing the actual N×N board grid requires O(N²) space).</p>
+                        <p class="text-xs text-slate-400">The auxiliary space scales linearly $O(N)$. The recursion stack will go at most $N$ frames deep. Simultaneously, the three HashSets (`occupiedCols`, `occupiedDiag1`, `occupiedDiag2`) will each store at most $N$ integer elements at any given time.</p>
                     </div>
                 </div>
             </div>
@@ -333,7 +426,7 @@
     </main>
 
     <!-- Bottom Control Bar -->
-    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
         <div class="flex items-center gap-3 w-full md:w-auto justify-center">
             <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
                 <i class="fas fa-step-backward text-sm"></i>
@@ -372,6 +465,7 @@
     <script>
         // UI State for Expand/Collapse Panels
         let isSplitView = true;
+        let isFocusMode = false;
         let rightPanelWidth = 450; 
         let varsPanelHeight = 'flex: 1 1 0%';
 
@@ -385,13 +479,42 @@
             if (isSplitView) {
                 panelRight.style.display = 'flex';
                 resizerV.style.display = 'block';
-                icon.className = 'fas fa-chevron-right'; 
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
             } else {
                 panelRight.style.display = 'none';
                 resizerV.style.display = 'none';
-                icon.className = 'fas fa-chevron-left'; 
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
             }
         }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                // Only restore inputs bar if we are on the debugger tab
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        // Add Escape key listener to exit focus mode easily
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
 
         let panelsState = { vars: true, code: true };
 
@@ -502,20 +625,21 @@
                 inputsBar.style.display = 'none';
                 controlBar.style.display = 'none';
             } else {
-                inputsBar.style.display = 'flex';
+                // Respect focus mode state when switching tabs
+                if (!isFocusMode) inputsBar.style.display = 'flex';
                 controlBar.style.display = 'flex';
             }
         }
 
-        // Core State Simulation
+        // Core State Management
         let states = [];
         let currState = 0;
         let playInterval = null;
         let isPlaying = false;
-        let animSpeed = 1000; 
+        let animSpeed = 1000; // Default speed scaled to slider 70
 
         function updateSpeed(val) {
-            animSpeed = 2000 - (val * 18); 
+            animSpeed = 3000 - (val * 27); 
             if (isPlaying) {
                 clearInterval(playInterval);
                 playInterval = setInterval(nextStep, animSpeed);
@@ -523,185 +647,214 @@
         }
 
         function initSimulationFromInputs() {
-            let n = parseInt(document.getElementById('input-n').value);
+            const nStr = document.getElementById('input-n').value;
             const errEl = document.getElementById('input-error');
             errEl.classList.add('hidden');
 
-            if (isNaN(n) || n < 1) n = 4;
-            
-            if (n > 6) {
-                errEl.classList.remove('hidden');
-                document.getElementById('input-n').value = 6;
-                n = 6;
-            }
+            try {
+                let n = parseInt(nStr);
+                if (isNaN(n) || n < 1) {
+                    throw new Error("Invalid Input");
+                }
+                
+                if (n > 8) {
+                    n = 8;
+                    document.getElementById('input-n').value = 8;
+                    alert("Board size truncated to 8. Larger values create too many states for in-browser visualization.");
+                }
 
-            generateStates(n);
-            pauseAnim();
-            currState = 0;
-            renderState(0);
-            
-            if(!document.getElementById('dry-tab').classList.contains('active')) {
-                switchTab('dry-tab');
+                generateStates(n);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
             }
         }
 
+        // Algorithm Simulator (Using JS Sets to mimic Java HashSets)
         function generateStates(n) {
             states = [];
             let board = Array.from({length: n}, () => Array(n).fill('.'));
-            let cols = new Set();
-            let diag1 = new Set();
-            let diag2 = new Set();
-            let solutionsCount = 0;
-            let currentSolutions = []; // Store solutions tracked so far
+            
+            let occupiedCols = new Set();
+            let occupiedDiag1 = new Set();
+            let occupiedDiag2 = new Set();
+            
+            let resultCount = 0;
+            let foundSolutionsList = [];
+            
+            let vrs = { 
+                row: '-', col: '-', solutions: 0, action: 'Initialization', 
+                colsArr: [], 
+                diag1Arr: [], 
+                diag2Arr: [] 
+            };
 
-            function pushState(msg, line, r, c, d1, d2, status) {
+            const getSnapshot = (r, c, hlType) => {
+                return {
+                    n: n,
+                    grid: board.map(row => [...row]),
+                    activeRow: r,
+                    activeCol: c,
+                    highlightType: hlType,
+                    solutions: [...foundSolutionsList]
+                };
+            };
+
+            const pushState = (msg, line, r, c, hlType) => {
+                vrs.row = r !== undefined ? r : '-';
+                vrs.col = c !== undefined ? c : '-';
+                vrs.colsArr = Array.from(occupiedCols);
+                vrs.diag1Arr = Array.from(occupiedDiag1);
+                vrs.diag2Arr = Array.from(occupiedDiag2);
+
                 states.push({
                     msg: msg,
                     activeLine: line,
-                    vars: { row: r, col: c, diag1: d1, diag2: d2, found: solutionsCount, n: n, action: msg },
-                    board: board.map(row => [...row]),
-                    cols: Array.from(cols),
-                    diag1: Array.from(diag1),
-                    diag2: Array.from(diag2),
-                    solutions: currentSolutions.map(sol => sol.map(row => [...row])), // Deep copy snapshot of current valid solutions
-                    hl: { r: r, c: c, status: status }
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: getSnapshot(r, c, hlType)
                 });
-            }
+            };
+
+            vrs.action = "Initialize data structures";
+            pushState(`Initialize an empty ${n}x${n} board`, "line-entry", undefined, undefined, 'none');
+            pushState(`Starting backtrack algorithm`, "line-initial-call", undefined, undefined, 'none');
 
             function solve(row) {
-                pushState(`Entering solve for row ${row}`, 'line-solve-start', row, '-', '-', '-', 'eval');
+                vrs.action = `Entering recursive solve`;
+                pushState(`solve(row = ${row}) called`, 'line-solve', row, undefined, 'none');
                 
-                pushState(`Checking base case: row == board.length (${row} == ${n})`, 'line-base-case', row, '-', '-', '-', 'eval');
                 if (row === n) {
-                    solutionsCount++;
-                    // Add Deep copy of this valid board to solutions list
-                    currentSolutions.push(board.map(r => [...r]));
-                    
-                    pushState(`Valid configuration found! Total solutions: ${solutionsCount}`, 'line-add-result', row, '-', '-', '-', 'done');
-                    pushState(`Returning from recursion`, 'line-return', row, '-', '-', '-', 'done');
+                    resultCount++;
+                    foundSolutionsList.push(board.map(r => [...r]));
+                    vrs.solutions = resultCount;
+                    vrs.action = `Valid Solution Found!`;
+                    pushState(`row == n, we successfully placed ${n} queens!`, 'line-base-case', row, undefined, 'none');
+                    pushState(`Adding board configuration to results`, 'line-add-res', row, undefined, 'none');
                     return;
                 }
 
                 for (let col = 0; col < n; col++) {
-                    pushState(`Loop: Checking column ${col} for row ${row}`, 'line-for-col', row, col, '-', '-', 'eval');
+                    vrs.action = `Checking cell (${row}, ${col})`;
+                    pushState(`For loop: testing column ${col} in row ${row}`, 'line-for-col', row, col, 'checking');
 
                     let d1 = row - col;
                     let d2 = row + col;
-                    pushState(`Calculated diag1 = ${d1}, diag2 = ${d2}`, 'line-calc-diag', row, col, d1, d2, 'eval');
 
-                    pushState(`Checking if cell is safe (Not in HashSets)`, 'line-check-safe', row, col, d1, d2, 'eval');
+                    pushState(`Checking safety in O(1) using Sets.`, 'line-if-safe', row, col, 'checking');
 
-                    if (cols.has(col) || diag1.has(d1) || diag2.has(d2)) {
-                        pushState(`Cell is attacked! Continuing to next column.`, 'line-continue', row, col, d1, d2, 'unsafe');
+                    if (occupiedCols.has(col) || occupiedDiag1.has(d1) || occupiedDiag2.has(d2)) {
+                        vrs.action = `Cell (${row}, ${col}) is under attack!`;
+                        pushState(`Cell is not safe. HashSet returned true. Skipping...`, 'line-continue', row, col, 'invalid');
                         continue;
                     }
 
-                    pushState(`Cell is safe. Adding constraints to sets.`, 'line-mark', row, col, d1, d2, 'safe');
-                    cols.add(col);
-                    diag1.add(d1);
-                    diag2.add(d2);
-                    
+                    vrs.action = `Placing Queen at (${row}, ${col})`;
+                    occupiedCols.add(col);
+                    occupiedDiag1.add(d1);
+                    occupiedDiag2.add(d2);
                     board[row][col] = 'Q';
-                    pushState(`Placed Queen on board.`, 'line-place-queen', row, col, d1, d2, 'place');
+                    pushState(`Cell safe! Added indices to HashSets and placed 'Q'.`, 'line-place-q', row, col, 'placed');
 
-                    pushState(`Recursing to solve for row ${row + 1}`, 'line-recurse', row, col, d1, d2, 'place');
+                    pushState(`Proceeding to next row...`, 'line-recurse', row, col, 'placed');
                     solve(row + 1);
 
-                    pushState(`Backtracking: Removing Queen from row ${row}, col ${col}`, 'line-backtrack', row, col, d1, d2, 'backtrack');
-                    board[row][col] = '.';
+                    vrs.action = `Backtracking from (${row}, ${col})`;
+                    pushState(`Returned from recursion, beginning backtrack`, 'line-backtrack', row, col, 'backtrack');
                     
-                    pushState(`Removing constraints from sets to free paths.`, 'line-unmark', row, col, d1, d2, 'backtrack');
-                    cols.delete(col);
-                    diag1.delete(d1);
-                    diag2.delete(d2);
+                    board[row][col] = '.';
+                    occupiedCols.delete(col);
+                    occupiedDiag1.delete(d1);
+                    occupiedDiag2.delete(d2);
+                    pushState(`Removed Queen and cleared indices from HashSets.`, 'line-backtrack', row, col, 'backtrack');
                 }
+                
+                vrs.action = `End of row ${row} possibilities`;
+                pushState(`Checked all columns for row ${row}. Returning to previous row.`, 'line-end-solve', row, undefined, 'none');
             }
 
             solve(0);
             
-            // Final state
-            states.push({
-                msg: "Exploration completed. All branches checked.",
-                activeLine: null,
-                vars: { row: '-', col: '-', diag1: '-', diag2: '-', found: solutionsCount, n: n, action: "Finished" },
-                board: board.map(row => [...row]),
-                cols: [], diag1: [], diag2: [],
-                solutions: currentSolutions.map(sol => sol.map(row => [...row])),
-                hl: null
-            });
+            vrs.row = '-';
+            vrs.col = '-';
+            vrs.action = 'Algorithm Finished';
+            pushState(`Done! Total solutions found: ${resultCount}`, 'line-return-res', undefined, undefined, 'none');
         }
 
-        function renderBoard(state) {
-            const n = state.vars.n;
+        // Render Canvas DOM
+        function renderBoardDOM(visuals) {
             const container = document.getElementById('canvas-board');
+            const n = visuals.n;
             
-            let html = `<div class="grid" style="grid-template-columns: repeat(${n}, minmax(40px, 60px)); grid-template-rows: repeat(${n}, minmax(40px, 60px)); gap: 0; padding: 6px; background: #0f172a; border-radius: 8px; border: 2px solid #1e293b;">`;
+            container.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
             
-            for(let r = 0; r < n; r++) {
-                for(let c = 0; c < n; c++) {
+            let html = '';
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
                     let isLight = (r + c) % 2 === 0;
-                    let cellClass = isLight ? 'bg-[#334155]' : 'bg-[#1e293b]';
+                    let cellClass = isLight ? 'cell-light' : 'cell-dark';
                     let content = '';
-                    
-                    // Is there a Queen?
-                    if(state.board[r][c] === 'Q') {
-                        content = '<i class="fas fa-chess-queen text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-3xl"></i>';
-                    } 
-                    // Or is it under attack?
-                    else if (state.cols.includes(c) || state.diag1.includes(r - c) || state.diag2.includes(r + c)) {
-                        content = '<i class="fas fa-times text-red-500/30 text-xl"></i>';
+
+                    // Highlighting logic
+                    if (r === visuals.activeRow && c === visuals.activeCol) {
+                        if (visuals.highlightType === 'checking') cellClass += ' highlight-checking';
+                        if (visuals.highlightType === 'placed') cellClass += ' highlight-placed';
+                        if (visuals.highlightType === 'invalid') cellClass += ' highlight-invalid';
+                        if (visuals.highlightType === 'backtrack') cellClass += ' highlight-backtrack';
                     }
 
-                    // Apply current step highlights
-                    if(state.hl && state.hl.r === r && state.hl.c === c) {
-                        if(state.hl.status === 'eval') cellClass = 'cell-eval';
-                        else if(state.hl.status === 'unsafe') cellClass = 'cell-unsafe';
-                        else if(state.hl.status === 'safe' || state.hl.status === 'place') cellClass = 'cell-safe';
-                        else if(state.hl.status === 'backtrack') cellClass = 'cell-backtrack';
+                    // Queen logic
+                    if (visuals.grid[r][c] === 'Q') {
+                        content = '<i class="fas fa-chess-queen queen-icon"></i>';
                     }
-                    
-                    html += `<div class="chess-cell ${cellClass}" style="height: 60px; width: 60px;">${content}</div>`;
+
+                    html += `<div class="board-cell ${cellClass}">${content}</div>`;
                 }
             }
-            html += `</div>`;
             container.innerHTML = html;
         }
 
-        function renderSolutions(state) {
-            const gallery = document.getElementById('solutions-gallery');
-            const grid = document.getElementById('solutions-grid');
+        function renderSolutionsDOM(solutions, n) {
+            const containerArea = document.getElementById('solutions-area');
+            const container = document.getElementById('solutions-container');
             
-            if (state.solutions && state.solutions.length > 0) {
-                gallery.classList.remove('hidden');
-                gallery.classList.add('flex');
-                
-                let html = '';
-                const n = state.vars.n;
-                
-                state.solutions.forEach((solBoard, idx) => {
-                    html += `
-                    <div class="flex flex-col items-center gap-1.5 animation-fadeIn">
-                        <span class="text-[10px] text-slate-400 font-mono">Solution ${idx + 1}</span>
-                        <div class="grid shadow-lg" style="grid-template-columns: repeat(${n}, 24px); grid-template-rows: repeat(${n}, 24px); gap: 0; padding: 4px; background: #0f172a; border-radius: 4px; border: 1px solid #1e293b;">`;
-                    
-                    for(let r = 0; r < n; r++) {
-                        for(let c = 0; c < n; c++) {
-                            let isLight = (r + c) % 2 === 0;
-                            let cellClass = isLight ? 'bg-[#334155]' : 'bg-[#1e293b]';
-                            let content = solBoard[r][c] === 'Q' ? '<i class="fas fa-chess-queen text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-[12px]"></i>' : '';
-                            html += `<div class="flex justify-center items-center ${cellClass}" style="height: 24px; width: 24px;">${content}</div>`;
-                        }
-                    }
-                    
-                    html += `</div></div>`;
-                });
-                
-                grid.innerHTML = html;
-            } else {
-                gallery.classList.add('hidden');
-                gallery.classList.remove('flex');
-                grid.innerHTML = '';
+            if (!solutions || solutions.length === 0) {
+                containerArea.classList.add('hidden');
+                container.innerHTML = '';
+                return;
             }
+            
+            containerArea.classList.remove('hidden');
+            let html = '';
+            
+            solutions.forEach((sol, index) => {
+                let boardHtml = `<div class="flex flex-col items-center"><div class="sol-index">Solution ${index + 1}</div><div class="mini-board-container" style="grid-template-columns: repeat(${n}, 1fr)">`;
+                for (let r = 0; r < n; r++) {
+                    for (let c = 0; c < n; c++) {
+                        let isLight = (r + c) % 2 === 0;
+                        let cellClass = isLight ? 'cell-light' : 'cell-dark';
+                        let content = sol[r][c] === 'Q' ? '<i class="fas fa-chess-queen text-slate-100"></i>' : '';
+                        boardHtml += `<div class="mini-board-cell ${cellClass}">${content}</div>`;
+                    }
+                }
+                boardHtml += `</div></div>`;
+                html += boardHtml;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function formatSetAsTags(arr) {
+            if (!arr || arr.length === 0) return '<span class="text-[10px] text-slate-600 italic">Empty Set</span>';
+            return arr.map(val => {
+                return `<div class="px-1.5 py-0.5 bg-danger text-white rounded-[4px] text-[10px] font-bold shadow-[0_0_5px_rgba(239,68,68,0.4)]">${val}</div>`;
+            }).join('');
         }
 
         function renderState(idx) {
@@ -726,9 +879,9 @@
                 document.getElementById('status-icon').classList.remove('hidden');
             }
 
-            // Render Board & Solutions
-            renderBoard(state);
-            renderSolutions(state);
+            // Render DOM Board
+            renderBoardDOM(state.visuals);
+            renderSolutionsDOM(state.visuals.solutions, state.visuals.n);
 
             // Variables Panel
             document.getElementById('empty-vars').classList.add('hidden');
@@ -739,10 +892,13 @@
 
             document.getElementById('var-row').innerText = state.vars.row;
             document.getElementById('var-col').innerText = state.vars.col;
-            document.getElementById('var-diag1').innerText = state.vars.diag1;
-            document.getElementById('var-diag2').innerText = state.vars.diag2;
-            document.getElementById('var-found').innerText = state.vars.found;
+            document.getElementById('var-solutions').innerText = state.vars.solutions;
             document.getElementById('var-action').innerText = state.vars.action;
+
+            // Render HashSets
+            document.getElementById('var-cols').innerHTML = formatSetAsTags(state.vars.colsArr);
+            document.getElementById('var-diag1').innerHTML = formatSetAsTags(state.vars.diag1Arr);
+            document.getElementById('var-diag2').innerHTML = formatSetAsTags(state.vars.diag2Arr);
 
             // Highlight Code Line
             document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
@@ -755,6 +911,7 @@
             }
         }
 
+        // Playback Controls
         function nextStep() {
             if (currState < states.length - 1) {
                 currState++;
