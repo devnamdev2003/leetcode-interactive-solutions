@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - N-Queens (Backtracking)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Chess Board Styles */
+        .chess-board { display: grid; border: 4px solid #1e293b; border-radius: 4px; width: max-content; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden;}
+        .chess-cell { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 28px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; }
+        .chess-cell.light { background-color: #475569; }
+        .chess-cell.dark { background-color: #1e293b; }
+        
+        .chess-cell.checking { border: 2px solid #fcd34d; background-color: rgba(252, 211, 77, 0.3) !important; transform: scale(1.1); z-index: 10; box-shadow: 0 0 15px rgba(252, 211, 77, 0.4); }
+        .chess-cell.checking-ray { background-color: rgba(252, 211, 77, 0.15) !important; z-index: 5;}
+        .chess-cell.conflict { border: 2px solid #ef4444; background-color: rgba(239, 68, 68, 0.4) !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); transform: scale(1.1); z-index: 10; }
+        .chess-cell.placed { background-color: rgba(52, 211, 153, 0.4) !important; border: 2px solid #34d399; transform: scale(1.1); z-index: 10; box-shadow: 0 0 15px rgba(52, 211, 153, 0.4); }
+        .chess-cell.removed { background-color: rgba(244, 114, 182, 0.3) !important; border: 2px dashed #f472b6; transform: scale(0.95); }
+        .chess-cell.safe { background-color: rgba(59, 130, 246, 0.3) !important; border: 2px solid #60a5fa; transform: scale(1.1); z-index: 10; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+
+        .queen-icon { animation: dropIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));}
+        @keyframes dropIn { from { transform: translateY(-10px) scale(0.8); opacity: 0;} to { transform: translateY(0) scale(1); opacity: 1;} }
+
+        /* Mini Solutions Boards Styles */
+        .solutions-container { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+        .mini-board { display: grid; border: 2px solid #1e293b; border-radius: 2px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .mini-cell { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .mini-cell.light { background-color: #475569; }
+        .mini-cell.dark { background-color: #1e293b; }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-chess-queen"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">N-Queens (Backtracking)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-2xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Board Size N (Max 6 recommended)</label>
+            <input type="number" id="input-n" class="input-field" value="4" min="1" max="8">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. N must be between 1 and 8.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Chess Board Array -->
+                    <div class="mt-8 flex flex-col items-center">
+                        <div class="flex items-center gap-2 mb-4 w-full justify-center">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[][]</span> m</h3>
+                            <span class="text-[10px] text-slate-500">(NxN Chessboard)</span>
+                        </div>
+                        <div id="canvas-board" class="chess-board"></div>
+                    </div>
+                    
+                    <!-- Current & Solutions Overview -->
+                    <div class="flex flex-col gap-4 w-full max-w-2xl mx-auto mt-4 pb-12">
+                        <div class="bg-bgPanel/50 border border-borderMain rounded-lg p-5 shadow-sm text-center">
+                            <span class="block text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Total Valid Solutions Found</span>
+                            <div class="flex items-center justify-center gap-4">
+                                <i class="fas fa-check-circle text-success text-xl"></i>
+                                <span id="canvas-sols" class="font-mono text-3xl text-white font-bold">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Mini Boards for Discovered Solutions -->
+                        <div class="bg-bgPanel/30 border border-borderMain/50 rounded-lg p-5">
+                            <div class="flex items-center gap-2 mb-4 w-full justify-center">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest">Discovered Boards</h3>
+                            </div>
+                            <div id="canvas-solutions" class="solutions-container">
+                                <span class="text-xs text-slate-500 italic">No solutions found yet...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Board Size (n)</span>
+                                <span id="var-n" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Total Solutions</span>
+                                <span id="var-sols" class="font-mono text-success font-bold text-lg">0</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Col (cl)</span>
+                                <span id="var-cl" class="font-mono text-purple-400 text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Row Iterator (i/r)</span>
+                                <span id="var-r" class="font-mono text-yellow-400 text-lg">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> List&lt;List&lt;String&gt;&gt; solveNQueens(<span class="text-syntaxPink">int</span> n) {</div></div>
+                        <div id="line-init-m" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span>[][] m = <span class="text-syntaxPink">new int</span>[n][n];</div></div>
+                        <div id="line-init-ans" class="debug-line"><div class="line-num">4</div><div class="code-content">        List&lt;List&lt;String&gt;&gt; ans = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div id="line-call-fun" class="debug-line"><div class="line-num">5</div><div class="code-content">        fun(m, <span class="text-syntaxPink">0</span>, ans);</div></div>
+                        <div id="line-ret-ans" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">return</span> ans;</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content"></div></div>
+                        <div id="line-fun" class="debug-line"><div class="line-num">9</div><div class="code-content">    <span class="text-syntaxPink">public void</span> fun(<span class="text-syntaxPink">int</span>[][] m, <span class="text-syntaxPink">int</span> cl, List&lt;List&lt;String&gt;&gt; ans) {</div></div>
+                        <div id="line-base-check" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">if</span> (cl == m.length) {</div></div>
+                        <div id="line-base-add" class="debug-line"><div class="line-num">11</div><div class="code-content">            ans.add(p(m));</div></div>
+                        <div id="line-base-ret" class="debug-line"><div class="line-num">12</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">13</div><div class="code-content">        }</div></div>
+                        <div id="line-for-i" class="debug-line"><div class="line-num">14</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i < m.length; i++) {</div></div>
+                        <div id="line-safe-call" class="debug-line"><div class="line-num">15</div><div class="code-content">            <span class="text-syntaxPink">if</span> (isSafe(m, i, cl)) {</div></div>
+                        <div id="line-place-q" class="debug-line"><div class="line-num">16</div><div class="code-content">                m[i][cl] = <span class="text-syntaxPink">1</span>;</div></div>
+                        <div id="line-recurse" class="debug-line"><div class="line-num">17</div><div class="code-content">                fun(m, cl + <span class="text-syntaxPink">1</span>, ans);</div></div>
+                        <div id="line-backtrack" class="debug-line"><div class="line-num">18</div><div class="code-content">                m[i][cl] = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">        }</div></div>
+                        <div id="line-end-fun" class="debug-line"><div class="line-num">21</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">    <span class="text-syntaxPink">public boolean</span> isSafe(<span class="text-syntaxPink">int</span>[][] m, <span class="text-syntaxPink">int</span> r, <span class="text-syntaxPink">int</span> c) {</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">        <span class="text-syntaxPink">int</span> rc = r;</div></div>
+                        <div class="debug-line"><div class="line-num">25</div><div class="code-content">        <span class="text-syntaxPink">int</span> cc = c;</div></div>
+                        <div id="line-safe-ul" class="debug-line"><div class="line-num">26</div><div class="code-content">        <span class="text-syntaxPink">while</span> (rc >= <span class="text-syntaxPink">0</span> && cc >= <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-safe-ul-check" class="debug-line"><div class="line-num">27</div><div class="code-content">            <span class="text-syntaxPink">if</span> (m[rc][cc] == <span class="text-syntaxPink">1</span>)</div></div>
+                        <div id="line-safe-ul-fail" class="debug-line"><div class="line-num">28</div><div class="code-content">                <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">29</div><div class="code-content">            rc--;</div></div>
+                        <div class="debug-line"><div class="line-num">30</div><div class="code-content">            cc--;</div></div>
+                        <div class="debug-line"><div class="line-num">31</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">32</div><div class="code-content">        rc = r;</div></div>
+                        <div class="debug-line"><div class="line-num">33</div><div class="code-content">        cc = c;</div></div>
+                        <div id="line-safe-ll" class="debug-line"><div class="line-num">34</div><div class="code-content">        <span class="text-syntaxPink">while</span> (rc < m.length && cc >= <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-safe-ll-check" class="debug-line"><div class="line-num">35</div><div class="code-content">            <span class="text-syntaxPink">if</span> (m[rc][cc] == <span class="text-syntaxPink">1</span>)</div></div>
+                        <div id="line-safe-ll-fail" class="debug-line"><div class="line-num">36</div><div class="code-content">                <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">37</div><div class="code-content">            rc++;</div></div>
+                        <div class="debug-line"><div class="line-num">38</div><div class="code-content">            cc--;</div></div>
+                        <div class="debug-line"><div class="line-num">39</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">40</div><div class="code-content">        rc = r;</div></div>
+                        <div class="debug-line"><div class="line-num">41</div><div class="code-content">        cc = c;</div></div>
+                        <div id="line-safe-left" class="debug-line"><div class="line-num">42</div><div class="code-content">        <span class="text-syntaxPink">while</span> (cc >= <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-safe-left-check" class="debug-line"><div class="line-num">43</div><div class="code-content">            <span class="text-syntaxPink">if</span> (m[rc][cc] == <span class="text-syntaxPink">1</span>)</div></div>
+                        <div id="line-safe-left-fail" class="debug-line"><div class="line-num">44</div><div class="code-content">                <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">45</div><div class="code-content">            cc--;</div></div>
+                        <div class="debug-line"><div class="line-num">46</div><div class="code-content">        }</div></div>
+                        <div id="line-safe-ret-true" class="debug-line"><div class="line-num">47</div><div class="code-content">        <span class="text-syntaxPink">return true</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">48</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">49</div><div class="code-content">    <span class="text-slate-500 italic">// public List&lt;String&gt; p(int[][] m) omitted for brevity...</span></div></div>
+                        <div class="debug-line"><div class="line-num">50</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution uses a <strong>Backtracking</strong> approach to solve the classic N-Queens problem. The objective is to place $N$ queens on an $N \times N$ chessboard so that no two queens threaten each other. This means no two queens can share the same row, column, or diagonal.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Step 1: Column-by-Column Placement</strong><br>
+                            The algorithm uses a recursive function <code>fun()</code> that tries to place exactly one queen per column. The variable <code>cl</code> tracks the current column. If <code>cl</code> reaches $N$, a valid board configuration has been found.
+                        </li>
+                        <li>
+                            <strong>Step 2: Check for Safety (Pruning)</strong><br>
+                            For a given column, it iterates through every row <code>i</code>. Before placing a queen, it calls <code>isSafe()</code>. Because we are filling column by column from left to right, we only need to check for conflicts to the <em>left</em> of the current cell: the upper-left diagonal, the left row, and the lower-left diagonal.
+                        </li>
+                        <li>
+                            <strong>Step 3: Place, Recurse, and Backtrack</strong><br>
+                            If the cell is safe, it tentatively places a queen (<code>m[i][cl] = 1</code>) and recursively moves to the next column (<code>cl + 1</code>). If that path fails to yield a solution (or after exploring it fully), it <strong>backtracks</strong> by removing the queen (<code>m[i][cl] = 0</code>) and tries the next row in the current column.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N!)</span>
+                        <p class="text-xs text-slate-400">Strictly speaking, the first queen has $N$ row choices, the second has $N-1$ valid choices (approx), the third $N-2$, etc. Thus, the upper bound of the recursion tree is $O(N!)$. Pruning drastically reduces actual runtime, but the worst-case bound remains factorial.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N²)</span>
+                        <p class="text-xs text-slate-400">The 2D board matrix <code>m[N][N]</code> takes $O(N^2)$ space. Additionally, the recursion stack can go up to $N$ frames deep, taking $O(N)$ space. Storing the final answers takes $O(S \cdot N^2)$ where $S$ is the number of solutions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left'; 
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000; 
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            let n = parseInt(document.getElementById('input-n').value);
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                if (isNaN(n) || n < 1) throw new Error("Invalid Input");
+                
+                if (n > 6) {
+                    n = 6;
+                    document.getElementById('input-n').value = 6;
+                    alert("To prevent browser freezing due to O(N!) factorial complexity, N has been limited to 6 for the interactive visualizer.");
+                }
+
+                generateStates(n);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Java Backtracking Algorithm mapped to UI States
+        function generateStates(n) {
+            states = [];
+            let m = Array(n).fill(0).map(() => Array(n).fill(0));
+            let ansCount = 0;
+            let currentSolutions = [];
+            let vrs = { n: n, cl: '-', r: '-', action: 'Initialization', sols: 0 };
+
+            const push = (msg, line, vrsOverrides, checkInfo) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: { ...vrs, ...vrsOverrides },
+                    board: m.map(row => [...row]),
+                    check: checkInfo,
+                    // Store deep copy of all solutions found up to this state
+                    solutions: currentSolutions.map(b => b.map(row => [...row]))
+                });
+                vrs = { ...vrs, ...vrsOverrides };
+            };
+
+            push(`Initialize empty board of size ${n}x${n}`, 'line-init-m', {}, null);
+            push(`Initialize answers list`, 'line-init-ans', {}, null);
+            push(`Start solving by calling fun(col=0)`, 'line-call-fun', {}, null);
+
+            function fun(cl) {
+                push(`fun(col = ${cl}) called`, 'line-fun', { cl: cl, r: '-' }, null);
+                push(`Check base case: cl == m.length (${cl} == ${n})`, 'line-base-check', {}, null);
+
+                if (cl === n) {
+                    ansCount++;
+                    // Add current board to our list of discovered solutions
+                    currentSolutions.push(m.map(row => [...row])); 
+                    push(`All columns filled! Valid configuration found.`, 'line-base-add', { sols: ansCount, action: 'Found Solution!' }, null);
+                    push(`Return to previous column`, 'line-base-ret', {}, null);
+                    return;
+                }
+
+                push(`Iterate through rows 0 to ${n-1} for column ${cl}`, 'line-for-i', {}, null);
+                for (let i = 0; i < n; i++) {
+                    push(`Try placing Queen at row ${i}, col ${cl}`, 'line-safe-call', { r: i, action: `Checking safety at (${i},${cl})` }, { r: i, c: cl, type: 'checking' });
+
+                    if (isSafe(i, cl)) {
+                        m[i][cl] = 1;
+                        push(`Position (${i}, ${cl}) is safe. Place Queen.`, 'line-place-q', { action: 'Placed Queen' }, { r: i, c: cl, type: 'placed' });
+
+                        push(`Recurse to next column: cl + 1 = ${cl + 1}`, 'line-recurse', {}, null);
+                        fun(cl + 1);
+
+                        // Reset local vars after recursion returns to this frame
+                        vrs.cl = cl; vrs.r = i;
+                        
+                        m[i][cl] = 0;
+                        push(`Backtrack: Remove Queen from (${i}, ${cl}) and try next row`, 'line-backtrack', { action: 'Backtracking' }, { r: i, c: cl, type: 'removed' });
+                    }
+                }
+                push(`Finished exploring all rows for col ${cl}, returning.`, 'line-end-fun', { cl: cl }, null);
+            }
+
+            function isSafe(r, c) {
+                // Upper Left
+                push(`Check upper-left diagonal for conflicts`, 'line-safe-ul', {}, { r, c, type: 'checking' });
+                let rc = r, cc = c;
+                while (rc >= 0 && cc >= 0) {
+                    if (rc !== r || cc !== c) {
+                        push(`Inspect cell (${rc}, ${cc}) on upper-left ray`, 'line-safe-ul-check', {}, { r, c, checkR: rc, checkC: cc, type: 'ray' });
+                        if (m[rc][cc] === 1) {
+                            push(`Conflict! Found Queen at (${rc}, ${cc})`, 'line-safe-ul-fail', { action: 'Conflict in Upper-Left' }, { r, c, checkR: rc, checkC: cc, type: 'conflict' });
+                            return false;
+                        }
+                    }
+                    rc--; cc--;
+                }
+
+                // Lower Left
+                push(`Check lower-left diagonal for conflicts`, 'line-safe-ll', {}, { r, c, type: 'checking' });
+                rc = r; cc = c;
+                while (rc < n && cc >= 0) {
+                    if (rc !== r || cc !== c) {
+                        push(`Inspect cell (${rc}, ${cc}) on lower-left ray`, 'line-safe-ll-check', {}, { r, c, checkR: rc, checkC: cc, type: 'ray' });
+                        if (m[rc][cc] === 1) {
+                            push(`Conflict! Found Queen at (${rc}, ${cc})`, 'line-safe-ll-fail', { action: 'Conflict in Lower-Left' }, { r, c, checkR: rc, checkC: cc, type: 'conflict' });
+                            return false;
+                        }
+                    }
+                    rc++; cc--;
+                }
+
+                // Left Row
+                push(`Check left row for conflicts`, 'line-safe-left', {}, { r, c, type: 'checking' });
+                rc = r; cc = c;
+                while (cc >= 0) {
+                    if (cc !== c) {
+                        push(`Inspect cell (${rc}, ${cc}) on left row`, 'line-safe-left-check', {}, { r, c, checkR: rc, checkC: cc, type: 'ray' });
+                        if (m[rc][cc] === 1) {
+                            push(`Conflict! Found Queen at (${rc}, ${cc})`, 'line-safe-left-fail', { action: 'Conflict in Left Row' }, { r, c, checkR: rc, checkC: cc, type: 'conflict' });
+                            return false;
+                        }
+                    }
+                    cc--;
+                }
+
+                push(`Position (${r}, ${c}) is entirely safe!`, 'line-safe-ret-true', { action: 'Safe!' }, { r, c, type: 'safe' });
+                return true;
+            }
+
+            fun(0);
+            push(`Algorithm Complete. Total solutions found: ${ansCount}`, 'line-ret-ans', { cl: '-', r: '-', action: 'Finished' }, null);
+        }
+
+        function renderBoardDOM(containerId, state) {
+            const container = document.getElementById(containerId);
+            const n = state.board.length;
+            container.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+            
+            let html = '';
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    const isDark = (i + j) % 2 === 1;
+                    let cellClass = `chess-cell ${isDark ? 'dark' : 'light'}`;
+                    
+                    // Apply visual highlights based on state.check
+                    if (state.check) {
+                        if (state.check.r === i && state.check.c === j) {
+                            if (state.check.type === 'checking') cellClass += ' checking';
+                            else if (state.check.type === 'placed') cellClass += ' placed';
+                            else if (state.check.type === 'removed') cellClass += ' removed';
+                            else if (state.check.type === 'safe') cellClass += ' safe';
+                            else if (state.check.type === 'conflict' || state.check.type === 'ray') cellClass += ' checking'; 
+                        } else if (state.check.checkR === i && state.check.checkC === j) {
+                            if (state.check.type === 'ray') cellClass += ' checking-ray';
+                            else if (state.check.type === 'conflict') cellClass += ' conflict';
+                        }
+                    }
+
+                    const hasQueen = state.board[i][j] === 1;
+                    const content = hasQueen ? `<i class="fas fa-chess-queen text-slate-100 queen-icon"></i>` : '';
+                    
+                    html += `<div class="${cellClass}">${content}</div>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        // Render dynamically found mini-boards representing the solutions
+        function renderSolutionsDOM(containerId, solutions) {
+            const container = document.getElementById(containerId);
+            if (!solutions || solutions.length === 0) {
+                container.innerHTML = '<span class="text-xs text-slate-500 italic">No solutions found yet...</span>';
+                return;
+            }
+
+            let html = '';
+            solutions.forEach((solBoard, index) => {
+                const n = solBoard.length;
+                let boardHtml = `<div class="flex flex-col items-center gap-1">
+                                    <span class="text-[10px] text-slate-400 font-mono">Sol #${index + 1}</span>
+                                    <div class="mini-board" style="grid-template-columns: repeat(${n}, 1fr)">`;
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        const isDark = (i + j) % 2 === 1;
+                        let cellClass = `mini-cell ${isDark ? 'dark' : 'light'}`;
+                        const hasQueen = solBoard[i][j] === 1;
+                        // Use a distinct color for the mini solutions
+                        const content = hasQueen ? `<i class="fas fa-chess-queen text-success"></i>` : '';
+                        boardHtml += `<div class="${cellClass}">${content}</div>`;
+                    }
+                }
+                boardHtml += `</div></div>`;
+                html += boardHtml;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Arrays
+            renderBoardDOM('canvas-board', state);
+            renderSolutionsDOM('canvas-solutions', state.solutions);
+            document.getElementById('canvas-sols').innerText = state.vars.sols;
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-n').innerText = state.vars.n;
+            document.getElementById('var-sols').innerText = state.vars.sols;
+            document.getElementById('var-cl').innerText = state.vars.cl;
+            document.getElementById('var-r').innerText = state.vars.r;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>

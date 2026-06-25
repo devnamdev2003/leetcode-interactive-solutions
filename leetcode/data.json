@@ -1,5 +1,30 @@
 [
   {
+    "id": "51",
+    "title": "N-Queens",
+    "difficulty": "Hard",
+    "tags": [
+      "Array",
+      "Backtracking"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/n-queens/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "backtracking/n-queens-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "backtracking/n-queens-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "backtracking/n-queens.html"
+      }
+    ]
+  },
+  {
     "id": "88",
     "title": "Merge Sorted Array",
     "difficulty": "Easy",
