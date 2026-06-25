@@ -18,7 +18,6 @@ It includes pre-written JavaScript for layout management (collapsible panels, ta
 
 Your Job: Use this exact structural shell. Do not change the CSS, layout mechanics, or theme. Your task is to inject the specific algorithm's visual DOM elements, raw code, variable names, and step-by-step state logic into this shell.
 
-
 UI Architecture & Features:
 
 Top Header & Navigation: Retain the exact header layout from the template, and ensure you include a "Contribute" link (with a GitHub icon) alongside the tab navigation. The link must point exactly to https://github.com/devnamdev2003/leetcode-interactive-solutions. This provides the user a clear call-to-action to view your source repository and contribute.
@@ -28,6 +27,8 @@ Top Input Bar: Create custom input fields relevant to the data types of the prov
 Tab 1 - Interactive Debugger (The Main View):
 
 Live Canvas (Left): The visual representation of the array, tree, graph, etc.
+
+**Focus Mode:** Add a "Expand/Compress" button in the Live Canvas header bar. When clicked, it should toggle a Focus Mode where the top navigation header and input bar collapse seamlessly, allowing the Canvas, Variable Watch, and Code Execution panels to expand and utilize the full screen area. The bottom playback controls must remain pinned and visible. Clicking "Compress" or pressing the Esc key should exit Focus Mode and restore the normal layout. This must integrate into the existing template shell without redesigning the layout or breaking the debugger/playback state.
 
 Local Variables Watch (Right Top): A clean panel showing ONLY the current values of active variables (e.g., i = 2, j = 4). Do NOT log a history of previous values. Overwrite the values dynamically step-by-step, just like a real IDE debugger.
 

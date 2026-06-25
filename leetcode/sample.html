@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoViz Canvas - Longest Palindromic Substring</title>
+    <title>AlgoViz Canvas - N-Queens (Backtracking)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -54,20 +54,87 @@
         /* Canvas Styles */
         .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
         
-        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; position: relative; margin-bottom: 20px;}
-        .array-box { 
-            width: 48px; height: 48px; border: 2px solid #1e293b; background: #111827; 
-            border-radius: 8px; display: flex; justify-content: center; align-items: center; 
-            font-weight: bold; font-size: 18px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-family: 'Fira Code', monospace;
+        /* Chessboard Styles */
+        .board-container {
+            display: grid;
+            gap: 2px;
+            padding: 8px;
+            background: #1e293b;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            width: max-content;
         }
         
-        .array-box.highlight-read { border-color: #f472b6; background: rgba(244, 114, 182, 0.1); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); transform: scale(1.1); z-index: 10;}
-        .array-box.highlight-write { border-color: #34d399; background: rgba(52, 211, 153, 0.15); box-shadow: 0 0 16px rgba(52, 211, 153, 0.5); transform: scale(1.1); z-index: 10;}
-        .array-box.highlight-fail { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 16px rgba(239, 68, 68, 0.5); transform: scale(1.1); z-index: 10;}
-        .array-box.in-bounds { background: #1e293b; border-color: #475569;}
+        .board-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
         
-        .array-index { font-family: 'Fira Code', monospace; font-size: 11px; color: #64748b; }
+        .cell-light { background-color: #475569; }
+        .cell-dark { background-color: #334155; }
+        
+        .board-cell.highlight-checking { 
+            background-color: rgba(252, 211, 77, 0.4); 
+            box-shadow: inset 0 0 10px rgba(252, 211, 77, 0.8); 
+            z-index: 10;
+        }
+        .board-cell.highlight-placed { 
+            background-color: rgba(52, 211, 153, 0.4); 
+            box-shadow: inset 0 0 15px rgba(52, 211, 153, 0.9);
+            z-index: 10;
+        }
+        .board-cell.highlight-invalid { 
+            background-color: rgba(239, 68, 68, 0.4); 
+            box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.9);
+            z-index: 10;
+        }
+        .board-cell.highlight-backtrack { 
+            background-color: rgba(244, 114, 182, 0.3); 
+            z-index: 10;
+        }
+
+        .mini-board-container {
+            display: grid;
+            gap: 1px;
+            padding: 4px;
+            background: #1e293b;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            width: max-content; /* Ensure grids don't shrink and clip */
+        }
+        .mini-board-cell {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 11px;
+        }
+        .sol-index {
+            text-align: center;
+            font-size: 10px;
+            color: #64748b;
+            margin-bottom: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .queen-icon {
+            color: #f8fafc;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         /* Speed Slider */
         input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
@@ -93,14 +160,14 @@
 <body class="text-slate-300">
 
     <!-- Top Header -->
-    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
-                <i class="fas fa-text-width"></i>
+                <i class="fas fa-chess-queen"></i>
             </div>
             <div>
                 <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
-                <p class="text-xs text-slate-500">Longest Palindromic Substring (Brute Force)</p>
+                <p class="text-xs text-slate-500">N-Queens (Backtracking)</p>
             </div>
         </div>
         
@@ -117,16 +184,16 @@
     </header>
 
     <!-- Inputs Bar -->
-    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
-        <div class="flex-1 w-full max-w-2xl">
-            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Input String (Max 12 chars recommended)</label>
-            <input type="text" id="input-str" class="input-field" value="babad">
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-xs">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Board Size (N) - Max 8</label>
+            <input type="number" id="input-n" min="1" max="8" class="input-field" value="4">
         </div>
         <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
             <i class="fas fa-play text-xs"></i> Start Debugging
         </button>
     </section>
-    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a valid string.</div>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a number between 1 and 8.</div>
 
     <!-- Main Workspace -->
     <main class="flex-grow flex overflow-hidden relative">
@@ -142,13 +209,18 @@
                         <i class="fas fa-eye text-primary"></i> 
                         <span>Live Memory Canvas</span>
                     </div>
-                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
-                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Canvas Content -->
-                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300 justify-start items-center pt-16">
                     
                     <!-- Status Overlay -->
                     <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
@@ -157,26 +229,28 @@
                         <span id="step-msg">Waiting to begin...</span>
                     </div>
 
-                    <!-- String Array -->
-                    <div class="mt-12">
-                        <div class="flex items-center gap-2 mb-3">
-                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">String</span> s</h3>
-                            <span class="text-[10px] text-slate-500">(Input Array of Characters)</span>
+                    <!-- Visual Board -->
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">char[][]</span> board</h3>
+                            <span class="text-[10px] text-slate-500">(NxN Grid)</span>
                         </div>
-                        <div id="canvas-string" class="flex gap-4 overflow-x-auto pb-8 pt-2 px-2 min-h-[100px]"></div>
+                        <div id="canvas-board" class="board-container">
+                            <!-- Board generated via JS -->
+                        </div>
                     </div>
                     
-                    <!-- Current & Longest Overview -->
-                    <div class="flex flex-col gap-6 w-full max-w-xl mt-8">
-                        <div class="bg-bgPanel/50 border border-borderMain rounded-lg p-5 shadow-sm">
-                            <span class="block text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Current Best Palindrome Found</span>
-                            <div class="flex items-center gap-4">
-                                <i class="fas fa-trophy text-yellow-500 text-xl"></i>
-                                <span id="canvas-best" class="font-mono text-2xl text-success font-bold">""</span>
-                            </div>
+                    <!-- Solutions Area -->
+                    <div id="solutions-area" class="w-full flex flex-col items-center mt-8 pb-12 hidden">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-success">List&lt;List&lt;String&gt;&gt;</span> result</h3>
+                            <span class="text-[10px] text-slate-500">(Valid Configurations)</span>
+                        </div>
+                        <div id="solutions-container" class="flex flex-wrap gap-4 justify-center w-full max-w-full px-4">
+                            <!-- Solution boards generated via JS -->
                         </div>
                     </div>
-
+                    
                 </div>
             </div>
 
@@ -194,35 +268,44 @@
                         <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
                     </div>
                     <!-- Vars Content -->
-                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
-                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
                         <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
                             <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i)</span>
-                                <span id="var-i" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Row</span>
+                                <span id="var-row" class="font-mono text-blue-400 font-bold text-lg">-</span>
                             </div>
                             <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (j)</span>
-                                <span id="var-j" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Col</span>
+                                <span id="var-col" class="font-mono text-purple-400 font-bold text-lg">-</span>
                             </div>
-                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Pntr (left)</span>
-                                <span id="var-left" class="font-mono text-yellow-400 text-lg">-</span>
-                            </div>
-                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
-                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Pntr (right)</span>
-                                <span id="var-right" class="font-mono text-orange-400 text-lg">-</span>
-                            </div>
-                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm col-span-2 flex justify-between items-center">
-                                <div>
-                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Substring</span>
-                                    <span id="var-curr" class="font-mono text-slate-200 text-md">-</span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Longest Length</span>
-                                    <span id="var-long-len" class="font-mono text-success font-bold text-md">-</span>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm col-span-2">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Valid Solutions Found</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span id="var-solutions" class="font-mono text-success text-xl font-bold">0</span>
                                 </div>
                             </div>
+
+                            <!-- Boolean Array Trackers -->
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2">
+                                <span class="block text-[10px] text-slate-500 uppercase">Boolean Trackers (Red = Locked)</span>
+                                
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-[10px] text-slate-400 font-mono">cols[]</span>
+                                    <div id="var-cols" class="flex flex-wrap justify-end gap-[2px]"></div>
+                                </div>
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-[10px] text-slate-400 font-mono">diag1[] (\)</span>
+                                    <div id="var-diag1" class="flex flex-wrap justify-end gap-[2px]"></div>
+                                </div>
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-[10px] text-slate-400 font-mono">diag2[] (/)</span>
+                                    <div id="var-diag2" class="flex flex-wrap justify-end gap-[2px]"></div>
+                                </div>
+                            </div>
+
                             <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
                                 <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
                                 <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
@@ -247,35 +330,48 @@
                     <!-- Code Content -->
                     <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
                         <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
-                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public String</span> longestPalindrome(<span class="text-syntaxPink">String</span> s) {</div></div>
-                        <div id="line-base-case" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">if</span> (s == <span class="text-syntaxBlue">null</span> || s.length() < 2) <span class="text-syntaxPink">return</span> s;</div></div>
-                        <div class="debug-line"><div class="line-num">4</div><div class="code-content"></div></div>
-                        <div id="line-init-longest" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">String</span> longest = <span class="text-syntaxBlue">""</span>;</div></div>
+                        <div id="line-entry" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> List&lt;List&lt;String&gt;&gt; solveNQueens(<span class="text-syntaxPink">int</span> n) {</div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content">        List&lt;List&lt;String&gt;&gt; result = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">char</span>[][] board = <span class="text-syntaxPink">new char</span>[n][n];</div></div>
+                        <div class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; n; i++) Arrays.fill(board[i], <span class="text-syntaxGreen">'.'</span>);</div></div>
                         <div class="debug-line"><div class="line-num">6</div><div class="code-content">        </div></div>
-                        <div id="line-for-i" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i < s.length(); i++) {</div></div>
-                        <div id="line-for-j" class="debug-line"><div class="line-num">8</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> j = i; j < s.length(); j++) {</div></div>
-                        <div id="line-if-pal" class="debug-line"><div class="line-num">9</div><div class="code-content">                <span class="text-syntaxPink">if</span> (isPalindrome(s, i, j)) {</div></div>
-                        <div id="line-if-len" class="debug-line"><div class="line-num">10</div><div class="code-content">                    <span class="text-syntaxPink">if</span> (j - i + <span class="text-syntaxPink">1</span> > longest.length()) {</div></div>
-                        <div id="line-update-long" class="debug-line"><div class="line-num">11</div><div class="code-content">                        longest = s.substring(i, j + <span class="text-syntaxPink">1</span>);</div></div>
-                        <div class="debug-line"><div class="line-num">12</div><div class="code-content">                    }</div></div>
-                        <div class="debug-line"><div class="line-num">13</div><div class="code-content">                }</div></div>
-                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">            }</div></div>
-                        <div class="debug-line"><div class="line-num">15</div><div class="code-content">        }</div></div>
-                        <div id="line-return" class="debug-line"><div class="line-num">16</div><div class="code-content">        <span class="text-syntaxPink">return</span> longest;</div></div>
-                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">    }</div></div>
-                        <div class="debug-line"><div class="line-num">18</div><div class="code-content"></div></div>
-                        <div class="debug-line"><div class="line-num">19</div><div class="code-content text-slate-500 italic">    // Helper method</div></div>
-                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">    <span class="text-syntaxPink">private boolean</span> isPalindrome(<span class="text-syntaxPink">String</span> s, <span class="text-syntaxPink">int</span> left, <span class="text-syntaxPink">int</span> right) {</div></div>
-                        <div id="line-while" class="debug-line"><div class="line-num">21</div><div class="code-content">        <span class="text-syntaxPink">while</span> (left < right) {</div></div>
-                        <div id="line-if-char" class="debug-line"><div class="line-num">22</div><div class="code-content">            <span class="text-syntaxPink">if</span> (s.charAt(left) != s.charAt(right)) {</div></div>
-                        <div id="line-ret-false" class="debug-line"><div class="line-num">23</div><div class="code-content">                <span class="text-syntaxPink">return false</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">            }</div></div>
-                        <div id="line-left-inc" class="debug-line"><div class="line-num">25</div><div class="code-content">            left++;</div></div>
-                        <div id="line-right-dec" class="debug-line"><div class="line-num">26</div><div class="code-content">            right--;</div></div>
-                        <div class="debug-line"><div class="line-num">27</div><div class="code-content">        }</div></div>
-                        <div id="line-ret-true" class="debug-line"><div class="line-num">28</div><div class="code-content">        <span class="text-syntaxPink">return true</span>;</div></div>
-                        <div class="debug-line"><div class="line-num">29</div><div class="code-content">    }</div></div>
-                        <div class="debug-line"><div class="line-num">30</div><div class="code-content">}</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content text-slate-500 italic">        // Trackers using fast boolean arrays</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">boolean</span>[] cols = <span class="text-syntaxPink">new boolean</span>[n];</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">boolean</span>[] diag1 = <span class="text-syntaxPink">new boolean</span>[<span class="text-syntaxPink">2</span> * n - <span class="text-syntaxPink">1</span>];</div></div>
+                        <div class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">boolean</span>[] diag2 = <span class="text-syntaxPink">new boolean</span>[<span class="text-syntaxPink">2</span> * n - <span class="text-syntaxPink">1</span>];</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content">        </div></div>
+                        <div id="line-initial-call" class="debug-line"><div class="line-num">12</div><div class="code-content">        solve(<span class="text-syntaxPink">0</span>, board, cols, diag1, diag2, result);</div></div>
+                        <div id="line-return-res" class="debug-line"><div class="line-num">13</div><div class="code-content">        <span class="text-syntaxPink">return</span> result;</div></div>
+                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content"></div></div>
+                        <div id="line-solve" class="debug-line"><div class="line-num">16</div><div class="code-content">    <span class="text-syntaxPink">private void</span> solve(<span class="text-syntaxPink">int</span> row, <span class="text-syntaxPink">char</span>[][] board, <span class="text-syntaxPink">boolean</span>[] cols, <span class="text-syntaxPink">boolean</span>[] d1, <span class="text-syntaxPink">boolean</span>[] d2, List result) {</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = board.length;</div></div>
+                        <div id="line-base-case" class="debug-line"><div class="line-num">18</div><div class="code-content">        <span class="text-syntaxPink">if</span> (row == n) {</div></div>
+                        <div id="line-add-res" class="debug-line"><div class="line-num">19</div><div class="code-content">            result.add(constructBoard(board));</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content"></div></div>
+                        <div id="line-for-col" class="debug-line"><div class="line-num">23</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> col = <span class="text-syntaxPink">0</span>; col &lt; n; col++) {</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">            <span class="text-syntaxPink">int</span> dIdx1 = row - col + n - <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">25</div><div class="code-content">            <span class="text-syntaxPink">int</span> dIdx2 = row + col;</div></div>
+                        <div class="debug-line"><div class="line-num">26</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">27</div><div class="code-content text-slate-500 italic">            // Instant safety check</div></div>
+                        <div id="line-if-safe" class="debug-line"><div class="line-num">28</div><div class="code-content">            <span class="text-syntaxPink">if</span> (cols[col] || d1[dIdx1] || d2[dIdx2]) {</div></div>
+                        <div id="line-continue" class="debug-line"><div class="line-num">29</div><div class="code-content">                <span class="text-syntaxPink">continue</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">30</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">31</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">32</div><div class="code-content text-slate-500 italic">            // Lock the column and diagonals</div></div>
+                        <div id="line-place-q" class="debug-line"><div class="line-num">33</div><div class="code-content">            cols[col] = <span class="text-syntaxBlue">true</span>; d1[dIdx1] = <span class="text-syntaxBlue">true</span>; d2[dIdx2] = <span class="text-syntaxBlue">true</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">34</div><div class="code-content">            board[row][col] = <span class="text-syntaxGreen">'Q'</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">35</div><div class="code-content"></div></div>
+                        <div id="line-recurse" class="debug-line"><div class="line-num">36</div><div class="code-content">            solve(row + <span class="text-syntaxPink">1</span>, board, cols, d1, d2, result);</div></div>
+                        <div class="debug-line"><div class="line-num">37</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">38</div><div class="code-content text-slate-500 italic">            // Backtrack: Unlock everything</div></div>
+                        <div id="line-backtrack" class="debug-line"><div class="line-num">39</div><div class="code-content">            board[row][col] = <span class="text-syntaxGreen">'.'</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">40</div><div class="code-content">            cols[col] = <span class="text-syntaxBlue">false</span>; d1[dIdx1] = <span class="text-syntaxBlue">false</span>; d2[dIdx2] = <span class="text-syntaxBlue">false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">41</div><div class="code-content">        }</div></div>
+                        <div id="line-end-solve" class="debug-line"><div class="line-num">42</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">43</div><div class="code-content">}</div></div>
                     </div>
                 </div>
             </div>
@@ -286,20 +382,23 @@
             <div class="max-w-4xl mx-auto">
                 <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
                 <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
-                    <p class="mb-4">This solution uses a <strong>Brute Force</strong> approach to find the Longest Palindromic Substring. While extremely intuitive, it is generally considered suboptimal due to its cubic runtime complexity.</p>
+                    <p class="mb-4">This solution uses a highly optimized <strong>Backtracking</strong> approach to solve the N-Queens problem. Instead of checking the entire board to see if a cell is safe (which takes $O(N)$ per placement), it uses <strong>boolean arrays</strong> to track restricted columns and diagonals in $O(1)$ time.</p>
                     <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
                     <ul class="list-disc pl-5 space-y-4 text-slate-300">
                         <li>
-                            <strong>Step 1: Generate All Substrings</strong><br>
-                            The outer loops use pointers <code>i</code> and <code>j</code> to define the start and end of every possible substring. For a string of length $N$, there are exactly $\frac{N(N+1)}{2}$ unique substrings. This generation step alone takes $O(N^2)$ time.
+                            <strong>Step 1: Row-by-Row Placement</strong><br>
+                            The recursion is structured to attempt placing exactly one Queen per row. This inherently prevents any two queens from sharing the same row, eliminating the need for a row check.
                         </li>
                         <li>
-                            <strong>Step 2: Check for Palindrome</strong><br>
-                            For each generated substring spanning from index <code>i</code> to <code>j</code>, the algorithm calls a helper method <code>isPalindrome</code>. This method uses a two-pointer approach (<code>left</code> and <code>right</code>) starting from the edges and moving inwards. It compares characters to see if they mirror each other, which takes up to $O(N)$ time per substring.
+                            <strong>Step 2: O(1) Safety Check</strong><br>
+                            Before placing a Queen at <code>(row, col)</code>, we check three boolean arrays:
+                            <br><code>cols[col]</code> ensures no Queen is in the current column.
+                            <br><code>diag1[row - col + n - 1]</code> maps the \ diagonal. Cells on the same \ diagonal have a constant difference <code>row - col</code>.
+                            <br><code>diag2[row + col]</code> maps the / diagonal. Cells on the same / diagonal have a constant sum <code>row + col</code>.
                         </li>
                         <li>
-                            <strong>Step 3: Track Maximum</strong><br>
-                            If a substring is confirmed as a palindrome, its length is compared against the longest palindrome found so far. If it's longer, it becomes the new <code>longest</code>.
+                            <strong>Step 3: Branch and Backtrack</strong><br>
+                            If the cell is safe, we lock the column and diagonals, place the 'Q', and recursively jump to the next row. If the recursion returns (meaning we explored that path fully), we <strong>backtrack</strong> by unlocking the boolean flags and removing the 'Q', allowing us to try the next column.
                         </li>
                     </ul>
                 </div>
@@ -308,14 +407,14 @@
                     <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
                         <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
-                        <span class="text-white text-2xl font-bold block mb-2">O(N³)</span>
-                        <p class="text-xs text-slate-400">Where $N$ is the length of the string. We generate $O(N^2)$ substrings, and checking each one for the palindrome property takes $O(N)$ time, resulting in a cubic complexity. This will cause Time Limit Exceeded (TLE) errors for strings longer than ~1000 characters.</p>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N!)</span>
+                        <p class="text-xs text-slate-400">Strictly speaking, the first row has N choices, the second row has at most N-1 choices (due to column conflicts), resulting in a worst-case upper bound of $O(N!)$. Pruning via diagonals makes it practically faster, but $N!$ remains the accepted theoretical upper limit.</p>
                     </div>
                     <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
                         <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
-                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
-                        <p class="text-xs text-slate-400">The space complexity is $O(1)$ auxiliary space. However, creating new substrings via <code>substring()</code> might allocate $O(N)$ space depending on the language's internal memory model. The pointers and logic themselves do not scale with input size.</p>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The auxiliary space is $O(N)$. The recursion stack goes $N$ levels deep. The <code>cols</code> array is size $N$, and the <code>diag1</code> and <code>diag2</code> arrays are size $2N-1$. Thus, the extra memory scales linearly with N. <em>(Excluding the memory required to store the final list of board solutions)</em>.</p>
                     </div>
                 </div>
             </div>
@@ -324,7 +423,7 @@
     </main>
 
     <!-- Bottom Control Bar -->
-    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
         <div class="flex items-center gap-3 w-full md:w-auto justify-center">
             <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
                 <i class="fas fa-step-backward text-sm"></i>
@@ -363,6 +462,7 @@
     <script>
         // UI State for Expand/Collapse Panels
         let isSplitView = true;
+        let isFocusMode = false;
         let rightPanelWidth = 450; 
         let varsPanelHeight = 'flex: 1 1 0%';
 
@@ -376,13 +476,42 @@
             if (isSplitView) {
                 panelRight.style.display = 'flex';
                 resizerV.style.display = 'block';
-                icon.className = 'fas fa-chevron-right'; 
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
             } else {
                 panelRight.style.display = 'none';
                 resizerV.style.display = 'none';
-                icon.className = 'fas fa-chevron-left'; 
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
             }
         }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                // Only restore inputs bar if we are on the debugger tab
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        // Add Escape key listener to exit focus mode easily
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
 
         let panelsState = { vars: true, code: true };
 
@@ -493,12 +622,13 @@
                 inputsBar.style.display = 'none';
                 controlBar.style.display = 'none';
             } else {
-                inputsBar.style.display = 'flex';
+                // Respect focus mode state when switching tabs
+                if (!isFocusMode) inputsBar.style.display = 'flex';
                 controlBar.style.display = 'flex';
             }
         }
 
-        // Core State
+        // Core State Management
         let states = [];
         let currState = 0;
         let playInterval = null;
@@ -514,23 +644,23 @@
         }
 
         function initSimulationFromInputs() {
-            const str = document.getElementById('input-str').value;
+            const nStr = document.getElementById('input-n').value;
             const errEl = document.getElementById('input-error');
             errEl.classList.add('hidden');
 
             try {
-                if (!str || str.length === 0) {
+                let n = parseInt(nStr);
+                if (isNaN(n) || n < 1) {
                     throw new Error("Invalid Input");
                 }
                 
-                let runStr = str;
-                if(str.length > 15) {
-                    runStr = str.substring(0, 15);
-                    document.getElementById('input-str').value = runStr;
-                    alert("String truncated to 15 characters to prevent browser freezing during cubic time simulation.");
+                if (n > 8) {
+                    n = 8;
+                    document.getElementById('input-n').value = 8;
+                    alert("Board size truncated to 8. Larger values create too many states for in-browser visualization.");
                 }
 
-                generateStates(runStr);
+                generateStates(n);
                 pauseAnim();
                 currState = 0;
                 renderState(0);
@@ -544,156 +674,181 @@
             }
         }
 
-        function generateStates(s) {
+        // Algorithm Simulator 
+        function generateStates(n) {
             states = [];
-            let longest = "";
-            let vrs = { i: '-', j: '-', left: '-', right: '-', currSub: '""', longest: '""', longLen: 0, action: 'Initialization' };
-
-            const getSnapshot = (str, hlMap) => {
-                return str.split('').map((char, index) => {
-                    return {
-                        val: char,
-                        hasI: index === hlMap.i,
-                        hasJ: index === hlMap.j,
-                        hasLeft: index === hlMap.left,
-                        hasRight: index === hlMap.right,
-                        inBounds: (hlMap.i !== undefined && hlMap.j !== undefined && index >= hlMap.i && index <= hlMap.j),
-                        isPointer: (index === hlMap.left || index === hlMap.right),
-                        isMatch: (hlMap.isMatch && index >= hlMap.i && index <= hlMap.j),
-                        isFail: (hlMap.isFail && (index === hlMap.left || index === hlMap.right))
-                    };
-                });
+            let board = Array.from({length: n}, () => Array(n).fill('.'));
+            let cols = Array(n).fill(false);
+            let diag1 = Array(2 * n - 1).fill(false);
+            let diag2 = Array(2 * n - 1).fill(false);
+            let resultCount = 0;
+            let foundSolutionsList = [];
+            
+            let vrs = { 
+                row: '-', col: '-', solutions: 0, action: 'Initialization', 
+                colsArr: Array(n).fill('F'), 
+                diag1Arr: Array(2*n-1).fill('F'), 
+                diag2Arr: Array(2*n-1).fill('F') 
             };
 
-            const pushState = (msg, line, vrs, hlMap) => {
+            const getSnapshot = (r, c, hlType) => {
+                return {
+                    n: n,
+                    grid: board.map(row => [...row]),
+                    activeRow: r,
+                    activeCol: c,
+                    highlightType: hlType,
+                    solutions: [...foundSolutionsList]
+                };
+            };
+
+            const pushState = (msg, line, r, c, hlType) => {
+                vrs.row = r !== undefined ? r : '-';
+                vrs.col = c !== undefined ? c : '-';
+                vrs.colsArr = cols.map(v => v ? 'T' : 'F');
+                vrs.diag1Arr = diag1.map(v => v ? 'T' : 'F');
+                vrs.diag2Arr = diag2.map(v => v ? 'T' : 'F');
+
                 states.push({
                     msg: msg,
                     activeLine: line,
-                    vars: JSON.parse(JSON.stringify(vrs)), 
-                    visuals: getSnapshot(s, hlMap)
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: getSnapshot(r, c, hlType)
                 });
             };
 
-            // Initial state
-            vrs.action = "Check base cases";
-            pushState(`Checking base cases for s.length = ${s.length}`, "line-base-case", vrs, {});
+            vrs.action = "Initialize data structures";
+            pushState(`Initialize an empty ${n}x${n} board`, "line-entry", undefined, undefined, 'none');
+            pushState(`Starting backtrack algorithm`, "line-initial-call", undefined, undefined, 'none');
 
-            if (s == null || s.length < 2) {
-                vrs.action = "Base case matched, returning string";
-                pushState(`String is length ${s.length}, returning immediately.`, "line-base-case", vrs, {});
-                return;
-            }
-
-            vrs.action = "Initialize longest to empty string";
-            pushState("Initialize longest = \"\"", "line-init-longest", vrs, {});
-
-            for (let i = 0; i < s.length; i++) {
-                vrs.i = i;
-                vrs.action = `Start outer loop: i = ${i}`;
-                pushState(`Set outer boundary pointer i to index ${i}`, "line-for-i", vrs, { i: i });
-
-                for (let j = i; j < s.length; j++) {
-                    vrs.j = j;
-                    let currSub = s.substring(i, j + 1);
-                    vrs.currSub = `"${currSub}"`;
-                    vrs.action = `Evaluate substring "${currSub}"`;
-                    pushState(`Set inner boundary pointer j to index ${j}`, "line-for-j", vrs, { i: i, j: j });
-
-                    vrs.action = `Call isPalindrome for "${currSub}"`;
-                    pushState(`Checking if substring s[${i}..${j}] is a palindrome`, "line-if-pal", vrs, { i: i, j: j });
-
-                    let left = i;
-                    let right = j;
-                    vrs.left = left;
-                    vrs.right = right;
-                    let isPal = true;
-
-                    // Execute helper logic steps
-                    while (left < right) {
-                        vrs.left = left;
-                        vrs.right = right;
-                        vrs.action = `Compare left(${left}) and right(${right})`;
-                        pushState(`Loop: left(${left}) < right(${right}) is true`, "line-while", vrs, { i: i, j: j, left: left, right: right });
-                        
-                        pushState(`Does char '${s[left]}' != char '${s[right]}'?`, "line-if-char", vrs, { i: i, j: j, left: left, right: right });
-
-                        if (s.charAt(left) !== s.charAt(right)) {
-                            isPal = false;
-                            vrs.action = `Mismatch found: '${s[left]}' != '${s[right]}'`;
-                            pushState(`Mismatch! Characters are not equal.`, "line-ret-false", vrs, { i: i, j: j, left: left, right: right, isFail: true });
-                            break;
-                        }
-
-                        vrs.action = `Match found, move pointers inwards`;
-                        left++;
-                        vrs.left = left;
-                        pushState(`Characters match. Increment left to ${left}`, "line-left-inc", vrs, { i: i, j: j, left: left, right: right });
-                        
-                        right--;
-                        vrs.right = right;
-                        pushState(`Decrement right to ${right}`, "line-right-dec", vrs, { i: i, j: j, left: left, right: right });
-                    }
-                    
-                    if (left >= right && isPal) {
-                        pushState(`Loop ends: left(${left}) >= right(${right})`, "line-while", vrs, { i: i, j: j, left: left, right: right });
-                        vrs.action = `"${currSub}" is a valid palindrome!`;
-                        pushState(`Return true from isPalindrome helper`, "line-ret-true", vrs, { i: i, j: j, isMatch: true });
-                    }
-
-                    if (isPal) {
-                        vrs.left = '-';
-                        vrs.right = '-';
-                        vrs.action = `Check length vs longest`;
-                        pushState(`Is length(${currSub}) > length(${longest})? (${currSub.length} > ${longest.length})`, "line-if-len", vrs, { i: i, j: j, isMatch: true });
-                        
-                        if (j - i + 1 > longest.length) {
-                            longest = currSub;
-                            vrs.longest = `"${longest}"`;
-                            vrs.longLen = longest.length;
-                            vrs.action = `Update longest to "${longest}"`;
-                            pushState(`New record! Update longest string.`, "line-update-long", vrs, { i: i, j: j, isMatch: true });
-                        }
-                    }
-                    
-                    vrs.left = '-';
-                    vrs.right = '-';
+            function solve(row) {
+                vrs.action = `Entering recursive solve`;
+                pushState(`solve(row = ${row}) called`, 'line-solve', row, undefined, 'none');
+                
+                if (row === n) {
+                    resultCount++;
+                    foundSolutionsList.push(board.map(r => [...r]));
+                    vrs.solutions = resultCount;
+                    vrs.action = `Valid Solution Found!`;
+                    pushState(`row == n, we successfully placed ${n} queens!`, 'line-base-case', row, undefined, 'none');
+                    pushState(`Adding board configuration to results`, 'line-add-res', row, undefined, 'none');
+                    return;
                 }
+
+                for (let col = 0; col < n; col++) {
+                    vrs.action = `Checking cell (${row}, ${col})`;
+                    pushState(`For loop: testing column ${col} in row ${row}`, 'line-for-col', row, col, 'checking');
+
+                    let d1 = row - col + n - 1;
+                    let d2 = row + col;
+
+                    pushState(`Checking safety (cols[${col}], diag1[${d1}], diag2[${d2}])`, 'line-if-safe', row, col, 'checking');
+
+                    if (cols[col] || diag1[d1] || diag2[d2]) {
+                        vrs.action = `Cell (${row}, ${col}) is under attack!`;
+                        pushState(`Cell is not safe. Skipping...`, 'line-continue', row, col, 'invalid');
+                        continue;
+                    }
+
+                    vrs.action = `Placing Queen at (${row}, ${col})`;
+                    cols[col] = true;
+                    diag1[d1] = true;
+                    diag2[d2] = true;
+                    board[row][col] = 'Q';
+                    pushState(`Cell is safe! Locked vectors and placed Queen.`, 'line-place-q', row, col, 'placed');
+
+                    pushState(`Proceeding to next row...`, 'line-recurse', row, col, 'placed');
+                    solve(row + 1);
+
+                    vrs.action = `Backtracking from (${row}, ${col})`;
+                    pushState(`Returned from recursion, beginning backtrack`, 'line-backtrack', row, col, 'backtrack');
+                    
+                    board[row][col] = '.';
+                    cols[col] = false;
+                    diag1[d1] = false;
+                    diag2[d2] = false;
+                    pushState(`Removed Queen and unlocked vectors.`, 'line-backtrack', row, col, 'backtrack');
+                }
+                
+                vrs.action = `End of row ${row} possibilities`;
+                pushState(`Checked all columns for row ${row}. Returning to previous row.`, 'line-end-solve', row, undefined, 'none');
             }
 
-            vrs.i = '-';
-            vrs.j = '-';
-            vrs.currSub = '-';
-            vrs.action = `Algorithm Finished`;
-            pushState(`Done checking all substrings! Returning "${longest}"`, "line-return", vrs, {});
+            solve(0);
+            
+            vrs.row = '-';
+            vrs.col = '-';
+            vrs.action = 'Algorithm Finished';
+            pushState(`Done! Total solutions found: ${resultCount}`, 'line-return-res', undefined, undefined, 'none');
         }
 
-        function renderStringDOM(containerId, dataArray) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = dataArray.map((item, index) => {
-                let boxClass = 'array-box';
-                if (item.isMatch) boxClass += ' highlight-write';
-                else if (item.isFail) boxClass += ' highlight-fail';
-                else if (item.isPointer) boxClass += ' highlight-read';
-                else if (item.inBounds) boxClass += ' in-bounds';
+        // Render Canvas DOM
+        function renderBoardDOM(visuals) {
+            const container = document.getElementById('canvas-board');
+            const n = visuals.n;
+            
+            container.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+            
+            let html = '';
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
+                    let isLight = (r + c) % 2 === 0;
+                    let cellClass = isLight ? 'cell-light' : 'cell-dark';
+                    let content = '';
 
-                let labels = [];
-                if (item.hasI) labels.push('<span class="text-blue-400 font-bold bg-slate-800/80 px-1 rounded shadow" title="Start Index (i)">i</span>');
-                if (item.hasJ) labels.push('<span class="text-purple-400 font-bold bg-slate-800/80 px-1 rounded shadow" title="End Index (j)">j</span>');
-                if (item.hasLeft) labels.push('<span class="text-yellow-400 font-bold bg-slate-800/80 px-1 rounded shadow" title="Left Pointer">L</span>');
-                if (item.hasRight) labels.push('<span class="text-orange-400 font-bold bg-slate-800/80 px-1 rounded shadow" title="Right Pointer">R</span>');
-                
-                let labelHtml = '';
-                if (labels.length > 0) {
-                    labelHtml = `<div class="absolute -bottom-6 text-[11px] flex gap-1 z-20 whitespace-nowrap">${labels.join('')}</div>`;
+                    // Highlighting logic
+                    if (r === visuals.activeRow && c === visuals.activeCol) {
+                        if (visuals.highlightType === 'checking') cellClass += ' highlight-checking';
+                        if (visuals.highlightType === 'placed') cellClass += ' highlight-placed';
+                        if (visuals.highlightType === 'invalid') cellClass += ' highlight-invalid';
+                        if (visuals.highlightType === 'backtrack') cellClass += ' highlight-backtrack';
+                    }
+
+                    // Queen logic
+                    if (visuals.grid[r][c] === 'Q') {
+                        content = '<i class="fas fa-chess-queen queen-icon"></i>';
+                    }
+
+                    html += `<div class="board-cell ${cellClass}">${content}</div>`;
                 }
+            }
+            container.innerHTML = html;
+        }
 
-                return `
-                    <div class="array-box-container">
-                        <span class="array-index mb-1">${index}</span>
-                        <div class="${boxClass}">${item.val}</div>
-                        ${labelHtml}
-                    </div>
-                `;
+        function renderSolutionsDOM(solutions, n) {
+            const containerArea = document.getElementById('solutions-area');
+            const container = document.getElementById('solutions-container');
+            
+            if (!solutions || solutions.length === 0) {
+                containerArea.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+            
+            containerArea.classList.remove('hidden');
+            let html = '';
+            
+            solutions.forEach((sol, index) => {
+                let boardHtml = `<div class="flex flex-col items-center"><div class="sol-index">Solution ${index + 1}</div><div class="mini-board-container" style="grid-template-columns: repeat(${n}, 1fr)">`;
+                for (let r = 0; r < n; r++) {
+                    for (let c = 0; c < n; c++) {
+                        let isLight = (r + c) % 2 === 0;
+                        let cellClass = isLight ? 'cell-light' : 'cell-dark';
+                        let content = sol[r][c] === 'Q' ? '<i class="fas fa-chess-queen text-slate-100"></i>' : '';
+                        boardHtml += `<div class="mini-board-cell ${cellClass}">${content}</div>`;
+                    }
+                }
+                boardHtml += `</div></div>`;
+                html += boardHtml;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function formatBoolArrayAsBoxes(arr) {
+            return arr.map((val, i) => {
+                let bgClass = val === 'T' ? 'bg-danger shadow-[0_0_5px_rgba(239,68,68,0.6)]' : 'bg-slate-700';
+                return `<div class="w-3 h-3 ${bgClass} rounded-[2px]" title="Index ${i}: ${val === 'T' ? 'Locked' : 'Free'}"></div>`;
             }).join('');
         }
 
@@ -719,9 +874,9 @@
                 document.getElementById('status-icon').classList.remove('hidden');
             }
 
-            // Render DOM Arrays
-            renderStringDOM('canvas-string', state.visuals);
-            document.getElementById('canvas-best').innerText = state.vars.longest;
+            // Render DOM Board
+            renderBoardDOM(state.visuals);
+            renderSolutionsDOM(state.visuals.solutions, state.visuals.n);
 
             // Variables Panel
             document.getElementById('empty-vars').classList.add('hidden');
@@ -730,13 +885,15 @@
                 document.getElementById('active-vars').classList.add('grid');
             }
 
-            document.getElementById('var-i').innerText = state.vars.i;
-            document.getElementById('var-j').innerText = state.vars.j;
-            document.getElementById('var-left').innerText = state.vars.left;
-            document.getElementById('var-right').innerText = state.vars.right;
-            document.getElementById('var-curr').innerText = state.vars.currSub;
-            document.getElementById('var-long-len').innerText = state.vars.longLen;
+            document.getElementById('var-row').innerText = state.vars.row;
+            document.getElementById('var-col').innerText = state.vars.col;
+            document.getElementById('var-solutions').innerText = state.vars.solutions;
             document.getElementById('var-action').innerText = state.vars.action;
+
+            // Render Boolean Arrays
+            document.getElementById('var-cols').innerHTML = formatBoolArrayAsBoxes(state.vars.colsArr);
+            document.getElementById('var-diag1').innerHTML = formatBoolArrayAsBoxes(state.vars.diag1Arr);
+            document.getElementById('var-diag2').innerHTML = formatBoolArrayAsBoxes(state.vars.diag2Arr);
 
             // Highlight Code Line
             document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
@@ -749,6 +906,7 @@
             }
         }
 
+        // Playback Controls
         function nextStep() {
             if (currState < states.length - 1) {
                 currState++;

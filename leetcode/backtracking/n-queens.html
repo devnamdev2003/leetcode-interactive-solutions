@@ -160,7 +160,7 @@
 <body class="text-slate-300">
 
     <!-- Top Header -->
-    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
                 <i class="fas fa-chess-queen"></i>
@@ -184,7 +184,7 @@
     </header>
 
     <!-- Inputs Bar -->
-    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
         <div class="flex-1 w-full max-w-xs">
             <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Board Size (N) - Max 8</label>
             <input type="number" id="input-n" min="1" max="8" class="input-field" value="4">
@@ -209,9 +209,14 @@
                         <i class="fas fa-eye text-primary"></i> 
                         <span>Live Memory Canvas</span>
                     </div>
-                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
-                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Canvas Content -->
@@ -418,7 +423,7 @@
     </main>
 
     <!-- Bottom Control Bar -->
-    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
         <div class="flex items-center gap-3 w-full md:w-auto justify-center">
             <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
                 <i class="fas fa-step-backward text-sm"></i>
@@ -457,6 +462,7 @@
     <script>
         // UI State for Expand/Collapse Panels
         let isSplitView = true;
+        let isFocusMode = false;
         let rightPanelWidth = 450; 
         let varsPanelHeight = 'flex: 1 1 0%';
 
@@ -470,13 +476,42 @@
             if (isSplitView) {
                 panelRight.style.display = 'flex';
                 resizerV.style.display = 'block';
-                icon.className = 'fas fa-chevron-right'; 
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
             } else {
                 panelRight.style.display = 'none';
                 resizerV.style.display = 'none';
-                icon.className = 'fas fa-chevron-left'; 
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
             }
         }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                // Only restore inputs bar if we are on the debugger tab
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        // Add Escape key listener to exit focus mode easily
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
 
         let panelsState = { vars: true, code: true };
 
@@ -587,7 +622,8 @@
                 inputsBar.style.display = 'none';
                 controlBar.style.display = 'none';
             } else {
-                inputsBar.style.display = 'flex';
+                // Respect focus mode state when switching tabs
+                if (!isFocusMode) inputsBar.style.display = 'flex';
                 controlBar.style.display = 'flex';
             }
         }
