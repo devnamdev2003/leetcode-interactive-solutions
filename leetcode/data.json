@@ -1,24 +1,23 @@
 [
   {
-    "id": "3227",
-    "title": "Find Missing and Repeated Values",
+    "id": "88",
+    "title": "Merge Sorted Array",
     "difficulty": "Easy",
     "tags": [
       "Array",
-      "Hash Table",
-      "Math",
-      "Matrix"
+      "Two Pointers",
+      "Sorting"
     ],
     "platform": "LeetCode",
-    "platformUrl": "https://leetcode.com/problems/find-missing-and-repeated-values/description/",
+    "platformUrl": "https://leetcode.com/problems/merge-sorted-array/description/",
     "solutions": [
       {
         "name": "Brute",
-        "url": "Sorting/find-missing-and-repeated-values-brute.html"
+        "url": "sorting/merge-sorted-array-brute.html"
       },
       {
         "name": "Optimal",
-        "url": "Sorting/find-missing-and-repeated-values.html"
+        "url": "sorting/merge-sorted-array.html"
       }
     ]
   },
