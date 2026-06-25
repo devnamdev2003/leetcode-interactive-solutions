@@ -1,4 +1,4 @@
-name: AlgoViz Canvas Creator
+name: AlgoFlows Creator
 
 desc: Transforms raw DSA code into a dark-mode, interactive web debugger with line-by-line execution and live variable tracking. Outputs a single HTML file optimized for Canvas rendering.
 
