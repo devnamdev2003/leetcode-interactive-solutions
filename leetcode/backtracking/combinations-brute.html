@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Combinations (Backtracking)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+
+        /* Subset Badge Animation */
+        .subset-item {
+            animation: slideIn 0.2s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: scale(0.8) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-network-wired"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Combinations - Recursive Backtracking (Subset-based)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex flex-wrap gap-4 w-full md:w-auto">
+            <div class="w-28">
+                <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Total Elements (N)</label>
+                <input type="number" id="input-n" min="1" max="5" class="input-field" value="4">
+            </div>
+            <div class="w-28">
+                <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Subset Size (K)</label>
+                <input type="number" id="input-k" min="1" max="5" class="input-field" value="2">
+            </div>
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Initialize Execution Tree
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden">
+        <i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Keep 1 &le; K &le; N &le; 5 for standard clear visualization.
+    </div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Memory Call Tree &amp; State</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-6 transition-opacity duration-300 justify-start items-center">
+                    
+                    <!-- Status Overlay -->
+                    <div class="w-full flex flex-col md:flex-row gap-4 items-center justify-between z-10 bg-bgPanel/80 p-3 rounded-lg border border-borderMain shadow-md backdrop-blur">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                            <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                            <span id="step-msg" class="text-sm font-medium text-slate-200">Waiting to begin...</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-bgBase/90 px-3 py-1 rounded border border-borderMain/50 text-xs text-slate-400">
+                            <span class="font-bold text-syntaxPink">current = </span> 
+                            <span id="current-subset-display" class="font-mono text-slate-100 font-semibold">[ ]</span>
+                        </div>
+                    </div>
+
+                    <!-- Call Tree SVG Area -->
+                    <div class="w-full bg-bgPanel border border-borderMain rounded-xl p-4 flex flex-col items-center justify-center relative min-h-[380px] overflow-x-auto">
+                        <div class="absolute top-3 left-3 flex gap-4 text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span> Active</div>
+                            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Valid Stack (K)</div>
+                            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span> Done</div>
+                        </div>
+
+                        <!-- Rendered SVG Call Tree -->
+                        <div class="w-full overflow-auto flex justify-center">
+                            <svg id="svg-tree" width="700" height="420" class="overflow-visible">
+                                <!-- Dynamic tree connections and node circles go here -->
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Area (Accrued Combinations) -->
+                    <div id="solutions-area" class="w-full flex flex-col items-start bg-bgPanel border border-borderMain rounded-xl p-4 gap-3">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest"><span class="text-success">List&lt;List&lt;Integer&gt;&gt;</span> result</h3>
+                            <span class="text-[10px] text-slate-500">(Combinations of size K)</span>
+                        </div>
+                        <div id="solutions-container" class="flex flex-wrap gap-2 w-full">
+                            <!-- Accumulating dynamic boxes -->
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">start</span>
+                                <span id="var-start" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">current.size()</span>
+                                <span id="var-current-size" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">k (Required Size)</span>
+                                <span id="var-k" class="font-mono text-emerald-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Total Solutions</span>
+                                <span id="var-solutions" class="font-mono text-success text-lg font-bold">0</span>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2.5 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Execution Depth Trace</span>
+                                <div id="recursion-depth-trace" class="flex gap-1.5 items-center flex-wrap pt-1 font-mono text-xs">
+                                    <!-- Dynamic step nodes -->
+                                </div>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2.5 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Description</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-entry" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> List&lt;List&lt;Integer&gt;&gt; combine(<span class="text-syntaxPink">int</span> n, <span class="text-syntaxPink">int</span> k) {</div></div>
+                        <div id="line-init" class="debug-line"><div class="line-num">3</div><div class="code-content">        List&lt;List&lt;Integer&gt;&gt; result = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div id="line-initial-call" class="debug-line"><div class="line-num">4</div><div class="code-content">        generateSubsets(<span class="text-syntaxPink">1</span>, n, <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;(), result, k);</div></div>
+                        <div id="line-return-res" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">return</span> result;</div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content"></div></div>
+                        <div id="line-solve" class="debug-line"><div class="line-num">8</div><div class="code-content">    <span class="text-syntaxPink">private void</span> generateSubsets(<span class="text-syntaxPink">int</span> start, <span class="text-syntaxPink">int</span> n, List&lt;Integer&gt; current, ... ) {</div></div>
+                        <div id="line-base-case" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">if</span> (start &gt; n) {</div></div>
+                        <div id="line-size-check" class="debug-line"><div class="line-num">10</div><div class="code-content">            <span class="text-syntaxPink">if</span> (current.size() == k) {</div></div>
+                        <div id="line-add-res" class="debug-line"><div class="line-num">11</div><div class="code-content">                result.add(<span class="text-syntaxPink">new</span> ArrayList&lt;&gt;(current));</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content">            }</div></div>
+                        <div id="line-base-return" class="debug-line"><div class="line-num">13</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content text-slate-500 italic">        // Include current number</div></div>
+                        <div id="line-include-add" class="debug-line"><div class="line-num">16</div><div class="code-content">        current.add(start);</div></div>
+                        <div id="line-include-recurse" class="debug-line"><div class="line-num">17</div><div class="code-content">        generateSubsets(start + <span class="text-syntaxPink">1</span>, n, current, result, k);</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">        </div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content text-slate-500 italic text-syntaxPink">        // Backtrack: Exclude current number</div></div>
+                        <div id="line-exclude-remove" class="debug-line"><div class="line-num">20</div><div class="code-content">        current.remove(current.size() - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div id="line-exclude-recurse" class="debug-line"><div class="line-num">21</div><div class="code-content">        generateSubsets(start + <span class="text-syntaxPink">1</span>, n, current, result, k);</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Combinations Backtracking Mechanics</h2>
+                
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This algorithm employs a <strong>Binary Inclusion-Exclusion Decision Tree</strong> design pattern to assemble all valid subsets of size $k$ from numbers $1$ to $n$. At every level, representing a number $start$, we branch into two possibilities:</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">The Backtracking Cycle:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Decision Branch 1 (Inclusion)</strong><br>
+                            We insert $start$ into our active `current` list, then advance deep into the subsequent integer options ($start + 1$).
+                        </li>
+                        <li>
+                            <strong>Decision Branch 2 (Exclusion &amp; Backtrack)</strong><br>
+                            Once the left branch resolves, we clean up (backtrack) by removing the last element we added. We then initiate a right branch exploration with $start + 1$ *without* including $start$.
+                        </li>
+                        <li>
+                            <strong>Termination Guard (Base Cases)</strong><br>
+                            When $start > n$, we inspect the size of our accumulated `current` list. If it matches $k$, it represents a valid subset combination, and we clone/append it to our results list. Otherwise, we cleanly prune.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(2<sup>N</sup>)</span>
+                        <p class="text-xs text-slate-400">Since we have two binary choices (inclusion or exclusion) for each of the $n$ nodes, the total number of function call frames generated is $2^{n+1}-1$. Pruning allows faster results, but the raw exhaustive limit remains bounded by $O(2^N)$ binary combinations.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The primary memory cost comes from the runtime activation records on the call stack. The depth of recursion is bounded strictly by $N$. Storing each valid combination of size $K$ takes linear space relative to combinations count, but extra heap space used by the backtracking stack is $O(N)$.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI Layout Toggles
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizers Configuration
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State Engine for Visuals
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000; 
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27.5); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const nStr = document.getElementById('input-n').value;
+            const kStr = document.getElementById('input-k').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                let n = parseInt(nStr);
+                let k = parseInt(kStr);
+                if (isNaN(n) || isNaN(k) || n < 1 || k < 1 || k > n) {
+                    throw new Error("Invalid Input Parameters");
+                }
+                
+                if (n > 5) {
+                    n = 5;
+                    document.getElementById('input-n').value = 5;
+                    alert("Max subset constraints locked at 5 to fit dynamic visual graphics perfectly.");
+                }
+
+                generateStateCollection(n, k);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Generator for Backtracking State Graph/Array
+        function generateStateCollection(n, k) {
+            states = [];
+            let current = [];
+            let result = [];
+            let callIdCounter = 0;
+            let treeNodes = {};
+            let activePath = [];
+
+            function pushState(line, action, activeNodeId, backtrackStep = false) {
+                // Compile depth trace details
+                let trace = activePath.map(id => {
+                    return {
+                        id: id,
+                        start: treeNodes[id].start,
+                        label: treeNodes[id].label,
+                        status: treeNodes[id].status
+                    }
+                });
+
+                states.push({
+                    line: line,
+                    action: action,
+                    currentSubset: [...current],
+                    results: result.map(subset => [...subset]),
+                    activeNodeId: activeNodeId,
+                    activePath: [...activePath],
+                    backtrackStep: backtrackStep,
+                    treeNodes: JSON.parse(JSON.stringify(treeNodes)),
+                    vars: {
+                        start: activePath.length > 0 ? treeNodes[activePath[activePath.length - 1]].start : '-',
+                        currentSize: current.length,
+                        k: k,
+                        n: n,
+                        resultCount: result.length
+                    },
+                    trace: trace
+                });
+            }
+
+            // Dummy state for init
+            pushState('line-init', 'Initialize empty result list.', null);
+
+            function solve(start, parentNodeId, choiceLabel) {
+                let myId = ++callIdCounter;
+                let subsetSnap = [...current];
+                let nodeLabel = `start=${start}\n[${subsetSnap.join(',')}]`;
+
+                treeNodes[myId] = {
+                    id: myId,
+                    start: start,
+                    subset: subsetSnap,
+                    label: nodeLabel,
+                    status: 'active',
+                    children: [],
+                    parentId: parentNodeId,
+                    choice: choiceLabel
+                };
+
+                if (parentNodeId && treeNodes[parentNodeId]) {
+                    treeNodes[parentNodeId].children.push(myId);
+                }
+
+                activePath.push(myId);
+                pushState('line-solve', `Called generateSubsets(start=${start}, current=[${subsetSnap.join(', ')}])`, myId);
+
+                // Base Case validation check
+                pushState('line-base-case', `Check boundary: is start (${start}) > n (${n})?`, myId);
+                if (start > n) {
+                    pushState('line-size-check', `Boundary reached. Check subset size: is current.size() (${current.length}) == k (${k})?`, myId);
+                    if (current.length === k) {
+                        result.push([...current]);
+                        treeNodes[myId].status = 'success';
+                        pushState('line-add-res', `Success Match! Storing Combination: [${current.join(', ')}]`, myId);
+                    } else {
+                        treeNodes[myId].status = 'done';
+                        pushState('line-base-return', `Size does not equal k. Prune path & Return.`, myId);
+                    }
+                    activePath.pop();
+                    return;
+                }
+
+                // Branch Option 1: Include start value
+                pushState('line-include-add', `Decision Frame: INCLUDE ${start} in active set.`, myId);
+                current.push(start);
+                
+                // Track transition and dive left
+                treeNodes[myId].status = 'active';
+                pushState('line-include-recurse', `Recurse left branch after adding ${start}.`, myId);
+                solve(start + 1, myId, `+${start}`);
+
+                // Reactivate current frame
+                activePath.push(myId);
+                treeNodes[myId].status = 'active';
+
+                // Branch Option 2: Exclude & Backtrack
+                pushState('line-exclude-remove', `Backtrack Step: EXCLUDE ${start}. Pop from active set.`, myId, true);
+                current.pop();
+                
+                // Track transition and dive right
+                pushState('line-exclude-recurse', `Recurse right branch excluding ${start}.`, myId);
+                solve(start + 1, myId, `-${start}`);
+
+                // Mark current frame completed
+                activePath.push(myId);
+                treeNodes[myId].status = 'done';
+                pushState('line-base-return', `Completed evaluation of branches for start=${start}. Returning...`, myId);
+                activePath.pop();
+            }
+
+            // Run execution trace simulator
+            solve(1, null, 'Root');
+
+            // Completed final state snapshot
+            states.push({
+                line: 'line-return-res',
+                action: 'Recursive Search Complete. Returning computed subsets list.',
+                currentSubset: [],
+                results: result.map(subset => [...subset]),
+                activeNodeId: null,
+                activePath: [],
+                backtrackStep: false,
+                treeNodes: JSON.parse(JSON.stringify(treeNodes)),
+                vars: {
+                    start: '-',
+                    currentSize: 0,
+                    k: k,
+                    n: n,
+                    resultCount: result.length
+                },
+                trace: []
+            });
+        }
+
+        // Layout Solver for visual Tree inside SVG
+        function renderCallTree(treeNodes, activeNodeId, activePath, backtrackStep) {
+            const svg = document.getElementById('svg-tree');
+            svg.innerHTML = ''; // Clean canvas frame
+
+            if (Object.keys(treeNodes).length === 0) return;
+
+            // Compute depth maps and dynamic layout scales
+            let rootId = null;
+            for (let id in treeNodes) {
+                if (treeNodes[id].parentId === null) {
+                    rootId = parseInt(id);
+                    break;
+                }
+            }
+
+            let depths = {};
+            function computeDepth(id, d) {
+                if (!id || !treeNodes[id]) return;
+                depths[id] = d;
+                treeNodes[id].children.forEach(cid => computeDepth(cid, d + 1));
+            }
+            computeDepth(rootId, 0);
+
+            // Establish coordinate configurations
+            let coords = {};
+            const verticalHeightSeparation = 75;
+
+            function computeCoordinates(id, xCenter, currentLevel) {
+                if (!id || !treeNodes[id]) return;
+                coords[id] = { x: xCenter, y: 35 + currentLevel * verticalHeightSeparation };
+
+                let children = treeNodes[id].children;
+                if (children.length === 2) {
+                    // Adapt branching spreads dynamically relative to depth
+                    let childSpread = 165 / Math.pow(1.52, currentLevel);
+                    computeCoordinates(children[0], xCenter - childSpread, currentLevel + 1); // Left branch
+                    computeCoordinates(children[1], xCenter + childSpread, currentLevel + 1); // Right branch
+                } else if (children.length === 1) {
+                    computeCoordinates(children[0], xCenter, currentLevel + 1);
+                }
+            }
+
+            computeCoordinates(rootId, 350, 0);
+
+            // Draw Paths (Edges)
+            for (let id in treeNodes) {
+                let node = treeNodes[id];
+                if (node.parentId && coords[node.parentId]) {
+                    let parentCoord = coords[node.parentId];
+                    let selfCoord = coords[id];
+                    
+                    // Style connection line based on backtracking stack
+                    let isActiveEdge = activePath.includes(parseInt(id)) && activePath.includes(parseInt(node.parentId));
+                    let strokeColor = '#1e293b'; // Default idle/visited connection
+                    let strokeWidth = '2';
+                    let dashArray = '';
+
+                    if (isActiveEdge) {
+                        strokeColor = backtrackStep ? '#f472b6' : '#3b82f6';
+                        strokeWidth = '3';
+                        if (!backtrackStep) dashArray = '4 2'; // animated flow towards children
+                    }
+
+                    // Create line path
+                    let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", parentCoord.x);
+                    line.setAttribute("y1", parentCoord.y);
+                    line.setAttribute("x2", selfCoord.x);
+                    line.setAttribute("y2", selfCoord.y);
+                    line.setAttribute("stroke", strokeColor);
+                    line.setAttribute("stroke-width", strokeWidth);
+                    if (dashArray) line.setAttribute("stroke-dasharray", dashArray);
+                    svg.appendChild(line);
+
+                    // Overlay brief branch indicator (+x or -x label)
+                    if (node.choice && node.choice !== 'Root') {
+                        let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        text.setAttribute("x", (parentCoord.x + selfCoord.x) / 2 + (node.choice.startsWith('+') ? -12 : 5));
+                        text.setAttribute("y", (parentCoord.y + selfCoord.y) / 2 - 3);
+                        text.setAttribute("fill", node.choice.startsWith('+') ? '#34d399' : '#f472b6');
+                        text.setAttribute("font-size", "9px");
+                        text.setAttribute("font-family", "Fira Code");
+                        text.setAttribute("font-weight", "600");
+                        text.textContent = node.choice;
+                        svg.appendChild(text);
+                    }
+                }
+            }
+
+            // Draw Nodes (Circles)
+            for (let id in treeNodes) {
+                let node = treeNodes[id];
+                let coord = coords[id];
+                if (!coord) continue;
+
+                let nid = parseInt(id);
+                let isCurrentNode = (nid === activeNodeId);
+                let isStackedNode = activePath.includes(nid);
+
+                // Default styles
+                let fill = '#111827';
+                let stroke = '#1e293b';
+                let strokeWidth = '2';
+                let shadowGlow = '';
+
+                // Style states: active vs completed vs match
+                if (isCurrentNode) {
+                    fill = '#0f172a';
+                    stroke = backtrackStep ? '#f472b6' : '#fcd34d'; // Backtracking vs exploring highlighting
+                    strokeWidth = '3.5';
+                    shadowGlow = backtrackStep ? 'drop-shadow(0 0 8px rgba(244,114,182,0.7))' : 'drop-shadow(0 0 8px rgba(252,211,77,0.7))';
+                } else if (node.status === 'success') {
+                    fill = 'rgba(16, 185, 129, 0.1)';
+                    stroke = '#10b981';
+                    strokeWidth = '2.5';
+                    shadowGlow = 'drop-shadow(0 0 6px rgba(16,185,129,0.5))';
+                } else if (isStackedNode) {
+                    fill = 'rgba(59, 130, 246, 0.1)';
+                    stroke = '#3b82f6';
+                    strokeWidth = '2';
+                } else if (node.status === 'done') {
+                    fill = '#1f2937';
+                    stroke = '#475569';
+                    strokeWidth = '1.5';
+                }
+
+                // Circle Node
+                let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", coord.x);
+                circle.setAttribute("cy", coord.y);
+                circle.setAttribute("r", "16");
+                circle.setAttribute("fill", fill);
+                circle.setAttribute("stroke", stroke);
+                circle.setAttribute("stroke-width", strokeWidth);
+                if (shadowGlow) circle.setAttribute("style", `filter: ${shadowGlow}`);
+                svg.appendChild(circle);
+
+                // Primary Label (start value inside circle)
+                let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", coord.x);
+                text.setAttribute("y", coord.y + 4);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("fill", isCurrentNode ? '#f8fafc' : (node.status === 'success' ? '#10b981' : '#cbd5e1'));
+                text.setAttribute("font-size", "11px");
+                text.setAttribute("font-weight", "bold");
+                text.setAttribute("font-family", "Fira Code");
+                text.textContent = node.start;
+                svg.appendChild(text);
+
+                // Small subtext frame metadata on top of circle
+                let subtext = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                subtext.setAttribute("x", coord.x);
+                subtext.setAttribute("y", coord.y - 20);
+                subtext.setAttribute("text-anchor", "middle");
+                subtext.setAttribute("fill", '#64748b');
+                subtext.setAttribute("font-size", "8px");
+                subtext.setAttribute("font-family", "Fira Code");
+                subtext.textContent = `[${node.subset.join(',')}]`;
+                svg.appendChild(subtext);
+            }
+        }
+
+        // Render Solutions results list
+        function renderSolutionsDOM(results) {
+            const container = document.getElementById('solutions-container');
+            container.innerHTML = '';
+
+            if (results.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-500 italic">No valid combinations saved to results list yet.</span>`;
+                return;
+            }
+
+            results.forEach((subset, index) => {
+                let badge = document.createElement('div');
+                badge.className = "subset-item flex items-center gap-1.5 bg-[#0f172a] hover:bg-[#1e293b] border border-success/30 hover:border-success/60 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono transition-all shadow-sm";
+                badge.innerHTML = `
+                    <span class="text-success font-bold">#${index + 1}</span>
+                    <span class="text-slate-400 font-bold">:</span>
+                    <span class="text-white font-semibold">[ ${subset.join(', ')} ]</span>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        // Draw active Local Stack/Execution Depth Trace
+        function renderDepthTrace(trace, activeId) {
+            const container = document.getElementById('recursion-depth-trace');
+            container.innerHTML = '';
+
+            if (trace.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-500 italic">Call Stack Empty</span>`;
+                return;
+            }
+
+            trace.forEach((frame, idx) => {
+                let frameDiv = document.createElement('div');
+                let isActive = frame.id === activeId;
+                
+                frameDiv.className = `flex items-center text-[10px] py-1 px-2.5 rounded-full border ${
+                    isActive 
+                    ? 'bg-yellow-500/10 border-yellow-500 text-yellow-400' 
+                    : 'bg-primary/10 border-primary/30 text-blue-400'
+                }`;
+                frameDiv.innerHTML = `f(${frame.start})`;
+                container.appendChild(frameDiv);
+
+                if (idx < trace.length - 1) {
+                    let arrow = document.createElement('span');
+                    arrow.className = "text-slate-600 text-[9px]";
+                    arrow.innerHTML = `<i class="fas fa-chevron-right"></i>`;
+                    container.appendChild(arrow);
+                }
+            });
+        }
+
+        // State Renderer router
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Step labels updates
+            document.getElementById('step-msg').innerText = state.action;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            document.getElementById('current-subset-display').innerText = `[ ${state.currentSubset.join(', ')} ]`;
+            
+            // Progress Bar Update
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            // Loading icon management
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Draw visuals
+            renderCallTree(state.treeNodes, state.activeNodeId, state.activePath, state.backtrackStep);
+            renderSolutionsDOM(state.results);
+            renderDepthTrace(state.trace, state.activeNodeId);
+
+            // Variables Panels Updates
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-start').innerText = state.vars.start;
+            document.getElementById('var-current-size').innerText = state.vars.currentSize;
+            document.getElementById('var-k').innerText = state.vars.k;
+            document.getElementById('var-solutions').innerText = state.vars.resultCount;
+            document.getElementById('var-action').innerText = state.action;
+
+            // Step Line Highlighting inside Source IDE Code frame
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.line) {
+                let activeEl = document.getElementById(state.line);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Playback Management Actions
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
