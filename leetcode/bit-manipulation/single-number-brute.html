@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoViz Canvas - Single Number</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        .array-box-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; position: relative; margin-bottom: 24px;}
+        .array-box { 
+            width: 48px; height: 48px; border: 2px solid #1e293b; background: #111827; 
+            border-radius: 8px; display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; font-size: 18px; color: #f8fafc; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .array-box.highlight-compare { border-color: #fcd34d; background: rgba(252, 211, 77, 0.15); box-shadow: 0 0 16px rgba(252, 211, 77, 0.5); transform: scale(1.1); z-index: 10;}
+        .array-box.highlight-found { border-color: #10b981; background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 16px rgba(16, 185, 129, 0.5); transform: scale(1.1); z-index: 10;}
+        .array-box.inactive { opacity: 0.5; border-color: #334155; background: #0f172a;}
+        
+        .array-index { font-family: 'Fira Code', monospace; font-size: 11px; color: #64748b; }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-sort-numeric-down"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoViz Canvas</h1>
+                <p class="text-xs text-slate-500">Single Number (Sorting Approach)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6">
+        <div class="flex-1 w-full max-w-2xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Input Array (Comma Separated - Must have pairs + 1 unique)</label>
+            <input type="text" id="input-arr" class="input-field" value="4, 1, 2, 1, 2" placeholder="e.g. 4, 1, 2, 1, 2">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> <span id="error-msg">Invalid input.</span></div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Fullscreen Canvas">
+                        <i id="canvas-toggle-icon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Array Visuals -->
+                    <div class="mt-8">
+                        <div class="flex items-center justify-between mb-3 w-full max-w-3xl">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[]</span> nums</h3>
+                            </div>
+                            <div id="sort-status" class="text-[10px] bg-slate-800 px-3 py-1 rounded text-slate-400 border border-slate-700 font-mono tracking-wider hidden">
+                                <i class="fas fa-check text-success mr-1"></i> ARRAY SORTED
+                            </div>
+                        </div>
+                        <div id="canvas-array" class="flex flex-wrap gap-4 px-2 pt-2 min-h-[90px] max-w-3xl"></div>
+                    </div>
+
+                    <!-- Answer Visualizer -->
+                    <div class="w-full max-w-md mt-6 flex flex-col gap-4">
+                        <div class="bg-bgPanel/80 border border-borderMain rounded-xl p-6 shadow-xl relative overflow-hidden flex flex-col items-center">
+                            <!-- Glow -->
+                            <div id="answer-glow" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-emerald-500/0 transition-all duration-500 rounded-full blur-2xl pointer-events-none"></div>
+                            
+                            <span class="text-[10px] text-slate-500 font-sans tracking-widest uppercase mb-2">Final Answer</span>
+                            <div class="flex items-center justify-center gap-4 text-2xl font-mono relative z-10 w-full">
+                                <span id="canvas-answer" class="text-slate-600 font-bold text-4xl">?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-center transition-opacity duration-300">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full">Execution Reset...</div>
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i-1)</span>
+                                <span id="var-prev-i" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Index (i)</span>
+                                <span id="var-i" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1 whitespace-nowrap">nums[i-1]</span>
+                                <span id="var-val-prev" class="font-mono text-yellow-400 font-bold text-xl">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1 whitespace-nowrap">nums[i]</span>
+                                <span id="var-val-i" class="font-mono text-yellow-400 font-bold text-xl">-</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm flex items-center gap-4">
+                                <span class="block text-[10px] text-slate-500 uppercase shrink-0">Array Length (n)</span>
+                                <span id="var-n" class="font-mono text-slate-300 font-bold">0</span>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium block h-[32px] overflow-hidden leading-tight">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> singleNumber(<span class="text-syntaxPink">int</span>[] nums) {</div></div>
+                        <div id="line-sort" class="debug-line"><div class="line-num">3</div><div class="code-content">        Arrays.sort(nums);</div></div>
+                        <div id="line-len" class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = nums.length;</div></div>
+                        <div id="line-for" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">for</span>(<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">1</span>; i < n; i+=<span class="text-syntaxPink">2</span>) {</div></div>
+                        <div id="line-if" class="debug-line"><div class="line-num">6</div><div class="code-content">            <span class="text-syntaxPink">if</span>(nums[i] != nums[i-<span class="text-syntaxPink">1</span>]) {</div></div>
+                        <div id="line-return-inside" class="debug-line"><div class="line-num">7</div><div class="code-content">                <span class="text-syntaxPink">return</span> nums[i-<span class="text-syntaxPink">1</span>];</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">        }</div></div>
+                        <div id="line-return-outside" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">return</span> nums[n-<span class="text-syntaxPink">1</span>];</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution utilizes the <strong>Sorting Approach</strong>. While it doesn't meet the strict $O(N)$ linear time constraint requested in standard algorithmic assessments, it intuitively guarantees finding the unique element by clustering duplicates together in $O(1)$ space.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept: Adjacent Pairs</h3>
+                    <p class="mb-4 text-slate-300">Once an array is sorted, any elements that are identical will sit directly next to each other. Because every element (except one) appears exactly twice, we can predictably step through the array in pairs (stepping by 2).</p>
+
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Execution Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Sort the Array:</strong> Organize all elements in ascending order so duplicates become adjacent pairs.
+                        </li>
+                        <li>
+                            <strong>Step by 2:</strong> Iterate with <code>i</code> starting at 1, increasing by 2 every time (<code>1, 3, 5...</code>).
+                        </li>
+                        <li>
+                            <strong>Compare Pair:</strong> At each step, compare <code>nums[i-1]</code> with <code>nums[i]</code>. Because we expect pairs, they should always be equal.
+                        </li>
+                        <li>
+                            <strong>Find the Anomaly:</strong> The very first time <code>nums[i] != nums[i-1]</code>, the sequence is broken. The number at <code>nums[i-1]</code> is our single number because its intended pair partner was disrupted.
+                        </li>
+                        <li>
+                            <strong>Edge Case (The Tail):</strong> If the loop finishes without finding a mismatch, it means all pairs matched successfully, which implies the very last element of the odd-length array must be the single number.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N log N)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the number of elements in the array. The dominant operation is the initial <code>Arrays.sort()</code> call, which runs in $O(N \log N)$ time. The subsequent loop runs in $O(N/2)$ which simplifies to $O(N)$, making the overall time bound $O(N \log N)$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1) / O(log N)</span>
+                        <p class="text-xs text-slate-400">The space complexity is technically $O(1)$ auxiliary memory since we sort in-place and use a few pointers. Note that underlying sorting algorithms (like Dual-Pivot Quicksort) might use $O(\log N)$ implicit call stack space.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left'; 
+            }
+        }
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000; 
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const str = document.getElementById('input-arr').value;
+            const errEl = document.getElementById('input-error');
+            const errMsg = document.getElementById('error-msg');
+            errEl.classList.add('hidden');
+
+            try {
+                if (!str || str.trim().length === 0) {
+                    throw new Error("Invalid Input");
+                }
+                
+                let nums = str.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+                
+                if (nums.length === 0) {
+                    throw new Error("Invalid Input: No valid numbers found.");
+                }
+
+                if (nums.length % 2 === 0) {
+                    // Though theoretically possible to have odd number of singles, the problem dictates exact pairs + 1 single.
+                    // We'll throw a warning but allow it, appending a dummy to make it odd if we want strictness, but let's just warn.
+                    console.warn("Array length is even. The standard problem requires an odd length (pairs + 1 single). Execution will proceed.");
+                }
+
+                if(nums.length > 20) {
+                    nums = nums.slice(0, 20);
+                    document.getElementById('input-arr').value = nums.join(', ');
+                    alert("Array truncated to 20 elements for optimal visualization.");
+                }
+
+                generateStates(nums);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errMsg.innerText = e.message;
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(originalNums) {
+            states = [];
+            let nums = [...originalNums];
+            let n = nums.length;
+            let vrs = { n: n, i: '-', prev_i: '-', val_i: '-', val_prev: '-', action: 'Initialization' };
+
+            const getSnapshot = (arr, activeI, activePrevI, foundIndex = -1, isSorted = false) => {
+                return arr.map((val, index) => {
+                    return {
+                        val: val,
+                        isCompare: index === activeI || index === activePrevI,
+                        isFound: index === foundIndex,
+                        isInactive: isSorted && index < activePrevI, // Gray out checked pairs
+                        isSorted: isSorted
+                    };
+                });
+            };
+
+            const pushState = (msg, line, activeI, activePrevI, foundIndex = -1, isSorted = false, finalAnswer = '?') => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)), 
+                    visuals: getSnapshot(nums, activeI, activePrevI, foundIndex, isSorted),
+                    isSortedState: isSorted,
+                    finalAnswer: finalAnswer
+                });
+            };
+
+            // Initial state
+            vrs.action = "Input received";
+            pushState(`Initial unsorted array. length (n) = ${n}`, null, -1, -1, -1, false);
+            
+            // Sort state
+            nums.sort((a, b) => a - b);
+            vrs.action = `Arrays.sort(nums)`;
+            pushState(`Sorting the array. All duplicates will now sit directly adjacent to each other.`, "line-sort", -1, -1, -1, true);
+
+            vrs.action = `Init n = nums.length`;
+            pushState(`Initialize length variable n = ${n}.`, "line-len", -1, -1, -1, true);
+
+            let found = false;
+
+            for(let i = 1; i < n; i += 2) {
+                vrs.i = i;
+                vrs.prev_i = i - 1;
+                vrs.val_i = nums[i];
+                vrs.val_prev = nums[i - 1];
+                
+                vrs.action = `Loop: i=${i}`;
+                pushState(`Stepping by 2: i is now ${i}. Preparing to check pair at index ${i-1} and ${i}.`, "line-for", i, i-1, -1, true);
+
+                vrs.action = `Compare nums[${i}] != nums[${i-1}]`;
+                pushState(`Comparing pair: Is ${nums[i]} != ${nums[i-1]}?`, "line-if", i, i-1, -1, true);
+
+                if(nums[i] !== nums[i-1]) {
+                    vrs.action = `Mismatch found!`;
+                    pushState(`Mismatch! The pair sequence broke. Returning nums[${i-1}]`, "line-return-inside", i, i-1, i-1, true, nums[i-1]);
+                    found = true;
+                    break;
+                } else {
+                    vrs.action = `Match valid. Continue.`;
+                    pushState(`Pair matched (${nums[i]} == ${nums[i-1]}). Moving to the next pair...`, "line-if", i, i-1, -1, true);
+                }
+            }
+
+            if(!found) {
+                vrs.i = '-';
+                vrs.prev_i = '-';
+                vrs.val_i = '-';
+                vrs.val_prev = '-';
+                vrs.action = `Return nums[${n-1}]`;
+                
+                pushState(`Loop completed. All pairs matched perfectly. The single number must be the dangling last element: ${nums[n-1]}.`, "line-return-outside", -1, -1, n-1, true, nums[n-1]);
+            }
+        }
+
+        function renderArrayDOM(containerId, dataArray) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = dataArray.map((item, index) => {
+                let boxClass = 'array-box';
+                if (item.isFound) boxClass += ' highlight-found';
+                else if (item.isCompare) boxClass += ' highlight-compare';
+                else if (item.isInactive) boxClass += ' inactive';
+
+                let labelHtml = '';
+                if (item.isCompare) {
+                    labelHtml = `<div class="absolute -bottom-6 text-[10px] flex gap-1 z-20 whitespace-nowrap"><span class="text-yellow-400 font-bold bg-slate-800/80 px-2 py-0.5 rounded shadow"><i class="fas fa-search text-[9px] mr-1"></i></span></div>`;
+                }
+                if(item.isFound) {
+                    labelHtml = `<div class="absolute -bottom-6 text-[11px] flex gap-1 z-20 whitespace-nowrap"><span class="text-emerald-400 font-bold bg-slate-800/80 px-2 py-0.5 rounded shadow">Return</span></div>`;
+                }
+
+                return `
+                    <div class="array-box-container">
+                        <span class="array-index mb-1">${index}</span>
+                        <div class="${boxClass}">${item.val}</div>
+                        ${labelHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Arrays & Visual states
+            renderArrayDOM('canvas-array', state.visuals);
+            
+            // Toggle Sorted Label
+            if(state.isSortedState) {
+                document.getElementById('sort-status').classList.remove('hidden');
+            } else {
+                document.getElementById('sort-status').classList.add('hidden');
+            }
+
+            // Update Final Answer Box
+            const ansBox = document.getElementById('canvas-answer');
+            const glow = document.getElementById('answer-glow');
+            ansBox.innerText = state.finalAnswer;
+            
+            if(state.finalAnswer !== '?') {
+                ansBox.classList.add('text-success');
+                ansBox.classList.remove('text-slate-600');
+                glow.classList.add('bg-emerald-500/20');
+                glow.classList.remove('bg-emerald-500/0');
+            } else {
+                ansBox.classList.add('text-slate-600');
+                ansBox.classList.remove('text-success');
+                glow.classList.remove('bg-emerald-500/20');
+                glow.classList.add('bg-emerald-500/0');
+            }
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-i').innerText = state.vars.i;
+            document.getElementById('var-prev-i').innerText = state.vars.prev_i;
+            document.getElementById('var-val-i').innerText = state.vars.val_i;
+            document.getElementById('var-val-prev').innerText = state.vars.val_prev;
+            document.getElementById('var-n').innerText = state.vars.n;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); // Init speed based on default slider value
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
