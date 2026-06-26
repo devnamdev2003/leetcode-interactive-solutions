@@ -1,5 +1,26 @@
 [
   {
+    "id": "136",
+    "title": "Single Number",
+    "difficulty": "Easy",
+    "tags": [
+      "Array",
+      "Bit Manipulation"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/single-number/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "bit-manipulation/single-number-brute.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "bit-manipulation/single-number.html"
+      }
+    ]
+  },
+  {
     "id": "88",
     "title": "Merge Sorted Array",
     "difficulty": "Easy",
