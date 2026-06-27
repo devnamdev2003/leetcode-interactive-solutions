@@ -1,83 +1,970 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Code Viewer</title>
-
-    <!-- Prism Theme -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
-    />
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Sudoku Solver (Backtracking)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-      body {
-        background: #1e1e1e;
-        color: #d4d4d4;
-        font-family: Consolas, Monaco, monospace;
-        padding: 20px;
-      }
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-      .code-container {
-        position: relative;
-        max-width: 1200px;
-        margin: auto;
-      }
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
 
-      .copy-btn {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background: #0078d4;
-        color: white;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: 0.2s;
-      }
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Sudoku Board Styles */
+        .sudoku-container {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 1px;
+            padding: 4px;
+            background: #475569; /* Grid line color */
+            border: 4px solid #475569;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            width: max-content;
+        }
+        
+        .sudoku-cell {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 600;
+            background-color: #1e293b;
+            transition: all 0.2s ease;
+            position: relative;
+            font-family: 'Fira Code', monospace;
+        }
 
-      .copy-btn:hover {
-        background: #106ebe;
-      }
+        /* 3x3 Block Borders */
+        .border-r-thick { border-right: 3px solid #475569; }
+        .border-b-thick { border-bottom: 3px solid #475569; }
+        
+        .cell-fixed { color: #94a3b8; } /* original puzzle numbers */
+        .cell-placed { color: #f8fafc; } /* numbers placed by algo */
+        
+        .sudoku-cell.highlight-checking { 
+            background-color: rgba(59, 130, 246, 0.3); 
+            box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.5); 
+            z-index: 10;
+        }
+        .sudoku-cell.highlight-valid { 
+            background-color: rgba(52, 211, 153, 0.3); 
+            box-shadow: inset 0 0 10px rgba(52, 211, 153, 0.5);
+            color: #34d399;
+            z-index: 10;
+        }
+        .sudoku-cell.highlight-invalid { 
+            background-color: rgba(239, 68, 68, 0.3); 
+            box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+            z-index: 10;
+        }
+        .sudoku-cell.highlight-backtrack { 
+            background-color: rgba(244, 114, 182, 0.2); 
+            color: #f472b6;
+            z-index: 10;
+        }
 
-      pre {
-        border-radius: 10px;
-        padding: 20px;
-        overflow-x: auto;
-        font-size: 15px;
-        line-height: 1.6;
-      }
+        /* Recursive Tree Stack Styles */
+        .call-stack-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 12px;
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            max-width: 500px;
+            margin-top: 20px;
+            min-height: 50px;
+            align-items: center;
+        }
+        .stack-frame {
+            font-size: 11px;
+            font-family: 'Fira Code', monospace;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: fadeIn 0.2s ease-in;
+        }
+        .stack-arrow { color: #475569; font-size: 10px; }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
     </style>
-  </head>
+</head>
+<body class="text-slate-300">
 
-  <body>
-    <div class="code-container">
-      <button class="copy-btn" onclick="copyCode()">Copy</button>
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-table-cells"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Sudoku Solver (Backtracking)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
 
-      <pre><code id="code-block" class="language-java">
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Initial Board (81 characters, use '.' for empty)</label>
+            <div class="flex gap-2">
+                <input type="text" id="input-board" class="input-field" value="5346789126721953481983425678597614234268537917139248569615372842874196353452861..">
+                <button onclick="loadSample('easy')" class="px-3 py-1 bg-bgBase border border-borderMain rounded text-xs hover:bg-slate-800 transition-colors">Easy</button>
+                <button onclick="loadSample('almost')" class="px-3 py-1 bg-bgBase border border-borderMain rounded text-xs hover:bg-slate-800 transition-colors">Almost Done</button>
+            </div>
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter exactly 81 characters using digits 1-9 or dots (.).</div>
 
-        </code></pre>
-    </div>
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-6 transition-opacity duration-300 justify-start items-center pt-8">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Visual Sudoku Board -->
+                    <div class="flex flex-col items-center mt-8">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">char[][]</span> board</h3>
+                        </div>
+                        <div id="canvas-board" class="sudoku-container">
+                            <!-- Board generated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Visual Recursion Tree / Call Stack -->
+                    <div class="flex flex-col items-center w-full mt-4">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><i class="fas fa-code-branch text-purple-400"></i> Recursion Decision Path</h3>
+                        </div>
+                        <div id="call-stack" class="call-stack-container justify-center w-full">
+                            <!-- Stack items generated via JS -->
+                        </div>
+                        <span class="text-[9px] text-slate-500 mt-2 text-center max-w-sm">This represents the active branch of the recursive tree. Deepening means branching down; removing items means backtracking up.</span>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Row (i)</span>
+                                <span id="var-row" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Col (j)</span>
+                                <span id="var-col" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                            
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Attempting (k)</span>
+                                <span id="var-k" class="font-mono text-syntaxYellow font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">isValid() result</span>
+                                <span id="var-isvalid" class="font-mono text-slate-300 font-bold text-sm">-</span>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxGreen font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line" id="line-class"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line" id="line-solveSudoku"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public void</span> solveSudoku(<span class="text-syntaxPink">char</span>[][] board) {</div></div>
+                        <div class="debug-line" id="line-callfun"><div class="line-num">3</div><div class="code-content">        fun(board);</div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">5</div><div class="code-content"></div></div>
+                        <div class="debug-line" id="line-fun"><div class="line-num">6</div><div class="code-content">    <span class="text-syntaxPink">public boolean</span> fun(<span class="text-syntaxPink">char</span>[][] b) {</div></div>
+                        <div class="debug-line" id="line-for-i"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; <span class="text-syntaxPink">9</span>; i++) {</div></div>
+                        <div class="debug-line" id="line-for-j"><div class="line-num">8</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> j = <span class="text-syntaxPink">0</span>; j &lt; <span class="text-syntaxPink">9</span>; j++) {</div></div>
+                        <div class="debug-line" id="line-if-empty"><div class="line-num">9</div><div class="code-content">                <span class="text-syntaxPink">if</span> (b[i][j] == <span class="text-syntaxGreen">'.'</span>) {</div></div>
+                        <div class="debug-line" id="line-for-k"><div class="line-num">10</div><div class="code-content">                    <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">char</span> k = <span class="text-syntaxGreen">'1'</span>; k &lt;= <span class="text-syntaxGreen">'9'</span>; k++) {</div></div>
+                        <div class="debug-line" id="line-isvalid"><div class="line-num">11</div><div class="code-content">                        <span class="text-syntaxPink">if</span> (isValid(b, i, j, k)) {</div></div>
+                        <div class="debug-line" id="line-place"><div class="line-num">12</div><div class="code-content">                            b[i][j] = k;</div></div>
+                        <div class="debug-line" id="line-recurse"><div class="line-num">13</div><div class="code-content">                            <span class="text-syntaxPink">if</span> (fun(b) == <span class="text-syntaxBlue">true</span>) {</div></div>
+                        <div class="debug-line" id="line-rettrue1"><div class="line-num">14</div><div class="code-content">                                <span class="text-syntaxPink">return true</span>;</div></div>
+                        <div class="debug-line" id="line-else"><div class="line-num">15</div><div class="code-content">                            } <span class="text-syntaxPink">else</span> {</div></div>
+                        <div class="debug-line" id="line-backtrack"><div class="line-num">16</div><div class="code-content">                                b[i][j] = <span class="text-syntaxGreen">'.'</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">                            }</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">                        }</div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content">                    }</div></div>
+                        <div class="debug-line" id="line-retfalse"><div class="line-num">20</div><div class="code-content">                    <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">        }</div></div>
+                        <div class="debug-line" id="line-rettrue2"><div class="line-num">24</div><div class="code-content">        <span class="text-syntaxPink">return true</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">25</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">26</div><div class="code-content"></div></div>
+                        <div class="debug-line" id="line-func-isvalid"><div class="line-num">27</div><div class="code-content">    <span class="text-syntaxPink">public boolean</span> isValid(<span class="text-syntaxPink">char</span>[][] b, <span class="text-syntaxPink">int</span> r, <span class="text-syntaxPink">int</span> c, <span class="text-syntaxPink">char</span> k) {</div></div>
+                        <div class="debug-line"><div class="line-num">28</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; <span class="text-syntaxPink">9</span>; i++) {</div></div>
+                        <div class="debug-line" id="line-check-row"><div class="line-num">29</div><div class="code-content">            <span class="text-syntaxPink">if</span> (b[r][i] == k) <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line" id="line-check-col"><div class="line-num">30</div><div class="code-content">            <span class="text-syntaxPink">if</span> (b[i][c] == k) <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line" id="line-check-grid"><div class="line-num">31</div><div class="code-content">            <span class="text-syntaxPink">if</span> (b[<span class="text-syntaxPink">3</span> * (r / <span class="text-syntaxPink">3</span>) + i / <span class="text-syntaxPink">3</span>][<span class="text-syntaxPink">3</span> * (c / <span class="text-syntaxPink">3</span>) + i % <span class="text-syntaxPink">3</span>] == k) <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">32</div><div class="code-content">        }</div></div>
+                        <div class="debug-line" id="line-valid-true"><div class="line-num">33</div><div class="code-content">        <span class="text-syntaxPink">return true</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">34</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">35</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution uses the <strong>Backtracking</strong> paradigm to solve the Sudoku problem. It explores the search space recursively by attempting valid candidate numbers and "backing out" when it hits a dead end.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Find Empty Cell:</strong> The algorithm scans the 9x9 board row by row until it finds a cell with a <code>'.'</code> character.
+                        </li>
+                        <li>
+                            <strong>Try Candidates (1-9):</strong> For the empty cell, it iteratively tries inserting numbers from '1' to '9'. 
+                        </li>
+                        <li>
+                            <strong>Validation <code>isValid()</code>:</strong> Before placing a number, it strictly checks if the number already exists in the current row, column, or 3x3 subgrid.
+                        </li>
+                        <li>
+                            <strong>Recursive Branching:</strong> If valid, the number is placed, and <code>fun(board)</code> is called again to solve the rest of the board. This forms a deep recursive tree path.
+                        </li>
+                        <li>
+                            <strong>Backtracking:</strong> If the recursive call returns <code>false</code> (meaning the board became unsolvable down that path), the algorithm resets the cell back to <code>'.'</code> and tries the next candidate number.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(9<sup>N</sup>)</span>
+                        <p class="text-xs text-slate-400">Where N is the number of empty cells. For every empty cell, we make up to 9 recursive branches in the worst-case scenario. Validations prune the tree significantly, making the average runtime much faster, but the absolute upper bound theoretical complexity remains exponential.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The space complexity is determined by the maximum depth of the recursive call stack tree. Since we only recurse when placing a number in an empty cell, the call stack will go at most N levels deep. The 9x9 board is passed by reference and modified in place, taking $O(1)$ auxiliary space.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
 
     <script>
-      function copyCode() {
-        const code = document.getElementById("code-block").textContent;
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
 
-        navigator.clipboard.writeText(code).then(() => {
-          const btn = document.querySelector(".copy-btn");
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
 
-          btn.textContent = "Copied!";
-          setTimeout(() => {
-            btn.textContent = "Copy";
-          }, 2000);
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        // Add Escape key listener to exit focus mode easily
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
         });
-      }
-    </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-  </body>
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        function loadSample(type) {
+            const input = document.getElementById('input-board');
+            if (type === 'easy') {
+                // Easy puzzle to show backtracking visually but not crash the browser
+                input.value = "....54..9.2...341.3...6..2.146.9.3..2.8...1.5..9.4.682.5..1...8.125...7.8..97....";
+            } else if (type === 'almost') {
+                // Last two spots empty (require backtracking logic momentarily)
+                input.value = "5346789126721953481983425678597614234268537917139248569615372842874196353452861..";
+            }
+        }
+
+        // Core State Management
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000; 
+
+        function updateSpeed(val) {
+            animSpeed = 2500 - (val * 23); // maps 0-100 to 2500ms - 200ms
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const boardStr = document.getElementById('input-board').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            if (boardStr.length !== 81 || !/^[1-9.]+$/.test(boardStr)) {
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            // Convert string to 9x9 char array
+            let board = [];
+            let initialBoard = [];
+            for (let i = 0; i < 9; i++) {
+                board[i] = [];
+                initialBoard[i] = [];
+                for (let j = 0; j < 9; j++) {
+                    board[i][j] = boardStr[i * 9 + j];
+                    initialBoard[i][j] = boardStr[i * 9 + j] !== '.' ? boardStr[i * 9 + j] : null;
+                }
+            }
+
+            generateStates(board, initialBoard);
+            pauseAnim();
+            currState = 0;
+            renderState(0);
+            
+            if(!document.getElementById('dry-tab').classList.contains('active')) {
+                switchTab('dry-tab');
+            }
+        }
+
+        // Algorithm Simulator (Generates steps for playback)
+        function generateStates(board, initialBoard) {
+            states = [];
+            let stateLimit = 2000; // Prevent infinite memory crash for entirely empty boards
+            
+            let vrs = { 
+                r: '-', c: '-', k: '-', isValid: '-', action: 'Initialization'
+            };
+            let callStack = []; 
+
+            const getSnapshot = (activeR, activeC, hlType) => {
+                return {
+                    grid: board.map(row => [...row]),
+                    initial: initialBoard,
+                    activeR: activeR,
+                    activeC: activeC,
+                    highlightType: hlType,
+                    stack: [...callStack]
+                };
+            };
+
+            const pushState = (msg, line, r, c, k, isVal, hlType, actionMsg) => {
+                if (states.length > stateLimit) return; // Hard limit
+
+                vrs.r = r !== undefined ? r : '-';
+                vrs.c = c !== undefined ? c : '-';
+                vrs.k = k !== undefined ? k : '-';
+                vrs.isValid = isVal !== undefined ? isVal : '-';
+                vrs.action = actionMsg || '';
+
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: getSnapshot(r, c, hlType)
+                });
+            };
+
+            pushState("Initializing recursive solver", "line-solveSudoku", undefined, undefined, undefined, undefined, 'none', 'Starting Algo');
+            pushState("Calling fun(board)", "line-callfun", undefined, undefined, undefined, undefined, 'none', 'Initial recursive call');
+
+            function isValidLocal(b, r, c, k) {
+                for (let i = 0; i < 9; i++) {
+                    if (b[r][i] === k) {
+                        pushState(`isValid(): Found ${k} in row ${r}. Invalid.`, "line-check-row", r, c, k, 'false', 'invalid', 'Row Conflict');
+                        return false;
+                    }
+                    if (b[i][c] === k) {
+                        pushState(`isValid(): Found ${k} in col ${c}. Invalid.`, "line-check-col", r, c, k, 'false', 'invalid', 'Col Conflict');
+                        return false;
+                    }
+                    let gridR = 3 * Math.floor(r / 3) + Math.floor(i / 3);
+                    let gridC = 3 * Math.floor(c / 3) + (i % 3);
+                    if (b[gridR][gridC] === k) {
+                        pushState(`isValid(): Found ${k} in 3x3 subgrid. Invalid.`, "line-check-grid", r, c, k, 'false', 'invalid', 'Grid Conflict');
+                        return false;
+                    }
+                }
+                pushState(`isValid(): Number ${k} is valid for (${r},${c})`, "line-valid-true", r, c, k, 'true', 'valid', 'Safe Placement');
+                return true;
+            }
+
+            function solve() {
+                if (states.length > stateLimit) return false;
+
+                pushState(`Entering fun() recursive level`, "line-fun", undefined, undefined, undefined, undefined, 'none', 'Iterating Board');
+
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < 9; j++) {
+                        if (board[i][j] === '.') {
+                            pushState(`Found empty cell at (${i}, ${j})`, "line-if-empty", i, j, undefined, undefined, 'checking', 'Empty Cell Found');
+                            
+                            for (let k = 1; k <= 9; k++) {
+                                let charK = k.toString();
+                                pushState(`Attempting to place '${charK}' at (${i}, ${j})`, "line-for-k", i, j, charK, '-', 'checking', 'Trying Candidates');
+                                
+                                pushState(`Checking isValid(board, ${i}, ${j}, '${charK}')`, "line-isvalid", i, j, charK, 'Evaluating...', 'checking', 'Validation Call');
+                                
+                                if (isValidLocal(board, i, j, charK)) {
+                                    board[i][j] = charK;
+                                    pushState(`Placed '${charK}' at (${i}, ${j})`, "line-place", i, j, charK, 'true', 'valid', 'Number Placed');
+                                    
+                                    // Add to recursive visual stack
+                                    callStack.push(`f(${i},${j})='${charK}'`);
+                                    
+                                    pushState(`Making deep recursive call fun(board)`, "line-recurse", i, j, charK, 'true', 'valid', 'Branching Deeper');
+                                    
+                                    if (solve() === true) {
+                                        return true;
+                                    } else {
+                                        if (states.length > stateLimit) return false; // fast abort
+                                        // Backtracking happens
+                                        callStack.pop();
+                                        board[i][j] = '.';
+                                        pushState(`Recursion failed! Backtracking cell (${i}, ${j}) to '.'`, "line-backtrack", i, j, charK, 'false', 'backtrack', 'Backtracking Upward');
+                                    }
+                                }
+                            }
+                            
+                            pushState(`Exhausted 1-9 for (${i}, ${j}). Returning false.`, "line-retfalse", i, j, undefined, '-', 'invalid', 'Dead End');
+                            return false; // all possibilities exhausted
+                        }
+                    }
+                }
+                
+                pushState(`Board complete! Returning true up the chain.`, "line-rettrue2", undefined, undefined, undefined, undefined, 'none', 'Solution Found');
+                return true;
+            }
+
+            solve();
+            
+            if (states.length >= stateLimit) {
+                pushState("State limit reached! Browser safety trigger. Please use a board with fewer empty spots.", "line-class", '-', '-', '-', '-', 'none', 'ABORTED');
+            } else {
+                pushState(`Algorithm Finished Successfully.`, "line-class", '-', '-', '-', '-', 'none', 'Done');
+            }
+        }
+
+        // Render Canvas DOM
+        function renderBoardDOM(visuals) {
+            const container = document.getElementById('canvas-board');
+            let html = '';
+            
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    let cellClasses = 'sudoku-cell';
+                    
+                    // Thicker borders for 3x3 blocks
+                    if (c % 3 === 2 && c !== 8) cellClasses += ' border-r-thick';
+                    if (r % 3 === 2 && r !== 8) cellClasses += ' border-b-thick';
+                    
+                    let content = visuals.grid[r][c] !== '.' ? visuals.grid[r][c] : '';
+                    
+                    if (visuals.initial[r][c] !== null) {
+                        cellClasses += ' cell-fixed';
+                    } else if (content !== '') {
+                        cellClasses += ' cell-placed';
+                    }
+
+                    // Highlighting
+                    if (r === visuals.activeR && c === visuals.activeC) {
+                        if (visuals.highlightType === 'checking') cellClasses += ' highlight-checking';
+                        if (visuals.highlightType === 'valid') cellClasses += ' highlight-valid';
+                        if (visuals.highlightType === 'invalid') cellClasses += ' highlight-invalid';
+                        if (visuals.highlightType === 'backtrack') cellClasses += ' highlight-backtrack';
+                    }
+
+                    html += `<div class="${cellClasses}">${content}</div>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function renderCallStackDOM(stack) {
+            const container = document.getElementById('call-stack');
+            if (stack.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-500 italic">Stack empty (Top Level)</span>`;
+                return;
+            }
+            
+            let html = '';
+            stack.forEach((frame, idx) => {
+                html += `<div class="stack-frame">${frame}</div>`;
+                if (idx < stack.length - 1) {
+                    html += `<i class="fas fa-arrow-right stack-arrow"></i>`;
+                }
+            });
+            container.innerHTML = html;
+            
+            // Auto scroll to the end (deepest recursion)
+            container.scrollLeft = container.scrollWidth;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Visuals
+            renderBoardDOM(state.visuals);
+            renderCallStackDOM(state.visuals.stack);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-row').innerText = state.vars.r;
+            document.getElementById('var-col').innerText = state.vars.c;
+            document.getElementById('var-k').innerText = state.vars.k;
+            document.getElementById('var-isvalid').innerText = state.vars.isValid;
+            
+            // Format valid string beautifully
+            let valEl = document.getElementById('var-isvalid');
+            if(state.vars.isValid === 'true') { valEl.className = 'font-mono font-bold text-sm text-success'; }
+            else if(state.vars.isValid === 'false') { valEl.className = 'font-mono font-bold text-sm text-danger'; }
+            else { valEl.className = 'font-mono font-bold text-sm text-slate-300'; }
+            
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); // Init speed based on default slider value
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
 </html>

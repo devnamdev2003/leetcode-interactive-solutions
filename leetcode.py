@@ -121,33 +121,65 @@ def format_problem_data(url, title_slug, question_data, folder_to_use, selected_
 
 def save_to_json_file(new_data, filename="data.json"):
     """
-    Reads existing JSON data, inserts the new data at the top,
-    and writes it back to the file.
+    If the problem ID already exists, update it.
+    Otherwise, insert the new problem at the top.
     """
     existing_data = []
 
     if os.path.exists(filename):
         try:
-            with open(filename, "r") as f:
+            with open(filename, "r", encoding="utf-8") as f:
                 content = f.read()
                 if content.strip():
                     existing_data = json.loads(content)
                     if not isinstance(existing_data, list):
                         existing_data = [existing_data]
         except json.JSONDecodeError:
-            print(f"{Colors.WARNING}⚠️ Warning: {filename} was corrupted or empty. Creating a new list.{Colors.ENDC}")
+            print(
+                f"{Colors.WARNING}⚠️ Warning: {filename} was corrupted. Creating a new file.{Colors.ENDC}"
+            )
             existing_data = []
 
-    existing_data.insert(0, new_data)
+    updated = False
 
-    # Ensure parent directories exist
-    os.makedirs(os.path.dirname(filename) if os.path.dirname(filename) else ".", exist_ok=True)
+    # Check whether ID already exists
+    for i, problem in enumerate(existing_data):
+        if str(problem.get("id")) == str(new_data["id"]):
+            existing_data[i] = new_data
+            updated = True
 
-    with open(filename, "w") as f:
+            print(
+                f"{Colors.WARNING}⚠️ Problem ID {new_data['id']} already exists.{Colors.ENDC}"
+            )
+            print(
+                f"{Colors.OKCYAN}🔄 Updating existing problem...{Colors.ENDC}"
+            )
+            break
+
+    # Insert at top if it doesn't exist
+    if not updated:
+        existing_data.insert(0, new_data)
+        print(
+            f"{Colors.OKGREEN}➕ New problem added.{Colors.ENDC}"
+        )
+
+    # Ensure directory exists
+    os.makedirs(
+        os.path.dirname(filename) if os.path.dirname(filename) else ".",
+        exist_ok=True,
+    )
+
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(existing_data, f, indent=2)
 
-    print(f"{Colors.OKGREEN}✅ Success! Data added to the top of {Colors.BOLD}{filename}{Colors.ENDC}")
-
+    if updated:
+        print(
+            f"{Colors.OKGREEN}✅ Existing entry updated successfully!{Colors.ENDC}"
+        )
+    else:
+        print(
+            f"{Colors.OKGREEN}✅ Data added successfully!{Colors.ENDC}"
+        )
 
 def create_solution_files(solutions, problem_title):
     """
@@ -228,15 +260,31 @@ def create_solution_files(solutions, problem_title):
     </div>
 
     <script>
+      const codeBlock = document.getElementById("code-block");
+      const copyBtn = document.querySelector(".copy-btn");
+
+      const hasCode = codeBlock.textContent.trim() !== "";
+
+      if (!hasCode) {
+        codeBlock.textContent = `
+╔══════════════════════════════╗
+║        🚧 COMING SOON 🚧      ║
+╚══════════════════════════════╝
+
+The code solution will be available soon.
+Stay tuned!
+`;
+
+        codeBlock.classList.remove("language-java");
+      }
+
+      copyBtn.style.display = hasCode ? "block" : "none";
+
       function copyCode() {
-        const code = document.getElementById("code-block").textContent;
-
-        navigator.clipboard.writeText(code).then(() => {
-          const btn = document.querySelector(".copy-btn");
-
-          btn.textContent = "Copied!";
+        navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+          copyBtn.textContent = "Copied!";
           setTimeout(() => {
-            btn.textContent = "Copy";
+            copyBtn.textContent = "Copy";
           }, 2000);
         });
       }
