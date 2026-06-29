@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Rat in a Maze (Backtracking)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Maze Board Styles */
+        .maze-container {
+            display: grid;
+            gap: 4px;
+            padding: 8px;
+            background: #1e293b;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            width: max-content;
+        }
+        
+        .maze-cell {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            transition: all 0.2s ease;
+            position: relative;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .cell-open { background-color: #f1f5f9; color: #94a3b8; }
+        .cell-blocked { background-color: #334155; color: #1e293b; }
+        .cell-visited { background-color: #6ee7b7; color: #064e3b; box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.5); }
+        .cell-target { background-color: #fcd34d; color: #b45309; }
+
+        .rat-icon {
+            color: #ef4444;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            animation: pulseRat 1s infinite alternate;
+            font-size: 24px;
+            z-index: 10;
+        }
+        
+        @keyframes pulseRat {
+            0% { transform: scale(0.9); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+
+        /* Tree SVG styles */
+        #tree-svg { transition: all 0.3s; }
+        .tree-node text { pointer-events: none; }
+        
+        /* Mini Maze Results Styles */
+        .mini-maze-container { display: grid; gap: 1px; padding: 4px; background: #1e293b; border-radius: 4px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); width: max-content; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-paw"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Rat in a Maze (Backtracking)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Maze (2D JSON Array) - 1: Open, 0: Blocked</label>
+            <input type="text" id="input-maze" class="input-field" value="[[1, 0, 0, 0], [1, 1, 0, 1], [1, 1, 0, 0], [0, 1, 1, 1]]">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a valid NxN JSON array of 1s and 0s.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-6 transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <div class="flex flex-col gap-10 items-center w-full pt-8 pb-16">
+                        
+                        <!-- Visual Maze (Top Middle) -->
+                        <div class="flex flex-col items-center shrink-0 w-full">
+                            <div class="flex items-center gap-2 mb-4">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[][]</span> maze</h3>
+                            </div>
+                            <div id="canvas-maze" class="maze-container">
+                                <!-- Maze generated via JS -->
+                            </div>
+                            <div class="mt-4 flex gap-4 text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                                <div class="flex items-center gap-1"><div class="w-3 h-3 bg-slate-200 rounded-sm"></div> Open</div>
+                                <div class="flex items-center gap-1"><div class="w-3 h-3 bg-slate-700 rounded-sm"></div> Blocked</div>
+                                <div class="flex items-center gap-1"><div class="w-3 h-3 bg-emerald-300 rounded-sm"></div> Visited</div>
+                            </div>
+                        </div>
+
+                        <!-- Recursion Tree (Below Maze) -->
+                        <div class="flex flex-col items-center w-full shrink-0 h-[450px]">
+                            <div class="flex items-center gap-2 mb-4">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i class="fas fa-sitemap text-primary mr-1"></i> Function Call Tree</h3>
+                            </div>
+                            <div class="w-full max-w-4xl h-full overflow-auto bg-slate-900/60 rounded-xl border border-slate-700 relative shadow-inner">
+                                <svg id="tree-svg" class="absolute top-0 left-0" style="min-width: 100%; min-height: 100%;">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="8" markerHeight="8" refX="15" refY="4" orient="auto">
+                                            <path d="M0,0 L0,8 L8,4 z" fill="#64748b" />
+                                        </marker>
+                                        <filter id="glow">
+                                            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                                            <feMerge>
+                                                <feMergeNode in="coloredBlur"/>
+                                                <feMergeNode in="SourceGraphic"/>
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <!-- Dynamic content inserted via JS -->
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Results / Solutions Area -->
+                        <div id="solutions-area" class="w-full flex flex-col items-center hidden mt-4">
+                            <div class="flex items-center gap-2 mb-6">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-success">List&lt;String&gt;</span> ans</h3>
+                                <span class="text-[10px] text-slate-500">(Valid Paths Found)</span>
+                            </div>
+                            <div id="solutions-container" class="flex flex-wrap gap-6 justify-center w-full max-w-5xl px-4">
+                                <!-- Solutions generated via JS -->
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Row (i)</span>
+                                <span id="var-i" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Col (j)</span>
+                                <span id="var-j" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                            
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Path (s)</span>
+                                <div id="var-path" class="font-mono text-syntaxYellow bg-slate-900 px-2 py-1 rounded border border-slate-700 min-h-[30px] break-all"></div>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Valid Solutions Found</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span id="var-solutions" class="font-mono text-success text-xl font-bold">0</span>
+                                </div>
+                                <div id="var-ans-list" class="text-xs text-slate-400 mt-2 font-mono break-all leading-relaxed"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-entry" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> ArrayList&lt;String&gt; ratInMaze(<span class="text-syntaxPink">int</span>[][] maze) {</div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content">        ArrayList&lt;String&gt; ans = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = maze.length;</div></div>
+                        <div id="line-initial-check" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">if</span> (maze[<span class="text-syntaxPink">0</span>][<span class="text-syntaxPink">0</span>] == <span class="text-syntaxPink">0</span> || maze[n - <span class="text-syntaxPink">1</span>][n - <span class="text-syntaxPink">1</span>] == <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-initial-ret" class="debug-line"><div class="line-num">6</div><div class="code-content">            <span class="text-syntaxPink">return</span> ans;</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">        }</div></div>
+                        <div id="line-init-call" class="debug-line"><div class="line-num">8</div><div class="code-content">        fun(maze, <span class="text-syntaxPink">new int</span>[n][n], <span class="text-syntaxPink">new</span> StringBuilder(), ans, <span class="text-syntaxPink">0</span>, <span class="text-syntaxPink">0</span>);</div></div>
+                        <div id="line-ret-ans" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">return</span> ans;</div></div>
+                        <div class="debug-line"><div class="line-num">10</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content"></div></div>
+                        <div id="line-fun-entry" class="debug-line"><div class="line-num">12</div><div class="code-content">    <span class="text-syntaxPink">public void</span> fun(<span class="text-syntaxPink">int</span>[][] maze, <span class="text-syntaxPink">int</span>[][] visited, StringBuilder s, List ans, <span class="text-syntaxPink">int</span> i, <span class="text-syntaxPink">int</span> j) {</div></div>
+                        <div class="debug-line"><div class="line-num">13</div><div class="code-content">        <span class="text-syntaxPink">int</span> n = maze.length;</div></div>
+                        <div id="line-base-check" class="debug-line"><div class="line-num">14</div><div class="code-content">        <span class="text-syntaxPink">if</span> (i &lt; <span class="text-syntaxPink">0</span> || i &gt;= n || j &lt; <span class="text-syntaxPink">0</span> || j &gt;= n || maze[i][j] == <span class="text-syntaxPink">0</span> || visited[i][j] == <span class="text-syntaxPink">1</span>) {</div></div>
+                        <div id="line-base-ret" class="debug-line"><div class="line-num">15</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">        }</div></div>
+                        <div id="line-sol-check" class="debug-line"><div class="line-num">17</div><div class="code-content">        <span class="text-syntaxPink">if</span> (i == n - <span class="text-syntaxPink">1</span> && j == n - <span class="text-syntaxPink">1</span>) {</div></div>
+                        <div id="line-sol-add" class="debug-line"><div class="line-num">18</div><div class="code-content">            ans.add(s.toString());</div></div>
+                        <div id="line-sol-ret" class="debug-line"><div class="line-num">19</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">        }</div></div>
+                        <div id="line-visited-mark" class="debug-line"><div class="line-num">21</div><div class="code-content">        visited[i][j] = <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content"></div></div>
+                        <div id="line-call-D" class="debug-line"><div class="line-num">23</div><div class="code-content">        s.append(<span class="text-syntaxGreen">'D'</span>);</div></div>
+                        <div id="line-fun-D" class="debug-line"><div class="line-num">24</div><div class="code-content">        fun(maze, visited, s, ans, i + <span class="text-syntaxPink">1</span>, j);</div></div>
+                        <div id="line-backtrack-D" class="debug-line"><div class="line-num">25</div><div class="code-content">        s.deleteCharAt(s.length() - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">26</div><div class="code-content"></div></div>
+                        <div id="line-call-L" class="debug-line"><div class="line-num">27</div><div class="code-content">        s.append(<span class="text-syntaxGreen">'L'</span>);</div></div>
+                        <div id="line-fun-L" class="debug-line"><div class="line-num">28</div><div class="code-content">        fun(maze, visited, s, ans, i, j - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div id="line-backtrack-L" class="debug-line"><div class="line-num">29</div><div class="code-content">        s.deleteCharAt(s.length() - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">30</div><div class="code-content"></div></div>
+                        <div id="line-call-R" class="debug-line"><div class="line-num">31</div><div class="code-content">        s.append(<span class="text-syntaxGreen">'R'</span>);</div></div>
+                        <div id="line-fun-R" class="debug-line"><div class="line-num">32</div><div class="code-content">        fun(maze, visited, s, ans, i, j + <span class="text-syntaxPink">1</span>);</div></div>
+                        <div id="line-backtrack-R" class="debug-line"><div class="line-num">33</div><div class="code-content">        s.deleteCharAt(s.length() - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">34</div><div class="code-content"></div></div>
+                        <div id="line-call-U" class="debug-line"><div class="line-num">35</div><div class="code-content">        s.append(<span class="text-syntaxGreen">'U'</span>);</div></div>
+                        <div id="line-fun-U" class="debug-line"><div class="line-num">36</div><div class="code-content">        fun(maze, visited, s, ans, i - <span class="text-syntaxPink">1</span>, j);</div></div>
+                        <div id="line-backtrack-U" class="debug-line"><div class="line-num">37</div><div class="code-content">        s.deleteCharAt(s.length() - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">38</div><div class="code-content"></div></div>
+                        <div id="line-unmark" class="debug-line"><div class="line-num">39</div><div class="code-content">        visited[i][j] = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">40</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">41</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution uses a classic <strong>Backtracking</strong> approach (Depth-First Search) to find all possible paths from the top-left <code>(0,0)</code> to the bottom-right <code>(N-1, N-1)</code> of a matrix.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Step 1: Boundary & Validity Checks</strong><br>
+                            At each cell, the algorithm checks if it is out of bounds, if the cell is blocked (<code>maze[i][j] == 0</code>), or if it has already been visited in the current path. If any of these are true, it trims the branch (returns).
+                        </li>
+                        <li>
+                            <strong>Step 2: Base Case (Destination Reached)</strong><br>
+                            If the rat reaches <code>(N-1, N-1)</code>, it has found a valid path. The current directional string <code>s</code> is added to the answers list, and it returns to explore other branches.
+                        </li>
+                        <li>
+                            <strong>Step 3: Mark & Explore (DLRU)</strong><br>
+                            The cell is marked as visited. Then, it recursively calls itself in Lexicographical order: <strong>D</strong>own, <strong>L</strong>eft, <strong>R</strong>ight, <strong>U</strong>p. Appending the respective character to the path string.
+                        </li>
+                        <li>
+                            <strong>Step 4: Backtrack</strong><br>
+                            After exploring all 4 directions from a cell, it removes the character from the string and <strong>unmarks</strong> the cell (<code>visited[i][j] = 0</code>). This is crucial; it frees up the cell so it can be used in an entirely different path originating from another branch.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(4^(N²))</span>
+                        <p class="text-xs text-slate-400">At every cell, the rat has up to 4 choices (D, L, R, U). In the absolute worst-case scenario (an empty maze where it spirals everywhere), it can explore an exponential number of paths bounded by the total number of cells $N \times N$. While practically faster due to pruning and obstacles, $4^{N^2}$ is the theoretical loose upper bound. Path length is at most $N^2$, taking $O(N^2)$ to copy strings, making it $O(4^{N^2} \times N^2)$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N²)</span>
+                        <p class="text-xs text-slate-400">The auxiliary space is dominated by the recursion stack and the <code>visited</code> matrix. The recursion depth can go up to $N \times N$ if the path snakes through every single cell. The <code>visited</code> array is also size $N \times N$. Therefore, auxiliary space is strictly bounded to $O(N^2)$, excluding the space required to hold the final answers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State Management
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 800; 
+
+        // Tree Logic variables
+        let fullTreeNodes = [];
+        let fullTreeEdges = [];
+        
+        function updateSpeed(val) {
+            animSpeed = 2500 - (val * 23); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const inputStr = document.getElementById('input-maze').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                let maze = JSON.parse(inputStr);
+                if (!Array.isArray(maze) || maze.length === 0 || !Array.isArray(maze[0])) throw new Error();
+                let n = maze.length;
+                for(let i=0; i<n; i++) {
+                    if(maze[i].length !== n) throw new Error("Maze must be NxN");
+                }
+
+                if (n > 6) {
+                    alert("Warning: Maze size > 6 might generate too many branches for visualization. The browser may hang. Proceeding with caution.");
+                }
+
+                generateStates(maze);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Algorithm Simulator & Tree Generator
+        function generateStates(maze) {
+            states = [];
+            fullTreeNodes = [];
+            fullTreeEdges = [];
+            
+            let n = maze.length;
+            let visited = Array.from({length: n}, () => Array(n).fill(0));
+            let ans = [];
+            let s = "";
+            let nodeCounter = 0;
+            
+            let visibleNodes = new Set();
+            let visibleEdges = new Set();
+            let nodeStatuses = {};
+
+            function pushNode(id, i, j) {
+                fullTreeNodes.push({ id, i, j, x: 0, y: 0 });
+            }
+            function pushEdge(from, to, label) {
+                fullTreeEdges.push({ from, to, label });
+            }
+
+            function addState(msg, line, activeId) {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: { i: activeId ? activeId.split('_')[1] : '-', j: '-', s: s, ans: [...ans] }, 
+                    // Wait, we can extract i,j from the activeId directly to show in Vars panel!
+                    visuals: {
+                        n: n,
+                        maze: maze.map(row => [...row]),
+                        visited: visited.map(row => [...row]),
+                        ratPos: activeId ? [
+                            fullTreeNodes.find(x => x.id === activeId).i, 
+                            fullTreeNodes.find(x => x.id === activeId).j
+                        ] : [-1,-1],
+                        activeNodeId: activeId,
+                        visibleNodes: Array.from(visibleNodes),
+                        visibleEdges: Array.from(visibleEdges),
+                        nodeStatus: { ...nodeStatuses }
+                    }
+                });
+            }
+
+            addState(`Start Simulation`, 'line-entry', null);
+            
+            if (maze[0][0] === 0 || maze[n-1][n-1] === 0) {
+                addState(`Initial check failed: Start or End is blocked.`, 'line-initial-check', null);
+                addState(`Returning empty answer array.`, 'line-initial-ret', null);
+                return;
+            }
+            
+            addState(`Initial checks passed. Starting recursion...`, 'line-init-call', null);
+
+            function fun(i, j, parentId, dirStr) {
+                let myId = 'node_' + (nodeCounter++);
+                visibleNodes.add(myId);
+                nodeStatuses[myId] = 'active';
+
+                pushNode(myId, i, j);
+                if (parentId !== null) {
+                    let edgeId = `${parentId}->${myId}`;
+                    pushEdge(parentId, myId, dirStr);
+                    visibleEdges.add(edgeId);
+                }
+
+                addState(`fun(i=${i}, j=${j}) called. Path: "${s}"`, 'line-fun-entry', myId);
+
+                if (i < 0 || i >= n || j < 0 || j >= n || maze[i][j] === 0 || visited[i][j] === 1) {
+                    nodeStatuses[myId] = 'dead-end';
+                    addState(`Base case failed (OOB/Blocked/Visited). Trimming branch.`, 'line-base-check', myId);
+                    addState(`Returning back to previous state.`, 'line-base-ret', parentId || myId);
+                    return;
+                }
+
+                if (i === n - 1 && j === n - 1) {
+                    ans.push(s);
+                    nodeStatuses[myId] = 'solution';
+                    addState(`Destination reached!`, 'line-sol-check', myId);
+                    addState(`Added "${s}" to answers list. Returning.`, 'line-sol-add', myId);
+                    addState(`Returning back...`, 'line-sol-ret', parentId || myId);
+                    return;
+                }
+
+                visited[i][j] = 1;
+                addState(`Marked (${i},${j}) as visited.`, 'line-visited-mark', myId);
+
+                // D
+                addState(`Appending 'D' and calling recursively.`, 'line-call-D', myId);
+                s += 'D';
+                fun(i + 1, j, myId, 'D');
+                s = s.slice(0, -1);
+                addState(`Backtracked from 'D' branch. Removing 'D'.`, 'line-backtrack-D', myId);
+
+                // L
+                addState(`Appending 'L' and calling recursively.`, 'line-call-L', myId);
+                s += 'L';
+                fun(i, j - 1, myId, 'L');
+                s = s.slice(0, -1);
+                addState(`Backtracked from 'L' branch. Removing 'L'.`, 'line-backtrack-L', myId);
+
+                // R
+                addState(`Appending 'R' and calling recursively.`, 'line-call-R', myId);
+                s += 'R';
+                fun(i, j + 1, myId, 'R');
+                s = s.slice(0, -1);
+                addState(`Backtracked from 'R' branch. Removing 'R'.`, 'line-backtrack-R', myId);
+
+                // U
+                addState(`Appending 'U' and calling recursively.`, 'line-call-U', myId);
+                s += 'U';
+                fun(i - 1, j, myId, 'U');
+                s = s.slice(0, -1);
+                addState(`Backtracked from 'U' branch. Removing 'U'.`, 'line-backtrack-U', myId);
+
+                visited[i][j] = 0;
+                nodeStatuses[myId] = 'visited';
+                addState(`Unmarked (${i},${j}). Returning to parent.`, 'line-unmark', parentId);
+            }
+
+            fun(0, 0, null, '');
+            addState(`Algorithm Finished. Returning Answers.`, 'line-ret-ans', null);
+            
+            // Post-Process: Compute Tree Layout
+            computeTreeLayout();
+        }
+
+        function computeTreeLayout() {
+            if (fullTreeNodes.length === 0) return;
+            
+            // Map children
+            let childrenMap = {};
+            fullTreeNodes.forEach(n => childrenMap[n.id] = []);
+            fullTreeEdges.forEach(e => childrenMap[e.from].push(e.to));
+
+            // Compute widths
+            function getWidth(id) {
+                if (childrenMap[id].length === 0) return 60; // Leaf min width
+                let w = 0;
+                childrenMap[id].forEach(c => w += getWidth(c));
+                return Math.max(w, 60);
+            }
+
+            // Assign positions
+            function setPos(id, xLeft, yDepth) {
+                let node = fullTreeNodes.find(n => n.id === id);
+                let totalW = getWidth(id);
+                node.x = xLeft + (totalW / 2);
+                node.y = yDepth * 60 + 40; 
+                
+                let currX = xLeft;
+                childrenMap[id].forEach(c => {
+                    let cw = getWidth(c);
+                    setPos(c, currX, yDepth + 1);
+                    currX += cw;
+                });
+            }
+            
+            setPos('node_0', 0, 0);
+
+            // Normalize SVG Viewbox
+            let minX = 0, maxX = 0, maxY = 0;
+            fullTreeNodes.forEach(n => {
+                if(n.x < minX) minX = n.x;
+                if(n.x > maxX) maxX = n.x;
+                if(n.y > maxY) maxY = n.y;
+            });
+
+            let xOffset = -minX + 40; 
+            fullTreeNodes.forEach(n => n.x += xOffset);
+            
+            let svgW = maxX + xOffset + 40;
+            let svgH = maxY + 80;
+            
+            const svgEl = document.getElementById('tree-svg');
+            svgEl.style.minWidth = Math.max(svgW, 300) + 'px';
+            svgEl.style.minHeight = Math.max(svgH, 300) + 'px';
+        }
+
+        // Render Canvas DOM
+        function renderMazeDOM(visuals) {
+            const container = document.getElementById('canvas-maze');
+            const n = visuals.n;
+            
+            container.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+            
+            let html = '';
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
+                    let isBlocked = visuals.maze[r][c] === 0;
+                    let isVisited = visuals.visited[r][c] === 1;
+                    
+                    let cellClass = isBlocked ? 'cell-blocked' : 'cell-open';
+                    if (isVisited && !isBlocked) cellClass += ' cell-visited';
+                    if (r === n-1 && c === n-1) cellClass = 'cell-target';
+                    
+                    let content = '';
+                    if (r === visuals.ratPos[0] && c === visuals.ratPos[1]) {
+                        content = '<i class="fas fa-paw rat-icon"></i>';
+                    } else if (r === n-1 && c === n-1) {
+                        content = '<i class="fas fa-flag text-b45309 text-sm opacity-50"></i>';
+                    }
+
+                    html += `<div class="maze-cell ${cellClass}">${content}</div>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function renderTreeSVG(visuals) {
+            let svgHtml = `
+                <defs>
+                    <marker id="arrow" markerWidth="6" markerHeight="6" refX="17" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L6,3 z" fill="#64748b" />
+                    </marker>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                <g class="edges">
+            `;
+
+            // Draw Edges
+            visuals.visibleEdges.forEach(edgeStr => {
+                let [from, to] = edgeStr.split('->');
+                let n1 = fullTreeNodes.find(n => n.id === from);
+                let n2 = fullTreeNodes.find(n => n.id === to);
+                let edgeData = fullTreeEdges.find(e => e.from === from && e.to === to);
+                
+                if(!n1 || !n2) return;
+
+                svgHtml += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />`;
+                
+                let mx = (n1.x + n2.x)/2;
+                let my = (n1.y + n2.y)/2;
+                svgHtml += `<rect x="${mx-6}" y="${my-8}" width="12" height="16" fill="#0b1120" rx="2" />`;
+                svgHtml += `<text x="${mx}" y="${my+4}" fill="#60a5fa" font-size="10" text-anchor="middle" font-family="monospace" font-weight="bold">${edgeData.label}</text>`;
+            });
+            svgHtml += `</g><g class="tree-nodes">`;
+
+            // Draw Nodes
+            visuals.visibleNodes.forEach(nodeId => {
+                let n = fullTreeNodes.find(n => n.id === nodeId);
+                if(!n) return;
+
+                let status = visuals.nodeStatus[nodeId];
+                let bg = '#1e293b'; let stroke = '#334155';
+                
+                if (status === 'active') { bg = '#3b82f6'; stroke = '#60a5fa'; }
+                else if (status === 'dead-end') { bg = '#ef4444'; stroke = '#fca5a5'; }
+                else if (status === 'solution') { bg = '#10b981'; stroke = '#6ee7b7'; }
+                else if (status === 'visited') { bg = '#475569'; stroke = '#94a3b8'; }
+
+                let radius = 14;
+                let filter = (nodeId === visuals.activeNodeId) ? 'filter="url(#glow)"' : '';
+
+                svgHtml += `<g class="tree-node">
+                    <circle cx="${n.x}" cy="${n.y}" r="${radius}" fill="${bg}" stroke="${stroke}" stroke-width="2" ${filter}/>
+                    <text x="${n.x}" y="${n.y+3}" fill="white" font-size="9" text-anchor="middle" font-weight="bold">${n.i},${n.j}</text>
+                </g>`;
+            });
+
+            svgHtml += `</g>`;
+            document.getElementById('tree-svg').innerHTML = svgHtml;
+            
+            // Auto scroll to active node
+            if(visuals.activeNodeId) {
+                let activeN = fullTreeNodes.find(n => n.id === visuals.activeNodeId);
+                if(activeN) {
+                    let container = document.getElementById('tree-svg').parentElement;
+                    container.scrollTo({
+                        left: activeN.x - container.clientWidth/2,
+                        top: activeN.y - container.clientHeight/2,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+
+        function renderSolutionsDOM(ans, mazeTemplate) {
+            const containerArea = document.getElementById('solutions-area');
+            const container = document.getElementById('solutions-container');
+            
+            if (!ans || ans.length === 0) {
+                containerArea.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+            
+            containerArea.classList.remove('hidden');
+            let html = '';
+            const n = mazeTemplate.length;
+            
+            ans.forEach((pathStr, index) => {
+                let boardHtml = `<div class="flex flex-col items-center"><div class="text-[10px] text-slate-400 font-mono mb-2">Path ${index + 1}: <span class="text-syntaxYellow">${pathStr}</span></div><div class="mini-maze-container" style="grid-template-columns: repeat(${n}, 1fr)">`;
+                
+                let pathCells = new Set();
+                let r = 0, c = 0;
+                pathCells.add(`0,0`);
+                for(let char of pathStr) {
+                    if (char === 'D') r++;
+                    else if (char === 'U') r--;
+                    else if (char === 'R') c++;
+                    else if (char === 'L') c--;
+                    pathCells.add(`${r},${c}`);
+                }
+
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        let isBlocked = mazeTemplate[i][j] === 0;
+                        let isPath = pathCells.has(`${i},${j}`);
+                        let cellClass = isBlocked ? 'bg-slate-700' : 'bg-slate-200';
+                        if (isPath && !isBlocked) cellClass = 'bg-success shadow-[inset_0_0_8px_rgba(16,185,129,0.8)]';
+                        
+                        let content = (i===n-1 && j===n-1) ? '<i class="fas fa-flag text-b45309 text-[8px] opacity-50"></i>' : '';
+                        if(i===0 && j===0) content = '<i class="fas fa-paw text-white text-[8px]"></i>';
+
+                        boardHtml += `<div class="w-4 h-4 rounded-sm flex items-center justify-center ${cellClass}">${content}</div>`;
+                    }
+                }
+                boardHtml += `</div></div>`;
+                html += boardHtml;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM & SVG
+            renderMazeDOM(state.visuals);
+            renderTreeSVG(state.visuals);
+            renderSolutionsDOM(state.vars.ans, state.visuals.maze);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            // Find current i,j from active node
+            let currI = '-';
+            let currJ = '-';
+            if (state.visuals.activeNodeId) {
+                let actN = fullTreeNodes.find(n => n.id === state.visuals.activeNodeId);
+                if(actN) {
+                    currI = actN.i;
+                    currJ = actN.j;
+                }
+            }
+
+            document.getElementById('var-i').innerText = currI;
+            document.getElementById('var-j').innerText = currJ;
+            document.getElementById('var-path').innerText = state.vars.s || '""';
+            document.getElementById('var-solutions').innerText = state.vars.ans.length;
+            
+            // Format Answers
+            let ansHtml = state.vars.ans.map((a, i) => `<span class="bg-emerald-900/40 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-800/50 mr-1 mb-1 inline-block">${i+1}: ${a}</span>`).join('');
+            document.getElementById('var-ans-list').innerHTML = ansHtml || 'No paths yet...';
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
