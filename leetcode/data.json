@@ -1,5 +1,23 @@
 [
   {
+    "id": "131",
+    "title": "Palindrome Partitioning",
+    "difficulty": "Medium",
+    "tags": [
+      "String",
+      "Dynamic Programming",
+      "Backtracking"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/palindrome-partitioning/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "backtracking/palindrome-partitioning.html"
+      }
+    ]
+  },
+  {
     "id": "17",
     "title": "Letter Combinations of a Phone Number",
     "difficulty": "Medium",
