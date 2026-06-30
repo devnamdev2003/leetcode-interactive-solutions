@@ -57,7 +57,7 @@
         /* Array Block Styles */
         .array-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
         .array-box { 
-            width: 48px; height: 48px; 
+            width: 44px; height: 44px; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             background: #1e293b; border: 1px solid #334155; border-radius: 6px;
             font-family: 'Fira Code', monospace; font-size: 16px; font-weight: 600;
@@ -88,26 +88,31 @@
         
         body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
         body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
-
-        .math-box {
-            background: #0f1423;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 16px;
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 280px;
-        }
         
         .ans-box {
             font-size: 28px; letter-spacing: 4px; font-weight: bold; color: #10b981;
             background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 8px 24px; border-radius: 8px;
             min-width: 60px; min-height: 56px; display: inline-flex; align-items: center; justify-content: center;
         }
+
+        /* Logic Tree Specific Styles */
+        .tree-node-enter { animation: nodePopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes nodePopIn { from { opacity: 0; transform: scale(0.8) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
 <body class="text-slate-300">
+
+    <!-- Global SVG Definitions for Arrows -->
+    <svg width="0" height="0" class="absolute pointer-events-none">
+        <defs>
+            <marker id="arrow-gray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
+            </marker>
+            <marker id="arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#fcd34d" />
+            </marker>
+        </defs>
+    </svg>
 
     <!-- Top Header -->
     <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
@@ -176,7 +181,7 @@
                 </div>
 
                 <!-- Canvas Content -->
-                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300 items-center pt-10">
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-6 transition-opacity duration-300 items-center pt-8">
                     
                     <!-- Status Overlay -->
                     <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
@@ -185,39 +190,49 @@
                         <span id="step-msg">Waiting to begin...</span>
                     </div>
 
-                    <!-- Factorials Array -->
-                    <div class="flex flex-col items-center w-full max-w-2xl mt-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[]</span> fact</h3>
-                            <span class="text-[10px] text-slate-500">(Precomputed Blocks sizes)</span>
+                    <!-- Layout Container for Arrays -->
+                    <div class="flex gap-8 w-full max-w-2xl justify-center mb-2">
+                        <!-- Factorials Array -->
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[]</span> fact</h3>
+                            </div>
+                            <div id="canvas-fact" class="array-container mb-0" style="gap: 4px;">
+                                <!-- Populated via JS -->
+                            </div>
                         </div>
-                        <div id="canvas-fact" class="array-container">
-                            <!-- Populated via JS -->
+                        
+                        <!-- Numbers List -->
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">List</span> numbers</h3>
+                            </div>
+                            <div id="canvas-nums" class="array-container mb-0" style="min-height: 44px; gap: 4px;">
+                                <!-- Populated via JS -->
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- Numbers List -->
-                    <div class="flex flex-col items-center w-full max-w-2xl mt-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">List&lt;Integer&gt;</span> numbers</h3>
-                            <span class="text-[10px] text-slate-500">(Available Digits)</span>
+
+                    <!-- Dynamic Logic Tree Area -->
+                    <div id="canvas-tree-area" class="w-full flex-col items-center hidden relative flex-grow min-h-[220px]">
+                        <!-- Dynamic SVG lines rendered here -->
+                        <svg id="tree-svg" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"></svg>
+                        
+                        <!-- Tree Root -->
+                        <div id="tree-root" class="bg-bgPanel border border-borderMain shadow-[0_0_15px_rgba(59,130,246,0.15)] rounded-lg p-3 z-10 text-center font-mono flex flex-col items-center mb-10 tree-node-enter">
+                            <span class="text-slate-300 font-bold mb-1"><span class="text-slate-400 font-sans text-[10px] uppercase tracking-wider block mb-0.5">Finding Target</span> K = <span id="tree-k-val" class="text-blue-400 text-lg">0</span></span>
+                            <span class="text-xs bg-codeBg px-2 py-1 rounded text-slate-400 border border-borderMain">Block Size: <span id="tree-block-size" class="text-syntaxPink font-bold">-</span></span>
                         </div>
-                        <div id="canvas-nums" class="array-container" style="min-height: 60px;">
+                        
+                        <!-- Tree Branches/Leaves -->
+                        <div id="tree-leaves" class="flex justify-center gap-3 sm:gap-6 w-full z-10 flex-wrap px-4">
                             <!-- Populated via JS -->
                         </div>
                     </div>
 
-                    <!-- Math Evaluation area -->
-                    <div id="canvas-math" class="math-box hidden opacity-0 transition-opacity duration-300">
-                        <span class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 font-bold block">Current Calculation</span>
-                        <div class="font-mono text-sm space-y-2 text-center" id="math-eval-text">
-                            <!-- Math strings -->
-                        </div>
-                    </div>
-
-                    <!-- Answer String -->
-                    <div class="flex flex-col items-center w-full mt-4">
-                        <div class="flex items-center gap-2 mb-3">
+                    <!-- Answer String (Pinned Bottom) -->
+                    <div class="flex flex-col items-center w-full mt-auto pt-6 border-t border-borderMain/50">
+                        <div class="flex items-center gap-2 mb-2">
                             <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">StringBuilder</span> ans</h3>
                         </div>
                         <div id="canvas-ans" class="ans-box">
@@ -419,6 +434,8 @@
                 resizerV.style.display = 'none';
                 icon.className = 'fas fa-chevron-left text-[13px]'; 
             }
+            // Redraw SVG arrows after transition
+            setTimeout(() => { if(states[currState]?.visuals?.treeData) drawTreeLines(states[currState].visuals.treeData); }, 310);
         }
 
         function toggleFocusMode() {
@@ -440,12 +457,17 @@
                 icon.classList.replace('fa-compress', 'fa-expand');
                 icon.classList.remove('text-primary');
             }
+            // Redraw SVG arrows after layout shift
+            setTimeout(() => { if(states[currState]?.visuals?.treeData) drawTreeLines(states[currState].visuals.treeData); }, 310);
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && isFocusMode) {
-                toggleFocusMode();
-            }
+            if (e.key === 'Escape' && isFocusMode) toggleFocusMode();
+        });
+
+        // Ensure tree arrows redraw when window resizes
+        window.addEventListener('resize', () => {
+            if(states[currState]?.visuals?.treeData) drawTreeLines(states[currState].visuals.treeData);
         });
 
         let panelsState = { vars: true, code: true };
@@ -509,6 +531,9 @@
                     rightPanelWidth = newWidth;
                     panelRight.style.flex = `0 0 ${newWidth}px`;
                     panelRight.style.width = `${newWidth}px`;
+                    
+                    // Draw lines actively during resize
+                    if(states[currState]?.visuals?.treeData) drawTreeLines(states[currState].visuals.treeData);
                 }
 
                 if (isResizingH) {
@@ -527,6 +552,7 @@
                     isResizingV = false;
                     document.body.classList.remove('resizing');
                     resizerV.classList.remove('active');
+                    if(states[currState]?.visuals?.treeData) drawTreeLines(states[currState].visuals.treeData);
                 }
                 if (isResizingH) {
                     isResizingH = false;
@@ -559,6 +585,7 @@
             } else {
                 if (!isFocusMode) inputsBar.style.display = 'flex';
                 controlBar.style.display = 'flex';
+                if(states[currState]?.visuals?.treeData) drawTreeLines(states[currState].visuals.treeData);
             }
         }
 
@@ -625,10 +652,11 @@
             let factArr = [];
             let numbersArr = [];
             let ansStr = "";
+            let treeData = null;
             
             let vrs = { n: n_val, k_display: '-', i: '-', perRowSize: '-', index: '-' };
 
-            const pushState = (msg, line, activeFact = -1, activeNum = -1, pickNum = -1, mathEval = null) => {
+            const pushState = (msg, line, activeFact = -1, activeNum = -1, pickNum = -1) => {
                 states.push({
                     msg: msg,
                     activeLine: line,
@@ -640,7 +668,7 @@
                         activeFact: activeFact,
                         activeNum: activeNum,
                         pickNum: pickNum,
-                        mathEval: mathEval
+                        treeData: treeData ? JSON.parse(JSON.stringify(treeData)) : null
                     }
                 });
             };
@@ -676,8 +704,7 @@
             let originalK = k_input;
             let currentK = originalK - 1;
             vrs.k_display = currentK;
-            pushState(`Convert K to 0-indexed: K = ${originalK} - 1 = ${currentK}`, "line-12", -1, -1, -1, 
-                `<span class="text-slate-400">0-Index K</span> = <span class="text-blue-400">${originalK} - 1 = ${currentK}</span>`);
+            pushState(`Convert K to 0-indexed: K = ${originalK} - 1 = ${currentK}`, "line-12");
 
             pushState(`Initialize empty answer builder`, "line-13");
 
@@ -687,27 +714,32 @@
 
                 let perRowSize = factArr[i - 1];
                 vrs.perRowSize = perRowSize;
-                pushState(`Block size (perRowSize) = fact[${i - 1}] = ${perRowSize}`, "line-15", i - 1, -1, -1,
-                    `<span class="text-slate-400">perRowSize</span> = <span class="text-syntaxPink">fact[${i-1}] = ${perRowSize}</span>`);
+                
+                // Set up the Tree Logic visual!
+                treeData = {
+                    k: currentK,
+                    perRowSize: perRowSize,
+                    numbers: [...numbersArr],
+                    selectedIndex: -1
+                };
+                pushState(`Block size (perRowSize) = fact[${i - 1}] = ${perRowSize}`, "line-15", i - 1, -1, -1);
 
                 let index = Math.floor(currentK / perRowSize);
                 vrs.index = index;
-                pushState(`Find list index: ${currentK} / ${perRowSize} = ${index}`, "line-16", -1, index, -1,
-                    `<span class="text-slate-400">index</span> = <span class="text-blue-400">${currentK}</span> / <span class="text-syntaxPink">${perRowSize}</span> = <span class="text-syntaxYellow">${index}</span>`
-                );
+                treeData.selectedIndex = index;
+                pushState(`Find list index: ${currentK} / ${perRowSize} = ${index}`, "line-16", -1, index, -1);
 
                 let pickedDigit = numbersArr[index];
                 ansStr += pickedDigit;
                 pushState(`Append number at index ${index} (${pickedDigit}) to answer`, "line-17", -1, -1, index);
 
                 numbersArr.splice(index, 1);
-                pushState(`Remove ${pickedDigit} from available numbers`, "line-18", -1, index, -1, 
-                    `<span class="text-slate-400">Removed</span> <span class="text-danger">${pickedDigit}</span>`);
+                pushState(`Remove ${pickedDigit} from available numbers`, "line-18", -1, index, -1);
 
                 currentK = currentK % perRowSize;
                 vrs.k_display = currentK;
-                pushState(`Update K: ${vrs.index * perRowSize} permutations skipped. New K = ${currentK}`, "line-19", -1, -1, -1,
-                    `<span class="text-slate-400">K</span> = <span class="text-blue-400">K % ${perRowSize}</span> = <span class="text-blue-400">${currentK}</span>`);
+                treeData = null; // Hide tree for next calculation
+                pushState(`Update K: ${index * perRowSize} permutations skipped. New K = ${currentK}`, "line-19");
                 
                 vrs.perRowSize = '-';
                 vrs.index = '-';
@@ -716,6 +748,42 @@
             vrs.i = '-';
             pushState(`Loop finished. Answer sequence complete.`, "line-20");
             pushState(`Returning final sequence: "${ansStr}"`, "line-21");
+        }
+
+        // Draws dynamic SVG lines connecting the logic tree root to branches
+        function drawTreeLines(treeData) {
+            const root = document.getElementById('tree-root');
+            const svg = document.getElementById('tree-svg');
+            const container = document.getElementById('canvas-tree-area');
+
+            if (!root || !svg || !container || !treeData) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const rootRect = root.getBoundingClientRect();
+
+            // Point from the bottom middle of the Root node
+            const startX = rootRect.left + rootRect.width / 2 - containerRect.left;
+            const startY = rootRect.bottom - containerRect.top + 2;
+
+            let svgHtml = '';
+            
+            treeData.numbers.forEach((num, i) => {
+                const leaf = document.getElementById(`tree-leaf-${i}`);
+                if (leaf) {
+                    const leafRect = leaf.getBoundingClientRect();
+                    // Point to the top middle of the child node
+                    const endX = leafRect.left + leafRect.width / 2 - containerRect.left;
+                    const endY = leafRect.top - containerRect.top - 4; // leave room for arrow marker
+
+                    const isActive = (i === treeData.selectedIndex);
+                    const strokeColor = isActive ? '#fcd34d' : '#334155';
+                    const strokeWidth = isActive ? '2' : '1.5';
+                    const marker = isActive ? 'url(#arrow-active)' : 'url(#arrow-gray)';
+
+                    svgHtml += `<line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" stroke="${strokeColor}" stroke-width="${strokeWidth}" marker-end="${marker}" />`;
+                }
+            });
+            svg.innerHTML = svgHtml;
         }
 
         // Render Canvas DOM
@@ -778,15 +846,49 @@
             }
             document.getElementById('canvas-nums').innerHTML = numsHtml;
 
-            // Render Math Eval
-            const mathBox = document.getElementById('canvas-math');
-            if(state.visuals.mathEval) {
-                document.getElementById('math-eval-text').innerHTML = state.visuals.mathEval;
-                mathBox.classList.remove('hidden');
-                setTimeout(() => mathBox.classList.remove('opacity-0'), 10);
+            // Render Decision Tree
+            const treeBox = document.getElementById('canvas-tree-area');
+            const td = state.visuals.treeData;
+            
+            if (td) {
+                document.getElementById('tree-k-val').innerText = td.k;
+                document.getElementById('tree-block-size').innerText = td.perRowSize;
+                
+                let leavesHtml = '';
+                td.numbers.forEach((num, i) => {
+                    const isActive = (i === td.selectedIndex);
+                    const rangeStart = i * td.perRowSize;
+                    const rangeEnd = (i + 1) * td.perRowSize - 1;
+                    
+                    const boxStyle = isActive 
+                        ? 'border-syntaxYellow shadow-[0_0_15px_rgba(252,211,77,0.2)] transform -translate-y-1' 
+                        : 'border-borderMain opacity-60 hover:opacity-100';
+                        
+                    const circleStyle = isActive 
+                        ? 'bg-syntaxYellow text-black shadow-lg' 
+                        : 'bg-slate-700 text-white';
+                    
+                    leavesHtml += `
+                        <div id="tree-leaf-${i}" class="flex flex-col items-center bg-bgPanel border ${boxStyle} rounded p-2 transition-all duration-300 min-w-[70px]">
+                            <span class="text-[10px] text-slate-500 mb-1">Index: <span class="${isActive ? 'text-syntaxYellow' : ''}">${i}</span></span>
+                            <div class="w-8 h-8 rounded-full ${circleStyle} flex items-center justify-center font-bold text-lg mb-1">
+                                ${num}
+                            </div>
+                            <span class="text-[9px] text-slate-400 font-mono mt-1">Rank Range:</span>
+                            <span class="text-[10px] ${isActive ? 'text-syntaxYellow font-bold' : 'text-slate-500'} font-mono">${rangeStart} - ${rangeEnd}</span>
+                        </div>
+                    `;
+                });
+                document.getElementById('tree-leaves').innerHTML = leavesHtml;
+                treeBox.classList.remove('hidden');
+                treeBox.classList.add('flex');
+                
+                // Crucial: Wait for DOM layout to paint before drawing SVG lines
+                setTimeout(() => drawTreeLines(td), 10);
             } else {
-                mathBox.classList.add('opacity-0');
-                setTimeout(() => mathBox.classList.add('hidden'), 300); // fade out
+                document.getElementById('tree-svg').innerHTML = ''; // clear lines
+                treeBox.classList.add('hidden');
+                treeBox.classList.remove('flex');
             }
 
             // Render Ans String
