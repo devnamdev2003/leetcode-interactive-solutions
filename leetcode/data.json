@@ -1,5 +1,19 @@
 [
   {
+    "id": "60",
+    "title": "Permutation Sequence",
+    "difficulty": "Hard",
+    "tags": ["Math", "Recursion"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/permutation-sequence/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "math/permutation-sequence.html"
+      }
+    ]
+  },
+  {
     "id": "g-4",
     "title": "Rat in a Maz",
     "difficulty": "Medium",
