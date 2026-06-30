@@ -303,10 +303,18 @@
 
             <!-- Primary Filters Sidebar -->
             <div>
+                <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Views</h2>
+                <div class="flex flex-col gap-2 mb-6">
+                    <button onclick="switchView('list')" id="btn-view-list" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors bg-zinc-800 text-white font-medium">
+                        <i data-lucide="list" class="w-4 h-4"></i> List View
+                    </button>
+                    <button onclick="switchView('folders')" id="btn-view-folders" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200">
+                        <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-400"></i> Folder View
+                    </button>
+                </div>
                 <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Library</h2>
                 <div class="flex flex-col gap-2">
-                    <button onclick="setStatusFilter('All')" id="btn-status-all" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors bg-zinc-800 text-white font-medium">
-                        <span class="flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4"></i> All Problems</span> 
+                    <button onclick="setStatusFilter('All')" id="btn-status-all" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors bg-zinc-800 text-white font-medium"><span class="flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4"></i> All Problems</span> 
                         <span id="count-all-badge" class="bg-zinc-700 px-2 py-0.5 rounded text-xs">0</span>
                     </button>
                     <button onclick="setStatusFilter('Done')" id="btn-status-done" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200">
@@ -383,9 +391,8 @@
 
         <!-- Problem List Scrollable Area -->
         <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar scroll-smooth" id="main-scroll-area">
-            <div id="problemList" class="max-w-5xl mx-auto pb-32">
-                <!-- Items injected by JS -->
-            </div>
+            <div id="folderGrid" class="hidden grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-5xl mx-auto pb-32"></div>
+            <div id="problemList" class="max-w-5xl mx-auto pb-32"></div>
         </div>
     </main>
 
@@ -411,11 +418,13 @@
         
         // Active Filters
         let state = {
+            view: 'list',
+            folder: 'All',
             search: '',
             difficulty: 'All', 
             selectedTags: [],  
             platform: 'All',
-            status: 'All',     // All, Done, Todo, Favorites
+            status: 'All',
             sort: 'default'
         };
 
@@ -840,12 +849,134 @@
         function handleSortChange(e) { state.sort = e.target.value; renderProblems(); }
         
         function resetAllFilters() {
-            state = { search: '', difficulty: 'All', selectedTags: [], platform: 'All', status: 'All', sort: 'default' };
+            state = { view: 'list', folder: 'All', search: '', difficulty: 'All', selectedTags: [], platform: 'All', status: 'All', sort: 'default' };
             searchInput.value = '';
             document.getElementById('sortSelect').value = 'default';
             document.getElementById('platformSelect').value = 'All';
             setStatusFilter('All');
+            switchView('list', true);
             updateDashboard();
+        }
+
+        // --- View & Folder Logic ---
+        function switchView(viewName, skipRender = false) {
+            state.view = viewName;
+            
+            const btnList = document.getElementById('btn-view-list');
+            const btnFolders = document.getElementById('btn-view-folders');
+            const toolbar = document.querySelector('.top-toolbar');
+            const problemList = document.getElementById('problemList');
+            const folderGrid = document.getElementById('folderGrid');
+
+            if (viewName === 'list') {
+                btnList.classList.add('bg-zinc-800', 'text-white');
+                btnList.classList.remove('text-zinc-400', 'hover:bg-zinc-900');
+                btnFolders.classList.remove('bg-zinc-800', 'text-white');
+                btnFolders.classList.add('text-zinc-400', 'hover:bg-zinc-900');
+                
+                toolbar.style.display = 'block';
+                problemList.classList.remove('hidden');
+                folderGrid.classList.add('hidden');
+                folderGrid.classList.remove('grid');
+            } else {
+                btnFolders.classList.add('bg-zinc-800', 'text-white');
+                btnFolders.classList.remove('text-zinc-400', 'hover:bg-zinc-900');
+                btnList.classList.remove('bg-zinc-800', 'text-white');
+                btnList.classList.add('text-zinc-400', 'hover:bg-zinc-900');
+                
+                toolbar.style.display = 'none'; // Hide filters when viewing folders
+                problemList.classList.add('hidden');
+                folderGrid.classList.remove('hidden');
+                folderGrid.classList.add('grid');
+                renderFolderGrid();
+            }
+
+            if (!skipRender && viewName === 'list') renderProblems();
+        }
+
+        function openFolder(folderName) {
+            state.folder = folderName;
+            
+            // Close mobile sidebar automatically
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                const overlay = document.getElementById('sidebar-overlay');
+                if (overlay) overlay.classList.add('hidden');
+            }
+
+            switchView('list');
+            if (folderName !== 'All') {
+                showToast(`Opened folder: ${folderName.replace(/-/g, ' ').toUpperCase()}`, 'success');
+            }
+        }
+
+        function renderFolderGrid() {
+            const container = document.getElementById('folderGrid');
+            if (!container) return;
+
+            // Increase the gap for a cleaner layout
+            container.classList.remove('gap-4');
+            container.classList.add('gap-5', 'sm:gap-6');
+
+            const folders = {};
+            problemData.forEach(p => {
+                let folderName = "Uncategorized";
+                if (p.solutions && p.solutions.length > 0 && p.solutions[0].url) {
+                    const urlParts = p.solutions[0].url.split('/');
+                    if (urlParts.length > 1) folderName = urlParts[0];
+                }
+                if (!folders[folderName]) folders[folderName] = { count: 0, done: 0 };
+                folders[folderName].count++;
+                if (completedProblems.includes(String(p.id))) folders[folderName].done++;
+            });
+
+            const sortedFolders = Object.keys(folders).sort();
+            let htmlContent = '';
+
+            sortedFolders.forEach(folder => {
+                const data = folders[folder];
+                const displayName = folder.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                const progress = data.count > 0 ? Math.round((data.done / data.count) * 100) : 0;
+                const isMastered = progress === 100;
+
+                htmlContent += `
+                <div onclick="openFolder('${folder}')" class="group relative cursor-pointer bg-zinc-900 border border-zinc-800/80 rounded-2xl p-5 hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[160px]">
+                    
+                    <div class="absolute -inset-px bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                    
+                    <div class="flex items-start justify-between mb-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/30 group-hover:scale-105 transition-all duration-300 shadow-sm">
+                            <i data-lucide="${isMastered ? 'folder-check' : 'folder-open'}" class="w-6 h-6 ${isMastered ? 'text-emerald-400 group-hover:text-emerald-400' : ''}"></i>
+                        </div>
+                        
+                        ${isMastered 
+                            ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm"><i data-lucide="award" class="w-3 h-3"></i> Mastered</span>` 
+                            : `<span class="bg-zinc-950 text-zinc-400 border border-zinc-800 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm">${progress}%</span>`
+                        }
+                    </div>
+
+                    <div class="relative z-10 flex-1 flex flex-col justify-end">
+                        <h3 class="font-bold text-zinc-100 group-hover:text-indigo-300 text-base mb-1 truncate transition-colors" title="${displayName}">
+                            ${displayName}
+                        </h3>
+                        <div class="flex items-baseline gap-1.5 mb-4">
+                            <span class="text-2xl font-black ${isMastered ? 'text-emerald-400' : 'text-white'}">${data.done}</span>
+                            <span class="text-xs font-medium text-zinc-500">/ ${data.count} problems</span>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 mt-auto">
+                        <div class="w-full bg-zinc-950 rounded-full h-1.5 border border-zinc-800 overflow-hidden shadow-inner">
+                            <div class="h-full rounded-full transition-all duration-1000 ease-out ${isMastered ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'bg-indigo-500 group-hover:shadow-[0_0_8px_rgba(99,102,241,0.6)]'}" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = htmlContent;
+            lucide.createIcons({ root: container });
         }
 
         function resetProgress() {
@@ -931,12 +1062,19 @@
         // Sorting & Filtering Logic
         function getFilteredAndSortedData() {
             let filtered = problemData.filter(p => {
+                // Extract Folder
+                let pFolder = "Uncategorized";
+                if (p.solutions && p.solutions.length > 0 && p.solutions[0].url) {
+                    const parts = p.solutions[0].url.split('/');
+                    if (parts.length > 1) pFolder = parts[0];
+                }
+
                 const searchStr = `${p.id} ${p.title} ${(p.tags||[]).join(' ')} ${p.platform}`.toLowerCase();
                 const matchesSearch = searchStr.includes(state.search.toLowerCase());
                 const matchesDiff = state.difficulty === 'All' || p.difficulty === state.difficulty;
                 const matchesTag = state.selectedTags.length === 0 || state.selectedTags.some(t => (p.tags || []).includes(t));
                 const matchesPlatform = state.platform === 'All' || p.platform === state.platform;
-                
+                const matchesFolder = state.folder === 'All' || pFolder === state.folder;
                 const isDone = completedProblems.includes(String(p.id));
                 const isFav = favoriteProblems.includes(String(p.id));
                 
@@ -945,7 +1083,7 @@
                                      (state.status === 'Todo' && !isDone) ||
                                      (state.status === 'Favorites' && isFav);
                 
-                return matchesSearch && matchesDiff && matchesTag && matchesPlatform && matchesStatus;
+                return matchesSearch && matchesDiff && matchesTag && matchesPlatform && matchesStatus && matchesFolder;
             });
 
             const diffVal = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
@@ -978,6 +1116,17 @@
             }
 
             let html = `
+                ${state.folder !== 'All' ? `
+                <div class="mb-4 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-between animate-fade-in">
+                    <div class="flex items-center gap-2 text-indigo-300 text-sm font-medium">
+                        <i data-lucide="folder-open" class="w-4 h-4"></i>
+                        Showing folder: ${state.folder.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    </div>
+                    <button onclick="openFolder('All')" class="text-xs px-2.5 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 rounded-md transition-colors flex items-center gap-1">
+                        <i data-lucide="x" class="w-3 h-3"></i> Clear Folder
+                    </button>
+                </div>
+                ` : ''}
                 <div class="mb-3 px-1 text-sm font-medium text-zinc-500 flex items-center justify-between">
                     <span>Showing ${data.length} problem${data.length !== 1 ? 's' : ''}</span>
                 </div>
