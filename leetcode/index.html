@@ -360,7 +360,7 @@
                         <option value="titleAsc">Title: A to Z</option>
                     </select>
                     
-                    <button onclick="pickRandom()" class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/20 hover:border-indigo-500/40 transition flex-shrink-0 shadow-sm" title="Pick Random Unsolved Problem">
+                    <button onclick="pickRandom()" class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/20 hover:border-indigo-500/40 transition flex-shrink-0 shadow-sm" title="Pick Random Problem">
                         <i data-lucide="dices" class="w-4 h-4"></i>
                     </button>
 
@@ -913,9 +913,9 @@
         }
 
         function pickRandom() {
-            const data = getFilteredAndSortedData().filter(p => !completedProblems.includes(String(p.id)));
+            const data = getFilteredAndSortedData();
             if (data.length === 0) {
-                showToast("No unsolved problems found with current filters!", "error"); return;
+                showToast("No problems found with current filters!", "error"); return;
             }
             const randomIdx = Math.floor(Math.random() * data.length);
             const selected = data[randomIdx];
