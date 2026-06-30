@@ -28,6 +28,13 @@ Tab 1 - Interactive Debugger (The Main View):
 
 Live Canvas (Left): The visual representation of the array, tree, graph, etc.
 
+Recursion Visualization (MANDATORY for Recursive Problems):
+
+If the provided algorithm is recursive (Backtracking, DFS, Recursive DP, Divide & Conquer, Tree Traversal, etc.), the **Live Canvas must visualize the complete recursive call tree instead of a simple array or state view.**
+- Use smooth animations when creating new nodes and connecting them with **curved edges**, similar to professional recursion visualizers.
+- The currently executing recursive call must be clearly highlighted.
+- The tree layout should automatically position nodes with proper spacing, avoiding overlaps, and support scrolling/panning when the recursion tree becomes large.
+
 **Focus Mode:** Add a "Expand/Compress" button in the Live Canvas header bar. When clicked, it should toggle a Focus Mode where the top navigation header and input bar collapse seamlessly, allowing the Canvas, Variable Watch, and Code Execution panels to expand and utilize the full screen area. The bottom playback controls must remain pinned and visible. Clicking "Compress" or pressing the Esc key should exit Focus Mode and restore the normal layout. This must integrate into the existing template shell without redesigning the layout or breaking the debugger/playback state.
 
 Local Variables Watch (Right Top): A clean panel showing ONLY the current values of active variables (e.g., i = 2, j = 4). Do NOT log a history of previous values. Overwrite the values dynamically step-by-step, just like a real IDE debugger.
@@ -46,7 +53,7 @@ Execution Logic:
 
 Analyze the Algorithm: Determine the logic, TC, SC, and how to best visualize it in Java, Python, or the user's requested language.
 
-Map the States: Build a JavaScript state array that captures the visual DOM positions, the current variable values, and the active line number of the code block for every single step of the algorithm.
+Map the States: Build a JavaScript state array that captures the visual DOM positions, the current variable values, and the active line number of the code block for every single step of the algorithm. For recursive algorithms, each state must also capture the current recursion tree structure, active recursion node, node status (active/completed/base case), and any changes caused by recursive calls or backtracking.
 
 Assemble: Combine your dynamic logic with the HTML shell from the knowledge base.
 
