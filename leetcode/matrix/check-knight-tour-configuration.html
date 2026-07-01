@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Check Knight Tour Configuration</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+        option { background-color: #111827; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Chessboard Styles */
+        .board-wrapper {
+            position: relative;
+            margin: 0 auto;
+            width: max-content;
+        }
+        
+        .board-container {
+            display: grid;
+            gap: 4px;
+            padding: 8px;
+            background: #1e293b;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .board-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            position: relative;
+            user-select: none;
+            border-radius: 4px;
+        }
+        
+        .cell-light { background-color: #475569; }
+        .cell-dark { background-color: #334155; }
+        
+        .highlight-checking { 
+            background-color: rgba(252, 211, 77, 0.4); 
+            box-shadow: inset 0 0 10px rgba(252, 211, 77, 0.8); 
+            border: 2px solid #fcd34d;
+            z-index: 10;
+        }
+        .highlight-found { 
+            background-color: rgba(52, 211, 153, 0.4); 
+            box-shadow: inset 0 0 15px rgba(52, 211, 153, 0.9);
+            border: 2px solid #34d399;
+            z-index: 10;
+        }
+        .highlight-invalid { 
+            background-color: rgba(239, 68, 68, 0.4); 
+            box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.9);
+            border: 2px solid #ef4444;
+            z-index: 10;
+        }
+        
+        .cell-value {
+            font-family: 'Fira Code', monospace;
+            z-index: 5;
+        }
+        .visited-val { color: #94a3b8; font-size: 14px; font-weight: 500; }
+        .unvisited-val { color: #f8fafc; font-size: 18px; font-weight: bold; }
+        .target-val { color: #fcd34d; font-size: 20px; font-weight: bold; text-shadow: 0 0 8px rgba(252, 211, 77, 0.5); }
+
+        .knight-icon {
+            color: #f8fafc;
+            font-size: 28px;
+            position: absolute;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+            z-index: 20;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* SVG Path Overlay */
+        #path-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+        
+        /* Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-chess-knight"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Check Knight Tour Config</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-sm">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Select Grid Configuration (NxN)</label>
+            <select id="input-preset" class="input-field">
+                <option value="[[0,11,16,5,20],[17,4,19,10,15],[12,1,8,21,6],[3,18,23,14,9],[24,13,2,7,22]]">Valid 5x5 Knight's Tour</option>
+                <option value="[[0,11,16,5,20],[17,4,19,10,15],[12,1,8,21,6],[3,18,24,14,9],[23,13,2,7,22]]">Invalid 5x5 (Breaks at 23)</option>
+                <option value="[[0,3,6],[5,8,1],[2,7,4]]">Invalid 3x3 Grid</option>
+                <option value="[[1,0,0],[0,0,0],[0,0,0]]">Fails Step 1 (Must start at 0)</option>
+            </select>
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300 justify-start items-center pt-16">
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur max-w-sm">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg" class="break-words">Waiting to begin...</span>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[][]</span> grid</h3>
+                        </div>
+                        
+                        <!-- Visualization Area -->
+                        <div class="board-wrapper">
+                            <svg id="path-overlay"></svg>
+                            <div id="canvas-board" class="board-container">
+                                <!-- Board generated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col justify-center items-center">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Grid Size (s)</span>
+                                <span id="var-s" class="font-mono text-white font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col justify-center items-center">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Target Number</span>
+                                <span id="var-count" class="font-mono text-primary font-bold text-lg">-</span>
+                            </div>
+                            
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Pos (i, j)</span>
+                                    <div class="font-mono text-sm text-slate-300">
+                                        i: <span id="var-i" class="text-syntaxPink font-bold">-</span>, 
+                                        j: <span id="var-j" class="text-syntaxPink font-bold">-</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-arrow-right text-slate-600"></i>
+                                <div class="flex flex-col text-right">
+                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Checking Move [m]</span>
+                                    <div id="var-move" class="font-mono text-sm text-syntaxYellow font-bold">-</div>
+                                </div>
+                                <i class="fas fa-arrow-right text-slate-600"></i>
+                                <div class="flex flex-col text-right">
+                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Checking Pos (r, c)</span>
+                                    <div class="font-mono text-sm text-slate-300">
+                                        r: <span id="var-r" class="text-syntaxBlue font-bold">-</span>, 
+                                        c: <span id="var-c" class="text-syntaxBlue font-bold">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxGreen font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div id="line-class" class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-func" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public boolean</span> checkValidGrid(<span class="text-syntaxPink">int</span>[][] grid) {</div></div>
+                        <div id="line-check-start" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">if</span> (grid[<span class="text-syntaxPink">0</span>][<span class="text-syntaxPink">0</span>] != <span class="text-syntaxPink">0</span>)</div></div>
+                        <div id="line-ret-false-start" class="debug-line"><div class="line-num">4</div><div class="code-content">            <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div id="line-init" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">int</span> s = grid.length;</div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">int</span>[][] move = { {<span class="text-syntaxPink">-2</span>,<span class="text-syntaxPink">1</span>}, {<span class="text-syntaxPink">-1</span>,<span class="text-syntaxPink">2</span>}, {<span class="text-syntaxPink">1</span>,<span class="text-syntaxPink">2</span>}, {<span class="text-syntaxPink">2</span>,<span class="text-syntaxPink">1</span>}, {<span class="text-syntaxPink">2</span>,<span class="text-syntaxPink">-1</span>}, {<span class="text-syntaxPink">1</span>,<span class="text-syntaxPink">-2</span>}, {<span class="text-syntaxPink">-1</span>,<span class="text-syntaxPink">-2</span>}, {<span class="text-syntaxPink">-2</span>,<span class="text-syntaxPink">-1</span>} };</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">int</span> count = <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">int</span> j = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-while" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">while</span> (count &lt; s * s) {</div></div>
+                        <div id="line-temp" class="debug-line"><div class="line-num">11</div><div class="code-content">            <span class="text-syntaxPink">int</span> temp = count;</div></div>
+                        <div id="line-for-move" class="debug-line"><div class="line-num">12</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span>[] m : move) {</div></div>
+                        <div id="line-calc-rc" class="debug-line"><div class="line-num">13</div><div class="code-content">                <span class="text-syntaxPink">int</span> r = m[<span class="text-syntaxPink">0</span>] + i;</div></div>
+                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">                <span class="text-syntaxPink">int</span> c = m[<span class="text-syntaxPink">1</span>] + j;</div></div>
+                        <div id="line-if-match" class="debug-line"><div class="line-num">15</div><div class="code-content">                <span class="text-syntaxPink">if</span> (r &gt;= <span class="text-syntaxPink">0</span> && r &lt; s && c &gt;= <span class="text-syntaxPink">0</span> && c &lt; s && grid[r][c] == count) {</div></div>
+                        <div id="line-update" class="debug-line"><div class="line-num">16</div><div class="code-content">                    i = r; j = c; count++; <span class="text-syntaxPink">break</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">            }</div></div>
+                        <div id="line-if-temp" class="debug-line"><div class="line-num">19</div><div class="code-content">            <span class="text-syntaxPink">if</span> (temp == count)</div></div>
+                        <div id="line-ret-false" class="debug-line"><div class="line-num">20</div><div class="code-content">                <span class="text-syntaxPink">return false</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">        }</div></div>
+                        <div id="line-ret-true" class="debug-line"><div class="line-num">22</div><div class="code-content">        <span class="text-syntaxPink">return true</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution validates if a given grid represents a valid <strong>Knight's Tour</strong>. In a valid tour, a knight starts at the top-left corner (0) and visits every cell exactly once, following standard "L-shaped" chess moves. The grid contains integers representing the order of visitation.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Step 1: Start Condition</strong><br>
+                            The knight must start at cell <code>(0,0)</code> and its assigned step number must be <code>0</code>. If not, the function immediately returns false.
+                        </li>
+                        <li>
+                            <strong>Step 2: Track Target Steps</strong><br>
+                            We initialize a variable <code>count = 1</code> (the next step to find) and the knight's starting position <code>i = 0, j = 0</code>. A loop continues until we have found steps up to <code>N*N - 1</code>.
+                        </li>
+                        <li>
+                            <strong>Step 3: Move Verification</strong><br>
+                            For the current position, the algorithm checks all 8 possible knight jump vectors. If a valid jump lands inside the grid bounds <em>and</em> the cell value matches the current <code>count</code>, we update the knight's position to this cell, increment <code>count</code>, and break out of the direction loop.
+                        </li>
+                        <li>
+                            <strong>Step 4: Path Break Detection</strong><br>
+                            If we check all 8 directions and fail to find the required next step (i.e., <code>temp == count</code> meaning <code>count</code> was not incremented), the tour is broken, and we return false.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N²)</span>
+                        <p class="text-xs text-slate-400">The grid has $N^2$ cells. The outer <code>while</code> loop runs exactly $N^2 - 1$ times for a valid tour. Inside, the <code>for</code> loop strictly iterates a maximum of 8 times (constant time). Therefore, the overall upper bound scales directly with the number of cells in the grid, yielding $O(N^2)$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">Excluding the input grid itself, the algorithm only uses a constant amount of auxiliary memory: simple scalar variables (<code>i, j, count, temp, r, c</code>) and an 8x2 static array for the move vectors. No additional dynamic data structures are created.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+            if (states.length > 0) renderBoardDOM(states[currState].visuals); // Redraw SVG path on resize
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+            setTimeout(() => { if (states.length > 0) renderBoardDOM(states[currState].visuals); }, 300);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                    if (states.length > 0) renderBoardDOM(states[currState].visuals);
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State Management
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        function updateSpeed(val) {
+            animSpeed = 2000 - (val * 18); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const gridStr = document.getElementById('input-preset').value;
+            try {
+                const grid = JSON.parse(gridStr);
+                generateStates(grid);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+            } catch (e) {
+                console.error("Invalid grid format", e);
+            }
+        }
+
+        // Algorithm Simulator (Data Generation)
+        function generateStates(grid) {
+            states = [];
+            let s = grid.length;
+            
+            let vrs = { 
+                s: s, count: '-', i: '-', j: '-', 
+                r: '-', c: '-', move: '-', action: 'Initialization' 
+            };
+            
+            // Path tracking to draw SVG lines
+            let pathHistory = [];
+
+            const pushState = (msg, line, hlCells = [], currentPos = null) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: { 
+                        grid: grid, 
+                        s: s, 
+                        hlCells: hlCells, 
+                        currentPos: currentPos, 
+                        count: vrs.count === '-' ? 0 : vrs.count,
+                        path: [...pathHistory]
+                    }
+                });
+            };
+
+            vrs.action = "Start Validation";
+            pushState(`Checking grid bounds and start condition...`, "line-func");
+            
+            pushState(`Verifying grid[0][0] is exactly 0.`, "line-check-start", [{r:0, c:0, type:'checking'}]);
+            
+            if (grid[0][0] !== 0) {
+                vrs.action = "Failed";
+                pushState(`grid[0][0] is ${grid[0][0]}, not 0. Returning false.`, "line-ret-false-start", [{r:0, c:0, type:'invalid'}]);
+                return;
+            }
+
+            let move = [ [-2, 1], [-1, 2], [1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1] ];
+            let count = 1;
+            let i = 0;
+            let j = 0;
+            pathHistory.push({r: 0, c: 0});
+            
+            vrs.s = s; vrs.count = count; vrs.i = i; vrs.j = j;
+            vrs.action = "Variables Setup";
+            pushState(`Initialized start position (0,0) and target count to 1`, "line-init", [], {r: i, c: j});
+
+            while (count < s * s) {
+                vrs.action = `Targeting count = ${count}`;
+                pushState(`While count < ${s*s}: Loop to find target number ${count}`, "line-while", [], {r: i, c: j});
+
+                let temp = count;
+                pushState(`Saved temp = ${temp} to detect path breakage.`, "line-temp", [], {r: i, c: j});
+                
+                let foundMove = false;
+
+                for (let mIdx = 0; mIdx < move.length; mIdx++) {
+                    let m = move[mIdx];
+                    vrs.move = `[${m[0]>0?'+':''}${m[0]}, ${m[1]>0?'+':''}${m[1]}]`;
+                    vrs.action = `Testing move ${vrs.move}`;
+                    
+                    pushState(`Iterating move array: trying jump vector ${vrs.move}`, "line-for-move", [], {r: i, c: j});
+
+                    let r = i + m[0];
+                    let c = j + m[1];
+                    vrs.r = r; vrs.c = c;
+                    
+                    let isInside = (r >= 0 && r < s && c >= 0 && c < s);
+                    let cellHl = isInside ? [{r, c, type: 'checking'}] : [];
+                    
+                    pushState(`Calculated new position r = ${r}, c = ${c}`, "line-calc-rc", cellHl, {r: i, c: j});
+
+                    let matchMsg = "Out of bounds";
+                    if (isInside) {
+                        if (grid[r][c] === count) matchMsg = `Match found! (${grid[r][c]} == ${count})`;
+                        else matchMsg = `Mismatch (${grid[r][c]} != ${count})`;
+                    }
+
+                    pushState(`Checking boundaries and grid value: ${matchMsg}`, "line-if-match", cellHl, {r: i, c: j});
+
+                    if (isInside && grid[r][c] === count) {
+                        i = r;
+                        j = c;
+                        count++;
+                        vrs.i = i; vrs.j = j; vrs.count = count;
+                        vrs.r = '-'; vrs.c = '-'; vrs.move = '-';
+                        vrs.action = "Valid jump executed";
+                        
+                        pathHistory.push({r: i, c: j}); // Add to path
+                        
+                        pushState(`Success! Knight jumps to (${i}, ${j}). Count incremented. Breaking loop.`, "line-update", [{r: i, c: j, type: 'found'}], {r: i, c: j});
+                        foundMove = true;
+                        break;
+                    }
+                }
+
+                vrs.action = "Checking loop progress";
+                pushState(`Checking if we advanced (temp == count)`, "line-if-temp", [], {r: i, c: j});
+                
+                if (temp === count) {
+                    vrs.action = "Path Broken";
+                    pushState(`No valid moves found for count ${count}. The tour is broken. Returning false.`, "line-ret-false", [{r: i, c: j, type: 'invalid'}], {r: i, c: j});
+                    return;
+                }
+            }
+
+            vrs.action = "Tour Complete";
+            vrs.move = '-'; vrs.r = '-'; vrs.c = '-';
+            pushState(`Loop finished successfully. All ${s*s} cells visited in order! Returning true.`, "line-ret-true", [], {r: i, c: j});
+        }
+
+        // Render Canvas DOM
+        function renderBoardDOM(visuals) {
+            const container = document.getElementById('canvas-board');
+            const svgOverlay = document.getElementById('path-overlay');
+            const { grid, s, hlCells, currentPos, count, path } = visuals;
+            
+            container.style.gridTemplateColumns = `repeat(${s}, 1fr)`;
+            
+            let html = '';
+            // Cell Dimensions (Based on CSS: 50px cell + 4px gap + 8px padding)
+            const cellSize = 50;
+            const gap = 4;
+            const padding = 8;
+
+            for (let r = 0; r < s; r++) {
+                for (let c = 0; c < s; c++) {
+                    let isLight = (r + c) % 2 === 0;
+                    let cellClass = isLight ? 'cell-light' : 'cell-dark';
+                    let content = '';
+                    let valClass = 'unvisited-val';
+
+                    // Value rendering logic
+                    let cellVal = grid[r][c];
+                    if (cellVal < count && !(currentPos && currentPos.r === r && currentPos.c === c)) {
+                        valClass = 'visited-val';
+                    } else if (cellVal === count) {
+                        valClass = 'target-val';
+                    }
+
+                    // Highlighting logic
+                    let hlMatch = hlCells.find(h => h.r === r && h.c === c);
+                    if (hlMatch) {
+                        if (hlMatch.type === 'checking') cellClass += ' highlight-checking';
+                        if (hlMatch.type === 'found') cellClass += ' highlight-found';
+                        if (hlMatch.type === 'invalid') cellClass += ' highlight-invalid';
+                    }
+
+                    // Knight Icon
+                    if (currentPos && currentPos.r === r && currentPos.c === c) {
+                        content = '<i class="fas fa-chess-knight knight-icon"></i>';
+                    }
+
+                    html += `<div class="board-cell ${cellClass}"><span class="cell-value ${valClass}">${cellVal}</span>${content}</div>`;
+                }
+            }
+            container.innerHTML = html;
+
+            // Draw SVG Path Overlay
+            if (path && path.length > 0) {
+                let svgHtml = '';
+                let pointsStr = '';
+                
+                path.forEach((p, idx) => {
+                    let cx = padding + p.c * (cellSize + gap) + (cellSize / 2);
+                    let cy = padding + p.r * (cellSize + gap) + (cellSize / 2);
+                    pointsStr += `${cx},${cy} `;
+                    
+                    // Add dots at each visited cell
+                    svgHtml += `<circle cx="${cx}" cy="${cy}" r="3" fill="#3b82f6" opacity="0.8" />`;
+                });
+                
+                svgHtml += `<polyline points="${pointsStr.trim()}" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>`;
+                svgOverlay.innerHTML = svgHtml;
+            } else {
+                svgOverlay.innerHTML = '';
+            }
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Board
+            renderBoardDOM(state.visuals);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-s').innerText = state.vars.s;
+            document.getElementById('var-count').innerText = state.vars.count;
+            document.getElementById('var-i').innerText = state.vars.i;
+            document.getElementById('var-j').innerText = state.vars.j;
+            document.getElementById('var-move').innerText = state.vars.move;
+            document.getElementById('var-r').innerText = state.vars.r;
+            document.getElementById('var-c').innerText = state.vars.c;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70);
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>

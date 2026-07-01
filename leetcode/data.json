@@ -1,5 +1,25 @@
 [
   {
+    "id": "2662",
+    "title": "Check Knight Tour Configuration",
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Depth-First Search",
+      "Breadth-First Search",
+      "Matrix",
+      "Simulation"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/check-knight-tour-configuration/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "matrix/check-knight-tour-configuration.html"
+      }
+    ]
+  },
+  {
     "id": "643",
     "title": "Maximum Average Subarray I",
     "difficulty": "Easy",
