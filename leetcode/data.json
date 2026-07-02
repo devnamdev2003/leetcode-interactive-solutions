@@ -1,5 +1,23 @@
 [
   {
+    "id": "560",
+    "title": "Subarray Sum Equals K",
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Prefix Sum"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/subarray-sum-equals-k/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "prefix-sum/subarray-sum-equals-k.html"
+      }
+    ]
+  },
+  {
     "id": "2662",
     "title": "Check Knight Tour Configuration",
     "difficulty": "Medium",
