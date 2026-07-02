@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Max Consecutive Ones III (Sliding Window)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: {
+                        bgBase: '#0b1120', bgPanel: '#111827', bgInput: '#0f172a', borderMain: '#1e293b',
+                        primary: '#3b82f6', success: '#10b981', danger: '#ef4444', warning: '#f59e0b',
+                        codeBg: '#0f1423', syntaxPink: '#f472b6', syntaxBlue: '#60a5fa', syntaxGreen: '#34d399', syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-field {
+            background-color: #0b1120;
+            border: 1px solid #1e293b;
+            color: #f8fafc;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            outline: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        .dotted-bg {
+            background-size: 24px 24px;
+            background-image: radial-gradient(circle, #334155 1px, transparent 1px);
+        }
+
+        /* Array Visualization Styles */
+        .array-container {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .array-cell-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .pointer-box {
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: opacity 0.2s;
+        }
+
+        .pointer-r {
+            color: #f472b6;
+        }
+
+        .pointer-l {
+            color: #60a5fa;
+        }
+
+        .array-cell {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            background-color: #1e293b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* States */
+        .array-cell.in-window {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .array-cell.invalid-window {
+            background-color: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+        }
+
+        .array-cell.flipped {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .array-cell.checking {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.5);
+            border-color: #f472b6;
+        }
+
+        /* Flipped Zero overlay */
+        .flipped-overlay {
+            position: absolute;
+            font-size: 0.7rem;
+            color: #10b981;
+            top: 2px;
+            right: 4px;
+        }
+
+        .strike-through {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100px;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -5px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+
+        .debug-line {
+            transition: all 0.2s;
+            padding: 2px 8px;
+            border-left: 3px solid transparent;
+            display: flex;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .debug-line.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-left-color: #3b82f6;
+        }
+
+        .line-num {
+            width: 24px;
+            text-align: right;
+            margin-right: 16px;
+            color: #475569;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .code-content {
+            white-space: pre;
+        }
+
+        .resizer-v {
+            width: 6px;
+            background-color: #1e293b;
+            cursor: col-resize;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            z-index: 30;
+        }
+
+        .resizer-v:hover,
+        .resizer-v.active {
+            background-color: #3b82f6;
+        }
+
+        .resizer-h {
+            height: 6px;
+            background-color: #1e293b;
+            cursor: row-resize;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            z-index: 30;
+        }
+
+        .resizer-h:hover,
+        .resizer-h.active {
+            background-color: #3b82f6;
+        }
+
+        body.resizing,
+        body.resizing * {
+            cursor: col-resize !important;
+            user-select: none !important;
+            pointer-events: none !important;
+        }
+
+        body.resizing-h,
+        body.resizing-h * {
+            cursor: row-resize !important;
+            user-select: none !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+
+<body class="text-slate-300">
+
+    <header id="main-header"
+        class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-sliders-h"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Max Consecutive Ones III (Sliding Window)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab"
+                    class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive
+                    Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab"
+                    class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory &
+                    Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank"
+                rel="noopener noreferrer"
+                class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2"
+                title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <section id="inputs-bar"
+        class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-md">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Binary Array
+                (comma separated)</label>
+            <input type="text" id="input-arr" class="input-field" value="1,1,1,0,0,0,1,1,1,1,0">
+        </div>
+        <div class="w-full max-w-[120px]">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Max Flips
+                (k)</label>
+            <input type="number" id="input-k" min="0" class="input-field" value="2">
+        </div>
+        <button onclick="initSimulationFromInputs()"
+            class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i
+            class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Ensure array contains only 0s and 1s, and k is
+        non-negative.</div>
+
+    <main class="flex-grow flex overflow-hidden relative">
+
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;"
+                class="relative flex flex-col transition-all duration-300">
+                <div id="canvas-header"
+                    class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i>
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0"
+                            title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()"
+                            class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="panel-canvas-content"
+                    class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300 justify-start items-center">
+
+                    <div
+                        class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <div class="mt-16 w-full flex flex-col items-center">
+                        <div
+                            class="flex items-center justify-center gap-6 mb-8 bg-bgPanel p-3 rounded-lg border border-borderMain w-max">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-blue-500/20 border border-blue-500 rounded"></div><span
+                                    class="text-xs text-slate-400">Valid Window</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500/20 border border-red-500 rounded"></div><span
+                                    class="text-xs text-slate-400">Invalid Window (count > k)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-3 h-3 bg-emerald-500/20 border border-emerald-500 rounded flex items-center justify-center text-[8px] text-emerald-500 font-bold">
+                                    1</div><span class="text-xs text-slate-400">Flipped Zero</span>
+                            </div>
+                        </div>
+                        <div id="canvas-array" class="array-container">
+                            <!-- Array generated via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;"
+                class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300"
+                    style="flex: 1 1 0%; min-height: 150px;">
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-warning"></i> Local Variables
+                            Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i
+                                id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div id="content-vars"
+                        class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution
+                            Reset...</div>
+
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div
+                                class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col items-center">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Left Pointer (l)</span>
+                                <span id="var-l" class="font-mono text-blue-400 font-bold text-xl">-</span>
+                            </div>
+                            <div
+                                class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col items-center">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Right Pointer (r)</span>
+                                <span id="var-r" class="font-mono text-pink-400 font-bold text-xl">-</span>
+                            </div>
+                            <div
+                                class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex justify-between items-center px-4">
+                                <span class="block text-[10px] text-slate-500 uppercase">Zeros Flipped (count)</span>
+                                <span id="var-count" class="font-mono text-white font-bold text-xl">0</span>
+                            </div>
+                            <div
+                                class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex justify-between items-center px-4">
+                                <span class="block text-[10px] text-slate-500 uppercase">Max Allowed (k)</span>
+                                <span id="var-k" class="font-mono text-slate-400 font-bold text-xl">0</span>
+                            </div>
+                            <div
+                                class="bg-bgBase border border-primary/30 p-3 rounded shadow-sm col-span-2 flex justify-between items-center px-6">
+                                <span class="block text-xs text-primary font-bold uppercase">Max Window Length</span>
+                                <span id="var-len" class="font-mono text-primary font-bold text-2xl">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300"
+                    style="flex: 2 1 0%; min-height: 150px;">
+                    <div
+                        class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code
+                            Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i
+                                    id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <div id="content-code"
+                        class="flex-grow p-4 overflow-y-auto font-mono text-[13px] leading-6 transition-opacity duration-300">
+                        <div class="debug-line">
+                            <div class="line-num">1</div>
+                            <div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div>
+                        </div>
+                        <div id="line-func" class="debug-line">
+                            <div class="line-num">2</div>
+                            <div class="code-content">  <span class="text-syntaxPink">public int</span> longestOnes(<span class="text-syntaxPink">int</span>[] nums, <span class="text-syntaxPink">int</span>k) {</div>
+                        </div>
+                        <div id="line-init" class="debug-line">
+                            <div class="line-num">3</div>
+                            <div class="code-content">      <span class="text-syntaxPink">int</span> len = <span class="text-syntaxPink">0</span>, l = <span class="text-syntaxPink">0</span>, count = <span class="text-syntaxPink">0</span>;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">4</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div id="line-for" class="debug-line">
+                            <div class="line-num">5</div>
+                            <div class="code-content">      <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> r = <span class="text-syntaxPink">0</span>; r &lt; nums.length; r++) {</div>
+                        </div>
+                        <div id="line-if-r" class="debug-line">
+                            <div class="line-num">6</div>
+                            <div class="code-content">          <span class="text-syntaxPink">if</span> (nums[r] == <span class="text-syntaxPink">0</span>) {</div>
+                        </div>
+                        <div id="line-count-inc" class="debug-line">
+                            <div class="line-num">7</div>
+                            <div class="code-content">              count++;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">8</div>
+                            <div class="code-content">          }</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">9</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div id="line-while" class="debug-line">
+                            <div class="line-num">10</div>
+                            <div class="code-content">          <span class="text-syntaxPink">while</span> (count > k) {</div>
+                        </div>
+                        <div id="line-if-l" class="debug-line">
+                            <div class="line-num">11</div>
+                            <div class="code-content">              <span class="text-syntaxPink">if</span> (nums[l] == <span class="text-syntaxPink">0</span>) {</div>
+                        </div>
+                        <div id="line-count-dec" class="debug-line">
+                            <div class="line-num">12</div>
+                            <div class="code-content">                  count--;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">13</div>
+                            <div class="code-content">              }</div>
+                        </div>
+                        <div id="line-l-inc" class="debug-line">
+                            <div class="line-num">14</div>
+                            <div class="code-content">              l++;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">15</div>
+                            <div class="code-content">          }</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">16</div>
+                            <div class="code-content"> </div>
+                        </div>
+                        <div id="line-len-update" class="debug-line">
+                            <div class="line-num">17</div>
+                            <div class="code-content">          len = Math.max(len, r - l + <span class="text-syntaxPink">1</span>);</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">18</div>
+                            <div class="code-content">      }</div>
+                        </div>
+                        <div id="line-return" class="debug-line">
+                            <div class="line-num">19</div>
+                            <div class="code-content">      <span class="text-syntaxPink">return</span> len;</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">20</div>
+                            <div class="code-content">  }</div>
+                        </div>
+                        <div class="debug-line">
+                            <div class="line-num">21</div>
+                            <div class="code-content">}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i
+                        class="fas fa-book-open text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution utilizes the highly efficient <strong>Sliding Window</strong> pattern,
+                        specifically the dynamically resizable variant, to solve the problem in a single pass.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept:</h3>
+                    <p class="text-slate-300 mb-4">Instead of flipping 0s physically, we reframe the problem: <em>"Find
+                            the longest contiguous subarray that contains at most <strong>k</strong> zeros."</em></p>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Expand the Window (Right Pointer):</strong><br>
+                            We iterate a right pointer (<code>r</code>) through the array. Every time we encounter a
+                            <code>0</code>, we increment our <code>count</code> (representing a flip). As long as
+                            <code>count &lt;= k</code>, our window <code>[l, r]</code> is valid.
+                        </li>
+                        <li>
+                            <strong>Shrink the Window (Left Pointer):</strong><br>
+                            If our window becomes invalid (<code>count &gt; k</code>), we must shrink it from the left.
+                            We move the left pointer (<code>l</code>) forward. If the element leaving the window
+                            (<code>nums[l]</code>) was a <code>0</code>, we successfully "un-flip" it by decrementing
+                            <code>count</code>. We repeat this via a <code>while</code> loop until the window is valid
+                            again.
+                        </li>
+                        <li>
+                            <strong>Track Maximum:</strong><br>
+                            At the end of every valid window expansion/adjustment step, we calculate the current window
+                            length <code>(r - l + 1)</code> and update our global <code>len</code> maximum.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div
+                        class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div
+                            class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors">
+                        </div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where N is the number of elements in the array. Both the left
+                            pointer (<code>l</code>) and right pointer (<code>r</code>) only move forward. Each element
+                            is visited at most twice (once by <code>r</code>, once by <code>l</code>), making it linear
+                            time.</p>
+                    </div>
+                    <div
+                        class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div
+                            class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors">
+                        </div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">We only use a few integer variables (<code>l</code>,
+                            <code>r</code>, <code>len</code>, <code>count</code>) to maintain the state of the window.
+                            No additional data structures are created that scale with input size.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar"
+        class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn"
+                class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()"
+                class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()"
+                class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip"
+                title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI Layout State
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450;
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+
+            isSplitView = !isSplitView;
+
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]';
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]';
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) toggleFocusMode();
+        });
+
+        let panelsState = { vars: true, code: true };
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+
+            panelsState[panelName] = !panelsState[panelName];
+
+            if (panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if (panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if (panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+
+            let isResizingV = false, isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => { isResizingV = true; document.body.classList.add('resizing'); resizerV.classList.add('active'); });
+            resizerH.addEventListener('mousedown', () => { isResizingH = true; document.body.classList.add('resizing-h'); resizerH.classList.add('active'); });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+                if (isResizingV) {
+                    let newWidth = window.innerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > window.innerWidth - 300) newWidth = window.innerWidth - 300;
+                    panelRight.style.flex = `0 0 ${newWidth}px`; panelRight.style.width = `${newWidth}px`;
+                }
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`; panelVars.style.flex = varsPanelHeight;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isResizingV = false; isResizingH = false;
+                document.body.classList.remove('resizing', 'resizing-h');
+                resizerV.classList.remove('active'); resizerH.classList.remove('active');
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('nav button').forEach(el => { el.classList.remove('bg-primary', 'text-white', 'shadow'); el.classList.add('text-slate-400'); });
+            const btn = document.getElementById('btn-' + tabId);
+            if (btn) { btn.classList.remove('text-slate-400'); btn.classList.add('bg-primary', 'text-white', 'shadow'); }
+            const inputsBar = document.getElementById('inputs-bar'), controlBar = document.getElementById('control-bar');
+            if (tabId === 'theory-tab') { inputsBar.style.display = 'none'; controlBar.style.display = 'none'; }
+            else { if (!isFocusMode) inputsBar.style.display = 'flex'; controlBar.style.display = 'flex'; }
+        }
+
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        function updateSpeed(val) {
+            animSpeed = 2500 - (val * 23);
+            if (isPlaying) { clearInterval(playInterval); playInterval = setInterval(nextStep, animSpeed); }
+        }
+
+        function initSimulationFromInputs() {
+            const arrStr = document.getElementById('input-arr').value;
+            const kStr = document.getElementById('input-k').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                const nums = arrStr.split(',').map(s => {
+                    let n = parseInt(s.trim());
+                    if (isNaN(n) || (n !== 0 && n !== 1)) throw new Error();
+                    return n;
+                });
+                const k = parseInt(kStr);
+                if (isNaN(k) || k < 0 || nums.length === 0) throw new Error();
+
+                generateStates(nums, k);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                if (!document.getElementById('dry-tab').classList.contains('active')) switchTab('dry-tab');
+
+            } catch (e) { errEl.classList.remove('hidden'); }
+        }
+
+        function generateStates(nums, k) {
+            states = [];
+            let len = 0, l = 0, count = 0;
+
+            const pushState = (msg, line, activeR, actionType) => {
+                states.push({
+                    msg: msg, activeLine: line,
+                    vars: { l, r: activeR !== undefined ? activeR : '-', count, k, len },
+                    visuals: { nums: [...nums], l, r: activeR, action: actionType }
+                });
+            };
+
+            pushState(`Initialize pointers and counters`, 'line-init', undefined, 'init');
+
+            for (let r = 0; r < nums.length; r++) {
+                pushState(`Expand window: Move right pointer to index ${r}`, 'line-for', r, 'move-r');
+
+                pushState(`Check if nums[${r}] is 0`, 'line-if-r', r, 'check-r');
+                if (nums[r] === 0) {
+                    count++;
+                    pushState(`Found 0. Increment count to ${count}.`, 'line-count-inc', r, 'inc-count');
+                }
+
+                pushState(`Check if window is valid (count ${count} <= k ${k})`, 'line-while', r, 'check-while');
+
+                while (count > k) {
+                    pushState(`Window Invalid! count > k. Need to shrink window from left.`, 'line-while', r, 'invalid');
+                    pushState(`Check if element leaving window nums[${l}] is 0`, 'line-if-l', r, 'check-l');
+
+                    if (nums[l] === 0) {
+                        count--;
+                        pushState(`Element leaving was 0. Decrement count to ${count}.`, 'line-count-dec', r, 'dec-count');
+                    }
+                    l++;
+                    pushState(`Shrink window: Move left pointer to index ${l}`, 'line-l-inc', r, 'move-l');
+                    pushState(`Check again if window is valid (count ${count} <= k ${k})`, 'line-while', r, 'check-while');
+                }
+
+                len = Math.max(len, r - l + 1);
+                pushState(`Window valid. Update max length to ${len}.`, 'line-len-update', r, 'update-len');
+            }
+
+            pushState(`Iteration complete. Return max length: ${len}`, 'line-return', nums.length - 1, 'done');
+        }
+
+        function renderArrayDOM(visuals) {
+            const container = document.getElementById('canvas-array');
+            const { nums, l, r, action } = visuals;
+
+            let html = '';
+            for (let i = 0; i < nums.length; i++) {
+                let val = nums[i];
+                let isZero = val === 0;
+
+                // Determine classes based on state
+                let cellClass = 'array-cell';
+                let inWindow = false;
+
+                if (r !== undefined && i >= l && i <= r) {
+                    inWindow = true;
+                    if (action === 'invalid' || action === 'check-l' || action === 'dec-count' || action === 'move-l') {
+                        cellClass += ' invalid-window';
+                    } else {
+                        cellClass += ' in-window';
+                    }
+                }
+
+                if (i === r && action === 'check-r') cellClass += ' checking';
+                if (i === l && action === 'check-l') cellClass += ' checking';
+
+                // Flipped visualization
+                let cellContent = val;
+                if (isZero && inWindow && !cellClass.includes('invalid-window')) {
+                    cellClass += ' flipped';
+                    cellContent = `<span class="strike-through">0</span><span class="flipped-overlay">1</span>`;
+                }
+
+                // Pointers
+                let topPointer = i === r ? `<div class="pointer-box pointer-r"><i class="fas fa-caret-down"></i> R</div>` : `<div class="pointer-box"></div>`;
+                let bottomPointer = i === l ? `<div class="pointer-box pointer-l">L <i class="fas fa-caret-up"></i></div>` : `<div class="pointer-box"></div>`;
+
+                html += `
+ <div class="array-cell-wrapper">
+ ${topPointer}
+ <div class="${cellClass}">${cellContent}</div>
+ ${bottomPointer}
+ </div>
+ `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            document.getElementById('progress-bar').style.width = states.length > 1 ? `${(idx / (states.length - 1)) * 100}%` : `100%`;
+
+            if (isPlaying) { document.getElementById('status-spinner').classList.remove('hidden'); document.getElementById('status-icon').classList.add('hidden'); }
+            else { document.getElementById('status-spinner').classList.add('hidden'); document.getElementById('status-icon').classList.remove('hidden'); }
+
+            renderArrayDOM(state.visuals);
+
+            document.getElementById('empty-vars').classList.add('hidden');
+            if (panelsState.vars) { document.getElementById('active-vars').classList.remove('hidden'); document.getElementById('active-vars').classList.add('grid'); }
+
+            document.getElementById('var-l').innerText = state.vars.l;
+            document.getElementById('var-r').innerText = state.vars.r;
+            document.getElementById('var-count').innerText = state.vars.count;
+            document.getElementById('var-k').innerText = state.vars.k;
+            document.getElementById('var-len').innerText = state.vars.len;
+
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if (state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if (activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function nextStep() { if (currState < states.length - 1) { currState++; renderState(currState); } else pauseAnim(); }
+        function prevStep() { if (currState > 0) { currState--; renderState(currState); } }
+        function skipToEnd() { pauseAnim(); if (states.length > 0) { currState = states.length - 1; renderState(currState); } }
+
+        function togglePlay() { if (isPlaying) pauseAnim(); else playAnim(); }
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0;
+            isPlaying = true;
+            document.getElementById('playIcon').className = 'fas fa-pause text-xs'; document.getElementById('playText').innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed);
+        }
+        function pauseAnim() {
+            isPlaying = false; clearInterval(playInterval);
+            document.getElementById('playIcon').className = 'fas fa-play text-xs ml-0.5'; document.getElementById('playText').innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState);
+        }
+        function resetAnim() { pauseAnim(); currState = 0; renderState(currState); }
+
+        window.onload = () => { updateSpeed(70); initSimulationFromInputs(); switchTab('dry-tab'); };
+    </script>
+</body>
+
+</html>
