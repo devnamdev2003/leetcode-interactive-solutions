@@ -1,13 +1,27 @@
 [
   {
+    "id": "1538",
+    "title": "Maximum Points You Can Obtain from Cards",
+    "difficulty": "Medium",
+    "tags": ["Array", "Sliding Window", "Prefix Sum"],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "sliding-window/maximum-points-you-can-obtain-from-cards-brute.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "sliding-window/maximum-points-you-can-obtain-from-cards.html"
+      }
+    ]
+  },
+  {
     "id": "560",
     "title": "Subarray Sum Equals K",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Hash Table",
-      "Prefix Sum"
-    ],
+    "tags": ["Array", "Hash Table", "Prefix Sum"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/subarray-sum-equals-k/description/",
     "solutions": [
@@ -41,10 +55,7 @@
     "id": "643",
     "title": "Maximum Average Subarray I",
     "difficulty": "Easy",
-    "tags": [
-      "Array",
-      "Sliding Window"
-    ],
+    "tags": ["Array", "Sliding Window"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/maximum-average-subarray-i/",
     "solutions": [
@@ -58,10 +69,7 @@
     "id": "60",
     "title": "Permutation Sequence",
     "difficulty": "Hard",
-    "tags": [
-      "Math",
-      "Recursion"
-    ],
+    "tags": ["Math", "Recursion"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/permutation-sequence/description/",
     "solutions": [
@@ -75,10 +83,7 @@
     "id": "g-4",
     "title": "Rat in a Maz",
     "difficulty": "Medium",
-    "tags": [
-      "Matrix",
-      "Backtracking"
-    ],
+    "tags": ["Matrix", "Backtracking"],
     "platform": "GeeksForGeeks",
     "platformUrl": "https://www.geeksforgeeks.org/problems/rat-in-a-maze-problem/1",
     "solutions": [
@@ -92,11 +97,7 @@
     "id": "131",
     "title": "Palindrome Partitioning",
     "difficulty": "Medium",
-    "tags": [
-      "String",
-      "Dynamic Programming",
-      "Backtracking"
-    ],
+    "tags": ["String", "Dynamic Programming", "Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/palindrome-partitioning/description/",
     "solutions": [
@@ -110,11 +111,7 @@
     "id": "17",
     "title": "Letter Combinations of a Phone Number",
     "difficulty": "Medium",
-    "tags": [
-      "Hash Table",
-      "String",
-      "Backtracking"
-    ],
+    "tags": ["Hash Table", "String", "Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/",
     "solutions": [
@@ -128,9 +125,7 @@
     "id": "77",
     "title": "Combinations",
     "difficulty": "Medium",
-    "tags": [
-      "Backtracking"
-    ],
+    "tags": ["Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/combinations/?envType=problem-list-v2&envId=backtracking",
     "solutions": [
@@ -148,12 +143,7 @@
     "id": "37",
     "title": "Sudoku Solver",
     "difficulty": "Hard",
-    "tags": [
-      "Array",
-      "Hash Table",
-      "Backtracking",
-      "Matrix"
-    ],
+    "tags": ["Array", "Hash Table", "Backtracking", "Matrix"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/sudoku-solver/",
     "solutions": [
@@ -171,10 +161,7 @@
     "id": "136",
     "title": "Single Number",
     "difficulty": "Easy",
-    "tags": [
-      "Array",
-      "Bit Manipulation"
-    ],
+    "tags": ["Array", "Bit Manipulation"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/single-number/description/",
     "solutions": [
@@ -192,10 +179,7 @@
     "id": "51",
     "title": "N-Queens",
     "difficulty": "Hard",
-    "tags": [
-      "Array",
-      "Backtracking"
-    ],
+    "tags": ["Array", "Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/n-queens/description/",
     "solutions": [
@@ -217,11 +201,7 @@
     "id": "88",
     "title": "Merge Sorted Array",
     "difficulty": "Easy",
-    "tags": [
-      "Array",
-      "Two Pointers",
-      "Sorting"
-    ],
+    "tags": ["Array", "Two Pointers", "Sorting"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/merge-sorted-array/description/",
     "solutions": [
@@ -239,12 +219,7 @@
     "id": "3227",
     "title": "Find Missing and Repeated Values",
     "difficulty": "Easy",
-    "tags": [
-      "Array",
-      "Hash Table",
-      "Math",
-      "Matrix"
-    ],
+    "tags": ["Array", "Hash Table", "Math", "Matrix"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/find-missing-and-repeated-values/description/",
     "solutions": [
@@ -290,10 +265,7 @@
     "id": "3962",
     "title": "Number of ZigZag Arrays I",
     "difficulty": "Hard",
-    "tags": [
-      "Dynamic Programming",
-      "Prefix Sum"
-    ],
+    "tags": ["Dynamic Programming", "Prefix Sum"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/number-of-zigzag-arrays-i/description",
     "solutions": [
@@ -315,11 +287,7 @@
     "id": "1297",
     "title": "Maximum Number of Balloons",
     "difficulty": "Easy",
-    "tags": [
-      "Hash Table",
-      "String",
-      "Counting"
-    ],
+    "tags": ["Hash Table", "String", "Counting"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/maximum-number-of-balloons/description/",
     "solutions": [
@@ -333,10 +301,7 @@
     "id": "216",
     "title": "Combination Sum III",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Backtracking"
-    ],
+    "tags": ["Array", "Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/combination-sum-iii/description/",
     "solutions": [
@@ -350,10 +315,7 @@
     "id": "46",
     "title": "Permutations",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Backtracking"
-    ],
+    "tags": ["Array", "Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/permutations/description/",
     "solutions": [
@@ -367,11 +329,7 @@
     "id": "90",
     "title": "Subsets II",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Backtracking",
-      "Bit Manipulation"
-    ],
+    "tags": ["Array", "Backtracking", "Bit Manipulation"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/subsets-ii/description/",
     "solutions": [
@@ -385,11 +343,7 @@
     "id": "78",
     "title": "Subsets",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Backtracking",
-      "Bit Manipulation"
-    ],
+    "tags": ["Array", "Backtracking", "Bit Manipulation"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/subsets/description/",
     "solutions": [
@@ -403,10 +357,7 @@
     "id": "39",
     "title": "Combination Sum",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Backtracking"
-    ],
+    "tags": ["Array", "Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/combination-sum/",
     "solutions": [
@@ -420,11 +371,7 @@
     "id": "g-1",
     "title": "Quick Sort, a Divide and Conquer algorithm",
     "difficulty": "Medium",
-    "tags": [
-      "Divide and Conquer",
-      "Sorting",
-      "Algorithm"
-    ],
+    "tags": ["Divide and Conquer", "Sorting", "Algorithm"],
     "platform": "GeeksForGeeks",
     "platformUrl": "https://www.geeksforgeeks.org/problems/quick-sort/1",
     "solutions": [
@@ -438,10 +385,7 @@
     "id": "40",
     "title": "Combination Sum II",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Backtracking"
-    ],
+    "tags": ["Array", "Backtracking"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/combination-sum-ii/",
     "solutions": [
@@ -455,11 +399,7 @@
     "id": 11,
     "title": "Container With Most Water",
     "difficulty": "Easy",
-    "tags": [
-      "Array",
-      "Greedy",
-      "Two Pointers"
-    ],
+    "tags": ["Array", "Greedy", "Two Pointers"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/container-with-most-water/description/",
     "solutions": [
@@ -473,13 +413,7 @@
     "id": 2751,
     "title": "Robot Collisions",
     "difficulty": "Hard",
-    "tags": [
-      "Senior Staff",
-      "Array",
-      "Stack",
-      "Sorting",
-      "Simulation"
-    ],
+    "tags": ["Senior Staff", "Array", "Stack", "Sorting", "Simulation"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/robot-collisions/description/",
     "solutions": [
@@ -493,11 +427,7 @@
     "id": "15",
     "title": "3Sum",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Two Pointers",
-      "Sorting"
-    ],
+    "tags": ["Array", "Two Pointers", "Sorting"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/3sum/description/",
     "solutions": [
@@ -511,9 +441,7 @@
     "id": "a-1",
     "title": "Binary Tree Boundary Traversal",
     "difficulty": "Hard",
-    "tags": [
-      "Algorithm"
-    ],
+    "tags": ["Algorithm"],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -549,9 +477,7 @@
     "id": "a-2",
     "title": "Dutch National Flag",
     "difficulty": "Hard",
-    "tags": [
-      "Algorithm"
-    ],
+    "tags": ["Algorithm"],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -565,9 +491,7 @@
     "id": "a-3",
     "title": "Inversion Count",
     "difficulty": "Hard",
-    "tags": [
-      "Algorithm"
-    ],
+    "tags": ["Algorithm"],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -581,9 +505,7 @@
     "id": "a-4",
     "title": "Kadane's Algorithm",
     "difficulty": "Hard",
-    "tags": [
-      "Algorithm"
-    ],
+    "tags": ["Algorithm"],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -597,9 +519,7 @@
     "id": "a-5",
     "title": "Moore's Voting",
     "difficulty": "Hard",
-    "tags": [
-      "Algorithm"
-    ],
+    "tags": ["Algorithm"],
     "platform": "Custom",
     "platformUrl": "#",
     "solutions": [
@@ -613,13 +533,7 @@
     "id": "1365",
     "title": "How Many Numbers Are Smaller Than the Current Number",
     "difficulty": "Easy",
-    "tags": [
-      "Mid Level",
-      "Array",
-      "Hash Table",
-      "Sorting",
-      "Counting Sort"
-    ],
+    "tags": ["Mid Level", "Array", "Hash Table", "Sorting", "Counting Sort"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/description/",
     "solutions": [
@@ -633,10 +547,7 @@
     "id": "448",
     "title": "Find All Numbers Disappeared in an Array",
     "difficulty": "Easy",
-    "tags": [
-      "Array",
-      "Hash Table"
-    ],
+    "tags": ["Array", "Hash Table"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/description/",
     "solutions": [
@@ -670,11 +581,7 @@
     "id": "g-2",
     "title": "Construct List using XOR Queries",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Bit Magic",
-      "Data Structures"
-    ],
+    "tags": ["Array", "Bit Magic", "Data Structures"],
     "platform": "GeeksForGeeks",
     "platformUrl": "https://www.geeksforgeeks.org/problems/construct-list-using-given-q-xor-queries/1",
     "solutions": [
@@ -688,11 +595,7 @@
     "id": 70,
     "title": "Climbing Stairs",
     "difficulty": "Easy",
-    "tags": [
-      "Math",
-      "Dynamic Programming",
-      "Memoization"
-    ],
+    "tags": ["Math", "Dynamic Programming", "Memoization"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/climbing-stairs/description/",
     "solutions": [
@@ -710,11 +613,7 @@
     "id": 3614,
     "title": "Process String with Special Operations II",
     "difficulty": "Hard",
-    "tags": [
-      "Senior Staff",
-      "String",
-      "Simulation"
-    ],
+    "tags": ["Senior Staff", "String", "Simulation"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/process-string-with-special-operations-ii/description/",
     "solutions": [
@@ -728,11 +627,7 @@
     "id": "g-3",
     "title": "Cut rope to maximise product",
     "difficulty": "Medium",
-    "tags": [
-      "Array",
-      "Dynamic Programming",
-      "Algorithm"
-    ],
+    "tags": ["Array", "Dynamic Programming", "Algorithm"],
     "platform": "GeeksForGeeks",
     "platformUrl": "https://www.geeksforgeeks.org/problems/max-rope-cutting1312/1",
     "solutions": [
@@ -746,11 +641,7 @@
     "id": 62,
     "title": "Unique Paths",
     "difficulty": "Medium",
-    "tags": [
-      "Math",
-      "Dynamic Programming",
-      "Combinatorics"
-    ],
+    "tags": ["Math", "Dynamic Programming", "Combinatorics"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/unique-paths/description/",
     "solutions": [
@@ -772,9 +663,7 @@
     "id": 1344,
     "title": "Angle Between Hands of a Clock",
     "difficulty": "Medium",
-    "tags": [
-      "Math"
-    ],
+    "tags": ["Math"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/angle-between-hands-of-a-clock/description/",
     "solutions": [
@@ -788,11 +677,7 @@
     "id": "74",
     "title": "Search a 2D Matrix",
     "difficulty": "Medium",
-    "tags": [
-      "Matrix",
-      "Binary Search",
-      "Array"
-    ],
+    "tags": ["Matrix", "Binary Search", "Array"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/search-a-2d-matrix/description/",
     "solutions": [
@@ -806,10 +691,7 @@
     "id": "50",
     "title": "Pow(x, n)",
     "difficulty": "Medium",
-    "tags": [
-      "Math",
-      "Recursion"
-    ],
+    "tags": ["Math", "Recursion"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/powx-n/description/",
     "solutions": [
@@ -831,10 +713,7 @@
     "id": "121",
     "title": "Best Time to Buy and Sell Stock",
     "difficulty": "Easy",
-    "tags": [
-      "Array",
-      "Dynamic Programming"
-    ],
+    "tags": ["Array", "Dynamic Programming"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/",
     "solutions": [
@@ -852,12 +731,7 @@
     "id": "3",
     "title": "Longest Substring Without Repeating Characters",
     "difficulty": "Medium",
-    "tags": [
-      "Staff",
-      "Hash Table",
-      "String",
-      "Sliding Window"
-    ],
+    "tags": ["Staff", "Hash Table", "String", "Sliding Window"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/description/",
     "solutions": [
@@ -875,12 +749,7 @@
     "id": "1840",
     "title": "Maximum Building Height",
     "difficulty": "Hard",
-    "tags": [
-      "Senior Staff",
-      "Array",
-      "Math",
-      "Sorting"
-    ],
+    "tags": ["Senior Staff", "Array", "Math", "Sorting"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/maximum-building-height/description/",
     "solutions": [
@@ -902,11 +771,7 @@
     "id": "5",
     "title": "Longest Palindromic Substring",
     "difficulty": "Medium",
-    "tags": [
-      "Dynamic Programming",
-      "Two Pointers",
-      "String"
-    ],
+    "tags": ["Dynamic Programming", "Two Pointers", "String"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/longest-palindromic-substring/description/",
     "solutions": [
@@ -928,13 +793,7 @@
     "id": "1833",
     "title": "Maximum Ice Cream Bars",
     "difficulty": "Medium",
-    "tags": [
-      "Sorting",
-      "Senior",
-      "Greedy",
-      "Counting Sort",
-      "Sorting"
-    ],
+    "tags": ["Sorting", "Senior", "Greedy", "Counting Sort", "Sorting"],
     "platform": "LeetCode",
     "platformUrl": "https://leetcode.com/problems/maximum-ice-cream-bars/description/",
     "solutions": [
