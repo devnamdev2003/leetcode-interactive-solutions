@@ -195,6 +195,16 @@
                 <p class="text-[11px] text-gray-500" id="form-instructions">Paste full Java classes or multiple methods. Engine maps calls automatically.</p>
             </div>
             
+            <!-- NEW: Usage Context Panel -->
+            <div id="usage-context-panel" class="hidden px-4 pt-4 pb-0 fade-in shrink-0">
+                <h3 class="text-[10px] uppercase text-gray-500 mb-2 font-bold tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-microscope text-primary"></i> Usages Found
+                </h3>
+                <div id="usage-list" class="max-h-32 overflow-y-auto space-y-2 code-scroll border border-borderlight rounded-lg bg-cardbg p-2 shadow-inner">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
             <div class="p-4 flex-1 flex flex-col gap-4 relative">
                 <div class="flex-1 flex flex-col border border-borderlight rounded-lg overflow-hidden focus-within:border-primary/50 transition-colors shadow-inner">
                     <div class="bg-cardbg border-b border-borderlight px-3 py-1.5 flex justify-between items-center">
@@ -243,7 +253,7 @@
                 <div class="p-6">
                     
                     <!-- Stats Dashboard -->
-                    <div id="stats-dashboard" class="hidden mb-8 grid grid-cols-3 gap-4">
+                    <div id="stats-dashboard" class="hidden mb-6 grid grid-cols-3 gap-4">
                         <div class="bg-cardbg border border-borderlight p-4 rounded-lg">
                             <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Total Functions</p>
                             <p class="text-2xl font-mono text-white" id="stat-total">0</p>
@@ -259,6 +269,15 @@
                                 <p class="text-2xl font-mono text-accent" id="stat-progress">0%</p>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Setup Search Bar -->
+                    <div id="setup-search-container" class="hidden mb-8 bg-cardbg border border-borderlight p-3 rounded-lg flex gap-3 items-center shadow-inner transition-colors focus-within:border-primary/40">
+                        <i class="fa-solid fa-search text-gray-500 ml-2"></i>
+                        <input type="text" id="setup-search" placeholder="Search functions to resolve or ignore..." class="bg-transparent text-sm text-white w-full outline-none font-mono">
+                        <button id="btn-skip-filtered" class="hidden bg-warning/10 hover:bg-warning/20 text-warning border border-warning/30 text-xs font-bold py-1.5 px-4 rounded transition-colors whitespace-nowrap shadow-[0_0_10px_rgba(255,234,0,0.1)]">
+                            <i class="fa-solid fa-forward-step mr-1"></i> Skip Filtered
+                        </button>
                     </div>
 
                     <!-- Initial State Placeholder -->
@@ -322,15 +341,23 @@
 
         <!-- Floating Controls -->
         <div class="absolute top-4 right-4 flex gap-2 z-10 glass-panel p-1.5 rounded-lg shadow-2xl items-center">
-            <div class="relative flex items-center border-r border-borderlight pr-2 mr-1">
-                <select id="layout-mode" class="appearance-none bg-transparent text-xs text-gray-300 outline-none pr-6 pl-2 py-1 cursor-pointer hover:text-white transition-colors">
-                    <option value="hierarchical-ud" class="bg-cardbg text-gray-300">Vertical Flow</option>
-                    <option value="hierarchical-lr" class="bg-cardbg text-gray-300">Horizontal Flow</option>
-                    <option value="force" class="bg-cardbg text-gray-300">Force Directed</option>
-                </select>
-                <i class="fa-solid fa-chevron-down absolute right-2 text-[10px] text-gray-500 pointer-events-none"></i>
+            
+            <!-- Canvas Search -->
+            <div class="relative flex items-center border-r border-borderlight pr-3 mr-1">
+                <i class="fa-solid fa-search absolute left-3 text-gray-500 text-[10px]"></i>
+                <input type="text" id="canvas-search" placeholder="Find node..." class="bg-appbg border border-borderlight text-xs text-gray-300 rounded-md pl-8 pr-2 py-1.5 outline-none focus:border-primary/50 font-mono w-32 transition-all focus:w-48 placeholder-gray-600 shadow-inner">
             </div>
-            <button id="btn-fit" class="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded text-gray-400 hover:text-white transition-colors tooltip" title="Center View">
+
+            <div class="relative flex items-center border-r border-borderlight pr-2 mr-1 group">
+                <select id="layout-mode" class="appearance-none bg-transparent text-xs text-gray-300 outline-none pr-6 pl-2 py-1.5 cursor-pointer hover:text-white transition-colors group-hover:text-white">
+                    <option value="hierarchical-ud">Vertical Flow</option>
+                    <option value="hierarchical-lr">Horizontal Flow</option>
+                    <option value="force">Force Directed</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 pointer-events-none group-hover:text-white transition-colors"></i>
+            </div>
+            
+            <button id="btn-fit" class="w-8 h-8 flex items-center justify-center bg-transparent text-gray-400 hover:text-white hover:bg-borderlight rounded transition-colors tooltip" title="Fit to Screen">
                 <i class="fa-solid fa-compress"></i>
             </button>
             <button id="btn-physics" class="w-8 h-8 flex items-center justify-center bg-primary/10 text-primary hover:bg-primary/20 rounded transition-colors tooltip" title="Toggle Physics">
@@ -378,10 +405,12 @@
 
     <script>
         // --- State Management ---
-        // functionMap: { [functionName]: { code: string|null, status: 'provided' | 'pending' | 'ignored', calls: string[], loc: number } }
+        // functionMap: { [functionName]: { code: string|null, status: 'provided' | 'pending' | 'ignored', calls: string[], loc: number, callers: array } }
         let functionMap = {};
         let rootFunction = null;
         let currentResolvingFunc = null; 
+        let setupSearchQuery = '';
+        let canvasSearchQuery = '';
         
         let network = null;
         let nodes = new vis.DataSet([]);
@@ -405,6 +434,9 @@
             formInst: document.getElementById('form-instructions'),
             targetBadge: document.getElementById('target-func-badge'),
             
+            usageContextPanel: document.getElementById('usage-context-panel'),
+            usageList: document.getElementById('usage-list'),
+
             setupEmpty: document.getElementById('setup-empty-state'),
             statsDashboard: document.getElementById('stats-dashboard'),
             panelPending: document.getElementById('panel-pending'),
@@ -423,6 +455,10 @@
             statLoc: document.getElementById('stat-loc'),
             statProgress: document.getElementById('stat-progress'),
 
+            setupSearchContainer: document.getElementById('setup-search-container'),
+            setupSearch: document.getElementById('setup-search'),
+            btnSkipFiltered: document.getElementById('btn-skip-filtered'),
+
             generateBanner: document.getElementById('generate-banner'),
             btnGenerateViz: document.getElementById('btn-generate-viz'),
             mainScrollArea: document.getElementById('main-scroll-area'),
@@ -435,6 +471,7 @@
             btnResetAll: document.getElementById('btn-reset-all'),
             btnExport: document.getElementById('btn-export'),
             
+            canvasSearch: document.getElementById('canvas-search'),
             btnFit: document.getElementById('btn-fit'),
             btnPhysics: document.getElementById('btn-physics'),
             layoutMode: document.getElementById('layout-mode'),
@@ -447,29 +484,38 @@
         };
 
         /**
-         * Cleans code and extracts method calls.
+         * Cleans code and extracts method calls along with their line numbers.
          */
         function analyzeJavaCode(code) {
-            let cleanCode = code.replace(/\/\/.*/g, '');
-            cleanCode = cleanCode.replace(/\/\*[\s\S]*?\*\//g, '');
-            cleanCode = cleanCode.replace(/"(?:[^"\\]|\\.)*"/g, '""');
-            cleanCode = cleanCode.replace(/'(?:[^'\\]|\\.)*'/g, "''");
-
-            // Fix: Strip 'new ClassName' to prevent object constructors from being treated as function calls.
-            // This turns "new Dev()" into "()" ensuring 'Dev' is ignored, but inner arguments are still parsed.
-            cleanCode = cleanCode.replace(/\bnew\s+[a-zA-Z_$][a-zA-Z0-9_$.]*\b/g, '');
+            let cleanCode = code;
+            
+            // Replace with spaces to preserve original string length and line counts!
+            cleanCode = cleanCode.replace(/\/\/.*/g, match => ' '.repeat(match.length));
+            cleanCode = cleanCode.replace(/\/\*[\s\S]*?\*\//g, match => ' '.repeat(match.length));
+            cleanCode = cleanCode.replace(/"([^"\\]|\\.)*"/g, match => '"' + ' '.repeat(match.length - 2) + '"');
+            cleanCode = cleanCode.replace(/'([^'\\]|\\.)*'/g, match => "'" + ' '.repeat(match.length - 2) + "'");
+            cleanCode = cleanCode.replace(/\bnew\s+[a-zA-Z_$][a-zA-Z0-9_$.]*\b/g, match => ' '.repeat(match.length));
 
             const regex = /(?:\.\s*)?\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g;
             let match;
-            const calledFunctions = new Set();
+            const callsData = {};
+            const originalLines = code.split('\n');
 
             while ((match = regex.exec(cleanCode)) !== null) {
                 const funcName = match[1];
                 if (!IGNORED_KEYWORDS.has(funcName)) {
-                    calledFunctions.add(funcName);
+                    // Calculate line number based on index
+                    const upToMatch = cleanCode.substring(0, match.index);
+                    const lineNum = (upToMatch.match(/\n/g) || []).length;
+                    
+                    if (!callsData[funcName]) callsData[funcName] = [];
+                    callsData[funcName].push({
+                        lineNum: lineNum + 1,
+                        lineText: originalLines[lineNum].trim()
+                    });
                 }
             }
-            return Array.from(calledFunctions);
+            return callsData;
         }
 
         function extractFunctions(code) {
@@ -551,15 +597,25 @@
                     rootFunction = funcName;
                 }
 
-                const calls = analyzeJavaCode(code);
-                const loc = code.split('\n').length; // Added LOC calculation
+                const callsData = analyzeJavaCode(code);
+                const calls = Object.keys(callsData);
+                const loc = code.split('\n').length; 
 
-                functionMap[funcName] = {
-                    code: code,
-                    status: 'provided',
-                    calls: calls,
-                    loc: loc
-                };
+                if (!functionMap[funcName]) {
+                    functionMap[funcName] = {
+                        code: code,
+                        status: 'provided',
+                        calls: calls,
+                        loc: loc,
+                        callers: []
+                    };
+                } else {
+                    functionMap[funcName].code = code;
+                    functionMap[funcName].status = 'provided';
+                    functionMap[funcName].calls = calls;
+                    functionMap[funcName].loc = loc;
+                    functionMap[funcName].callers = functionMap[funcName].callers || [];
+                }
 
                 calls.forEach(calledName => {
                     if (!functionMap[calledName]) {
@@ -567,9 +623,22 @@
                             code: null,
                             status: 'pending',
                             calls: [],
-                            loc: 0
+                            loc: 0,
+                            callers: []
                         };
                     }
+                    
+                    // Register caller information
+                    callsData[calledName].forEach(callInstance => {
+                        const exists = functionMap[calledName].callers.some(c => c.caller === funcName && c.lineNum === callInstance.lineNum);
+                        if (!exists) {
+                            functionMap[calledName].callers.push({
+                                caller: funcName,
+                                lineNum: callInstance.lineNum,
+                                lineText: callInstance.lineText
+                            });
+                        }
+                    });
                 });
             });
 
@@ -592,10 +661,10 @@
             }
         }
 
-        function ignoreAllPending() {
+        function ignoreFilteredPending() {
             let changed = false;
             Object.keys(functionMap).forEach(funcName => {
-                if (functionMap[funcName].status === 'pending') {
+                if (functionMap[funcName].status === 'pending' && funcName.toLowerCase().startsWith(setupSearchQuery)) {
                     functionMap[funcName].status = 'ignored';
                     changed = true;
                 }
@@ -608,30 +677,12 @@
             }
         }
 
-        function ignoreGettersSetters() {
-            let changed = false;
-            Object.keys(functionMap).forEach(funcName => {
-                if (functionMap[funcName].status === 'pending') {
-                    // Matches getters, setters, and boolean check signatures like getOrder(), setId(), isValid(), hasItems()
-                    if (funcName.match(/^(get|set|is|has)[A-Z0-9_]/)) {
-                        functionMap[funcName].status = 'ignored';
-                        changed = true;
-                    }
-                }
-            });
-            if (changed) {
-                 if (currentResolvingFunc && functionMap[currentResolvingFunc] && functionMap[currentResolvingFunc].status === 'ignored') {
-                    resetFormToDefault();
-                }
-                updateSidebarLists();
-            }
-        }
-
         function updateSidebarLists() {
             let pendingHTML = '';
             let resolvedHTML = '';
             let ignoredHTML = '';
             let counts = { pending: 0, provided: 0, ignored: 0 };
+            let filteredPendingCount = 0;
             let totalLoc = 0;
 
             Object.keys(functionMap).forEach(funcName => {
@@ -641,10 +692,16 @@
                     totalLoc += (data.loc || 0);
                 }
 
+                // Filter check
+                if (setupSearchQuery && !funcName.toLowerCase().startsWith(setupSearchQuery)) {
+                    return; // Skip rendering this item
+                }
+
                 const isRoot = funcName === rootFunction;
                 const rootBadge = isRoot ? `<span class="bg-primary/10 text-primary text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-primary/20 ml-2">Root Node</span>` : '';
 
                 if (data.status === 'pending') {
+                    filteredPendingCount++;
                     const isCurrentlyResolving = currentResolvingFunc === funcName;
                     const borderClass = isCurrentlyResolving ? 'border-warning shadow-[0_0_10px_rgba(255,234,0,0.1)]' : 'border-borderlight hover:border-borderglow';
                     
@@ -703,7 +760,7 @@
             els.countResolved.innerText = counts.provided;
             els.countIgnored.innerText = counts.ignored;
             
-            // Stats Dashboard Updates
+            // Stats Dashboard & Search Updates
             const totalFuncs = counts.pending + counts.provided + counts.ignored;
             els.statTotal.innerText = totalFuncs;
             els.statLoc.innerText = totalLoc;
@@ -711,10 +768,17 @@
             els.statProgress.innerText = `${progress}%`;
             els.statProgress.className = `text-2xl font-mono ${progress === 100 ? 'text-accent' : 'text-warning'}`;
             
+            if (filteredPendingCount > 0 && setupSearchQuery) {
+                els.btnSkipFiltered.classList.remove('hidden');
+            } else {
+                els.btnSkipFiltered.classList.add('hidden');
+            }
+
             // Layout Management
             if (Object.keys(functionMap).length > 0) {
                 els.setupEmpty.classList.add('hidden');
                 els.statsDashboard.classList.remove('hidden');
+                els.setupSearchContainer.classList.remove('hidden');
                 els.panelResolved.classList.remove('hidden');
                 
                 if(counts.pending > 0) els.panelPending.classList.remove('hidden');
@@ -751,6 +815,23 @@
             els.btnAnalyze.classList.remove('flex-[2]');
             els.btnAnalyze.classList.add('flex-1');
             
+            // Populate Usages Panel
+            const callers = functionMap[funcName]?.callers || [];
+            if (callers.length > 0) {
+                els.usageList.innerHTML = callers.map(c => `
+                    <div class="text-[11px] font-mono border-l-2 border-primary/50 pl-2 py-1">
+                        <span class="text-gray-400">Called in <span class="text-primary">${c.caller}()</span> at line ${c.lineNum}:</span>
+                        <div class="text-gray-200 bg-panelbg px-2 py-1.5 rounded mt-1 border border-borderlight truncate">
+                            ${c.lineText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                        </div>
+                    </div>
+                `).join('');
+                els.usageContextPanel.classList.remove('hidden');
+            } else {
+                els.usageContextPanel.classList.add('hidden');
+                els.usageList.innerHTML = '';
+            }
+
             if (functionMap[funcName] && functionMap[funcName].code) {
                 els.inputCode.value = functionMap[funcName].code;
                 els.btnAnalyze.innerHTML = `<i class="fa-solid fa-save"></i> Update`;
@@ -772,6 +853,9 @@
             els.formInst.innerText = Object.keys(functionMap).length === 0 ? 
                 `Paste full Java classes or multiple methods. Engine maps calls automatically.` :
                 `Paste more source code, or define a pending dependency.`;
+            
+            els.usageContextPanel.classList.add('hidden');
+            els.usageList.innerHTML = '';
             
             els.targetBadge.classList.add('hidden');
             els.btnCancelResolve.classList.add('hidden');
@@ -834,17 +918,26 @@
         function updateNetworkGraph() {
             const newNodes = [];
             const newEdges = [];
+            let matchedNodeIds = [];
 
             const colors = {
-                root: { background: '#0a0a0a', border: '#00e5ff', highlight: { background: '#111111', border: '#00b8cc' } }, // Black/Cyan
-                provided: { background: '#0a0a0a', border: '#00e676', highlight: { background: '#111111', border: '#00b25c' } }, // Black/Green
-                ignored: { background: '#050505', border: '#1f1f1f', highlight: { background: '#111111', border: '#333333' }, font: { color: '#555555' } } // Dark Gray
+                root: { background: '#0a0a0a', border: '#00e5ff', font: { color: '#e5e5e5' }, highlight: { background: '#111111', border: '#00b8cc' } },
+                provided: { background: '#0a0a0a', border: '#00e676', font: { color: '#e5e5e5' }, highlight: { background: '#111111', border: '#00b25c' } },
+                ignored: { background: '#050505', border: '#1f1f1f', font: { color: '#555555' }, highlight: { background: '#111111', border: '#333333' } }
             };
+            
+            const dimmedStyle = { background: 'rgba(5,5,5,0.4)', border: 'rgba(31,31,31,0.4)', font: { color: 'rgba(85,85,85,0.4)' } };
 
             Object.keys(functionMap).forEach(funcName => {
                 const data = functionMap[funcName];
                 
                 if (data.status === 'pending') return;
+                
+                let isMatch = true;
+                if (canvasSearchQuery) {
+                    isMatch = funcName.toLowerCase().startsWith(canvasSearchQuery);
+                    if (isMatch) matchedNodeIds.push(funcName);
+                }
 
                 let style = colors[data.status];
                 let label = funcName + '()';
@@ -854,11 +947,20 @@
                     label = '★ ' + label;
                 }
 
+                if (!isMatch) {
+                    style = dimmedStyle;
+                } else if (canvasSearchQuery && isMatch) {
+                    // Brighten matching nodes if searching
+                    style = { ...style, borderWidth: 4, shadow: { enabled: true, color: 'rgba(255,255,255,0.2)', size: 20 } };
+                }
+
                 newNodes.push({
                     id: funcName,
                     label: label,
                     color: style,
-                    font: data.status === 'ignored' ? style.font : undefined,
+                    font: style.font,
+                    borderWidth: style.borderWidth || 2,
+                    shadow: style.shadow || { enabled: true, color: 'rgba(0,0,0,1)', size: 15, x: 0, y: 5 },
                     title: `${funcName}()\nStatus: ${data.status.toUpperCase()}\nLines: ${data.loc || 0}\nCalls Out: ${data.calls ? data.calls.length : 0}` 
                 });
 
@@ -868,11 +970,19 @@
                             const targetStatus = functionMap[calledName].status;
                             let dashes = targetStatus === 'ignored' ? [4, 4] : false;
                             
+                            let isEdgeMatch = true;
+                            if (canvasSearchQuery) {
+                                const sourceMatch = funcName.toLowerCase().startsWith(canvasSearchQuery);
+                                const targetMatch = calledName.toLowerCase().startsWith(canvasSearchQuery);
+                                if (!sourceMatch && !targetMatch) isEdgeMatch = false;
+                            }
+                            
                             newEdges.push({
                                 from: funcName,
                                 to: calledName,
                                 dashes: dashes,
-                                arrows: 'to'
+                                arrows: 'to',
+                                color: isEdgeMatch ? undefined : { color: 'rgba(51,51,51,0.2)' }
                             });
                         }
                     });
@@ -884,9 +994,18 @@
             nodes.add(newNodes);
             edges.add(newEdges);
             
-            setTimeout(() => {
-                if(network) { network.fit({ animation: { duration: 800, easingFunction: 'easeInOutQuad' } }); }
-            }, 300);
+            if (matchedNodeIds.length === 1 && canvasSearchQuery) {
+                setTimeout(() => {
+                    if (network) {
+                        network.focus(matchedNodeIds[0], { scale: 1.3, animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+                        network.selectNodes([matchedNodeIds[0]]);
+                    }
+                }, 100);
+            } else if (!canvasSearchQuery) {
+                setTimeout(() => {
+                    if(network) { network.fit({ animation: { duration: 800, easingFunction: 'easeInOutQuad' } }); }
+                }, 300);
+            }
         }
 
         function exportCanvas() {
@@ -980,6 +1099,22 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             updateSidebarLists();
+
+            // Setup Search Actions
+            els.setupSearch.addEventListener('input', (e) => {
+                setupSearchQuery = e.target.value.toLowerCase();
+                updateSidebarLists();
+            });
+            
+            els.btnSkipFiltered.addEventListener('click', ignoreFilteredPending);
+
+            // Canvas Search Actions
+            els.canvasSearch.addEventListener('input', (e) => {
+                canvasSearchQuery = e.target.value.toLowerCase();
+                if (network) {
+                    updateNetworkGraph();
+                }
+            });
 
             // Main Actions
             els.btnAnalyze.addEventListener('click', processCodeSubmission);
