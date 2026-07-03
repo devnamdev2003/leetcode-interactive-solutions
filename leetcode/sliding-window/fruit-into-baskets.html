@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Fruit Into Baskets (Sliding Window)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Array Visualization Styles */
+        .array-container {
+            display: flex;
+            position: relative;
+            padding: 10px 20px 40px 20px; /* Extra bottom padding for pointers */
+            align-items: center;
+            justify-content: flex-start;
+            min-width: max-content;
+        }
+        
+        .window-highlight {
+            position: absolute;
+            top: 5px;
+            bottom: 35px;
+            background-color: rgba(59, 130, 246, 0.15); /* primary blue, transparent */
+            border: 2px dashed rgba(59, 130, 246, 0.5);
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .window-highlight.invalid {
+            background-color: rgba(239, 68, 68, 0.15); /* danger red */
+            border-color: rgba(239, 68, 68, 0.6);
+        }
+        
+        .array-cell-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 4px;
+            z-index: 10;
+        }
+        
+        .array-cell {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .array-index {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        /* Pointer Styles */
+        .pointer-container {
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 48px; /* Match cell width for alignment */
+            z-index: 20;
+        }
+        
+        .pointer-label {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 2px;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .pointer-l { color: #60a5fa; }
+        .pointer-l .pointer-label { background-color: rgba(96, 165, 250, 0.2); border: 1px solid rgba(96, 165, 250, 0.4); }
+        .pointer-r { color: #c084fc; }
+        .pointer-r .pointer-label { background-color: rgba(192, 132, 252, 0.2); border: 1px solid rgba(192, 132, 252, 0.4); }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+        
+        /* Fruit Color Classes (Generated dynamically, fallback logic here) */
+        .fruit-icon { font-size: 16px; margin-bottom: -2px;}
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-apple-alt"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Fruit Into Baskets (Sliding Window)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-lg">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Fruits Array (Comma Separated)</label>
+            <input type="text" id="input-arr" class="input-field" value="3, 3, 3, 1, 2, 1, 1, 2, 3, 3, 4">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please provide a comma-separated list of numbers.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-x-auto overflow-y-auto flex flex-col p-6 gap-8 transition-opacity duration-300 justify-start items-center">
+                    
+                    <!-- Status Overlay -->
+                    <div class="sticky top-0 left-0 right-0 flex justify-end z-20 mb-4 w-full">
+                        <div class="flex items-center gap-2 text-slate-400 text-sm font-medium bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                            <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                            <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                            <span id="step-msg">Waiting to begin...</span>
+                        </div>
+                    </div>
+
+                    <!-- Array Visualizer -->
+                    <div class="flex flex-col items-start w-full max-w-full overflow-x-auto pb-8 pt-4 custom-scrollbar">
+                        <div class="flex items-center gap-2 mb-6 sticky left-0">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[]</span> fruits</h3>
+                            <span class="text-[10px] text-slate-500">(Input Array)</span>
+                        </div>
+                        
+                        <div id="canvas-array" class="array-container ml-4">
+                            <!-- Array elements generated via JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Baskets (Frequency Map) Visualizer -->
+                    <div class="w-full mt-auto mb-4 border-t border-borderMain pt-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i class="fas fa-shopping-basket text-warning"></i> Active Baskets</h3>
+                            <span class="text-[10px] text-slate-500">(frequency map & count)</span>
+                        </div>
+                        <div id="canvas-baskets" class="flex flex-wrap gap-4 min-h-[80px] p-4 bg-bgPanel rounded-lg border border-borderMain">
+                            <!-- Baskets generated via JS -->
+                            <div class="text-slate-500 text-xs italic flex items-center h-full">Map empty...</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-warning"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Max Length</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-trophy text-yellow-400"></i>
+                                    <span id="var-max" class="font-mono text-yellow-400 font-bold text-xl">-</span>
+                                </div>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Distinct Count</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-cubes text-emerald-400"></i>
+                                    <span id="var-count" class="font-mono text-emerald-400 font-bold text-xl">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Left Pointer (l)</span>
+                                <span id="var-l" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Right Pointer (r)</span>
+                                <span id="var-r" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> totalFruit(<span class="text-syntaxPink">int</span>[] fruits) {</div></div>
+                        <div id="line-init-1" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span> max = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-init-2" class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">int</span> s = fruits.length;</div></div>
+                        <div id="line-init-3" class="debug-line"><div class="line-num">5</div><div class="code-content text-slate-500 italic">        // Acts as a HashMap to count fruit frequencies</div></div>
+                        <div id="line-init-4" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">int</span>[] frequency = <span class="text-syntaxPink">new int</span>[s + <span class="text-syntaxPink">1</span>];</div></div>
+                        <div id="line-init-5" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">int</span> l = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-init-6" class="debug-line"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">int</span> count = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">        </div></div>
+                        <div id="line-for" class="debug-line"><div class="line-num">10</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> r = <span class="text-syntaxPink">0</span>; r &lt; s; r++) {</div></div>
+                        <div id="line-if-new" class="debug-line"><div class="line-num">11</div><div class="code-content">            <span class="text-syntaxPink">if</span> (frequency[fruits[r]] == <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-count-inc" class="debug-line"><div class="line-num">12</div><div class="code-content">                count++;</div></div>
+                        <div class="debug-line"><div class="line-num">13</div><div class="code-content">            }</div></div>
+                        <div id="line-freq-inc" class="debug-line"><div class="line-num">14</div><div class="code-content">            frequency[fruits[r]]++;</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content">            </div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content text-slate-500 italic">            // Optimization: 'if' instead of 'while'.</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content text-slate-500 italic">            // Window size is bounded to its max observed size.</div></div>
+                        <div id="line-if-invalid" class="debug-line"><div class="line-num">18</div><div class="code-content">            <span class="text-syntaxPink">if</span> (count &gt; <span class="text-syntaxPink">2</span>) {</div></div>
+                        <div id="line-freq-dec" class="debug-line"><div class="line-num">19</div><div class="code-content">                frequency[fruits[l]]--;</div></div>
+                        <div id="line-if-zero" class="debug-line"><div class="line-num">20</div><div class="code-content">                <span class="text-syntaxPink">if</span> (frequency[fruits[l]] == <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-count-dec" class="debug-line"><div class="line-num">21</div><div class="code-content">                    count--;</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">                }</div></div>
+                        <div id="line-l-inc" class="debug-line"><div class="line-num">23</div><div class="code-content">                l++;</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">            }</div></div>
+                        <div id="line-max" class="debug-line"><div class="line-num">25</div><div class="code-content">            max = Math.max(max, r - l + <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">26</div><div class="code-content">        }</div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">27</div><div class="code-content">        <span class="text-syntaxPink">return</span> max;</div></div>
+                        <div class="debug-line"><div class="line-num">28</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">29</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution utilizes an optimized <strong>Sliding Window</strong> technique to solve the "Fruit Into Baskets" problem. The goal is to find the longest contiguous subarray containing at most two distinct elements.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept: Bounded Window Optimization</h3>
+                    <p class="text-slate-300 mb-4">A traditional sliding window uses a <code>while</code> loop to shrink the left pointer until the window becomes valid again. However, this specific implementation uses an <code>if</code> statement.</p>
+                    <p class="bg-[#0f1423] p-4 border border-borderMain rounded font-mono text-xs text-syntaxBlue mb-4">
+                        if (count > 2) { shrinkLeft(); l++; }
+                    </p>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Why an `if`?</strong> We only care about the <em>maximum</em> window size. If we expand the right pointer (`r++`), the window length increases by 1. 
+                        </li>
+                        <li>
+                            If this expansion introduces a 3rd distinct fruit (making it invalid), the `if` block executes, shifting the left pointer right by exactly one position (`l++`).
+                        </li>
+                        <li>
+                            <strong>The result:</strong> The window shifts to the right, but its <strong>length remains unchanged</strong>. It is "bounded" by the maximum length found so far. It will never shrink below its max size, but it will seamlessly grow when it encounters a valid stretch again.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where N is the length of the fruits array. Both pointers <code>l</code> and <code>r</code> move monotonically from left to right. Each pointer traverses the array at most once. The operations inside the loop (array indexing, comparisons) take constant time O(1).</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The code allocates an integer array <code>frequency</code> of size equal to the length of the input array <code>N + 1</code>. While a HashMap could strictly be O(K) where K=2, the chosen array-based map inherently consumes O(N) auxiliary space based on the problem constraints.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State Management
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        // Visual helpers for fruits
+        const fruitColors = ['#f87171', '#fb923c', '#a3e635', '#38bdf8', '#c084fc', '#f472b6', '#fbbf24'];
+        
+        function getFruitColor(type) {
+            return fruitColors[Math.abs(type) % fruitColors.length];
+        }
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const arrStr = document.getElementById('input-arr').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                // Parse comma separated values
+                let fruits = arrStr.split(',').map(s => s.trim()).filter(s => s !== '').map(Number);
+                if (fruits.some(isNaN) || fruits.length === 0) {
+                    throw new Error("Invalid Input");
+                }
+                
+                if (fruits.length > 50) {
+                    fruits = fruits.slice(0, 50);
+                    document.getElementById('input-arr').value = fruits.join(', ');
+                    alert("Array length truncated to 50 for visualization limits.");
+                }
+
+                generateStates(fruits);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Sliding Window State Generator
+        function generateStates(fruits) {
+            states = [];
+            let max = 0;
+            let l = 0;
+            let count = 0;
+            let freq = {}; // Using map instead of array for simplicity in visualization
+            let s = fruits.length;
+
+            const pushState = (msg, line, hlType, extraOpts = {}) => {
+                let currentR = extraOpts.r !== undefined ? extraOpts.r : -1;
+                // Deep copy freq map
+                let freqCopy = {};
+                for (let k in freq) { if (freq[k] > 0) freqCopy[k] = freq[k]; }
+
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: { max, count, l, r: currentR, freq: freqCopy },
+                    visuals: {
+                        arr: fruits,
+                        l: l,
+                        r: currentR,
+                        windowHighlight: hlType
+                    }
+                });
+            };
+
+            pushState("Initializing variables: pointers, max length, and frequency map.", "line-init-1");
+            pushState("Ready to begin right pointer loop.", "line-init-6");
+
+            for (let r = 0; r < s; r++) {
+                pushState(`Expanding window: Moving right pointer to index ${r}.`, "line-for", "eval", {r});
+                
+                let currentFruit = fruits[r];
+                if (freq[currentFruit] === undefined) freq[currentFruit] = 0;
+
+                pushState(`Checking if fruit type '${currentFruit}' is new to the basket.`, "line-if-new", "eval", {r});
+
+                if (freq[currentFruit] === 0) {
+                    count++;
+                    pushState(`Fruit type '${currentFruit}' is new. Incrementing distinct count to ${count}.`, "line-count-inc", "eval", {r});
+                }
+
+                freq[currentFruit]++;
+                pushState(`Adding fruit '${currentFruit}' to frequency map.`, "line-freq-inc", "eval", {r});
+
+                pushState(`Checking constraints: Is distinct count (${count}) > 2?`, "line-if-invalid", "eval", {r});
+
+                if (count > 2) {
+                    pushState(`Count > 2! Window is invalid. Shrinking from the left.`, "line-if-invalid", "invalid", {r});
+                    
+                    let leftFruit = fruits[l];
+                    freq[leftFruit]--;
+                    pushState(`Removing one fruit '${leftFruit}' at left pointer (index ${l}).`, "line-freq-dec", "invalid", {r});
+
+                    pushState(`Did we completely remove fruit type '${leftFruit}'?`, "line-if-zero", "invalid", {r});
+                    if (freq[leftFruit] === 0) {
+                        count--;
+                        pushState(`Yes, type '${leftFruit}' is gone. Decrementing distinct count to ${count}.`, "line-count-dec", "invalid", {r});
+                    }
+
+                    l++;
+                    pushState(`Shift left pointer right to index ${l} to maintain window size constraint.`, "line-l-inc", "eval", {r});
+                }
+
+                let currentWindowSize = r - l + 1;
+                max = Math.max(max, currentWindowSize);
+                pushState(`Updating max length. Current window size is ${currentWindowSize}, max is ${max}.`, "line-max", "eval", {r});
+            }
+
+            pushState(`Algorithm finished. Maximum window length found: ${max}.`, "line-return", "done", {r: s - 1});
+        }
+
+        // Render Canvas DOM
+        function renderBoardDOM(visuals) {
+            const container = document.getElementById('canvas-array');
+            const arr = visuals.arr;
+            const l = visuals.l;
+            const r = visuals.r;
+            
+            // Cell width + margin (48 + 8 = 56px per item)
+            const cellFullWidth = 56; 
+            const paddingLeft = 20; // Accounts for the array-container's 20px left padding
+            const wrapperMargin = 4; // Accounts for the array-cell-wrapper's 4px left margin
+            
+            let html = '';
+            
+            // Background Window Highlight
+            if (r >= 0 && l <= r) {
+                let w = (r - l + 1) * cellFullWidth;
+                let leftPos = paddingLeft + (l * cellFullWidth); 
+                let className = visuals.windowHighlight === 'invalid' ? 'window-highlight invalid' : 'window-highlight';
+                // Subtracts 4 from width and adds 2 to left offset to perfectly center the highlight outline in the margins
+                html += `<div class="${className}" style="width: ${w - 4}px; left: ${leftPos + 2}px;"></div>`;
+            }
+
+            // Array Elements
+            arr.forEach((val, i) => {
+                let color = getFruitColor(val);
+                html += `
+                <div class="array-cell-wrapper" id="cell-${i}">
+                    <div class="array-cell" style="border-bottom: 4px solid ${color}">
+                        <div style="color: ${color}">${val}</div>
+                    </div>
+                    <div class="array-index">${i}</div>
+                </div>`;
+            });
+
+            // Pointers Overlay
+            if (l >= 0 && l < arr.length || (l === arr.length && arr.length > 0)) { // Allow L pointer to hit the end
+                let lPos = paddingLeft + wrapperMargin + (l * cellFullWidth);
+                html += `
+                <div class="pointer-container pointer-l" style="left: ${lPos}px;">
+                    <i class="fas fa-caret-up text-xl -mt-1"></i>
+                    <div class="pointer-label">L</div>
+                </div>`;
+            }
+            if (r >= 0) {
+                let rPos = paddingLeft + wrapperMargin + (r * cellFullWidth);
+                html += `
+                <div class="pointer-container pointer-r" style="left: ${rPos}px; bottom: -20px;">
+                    <i class="fas fa-caret-up text-xl -mt-1"></i>
+                    <div class="pointer-label">R</div>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+            
+            // Auto-scroll logic if container overflows
+            if (r >= 0) {
+                const targetCell = document.getElementById(`cell-${r}`);
+                if (targetCell) {
+                    const scrollContainer = document.getElementById('panel-canvas-content');
+                    // Calculate roughly where we want to scroll to keep R visible
+                    const targetX = targetCell.offsetLeft;
+                    scrollContainer.scrollLeft = Math.max(0, targetX - 200); 
+                }
+            }
+        }
+
+        function renderBasketsDOM(freqMap, maxCount) {
+            const container = document.getElementById('canvas-baskets');
+            
+            let activeKeys = Object.keys(freqMap).filter(k => freqMap[k] > 0);
+            
+            if (activeKeys.length === 0) {
+                container.innerHTML = '<div class="text-slate-500 text-xs italic flex items-center h-full">Map empty...</div>';
+                return;
+            }
+
+            let html = '';
+            activeKeys.forEach(key => {
+                let count = freqMap[key];
+                let color = getFruitColor(parseInt(key));
+                
+                // If we have more than 2 types, highlight the third+ as an issue
+                let borderClass = 'border-borderMain';
+                if (activeKeys.length > 2) borderClass = 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.3)]';
+
+                html += `
+                <div class="flex flex-col bg-bgBase border ${borderClass} rounded-lg p-3 min-w-[80px] items-center transition-all">
+                    <div class="text-[10px] text-slate-400 font-mono mb-1 uppercase tracking-widest">Type ${key}</div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-apple-alt text-xl" style="color: ${color}"></i>
+                        <span class="text-xl font-bold font-mono text-white">x${count}</span>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM Visuals
+            renderBoardDOM(state.visuals);
+            renderBasketsDOM(state.vars.freq, state.vars.count);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-max').innerText = state.vars.max;
+            document.getElementById('var-count').innerText = state.vars.count;
+            document.getElementById('var-l').innerText = state.vars.l;
+            document.getElementById('var-r').innerText = state.vars.r >= 0 ? state.vars.r : '-';
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); // Init speed based on default slider value
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
