@@ -455,6 +455,10 @@
             cleanCode = cleanCode.replace(/"(?:[^"\\]|\\.)*"/g, '""');
             cleanCode = cleanCode.replace(/'(?:[^'\\]|\\.)*'/g, "''");
 
+            // Fix: Strip 'new ClassName' to prevent object constructors from being treated as function calls.
+            // This turns "new Dev()" into "()" ensuring 'Dev' is ignored, but inner arguments are still parsed.
+            cleanCode = cleanCode.replace(/\bnew\s+[a-zA-Z_$][a-zA-Z0-9_$.]*\b/g, '');
+
             const regex = /(?:\.\s*)?\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g;
             let match;
             const calledFunctions = new Set();
