@@ -509,7 +509,8 @@
 
             const regex = /(?:\.\s*)?\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g;
             let match;
-            const callsData = {};
+            // Use Object.create(null) to avoid prototype pollution (e.g. "toString", "constructor")
+            const callsData = Object.create(null);
             const originalLines = code.split('\n');
 
             while ((match = regex.exec(cleanCode)) !== null) {
@@ -519,7 +520,7 @@
                     const upToMatch = cleanCode.substring(0, match.index);
                     const lineNum = (upToMatch.match(/\n/g) || []).length;
                     
-                    if (!callsData[funcName]) callsData[funcName] = [];
+                    if (callsData[funcName] === undefined) callsData[funcName] = [];
                     callsData[funcName].push({
                         lineNum: lineNum + 1,
                         lineText: originalLines[lineNum].trim()
