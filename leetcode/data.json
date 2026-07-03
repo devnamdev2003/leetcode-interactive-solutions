@@ -1,5 +1,27 @@
 [
   {
+    "id": "1460",
+    "title": "Number of Substrings Containing All Three Characters",
+    "difficulty": "Medium",
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/description/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "sliding-window/number-of-substrings-containing-all-three-characters-brute.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "sliding-window/number-of-substrings-containing-all-three-characters.html"
+      }
+    ]
+  },
+  {
     "id": "940",
     "title": "Fruit Into Baskets",
     "difficulty": "Medium",
