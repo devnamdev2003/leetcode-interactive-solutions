@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaFlow Visualizer | Advanced Analysis</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    
+    <!-- Highlight.js for Code Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/java.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        appbg: '#000000',
+                        panelbg: '#0a0a0a',
+                        cardbg: '#111111',
+                        borderlight: '#1f1f1f',
+                        borderglow: '#333333',
+                        primary: '#00e5ff', // Neon Cyan
+                        primarydark: '#009eb3',
+                        accent: '#00e676', // Neon Green
+                        warning: '#ffea00',
+                        danger: '#ff1744'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        body {
+            background-color: #000000;
+            color: #e5e5e5;
+            overflow: hidden;
+        }
+
+        /* Sleek Minimal Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000000; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f1f1f; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333333; 
+        }
+
+        .vis-network:focus {
+            outline: none;
+        }
+
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid #1f1f1f;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.98); visibility: hidden; }
+        }
+        
+        #view-setup, #view-canvas {
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        
+        .hidden-view {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .active-view {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* IDE Textarea Style */
+        .ide-textarea {
+            background: #050505;
+            color: #d4d4d4;
+            line-height: 1.5;
+            tab-size: 4;
+            background-image: linear-gradient(transparent 50%, rgba(255,255,255,0.01) 50%);
+            background-size: 100% 3em;
+        }
+
+        /* Glow effects for cards */
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+            border-color: rgba(0, 229, 255, 0.4);
+        }
+
+        /* Dotted Background for Canvas */
+        .bg-dots {
+            background-color: #080808;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Modal Code Scrollbar */
+        .code-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #282c34; /* Matches atom-one-dark bg */
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #4b5363; 
+            border-radius: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb:hover {
+            background: #5c6370; 
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col font-sans bg-appbg text-gray-200">
+
+    <!-- Global Header -->
+    <header class="p-4 border-b border-borderlight bg-panelbg z-20 flex justify-between items-center shrink-0">
+        <div>
+            <h1 class="text-xl font-bold flex items-center gap-3 tracking-wide">
+                <i class="fa-solid fa-code-merge text-primary"></i> 
+                <span class="text-white">JavaFlow</span> <span class="text-gray-500 font-light text-sm ml-2 hidden sm:inline border-l border-borderlight pl-3">Advanced AST Analyzer</span>
+            </h1>
+        </div>
+        
+        <!-- View Toggles -->
+        <div id="view-controls" class="hidden flex gap-3">
+             <button id="btn-back-setup" class="bg-cardbg border border-borderlight hover:border-gray-500 text-gray-300 text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Edit Source
+            </button>
+            <button id="btn-export" class="bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-download"></i> Export PNG
+            </button>
+            <button id="btn-reset-all" class="bg-danger/10 hover:bg-danger/20 text-danger text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2 border border-danger/30 ml-4">
+                <i class="fa-solid fa-power-off"></i> Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- VIEW 1: SETUP & RESOLUTION -->
+    <div id="view-setup" class="active-view flex flex-col md:flex-row h-full overflow-hidden">
+        
+        <!-- Left Column: Input Form (IDE Feel) -->
+        <aside class="w-full md:w-[500px] h-full flex flex-col border-r border-borderlight bg-panelbg shrink-0">
+            <div class="p-4 border-b border-borderlight flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-gray-400" id="form-title">
+                        <i class="fa-solid fa-terminal text-primary mr-2"></i> Input Source
+                    </h2>
+                    <span id="target-func-badge" class="hidden bg-warning/10 border border-warning/30 text-warning text-xs py-0.5 px-2 rounded font-mono shadow-[0_0_10px_rgba(255,234,0,0.1)]">Resolving...</span>
+                </div>
+                <p class="text-[11px] text-gray-500" id="form-instructions">Paste full Java classes or multiple methods. Engine maps calls automatically.</p>
+            </div>
+            
+            <div class="p-4 flex-1 flex flex-col gap-4 relative">
+                <div class="flex-1 flex flex-col border border-borderlight rounded-lg overflow-hidden focus-within:border-primary/50 transition-colors shadow-inner">
+                    <div class="bg-cardbg border-b border-borderlight px-3 py-1.5 flex justify-between items-center">
+                        <span class="text-[10px] text-gray-500 font-mono">source.java</span>
+                        <div class="flex gap-1.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-danger/50"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-warning/50"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-accent/50"></div>
+                        </div>
+                    </div>
+                    <textarea id="input-func-code" placeholder="public void processOrder(Order o) {&#10;    validate(o);&#10;    save(o);&#10;}&#10;&#10;private void validate(Order o) {&#10;    // Paste multiple methods here!&#10;}" 
+                              class="ide-textarea flex-1 w-full p-4 text-sm focus:outline-none font-mono resize-none"></textarea>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button id="btn-cancel-resolve" class="hidden flex-1 bg-cardbg border border-borderlight hover:bg-borderlight text-gray-400 font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
+                        Cancel Edit
+                    </button>
+                    <button id="btn-analyze" class="flex-[2] bg-primary text-black hover:bg-primarydark font-bold py-2.5 px-4 rounded-lg transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)] flex items-center justify-center gap-2 text-sm uppercase tracking-wide">
+                        <i class="fa-solid fa-bolt"></i> Analyze Source
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Column: Dashboard & Resolution Lists -->
+        <main class="flex-1 bg-appbg h-full flex flex-col overflow-hidden relative">
+            
+            <!-- Generate Visualization Banner (Sticky Top) -->
+            <div id="generate-banner" class="bg-accent/10 border-b border-accent/30 p-4 flex justify-between items-center hidden fade-in absolute top-0 left-0 w-full z-20 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center border border-accent/40 text-accent">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-medium text-sm">All Dependencies Resolved</h3>
+                        <p class="text-accent/70 text-xs">Ready for visual generation.</p>
+                    </div>
+                </div>
+                <button id="btn-generate-viz" class="bg-accent text-black hover:bg-green-400 font-bold py-2 px-6 rounded-lg transition-all shadow-[0_0_20px_rgba(0,230,118,0.3)] flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-network-wired"></i> Render Canvas
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto" id="main-scroll-area">
+                <div class="p-6">
+                    
+                    <!-- Stats Dashboard -->
+                    <div id="stats-dashboard" class="hidden mb-8 grid grid-cols-3 gap-4">
+                        <div class="bg-cardbg border border-borderlight p-4 rounded-lg">
+                            <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Total Functions</p>
+                            <p class="text-2xl font-mono text-white" id="stat-total">0</p>
+                        </div>
+                        <div class="bg-cardbg border border-borderlight p-4 rounded-lg relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-8 -mt-8"></div>
+                            <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Total LOC</p>
+                            <p class="text-2xl font-mono text-primary" id="stat-loc">0</p>
+                        </div>
+                        <div class="bg-cardbg border border-borderlight p-4 rounded-lg">
+                            <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Completion</p>
+                            <div class="flex items-end gap-2">
+                                <p class="text-2xl font-mono text-accent" id="stat-progress">0%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Initial State Placeholder -->
+                    <div id="setup-empty-state" class="h-full min-h-[500px] flex flex-col items-center justify-center text-gray-600">
+                        <div class="w-24 h-24 mb-6 rounded-2xl bg-cardbg border border-borderlight flex items-center justify-center shadow-2xl relative">
+                            <i class="fa-solid fa-code text-4xl text-gray-500"></i>
+                            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-primary/20 border border-primary/50 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-bolt text-primary text-xs"></i>
+                            </div>
+                        </div>
+                        <h2 class="text-lg font-medium text-gray-300">Awaiting Input Source</h2>
+                        <p class="text-sm mt-2 text-center max-w-md text-gray-500">Paste your Java code on the left. The engine will automatically parse AST-like structures and map nested function calls.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 align-start content-start">
+                        <!-- Pending Functions -->
+                        <div id="panel-pending" class="hidden flex flex-col">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-borderlight pb-2">
+                                <i class="fa-solid fa-circle-notch fa-spin text-warning mr-1"></i> Missing Defs <span id="count-pending" class="bg-cardbg text-warning text-[10px] py-0.5 px-2 rounded-full border border-warning/20 ml-auto">0</span>
+                            </h3>
+                            <div id="list-pending" class="space-y-3">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Resolved Functions -->
+                        <div id="panel-resolved" class="hidden flex flex-col xl:col-span-1">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-borderlight pb-2">
+                                <i class="fa-solid fa-check text-accent mr-1"></i> Resolved <span id="count-resolved" class="bg-cardbg text-accent text-[10px] py-0.5 px-2 rounded-full border border-accent/20 ml-auto">0</span>
+                            </h3>
+                            <div id="list-resolved" class="space-y-3">
+                                <!-- Populated by JS -->
+                            </div>
+                            
+                            <!-- Ignored Functions (Merged under resolved visually) -->
+                            <div id="panel-ignored" class="hidden mt-6">
+                                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    Ignored Leaves <span id="count-ignored" class="text-[10px] bg-cardbg px-2 rounded-full border border-borderlight">0</span>
+                                </h3>
+                                <div id="list-ignored" class="space-y-2">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- VIEW 2: CANVAS VISUALIZATION -->
+    <div id="view-canvas" class="hidden-view">
+        <!-- Canvas Container -->
+        <div id="network-canvas" class="absolute inset-0 w-full h-full bg-appbg bg-dots"></div>
+
+        <!-- Floating Controls -->
+        <div class="absolute top-4 right-4 flex gap-2 z-10 glass-panel p-1.5 rounded-lg shadow-2xl items-center">
+            <div class="relative flex items-center border-r border-borderlight pr-2 mr-1">
+                <select id="layout-mode" class="appearance-none bg-transparent text-xs text-gray-300 outline-none pr-6 pl-2 py-1 cursor-pointer hover:text-white transition-colors">
+                    <option value="hierarchical-ud" class="bg-cardbg text-gray-300">Vertical Flow</option>
+                    <option value="hierarchical-lr" class="bg-cardbg text-gray-300">Horizontal Flow</option>
+                    <option value="force" class="bg-cardbg text-gray-300">Force Directed</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-2 text-[10px] text-gray-500 pointer-events-none"></i>
+            </div>
+            <button id="btn-fit" class="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded text-gray-400 hover:text-white transition-colors tooltip" title="Center View">
+                <i class="fa-solid fa-compress"></i>
+            </button>
+            <button id="btn-physics" class="w-8 h-8 flex items-center justify-center bg-primary/10 text-primary hover:bg-primary/20 rounded transition-colors tooltip" title="Toggle Physics">
+                <i class="fa-solid fa-magnet"></i>
+            </button>
+        </div>
+
+        <!-- Legend -->
+        <div class="absolute bottom-4 right-4 z-10 glass-panel p-4 rounded-lg shadow-2xl text-[11px] font-mono space-y-3 min-w-[180px]">
+            <h4 class="text-gray-400 uppercase tracking-wider mb-2 border-b border-borderlight pb-1">Topology Legend</h4>
+            <div class="flex items-center gap-3 text-gray-300">
+                <div class="w-3 h-3 rounded-sm bg-appbg border-2 border-primary shadow-[0_0_8px_rgba(0,229,255,0.4)]"></div> 
+                Root Node
+            </div>
+            <div class="flex items-center gap-3 text-gray-300">
+                <div class="w-3 h-3 rounded-sm bg-appbg border-2 border-accent shadow-[0_0_8px_rgba(0,230,118,0.3)]"></div> 
+                Mapped Function
+            </div>
+            <div class="flex items-center gap-3 text-gray-500">
+                <div class="w-3 h-3 rounded-sm bg-cardbg border border-borderlight"></div> 
+                Ignored Leaf
+            </div>
+            <div class="mt-2 pt-2 border-t border-borderlight text-gray-500 text-[10px]">
+                * Double-click node to view code
+            </div>
+        </div>
+
+        <!-- Code Viewer Modal -->
+        <div id="code-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity">
+            <div class="bg-cardbg border border-borderlight rounded-xl shadow-2xl w-full max-w-4xl flex flex-col h-[85vh] relative overflow-hidden fade-in">
+                <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
+                    <h3 class="text-white font-mono font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-code text-primary"></i> <span id="modal-func-name">functionName()</span>
+                    </h3>
+                    <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 bg-[#282c34] relative code-scroll">
+                    <pre class="m-0 h-full"><code id="modal-code-content" class="language-java text-sm font-mono leading-relaxed bg-transparent p-0"></code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        // functionMap: { [functionName]: { code: string|null, status: 'provided' | 'pending' | 'ignored', calls: string[], loc: number } }
+        let functionMap = {};
+        let rootFunction = null;
+        let currentResolvingFunc = null; 
+        
+        let network = null;
+        let nodes = new vis.DataSet([]);
+        let edges = new vis.DataSet([]);
+        let physicsEnabled = true;
+        let layoutMode = 'hierarchical-ud'; // 'hierarchical-ud', 'hierarchical-lr' or 'force'
+
+        const IGNORED_KEYWORDS = new Set([
+            'if', 'for', 'while', 'switch', 'catch', 'return', 'new', 'super', 'this',
+            'synchronized', 'try', 'else', 'do', 'System', 'out', 'println', 'print', 
+            'printf', 'String', 'Integer', 'Boolean', 'Double', 'Math', 'List', 'Map', 
+            'Set', 'Collection', 'Arrays', 'Collections', 'Objects', 'Exception', 'Error',
+            'public', 'private', 'protected', 'static', 'void', 'class'
+        ]);
+
+        const els = {
+            inputCode: document.getElementById('input-func-code'),
+            btnAnalyze: document.getElementById('btn-analyze'),
+            btnCancelResolve: document.getElementById('btn-cancel-resolve'),
+            formTitle: document.getElementById('form-title'),
+            formInst: document.getElementById('form-instructions'),
+            targetBadge: document.getElementById('target-func-badge'),
+            
+            setupEmpty: document.getElementById('setup-empty-state'),
+            statsDashboard: document.getElementById('stats-dashboard'),
+            panelPending: document.getElementById('panel-pending'),
+            panelResolved: document.getElementById('panel-resolved'),
+            panelIgnored: document.getElementById('panel-ignored'),
+            
+            listPending: document.getElementById('list-pending'),
+            listResolved: document.getElementById('list-resolved'),
+            listIgnored: document.getElementById('list-ignored'),
+            
+            countPending: document.getElementById('count-pending'),
+            countResolved: document.getElementById('count-resolved'),
+            countIgnored: document.getElementById('count-ignored'),
+            
+            statTotal: document.getElementById('stat-total'),
+            statLoc: document.getElementById('stat-loc'),
+            statProgress: document.getElementById('stat-progress'),
+
+            generateBanner: document.getElementById('generate-banner'),
+            btnGenerateViz: document.getElementById('btn-generate-viz'),
+            mainScrollArea: document.getElementById('main-scroll-area'),
+            
+            viewSetup: document.getElementById('view-setup'),
+            viewCanvas: document.getElementById('view-canvas'),
+            viewControls: document.getElementById('view-controls'),
+            
+            btnBackSetup: document.getElementById('btn-back-setup'),
+            btnResetAll: document.getElementById('btn-reset-all'),
+            btnExport: document.getElementById('btn-export'),
+            
+            btnFit: document.getElementById('btn-fit'),
+            btnPhysics: document.getElementById('btn-physics'),
+            layoutMode: document.getElementById('layout-mode'),
+            canvasContainer: document.getElementById('network-canvas'),
+            
+            codeModal: document.getElementById('code-modal'),
+            modalFuncName: document.getElementById('modal-func-name'),
+            modalCodeContent: document.getElementById('modal-code-content'),
+            btnCloseModal: document.getElementById('btn-close-modal')
+        };
+
+        /**
+         * Cleans code and extracts method calls.
+         */
+        function analyzeJavaCode(code) {
+            let cleanCode = code.replace(/\/\/.*/g, '');
+            cleanCode = cleanCode.replace(/\/\*[\s\S]*?\*\//g, '');
+            cleanCode = cleanCode.replace(/"(?:[^"\\]|\\.)*"/g, '""');
+            cleanCode = cleanCode.replace(/'(?:[^'\\]|\\.)*'/g, "''");
+
+            const regex = /(?:\.\s*)?\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g;
+            let match;
+            const calledFunctions = new Set();
+
+            while ((match = regex.exec(cleanCode)) !== null) {
+                const funcName = match[1];
+                if (!IGNORED_KEYWORDS.has(funcName)) {
+                    calledFunctions.add(funcName);
+                }
+            }
+            return Array.from(calledFunctions);
+        }
+
+        function extractFunctions(code) {
+            let spaceCode = code
+                .replace(/\/\/.*/g, match => ' '.repeat(match.length))
+                .replace(/\/\*[\s\S]*?\*\//g, match => ' '.repeat(match.length))
+                .replace(/"([^"\\]|\\.)*"/g, match => '"' + ' '.repeat(match.length - 2) + '"')
+                .replace(/'([^'\\]|\\.)*'/g, match => "'" + ' '.repeat(match.length - 2) + "'");
+
+            const sigRegex = /(?:(?:\b(?:public|private|protected|static|final|native|synchronized|abstract|transient)\b\s+)*\b(?:[\w\<\>\[\]]+)\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*(?:throws\s+[a-zA-Z0-9_$,\s]+)?\s*\{/g;
+            
+            const functions = [];
+            let match;
+            
+            while ((match = sigRegex.exec(spaceCode)) !== null) {
+                const funcName = match[1];
+                if (IGNORED_KEYWORDS.has(funcName)) continue;
+                if (['if', 'else', 'for', 'while', 'switch', 'catch', 'try', 'synchronized'].includes(funcName)) continue;
+
+                const startBraceIdx = match.index + match[0].length - 1;
+                let braceCount = 1;
+                let endBraceIdx = -1;
+
+                for (let i = startBraceIdx + 1; i < spaceCode.length; i++) {
+                    if (spaceCode[i] === '{') braceCount++;
+                    else if (spaceCode[i] === '}') braceCount--;
+
+                    if (braceCount === 0) {
+                        endBraceIdx = i;
+                        break;
+                    }
+                }
+
+                if (endBraceIdx !== -1) {
+                    const funcBody = code.substring(match.index, endBraceIdx + 1);
+                    functions.push({
+                        name: funcName,
+                        code: funcBody
+                    });
+                    sigRegex.lastIndex = endBraceIdx + 1; 
+                }
+            }
+            return functions;
+        }
+
+        function processCodeSubmission() {
+            const rawCode = els.inputCode.value.trim();
+            if (!rawCode) {
+                els.inputCode.classList.add('border-danger');
+                setTimeout(() => els.inputCode.classList.remove('border-danger'), 1000);
+                return;
+            }
+
+            let extracted = extractFunctions(rawCode);
+
+            if (extracted.length === 0) {
+                let fallbackName = currentResolvingFunc;
+                
+                if (!fallbackName && Object.keys(functionMap).length === 0) {
+                    fallbackName = prompt("Auto-detect failed. Enter root function name:", "main");
+                    if(fallbackName) fallbackName = fallbackName.trim();
+                } else if (!fallbackName && Object.keys(functionMap).length > 0) {
+                    alert("Could not detect signatures. Select a pending function first, or include signatures (e.g., 'void myMethod() { ... }').");
+                    return;
+                }
+
+                if (fallbackName) {
+                    extracted = [{ name: fallbackName, code: rawCode }];
+                } else {
+                    return; 
+                }
+            }
+
+            extracted.forEach(func => {
+                const funcName = func.name;
+                const code = func.code;
+
+                if (!rootFunction && Object.keys(functionMap).length === 0) {
+                    rootFunction = funcName;
+                }
+
+                const calls = analyzeJavaCode(code);
+                const loc = code.split('\n').length; // Added LOC calculation
+
+                functionMap[funcName] = {
+                    code: code,
+                    status: 'provided',
+                    calls: calls,
+                    loc: loc
+                };
+
+                calls.forEach(calledName => {
+                    if (!functionMap[calledName]) {
+                        functionMap[calledName] = {
+                            code: null,
+                            status: 'pending',
+                            calls: [],
+                            loc: 0
+                        };
+                    }
+                });
+            });
+
+            if (!currentResolvingFunc || extracted.some(f => f.name === currentResolvingFunc)) {
+                resetFormToDefault();
+            } else {
+                els.inputCode.value = ''; 
+            }
+            
+            updateSidebarLists();
+        }
+
+        function setFunctionStatus(funcName, status) {
+            if (functionMap[funcName]) {
+                functionMap[funcName].status = status;
+                if (currentResolvingFunc === funcName) {
+                    resetFormToDefault();
+                }
+                updateSidebarLists();
+            }
+        }
+
+        function updateSidebarLists() {
+            let pendingHTML = '';
+            let resolvedHTML = '';
+            let ignoredHTML = '';
+            let counts = { pending: 0, provided: 0, ignored: 0 };
+            let totalLoc = 0;
+
+            Object.keys(functionMap).forEach(funcName => {
+                const data = functionMap[funcName];
+                counts[data.status]++;
+                if (data.status === 'provided') {
+                    totalLoc += (data.loc || 0);
+                }
+
+                const isRoot = funcName === rootFunction;
+                const rootBadge = isRoot ? `<span class="bg-primary/10 text-primary text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-primary/20 ml-2">Root Node</span>` : '';
+
+                if (data.status === 'pending') {
+                    const isCurrentlyResolving = currentResolvingFunc === funcName;
+                    const borderClass = isCurrentlyResolving ? 'border-warning shadow-[0_0_10px_rgba(255,234,0,0.1)]' : 'border-borderlight hover:border-borderglow';
+                    
+                    pendingHTML += `
+                        <div class="bg-cardbg border ${borderClass} p-3 rounded-lg flex flex-col gap-2 transition-all group">
+                            <div class="flex justify-between items-center">
+                                <span class="font-mono text-sm text-gray-300 truncate group-hover:text-warning transition-colors" title="${funcName}">${funcName}()</span>
+                            </div>
+                            <div class="flex gap-2 mt-2">
+                                <button onclick="setupCodeResolution('${funcName}')" class="flex-1 bg-borderlight hover:bg-warning/20 text-gray-400 hover:text-warning text-xs py-1.5 rounded transition-colors flex items-center justify-center gap-1.5" ${isCurrentlyResolving ? 'disabled' : ''}>
+                                    <i class="fa-solid fa-code"></i> ${isCurrentlyResolving ? 'Pasting...' : 'Define'}
+                                </button>
+                                <button onclick="setFunctionStatus('${funcName}', 'ignored')" class="flex-[0.5] bg-transparent border border-borderlight hover:border-gray-500 text-gray-500 hover:text-gray-300 text-xs py-1.5 rounded transition-colors">
+                                    Skip
+                                </button>
+                            </div>
+                        </div>`;
+                } else if (data.status === 'provided') {
+                    resolvedHTML += `
+                        <div class="bg-cardbg border border-borderlight p-3 rounded-lg flex flex-col gap-2 glow-hover transition-all">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col overflow-hidden">
+                                    <div class="flex items-center">
+                                        <span class="font-mono text-sm text-gray-200 truncate" title="${funcName}">${funcName}()</span>
+                                        ${rootBadge}
+                                    </div>
+                                    <div class="flex items-center gap-3 mt-1.5">
+                                        <span class="text-[10px] text-gray-500 font-mono"><i class="fa-solid fa-align-left text-gray-600 mr-1"></i> ${data.loc} Lines</span>
+                                        <span class="text-[10px] text-gray-500 font-mono"><i class="fa-solid fa-arrow-right-from-bracket text-gray-600 mr-1"></i> ${data.calls.length} Calls</span>
+                                    </div>
+                                </div>
+                                <button onclick="setupCodeResolution('${funcName}')" class="text-gray-500 hover:text-primary transition-colors text-xs p-1">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                } else if (data.status === 'ignored') {
+                    ignoredHTML += `
+                        <div class="bg-transparent border border-borderlight/50 p-2 rounded-md flex justify-between items-center group">
+                            <div class="flex items-center overflow-hidden">
+                                <span class="font-mono text-xs text-gray-600 line-through truncate" title="${funcName}">${funcName}()</span>
+                            </div>
+                            <button onclick="setFunctionStatus('${funcName}', 'pending')" class="text-gray-600 hover:text-white text-[10px] transition-colors opacity-0 group-hover:opacity-100">
+                                Restore
+                            </button>
+                        </div>`;
+                }
+            });
+
+            // Update DOM
+            els.listPending.innerHTML = pendingHTML;
+            els.listResolved.innerHTML = resolvedHTML;
+            els.listIgnored.innerHTML = ignoredHTML;
+
+            els.countPending.innerText = counts.pending;
+            els.countResolved.innerText = counts.provided;
+            els.countIgnored.innerText = counts.ignored;
+            
+            // Stats Dashboard Updates
+            const totalFuncs = counts.pending + counts.provided + counts.ignored;
+            els.statTotal.innerText = totalFuncs;
+            els.statLoc.innerText = totalLoc;
+            const progress = totalFuncs === 0 ? 0 : Math.round(((counts.provided + counts.ignored) / totalFuncs) * 100);
+            els.statProgress.innerText = `${progress}%`;
+            els.statProgress.className = `text-2xl font-mono ${progress === 100 ? 'text-accent' : 'text-warning'}`;
+            
+            // Layout Management
+            if (Object.keys(functionMap).length > 0) {
+                els.setupEmpty.classList.add('hidden');
+                els.statsDashboard.classList.remove('hidden');
+                els.panelResolved.classList.remove('hidden');
+                
+                if(counts.pending > 0) els.panelPending.classList.remove('hidden');
+                else els.panelPending.classList.add('hidden');
+                
+                if(counts.ignored > 0) els.panelIgnored.classList.remove('hidden');
+                else els.panelIgnored.classList.add('hidden');
+            } else {
+                els.setupEmpty.classList.remove('hidden');
+                els.statsDashboard.classList.add('hidden');
+                els.panelPending.classList.add('hidden');
+                els.panelResolved.classList.add('hidden');
+                els.panelIgnored.classList.add('hidden');
+            }
+
+            // Generate Banner Logic (Show if we have functions, and NONE are pending)
+            if (Object.keys(functionMap).length > 0 && counts.pending === 0) {
+                els.generateBanner.classList.remove('hidden');
+                els.mainScrollArea.classList.add('pt-16'); // make room for sticky banner
+            } else {
+                els.generateBanner.classList.add('hidden');
+                els.mainScrollArea.classList.remove('pt-16');
+            }
+        }
+
+        function setupCodeResolution(funcName) {
+            currentResolvingFunc = funcName;
+            
+            els.formTitle.innerHTML = `<i class="fa-solid fa-link text-warning mr-2"></i> Resolve Dependency`;
+            els.formInst.innerText = `Provide implementation for the missing function below.`;
+            els.targetBadge.innerText = `${funcName}()`;
+            els.targetBadge.classList.remove('hidden');
+            els.btnCancelResolve.classList.remove('hidden');
+            els.btnAnalyze.classList.remove('flex-[2]');
+            els.btnAnalyze.classList.add('flex-1');
+            
+            if (functionMap[funcName] && functionMap[funcName].code) {
+                els.inputCode.value = functionMap[funcName].code;
+                els.btnAnalyze.innerHTML = `<i class="fa-solid fa-save"></i> Update`;
+            } else {
+                els.inputCode.value = '';
+                els.btnAnalyze.innerHTML = `<i class="fa-solid fa-bolt"></i> Map Code`;
+            }
+            
+            els.inputCode.focus();
+            updateSidebarLists(); 
+        }
+
+        function resetFormToDefault() {
+            currentResolvingFunc = null;
+            els.inputCode.value = '';
+            els.formTitle.innerHTML = Object.keys(functionMap).length === 0 ? 
+                `<i class="fa-solid fa-terminal text-primary mr-2"></i> Input Source` :
+                `<i class="fa-solid fa-plus text-primary mr-2"></i> Map Additional Functions`;
+            els.formInst.innerText = Object.keys(functionMap).length === 0 ? 
+                `Paste full Java classes or multiple methods. Engine maps calls automatically.` :
+                `Paste more source code, or define a pending dependency.`;
+            
+            els.targetBadge.classList.add('hidden');
+            els.btnCancelResolve.classList.add('hidden');
+            els.btnAnalyze.classList.add('flex-[2]');
+            els.btnAnalyze.classList.remove('flex-1');
+            els.btnAnalyze.innerHTML = `<i class="fa-solid fa-bolt"></i> Analyze Source`;
+            updateSidebarLists();
+        }
+
+        function initNetwork() {
+            const data = { nodes: nodes, edges: edges };
+            const options = {
+                nodes: {
+                    shape: 'box',
+                    margin: { top: 12, bottom: 12, left: 16, right: 16 },
+                    borderWidth: 2,
+                    shadow: { enabled: true, color: 'rgba(0,0,0,1)', size: 15, x: 0, y: 5 },
+                    font: { color: '#e5e5e5', face: 'JetBrains Mono, monospace', size: 14 }
+                },
+                edges: {
+                    width: 2,
+                    color: { color: '#333333', highlight: '#00e5ff', hover: '#555555' },
+                    arrows: { to: { enabled: true, scaleFactor: 0.8 } },
+                    smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.5 }
+                },
+                layout: {
+                    hierarchical: {
+                        enabled: true, direction: 'UD', sortMethod: 'directed',
+                        nodeSpacing: 250, levelSeparation: 150
+                    }
+                },
+                physics: {
+                    enabled: physicsEnabled,
+                    hierarchicalRepulsion: { centralGravity: 0.0, springLength: 150, springConstant: 0.01, nodeDistance: 250, damping: 0.09 },
+                    solver: 'hierarchicalRepulsion'
+                },
+                interaction: { hover: true, tooltipDelay: 200, zoomView: true, dragView: true }
+            };
+            
+            network = new vis.Network(els.canvasContainer, data, options);
+            
+            network.on("doubleClick", function (params) {
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const funcData = functionMap[nodeId];
+                    if (funcData && funcData.code) {
+                        els.modalFuncName.innerText = nodeId + '()';
+                        els.modalCodeContent.textContent = funcData.code;
+                        
+                        // Apply syntax highlighting
+                        delete els.modalCodeContent.dataset.highlighted; // Clear previous highlight state
+                        hljs.highlightElement(els.modalCodeContent);
+                        
+                        els.codeModal.classList.remove('hidden');
+                    }
+                }
+            });
+        }
+
+        function updateNetworkGraph() {
+            const newNodes = [];
+            const newEdges = [];
+
+            const colors = {
+                root: { background: '#0a0a0a', border: '#00e5ff', highlight: { background: '#111111', border: '#00b8cc' } }, // Black/Cyan
+                provided: { background: '#0a0a0a', border: '#00e676', highlight: { background: '#111111', border: '#00b25c' } }, // Black/Green
+                ignored: { background: '#050505', border: '#1f1f1f', highlight: { background: '#111111', border: '#333333' }, font: { color: '#555555' } } // Dark Gray
+            };
+
+            Object.keys(functionMap).forEach(funcName => {
+                const data = functionMap[funcName];
+                
+                if (data.status === 'pending') return;
+
+                let style = colors[data.status];
+                let label = funcName + '()';
+                
+                if (funcName === rootFunction) {
+                    style = colors.root;
+                    label = '★ ' + label;
+                }
+
+                newNodes.push({
+                    id: funcName,
+                    label: label,
+                    color: style,
+                    font: data.status === 'ignored' ? style.font : undefined,
+                    title: `${funcName}()\nStatus: ${data.status.toUpperCase()}\nLines: ${data.loc || 0}\nCalls Out: ${data.calls ? data.calls.length : 0}` 
+                });
+
+                if (data.calls && data.calls.length > 0) {
+                    data.calls.forEach(calledName => {
+                        if (functionMap[calledName] && functionMap[calledName].status !== 'pending') {
+                            const targetStatus = functionMap[calledName].status;
+                            let dashes = targetStatus === 'ignored' ? [4, 4] : false;
+                            
+                            newEdges.push({
+                                from: funcName,
+                                to: calledName,
+                                dashes: dashes,
+                                arrows: 'to'
+                            });
+                        }
+                    });
+                }
+            });
+
+            nodes.clear();
+            edges.clear();
+            nodes.add(newNodes);
+            edges.add(newEdges);
+            
+            setTimeout(() => {
+                if(network) { network.fit({ animation: { duration: 800, easingFunction: 'easeInOutQuad' } }); }
+            }, 300);
+        }
+
+        function exportCanvas() {
+            const canvas = els.canvasContainer.querySelector('canvas');
+            if (canvas) {
+                // Ensure temporary white background for PNG transparency visibility if needed, 
+                // but dark themes look better kept as is. vis-network canvas is transparent by default.
+                const ctx = canvas.getContext('2d');
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = "#000000"; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                const link = document.createElement('a');
+                link.download = 'javaflow-topology.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // restore transparency
+            }
+        }
+
+        function handleLayoutChange() {
+            if (!network) return;
+            layoutMode = els.layoutMode.value;
+            
+            if (layoutMode.startsWith('hierarchical')) {
+                const direction = layoutMode === 'hierarchical-lr' ? 'LR' : 'UD';
+                network.setOptions({ 
+                    layout: { hierarchical: { enabled: true, direction: direction, sortMethod: 'directed', nodeSpacing: 250, levelSeparation: 150 } },
+                    physics: { enabled: physicsEnabled, solver: 'hierarchicalRepulsion' }
+                });
+            } else {
+                network.setOptions({ 
+                    layout: { hierarchical: { enabled: false } },
+                    physics: { enabled: physicsEnabled, solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -100, centralGravity: 0.01, springLength: 200, springConstant: 0.08 } }
+                });
+            }
+        }
+
+        function switchToCanvasView() {
+            els.viewSetup.classList.remove('active-view');
+            els.viewSetup.classList.add('hidden-view');
+            
+            els.viewCanvas.classList.remove('hidden-view');
+            els.viewCanvas.classList.add('active-view');
+            
+            els.viewControls.classList.remove('hidden');
+            
+            if (!network) {
+                initNetwork();
+            }
+            updateNetworkGraph();
+        }
+        
+        function switchToSetupView() {
+            els.viewCanvas.classList.remove('active-view');
+            els.viewCanvas.classList.add('hidden-view');
+            
+            els.viewSetup.classList.remove('hidden-view');
+            els.viewSetup.classList.add('active-view');
+            
+            els.viewControls.classList.add('hidden');
+        }
+
+        function resetAll() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md fade-in';
+            modal.innerHTML = `
+            <div class="bg-cardbg border border-borderlight p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-danger"></div>
+                <h3 class="text-xl font-bold text-white mb-2"><i class="fa-solid fa-triangle-exclamation text-danger mr-2"></i>System Reset</h3>
+                <p class="text-gray-400 text-sm mb-6">Are you sure you want to flush all parsed AST data? This action cannot be reversed.</p>
+                <div class="flex justify-end gap-3">
+                    <button id="modal-cancel" class="px-4 py-2 bg-transparent border border-borderlight hover:bg-borderlight rounded text-sm text-gray-300 transition-colors">Cancel</button>
+                    <button id="modal-confirm" class="px-4 py-2 bg-danger text-black font-bold hover:bg-red-500 rounded text-sm transition-colors shadow-lg shadow-red-500/20">Flush Memory</button>
+                </div>
+            </div>
+            `;
+            document.body.appendChild(modal);
+            
+            document.getElementById('modal-cancel').onclick = () => modal.remove();
+            document.getElementById('modal-confirm').onclick = () => {
+                functionMap = {};
+                rootFunction = null;
+                resetFormToDefault();
+                updateSidebarLists();
+                switchToSetupView();
+                modal.remove();
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSidebarLists();
+
+            // Main Actions
+            els.btnAnalyze.addEventListener('click', processCodeSubmission);
+            els.btnCancelResolve.addEventListener('click', resetFormToDefault);
+            
+            // View Switching
+            els.btnGenerateViz.addEventListener('click', switchToCanvasView);
+            els.btnBackSetup.addEventListener('click', switchToSetupView);
+            els.btnResetAll.addEventListener('click', resetAll);
+            els.btnExport.addEventListener('click', exportCanvas);
+            els.layoutMode.addEventListener('change', handleLayoutChange);
+
+            els.btnCloseModal.addEventListener('click', () => {
+                els.codeModal.classList.add('hidden');
+            });
+
+            // Canvas Controls
+            els.btnFit.addEventListener('click', () => {
+                if(network) network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+            });
+
+            els.btnPhysics.addEventListener('click', () => {
+                physicsEnabled = !physicsEnabled;
+                if(network) {
+                    network.setOptions({ physics: { enabled: physicsEnabled } });
+                }
+                if(physicsEnabled) {
+                    els.btnPhysics.classList.remove('bg-transparent', 'text-gray-500');
+                    els.btnPhysics.classList.add('bg-primary/10', 'text-primary');
+                } else {
+                    els.btnPhysics.classList.remove('bg-primary/10', 'text-primary');
+                    els.btnPhysics.classList.add('bg-transparent', 'text-gray-500');
+                }
+            });
+            
+            // Button Animations
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('mousedown', function() { this.style.transform = 'scale(0.96)'; });
+                btn.addEventListener('mouseup', function() { this.style.transform = 'scale(1)'; });
+                btn.addEventListener('mouseleave', function() { this.style.transform = ''; });
+            });
+        });
+    </script>
+</body>
+</html>
