@@ -276,9 +276,15 @@
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 align-start content-start">
                         <!-- Pending Functions -->
                         <div id="panel-pending" class="hidden flex flex-col">
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-borderlight pb-2">
-                                <i class="fa-solid fa-circle-notch fa-spin text-warning mr-1"></i> Missing Defs <span id="count-pending" class="bg-cardbg text-warning text-[10px] py-0.5 px-2 rounded-full border border-warning/20 ml-auto">0</span>
-                            </h3>
+                            <div class="flex justify-between items-center border-b border-borderlight pb-2 mb-4">
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-warning mr-1"></i> Missing Defs <span id="count-pending" class="bg-cardbg text-warning text-[10px] py-0.5 px-2 rounded-full border border-warning/20">0</span>
+                                </h3>
+                                <div class="flex gap-1.5">
+                                    <button onclick="ignoreGettersSetters()" class="bg-cardbg hover:bg-warning/10 border border-borderlight hover:border-warning/30 text-gray-500 hover:text-warning text-[9px] uppercase tracking-wider py-1 px-2 rounded transition-all" title="Ignore getX(), setX(), isX()">Skip G/S</button>
+                                    <button onclick="ignoreAllPending()" class="bg-cardbg hover:bg-danger/10 border border-borderlight hover:border-danger/30 text-gray-500 hover:text-danger text-[9px] uppercase tracking-wider py-1 px-2 rounded transition-all" title="Ignore all pending dependencies">Skip All</button>
+                                </div>
+                            </div>
                             <div id="list-pending" class="space-y-3">
                                 <!-- Populated by JS -->
                             </div>
@@ -576,6 +582,41 @@
             if (functionMap[funcName]) {
                 functionMap[funcName].status = status;
                 if (currentResolvingFunc === funcName) {
+                    resetFormToDefault();
+                }
+                updateSidebarLists();
+            }
+        }
+
+        function ignoreAllPending() {
+            let changed = false;
+            Object.keys(functionMap).forEach(funcName => {
+                if (functionMap[funcName].status === 'pending') {
+                    functionMap[funcName].status = 'ignored';
+                    changed = true;
+                }
+            });
+            if (changed) {
+                if (currentResolvingFunc && functionMap[currentResolvingFunc] && functionMap[currentResolvingFunc].status === 'ignored') {
+                    resetFormToDefault();
+                }
+                updateSidebarLists();
+            }
+        }
+
+        function ignoreGettersSetters() {
+            let changed = false;
+            Object.keys(functionMap).forEach(funcName => {
+                if (functionMap[funcName].status === 'pending') {
+                    // Matches getters, setters, and boolean check signatures like getOrder(), setId(), isValid(), hasItems()
+                    if (funcName.match(/^(get|set|is|has)[A-Z0-9_]/)) {
+                        functionMap[funcName].status = 'ignored';
+                        changed = true;
+                    }
+                }
+            });
+            if (changed) {
+                 if (currentResolvingFunc && functionMap[currentResolvingFunc] && functionMap[currentResolvingFunc].status === 'ignored') {
                     resetFormToDefault();
                 }
                 updateSidebarLists();
