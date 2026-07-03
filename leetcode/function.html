@@ -195,15 +195,7 @@
                 <p class="text-[11px] text-gray-500" id="form-instructions">Paste full Java classes or multiple methods. Engine maps calls automatically.</p>
             </div>
             
-            <!-- NEW: Usage Context Panel -->
-            <div id="usage-context-panel" class="hidden px-4 pt-4 pb-0 fade-in shrink-0">
-                <h3 class="text-[10px] uppercase text-gray-500 mb-2 font-bold tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-microscope text-primary"></i> Usages Found
-                </h3>
-                <div id="usage-list" class="max-h-32 overflow-y-auto space-y-2 code-scroll border border-borderlight rounded-lg bg-cardbg p-2 shadow-inner">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
+            <!-- Usage context moved to modal -->
 
             <div class="p-4 flex-1 flex flex-col gap-4 relative">
                 <div class="flex-1 flex flex-col border border-borderlight rounded-lg overflow-hidden focus-within:border-primary/50 transition-colors shadow-inner">
@@ -384,10 +376,11 @@
                 * Double-click node to view code
             </div>
         </div>
+    </div> <!-- Close Canvas View Container -->
 
-        <!-- Code Viewer Modal -->
-        <div id="code-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity">
-            <div class="bg-cardbg border border-borderlight rounded-xl shadow-2xl w-full max-w-4xl flex flex-col h-[85vh] relative overflow-hidden fade-in">
+    <!-- Code Viewer Modal -->
+    <div id="code-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-cardbg border border-borderlight rounded-xl shadow-2xl w-full max-w-4xl flex flex-col h-[85vh] relative overflow-hidden fade-in">
                 <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
                     <h3 class="text-white font-mono font-bold flex items-center gap-2">
                         <i class="fa-solid fa-code text-primary"></i> <span id="modal-func-name">functionName()</span>
@@ -401,7 +394,23 @@
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Usages Modal -->
+        <div id="usage-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity">
+            <div class="bg-cardbg border border-borderlight rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[80vh] relative overflow-hidden fade-in">
+                <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
+                    <h3 class="text-white font-mono font-bold flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-microscope text-primary"></i> Usages of <span id="usage-modal-func-name" class="text-primary mx-1"></span>()
+                    </h3>
+                    <button id="btn-close-usage-modal" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div id="usage-list-modal" class="flex-1 overflow-y-auto p-4 bg-appbg space-y-3 code-scroll">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
 
     <script>
         // --- State Management ---
@@ -434,8 +443,10 @@
             formInst: document.getElementById('form-instructions'),
             targetBadge: document.getElementById('target-func-badge'),
             
-            usageContextPanel: document.getElementById('usage-context-panel'),
-            usageList: document.getElementById('usage-list'),
+            usageModal: document.getElementById('usage-modal'),
+            usageModalFuncName: document.getElementById('usage-modal-func-name'),
+            usageListModal: document.getElementById('usage-list-modal'),
+            btnCloseUsageModal: document.getElementById('btn-close-usage-modal'),
 
             setupEmpty: document.getElementById('setup-empty-state'),
             statsDashboard: document.getElementById('stats-dashboard'),
@@ -491,7 +502,7 @@
             
             // Replace with spaces to preserve original string length and line counts!
             cleanCode = cleanCode.replace(/\/\/.*/g, match => ' '.repeat(match.length));
-            cleanCode = cleanCode.replace(/\/\*[\s\S]*?\*\//g, match => ' '.repeat(match.length));
+            cleanCode = cleanCode.replace(/\/\*[\s\S]*?\*\//g, match => match.replace(/[^\n]/g, ' '));
             cleanCode = cleanCode.replace(/"([^"\\]|\\.)*"/g, match => '"' + ' '.repeat(match.length - 2) + '"');
             cleanCode = cleanCode.replace(/'([^'\\]|\\.)*'/g, match => "'" + ' '.repeat(match.length - 2) + "'");
             cleanCode = cleanCode.replace(/\bnew\s+[a-zA-Z_$][a-zA-Z0-9_$.]*\b/g, match => ' '.repeat(match.length));
@@ -521,7 +532,7 @@
         function extractFunctions(code) {
             let spaceCode = code
                 .replace(/\/\/.*/g, match => ' '.repeat(match.length))
-                .replace(/\/\*[\s\S]*?\*\//g, match => ' '.repeat(match.length))
+                .replace(/\/\*[\s\S]*?\*\//g, match => match.replace(/[^\n]/g, ' '))
                 .replace(/"([^"\\]|\\.)*"/g, match => '"' + ' '.repeat(match.length - 2) + '"')
                 .replace(/'([^'\\]|\\.)*'/g, match => "'" + ' '.repeat(match.length - 2) + "'");
 
@@ -699,6 +710,9 @@
 
                 const isRoot = funcName === rootFunction;
                 const rootBadge = isRoot ? `<span class="bg-primary/10 text-primary text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-primary/20 ml-2">Root Node</span>` : '';
+                const callersCount = data.callers ? data.callers.length : 0;
+                const usagesBtnHtml = callersCount > 0 ? 
+                    `<button type="button" onclick="event.stopPropagation(); showUsagesModal('${funcName}')" class="text-gray-400 hover:text-primary transition-colors p-1 rounded hover:bg-primary/10 tooltip shadow-sm border border-transparent hover:border-primary/30" title="View Code Usages"><i class="fa-solid fa-microscope"></i></button>` : '';
 
                 if (data.status === 'pending') {
                     filteredPendingCount++;
@@ -709,6 +723,7 @@
                         <div class="bg-cardbg border ${borderClass} p-3 rounded-lg flex flex-col gap-2 transition-all group">
                             <div class="flex justify-between items-center">
                                 <span class="font-mono text-sm text-gray-300 truncate group-hover:text-warning transition-colors" title="${funcName}">${funcName}()</span>
+                                ${usagesBtnHtml}
                             </div>
                             <div class="flex gap-2 mt-2">
                                 <button onclick="setupCodeResolution('${funcName}')" class="flex-1 bg-borderlight hover:bg-warning/20 text-gray-400 hover:text-warning text-xs py-1.5 rounded transition-colors flex items-center justify-center gap-1.5" ${isCurrentlyResolving ? 'disabled' : ''}>
@@ -733,9 +748,12 @@
                                         <span class="text-[10px] text-gray-500 font-mono"><i class="fa-solid fa-arrow-right-from-bracket text-gray-600 mr-1"></i> ${data.calls.length} Calls</span>
                                     </div>
                                 </div>
-                                <button onclick="setupCodeResolution('${funcName}')" class="text-gray-500 hover:text-primary transition-colors text-xs p-1">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
+                                <div class="flex gap-1 items-center">
+                                    ${usagesBtnHtml}
+                                    <button onclick="setupCodeResolution('${funcName}')" class="text-gray-400 hover:text-primary transition-colors p-1 rounded hover:bg-primary/10 tooltip" title="Edit Source">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>`;
                 } else if (data.status === 'ignored') {
@@ -815,23 +833,6 @@
             els.btnAnalyze.classList.remove('flex-[2]');
             els.btnAnalyze.classList.add('flex-1');
             
-            // Populate Usages Panel
-            const callers = functionMap[funcName]?.callers || [];
-            if (callers.length > 0) {
-                els.usageList.innerHTML = callers.map(c => `
-                    <div class="text-[11px] font-mono border-l-2 border-primary/50 pl-2 py-1">
-                        <span class="text-gray-400">Called in <span class="text-primary">${c.caller}()</span> at line ${c.lineNum}:</span>
-                        <div class="text-gray-200 bg-panelbg px-2 py-1.5 rounded mt-1 border border-borderlight truncate">
-                            ${c.lineText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                        </div>
-                    </div>
-                `).join('');
-                els.usageContextPanel.classList.remove('hidden');
-            } else {
-                els.usageContextPanel.classList.add('hidden');
-                els.usageList.innerHTML = '';
-            }
-
             if (functionMap[funcName] && functionMap[funcName].code) {
                 els.inputCode.value = functionMap[funcName].code;
                 els.btnAnalyze.innerHTML = `<i class="fa-solid fa-save"></i> Update`;
@@ -854,15 +855,38 @@
                 `Paste full Java classes or multiple methods. Engine maps calls automatically.` :
                 `Paste more source code, or define a pending dependency.`;
             
-            els.usageContextPanel.classList.add('hidden');
-            els.usageList.innerHTML = '';
-            
             els.targetBadge.classList.add('hidden');
             els.btnCancelResolve.classList.add('hidden');
             els.btnAnalyze.classList.add('flex-[2]');
             els.btnAnalyze.classList.remove('flex-1');
             els.btnAnalyze.innerHTML = `<i class="fa-solid fa-bolt"></i> Analyze Source`;
             updateSidebarLists();
+        }
+
+        function showUsagesModal(funcName) {
+            const callers = functionMap[funcName]?.callers || [];
+            const titleEl = document.getElementById('usage-modal-func-name');
+            const listEl = document.getElementById('usage-list-modal');
+            const modalEl = document.getElementById('usage-modal');
+            
+            if (titleEl) titleEl.innerText = funcName;
+            
+            if (listEl) {
+                if (callers.length > 0) {
+                    listEl.innerHTML = callers.map(c => `
+                        <div class="text-[12px] font-mono border-l-2 border-primary/50 pl-3 py-2 bg-cardbg rounded-r border border-borderlight shadow-sm mb-3">
+                            <span class="text-gray-400">Called in <span class="text-primary font-bold">${c.caller}()</span> at line <span class="text-accent">${c.lineNum}</span>:</span>
+                            <div class="text-gray-200 bg-panelbg px-3 py-2 rounded mt-2 border border-borderlight overflow-x-auto whitespace-nowrap code-scroll">
+                                ${(c.lineText || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    listEl.innerHTML = `<div class="text-gray-500 text-sm text-center py-8">No specific callers found (this might be the root function).</div>`;
+                }
+            }
+            
+            if (modalEl) modalEl.classList.remove('hidden');
         }
 
         function initNetwork() {
@@ -1129,6 +1153,10 @@
 
             els.btnCloseModal.addEventListener('click', () => {
                 els.codeModal.classList.add('hidden');
+            });
+
+            els.btnCloseUsageModal.addEventListener('click', () => {
+                els.usageModal.classList.add('hidden');
             });
 
             // Canvas Controls
