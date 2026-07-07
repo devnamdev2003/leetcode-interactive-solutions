@@ -255,7 +255,7 @@ def create_solution_files(solutions, problem_title):
       <button class="copy-btn" onclick="copyCode()">Copy</button>
 
       <pre><code id="code-block" class="language-java">
-
+        <!-- paste your code here --> 
         </code></pre>
     </div>
 
