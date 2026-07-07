@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Minimum Window Substring (Sliding Window)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Array & Sliding Window Styles */
+        .array-container {
+            display: flex;
+            gap: 4px;
+            padding: 24px 16px 40px 16px;
+            overflow-x: auto;
+            max-width: 100%;
+            margin: 0 auto;
+            align-items: center;
+        }
+        
+        .char-box {
+            min-width: 44px;
+            height: 52px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            background-color: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            color: #f8fafc;
+            z-index: 5;
+        }
+
+        .char-index {
+            position: absolute;
+            top: -20px;
+            font-size: 0.65rem;
+            color: #64748b;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Highlight States */
+        .char-box.in-window {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .char-box.min-window {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .char-box.active-process {
+            transform: translateY(-4px) scale(1.05);
+            background-color: rgba(244, 114, 182, 0.2);
+            border-color: #f472b6;
+            z-index: 10;
+            box-shadow: 0 10px 15px -3px rgba(244, 114, 182, 0.4);
+        }
+
+        /* Pointers */
+        .pointer {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            font-family: 'Fira Code', monospace;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 15;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .pointer-l {
+            bottom: -28px;
+            color: #60a5fa;
+        }
+        .pointer-l::before {
+            content: '\f0d8'; /* fa-caret-up */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 1.25rem;
+            margin-bottom: -4px;
+        }
+
+        .pointer-r {
+            top: -42px;
+            color: #c084fc;
+        }
+        .pointer-r::after {
+            content: '\f0d7'; /* fa-caret-down */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 1.25rem;
+            margin-top: -4px;
+        }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+
+        /* Map Tiles */
+        .map-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            min-width: 48px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .map-char {
+            background: #334155;
+            width: 100%;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 2px 0;
+            color: #94a3b8;
+            font-family: 'Fira Code', monospace;
+        }
+        .map-val {
+            padding: 6px 0;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Fira Code', monospace;
+            width: 100%;
+            text-align: center;
+        }
+        .map-val.zero { color: #10b981; } /* Satisfied */
+        .map-val.positive { color: #ef4444; } /* Need more */
+        .map-val.negative { color: #8b5cf6; } /* Excess */
+        .map-tile.highlight {
+            border-color: #f472b6;
+            box-shadow: 0 0 8px rgba(244, 114, 182, 0.4);
+            transform: scale(1.05);
+        }
+
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-compress-arrows-alt"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Minimum Window Substring (Sliding Window)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-sm">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Search String (s)</label>
+            <input type="text" id="input-s" maxlength="25" class="input-field" value="ADOBECODEBANC">
+        </div>
+        <div class="w-full md:w-48">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Target String (t)</label>
+            <input type="text" id="input-t" maxlength="10" class="input-field" value="ABC">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input strings. Strings cannot be empty.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-y-auto flex flex-col p-6 transition-opacity duration-300 justify-start items-center">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Array Visualization -->
+                    <div class="w-full flex flex-col items-center mt-12 px-4 max-w-full">
+                        <div class="flex items-center gap-2 mb-8 self-start ml-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">String</span> s</h3>
+                        </div>
+                        
+                        <div class="w-full overflow-x-auto pb-8 pt-6 custom-scrollbar flex justify-center">
+                            <div id="canvas-array" class="array-container">
+                                <!-- Array generated via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Map Visualization -->
+                    <div class="w-full flex flex-col items-center mt-8 px-4">
+                        <div class="flex items-center gap-2 mb-4 self-start ml-4">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">int[]</span> map <span class="text-[10px] text-slate-500 normal-case ml-2">(Showing target characters only)</span></h3>
+                        </div>
+                        <div class="bg-bgPanel border border-borderMain p-4 rounded-xl flex items-center gap-4 shadow-lg flex-wrap justify-center w-full max-w-2xl" id="canvas-map">
+                            <!-- Map tiles generated via JS -->
+                        </div>
+                        <div class="mt-4 flex gap-6 text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div> Need More (>0)</div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-500"></div> Satisfied (0)</div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-purple-500"></div> Excess (<0)</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Left Pointer (l)</span>
+                                <span id="var-l" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Right Pointer (r)</span>
+                                <span id="var-r" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Target Match (count)</span>
+                                <div class="flex items-center gap-2">
+                                    <span id="var-count" class="font-mono text-white text-lg font-bold">-</span>
+                                    <span class="text-xs text-slate-500">/ <span id="var-target-len">0</span></span>
+                                </div>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current minLength</span>
+                                <span id="var-minlen" class="font-mono text-success text-lg font-bold">∞</span>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-1">
+                                <span class="block text-[10px] text-slate-500 uppercase">Best Valid Window Found</span>
+                                <div class="w-full bg-[#0f1423] p-2 rounded font-mono text-success font-bold text-sm min-h-[36px] flex items-center break-all" id="var-result">
+                                    " "
+                                </div>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> String minWindow(String s, String t) {</div></div>
+                        <div id="line-check" class="debug-line"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">if</span> (s == <span class="text-syntaxBlue">null</span> || s.length() == <span class="text-syntaxPink">0</span>) <span class="text-syntaxPink">return</span> <span class="text-syntaxGreen">""</span>;</div></div>
+                        <div id="line-map-init" class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">int</span>[] map = <span class="text-syntaxPink">new int</span>[<span class="text-syntaxPink">128</span>];</div></div>
+                        <div id="line-map-fill" class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">char</span> c : t.toCharArray()) map[c]++;</div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content">        </div></div>
+                        <div id="line-vars" class="debug-line"><div class="line-num">7</div><div class="code-content">        <span class="text-syntaxPink">int</span> l = <span class="text-syntaxPink">0</span>, count = <span class="text-syntaxPink">0</span>, minLen = Integer.MAX_VALUE, minStart = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">        </div></div>
+                        <div id="line-for-r" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> r = <span class="text-syntaxPink">0</span>; r &lt; s.length(); r++) {</div></div>
+                        <div id="line-cr" class="debug-line"><div class="line-num">10</div><div class="code-content">            <span class="text-syntaxPink">char</span> cr = s.charAt(r);</div></div>
+                        <div id="line-count-inc" class="debug-line"><div class="line-num">11</div><div class="code-content">            <span class="text-syntaxPink">if</span> (map[cr] > <span class="text-syntaxPink">0</span>) count++;</div></div>
+                        <div id="line-map-cr" class="debug-line"><div class="line-num">12</div><div class="code-content">            map[cr]--;</div></div>
+                        <div class="debug-line"><div class="line-num">13</div><div class="code-content">            </div></div>
+                        <div id="line-while" class="debug-line"><div class="line-num">14</div><div class="code-content">            <span class="text-syntaxPink">while</span> (count == t.length()) {</div></div>
+                        <div id="line-if-min" class="debug-line"><div class="line-num">15</div><div class="code-content">                <span class="text-syntaxPink">if</span> (r - l + <span class="text-syntaxPink">1</span> &lt; minLen) {</div></div>
+                        <div id="line-update-min" class="debug-line"><div class="line-num">16</div><div class="code-content">                    minLen = r - l + <span class="text-syntaxPink">1</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">                    minStart = l;</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">                }</div></div>
+                        <div id="line-cl" class="debug-line"><div class="line-num">19</div><div class="code-content">                <span class="text-syntaxPink">char</span> cl = s.charAt(l);</div></div>
+                        <div id="line-map-cl" class="debug-line"><div class="line-num">20</div><div class="code-content">                map[cl]++;</div></div>
+                        <div id="line-count-dec" class="debug-line"><div class="line-num">21</div><div class="code-content">                <span class="text-syntaxPink">if</span> (map[cl] > <span class="text-syntaxPink">0</span>) count--;</div></div>
+                        <div id="line-l-inc" class="debug-line"><div class="line-num">22</div><div class="code-content">                l++;</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">        }</div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">25</div><div class="code-content">        <span class="text-syntaxPink">return</span> minLen == Integer.MAX_VALUE ? <span class="text-syntaxGreen">""</span> : s.substring(minStart, minStart + minLen);</div></div>
+                        <div class="debug-line"><div class="line-num">26</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">27</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution utilizes the highly efficient <strong>Sliding Window</strong> technique combined with a <strong>Frequency Map</strong> to find the minimum window substring in linear time.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept: Expand and Shrink</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Phase 1: Expand Right ($R$)</strong><br>
+                            We iterate through the string <code>s</code> using pointer <code>r</code>, expanding our "window". For every character we encounter, we decrease its required count in the frequency map. If it's a character from <code>t</code> that we still need (<code>map[cr] > 0</code>), we increment our match <code>count</code>.
+                        </li>
+                        <li>
+                            <strong>Phase 2: Shrink Left ($L$)</strong><br>
+                            Once our window becomes "valid" (meaning <code>count == t.length()</code>, we have found all necessary characters), we stop expanding <code>r</code> and start shrinking the window from the left by moving pointer <code>l</code>. 
+                            <br><br>While shrinking, we record the minimum window size. We also restore the removed character's count in the map (<code>map[cl]++</code>). If restoring a character means we are now missing a required target character (<code>map[cl] > 0</code>), our window becomes invalid (<code>count--</code>), and we resume expanding <code>r</code>.
+                        </li>
+                        <li>
+                            <strong>Why is the array size 128?</strong><br>
+                            ASCII characters can be directly mapped to an integer array of size 128 (or 256). Using an array <code>int[] map</code> instead of a Hash Map provides ultra-fast $O(1)$ lookups and updates without overhead.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N + M)</span>
+                        <p class="text-xs text-slate-400">Where $N$ is the length of <code>s</code> and $M$ is the length of <code>t</code>. Initializing the map takes $O(M)$. In the worst-case scenario, both pointers $L$ and $R$ will travel across the string <code>s</code> exactly once. Therefore, each character is visited at most twice, yielding $O(N)$ for the sliding window phase.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">The space complexity is $O(1)$ constant time. Regardless of the size of the strings, the <code>map</code> array always consumes exactly 128 integer slots. (If using Unicode, a Hash Map might take $O(K)$ where $K$ is the unique character set, which is still bound by a constant maximum).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Core State Management
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000; 
+
+        function updateSpeed(val) {
+            animSpeed = 2000 - (val * 18); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const sStr = document.getElementById('input-s').value.trim();
+            const tStr = document.getElementById('input-t').value.trim();
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            if (!sStr || !tStr) {
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            generateStates(sStr, tStr);
+            pauseAnim();
+            currState = 0;
+            renderState(0);
+            
+            if(!document.getElementById('dry-tab').classList.contains('active')) {
+                switchTab('dry-tab');
+            }
+        }
+
+        // --- Algorithm Simulator --- 
+        function generateStates(s, t) {
+            states = [];
+            
+            // Build unique target characters map for visualization
+            let uniqueTChars = [...new Set(t.split(''))];
+            
+            let vrs = { 
+                l: 0, r: 0, count: 0, minLen: '∞', minStart: 0, action: 'Initialization',
+                targetLen: t.length, currentResult: " "
+            };
+
+            const getMapVisual = (mapArray) => {
+                return uniqueTChars.map(char => ({ char, val: mapArray[char.charCodeAt(0)] }));
+            };
+
+            const getSnapshot = (l, r, mapArray, highlightCharIndex, highlightMapChar) => {
+                return {
+                    s: s, t: t, l: l, r: r,
+                    minLen: vrs.minLen, minStart: vrs.minStart,
+                    mapVisual: getMapVisual(mapArray),
+                    hlIdx: highlightCharIndex,
+                    hlMap: highlightMapChar
+                };
+            };
+
+            const pushState = (msg, line, mapArray, hlIdx = -1, hlMap = null) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: getSnapshot(vrs.l, vrs.r, mapArray, hlIdx, hlMap)
+                });
+            };
+
+            // Java Logic Replication
+            let map = new Array(128).fill(0);
+            
+            vrs.action = "Checking edge cases";
+            pushState("Checking if inputs are null or empty.", "line-check", map);
+
+            vrs.action = "Initialize frequency map";
+            pushState("Initializing ASCII frequency map of size 128.", "line-map-init", map);
+
+            for(let i=0; i<t.length; i++) {
+                map[t.charCodeAt(i)]++;
+            }
+            vrs.action = "Populate target frequencies";
+            pushState(`Populated map with characters from target '${t}'.`, "line-map-fill", map);
+
+            let l = 0, count = 0, minLen = Number.MAX_VALUE, minStart = 0;
+            vrs.action = "Initialize variables";
+            pushState("Initialize left pointer, count, and minimum trackers.", "line-vars", map);
+
+            for (let r = 0; r < s.length; r++) {
+                vrs.r = r;
+                vrs.action = `Expand window right (r=${r})`;
+                pushState(`Expanding window: processing character at index ${r}.`, "line-for-r", map, r);
+
+                let cr = s.charCodeAt(r);
+                let crStr = s[r];
+                
+                vrs.action = `Inspect '${crStr}'`;
+                pushState(`Current character 'cr' is '${crStr}'.`, "line-cr", map, r);
+
+                if (map[cr] > 0) {
+                    count++;
+                    vrs.count = count;
+                    vrs.action = `'${crStr}' is required!`;
+                    pushState(`'${crStr}' is needed (map value > 0). Increment count to ${count}.`, "line-count-inc", map, r, crStr);
+                } else {
+                    vrs.action = `'${crStr}' is NOT required.`;
+                    pushState(`'${crStr}' is not actively needed (map value <= 0). Count remains ${count}.`, "line-count-inc", map, r, crStr);
+                }
+
+                map[cr]--;
+                vrs.action = `Decrease '${crStr}' requirement`;
+                pushState(`Decreased requirement for '${crStr}' in the map.`, "line-map-cr", map, r, crStr);
+
+                while (count === t.length) {
+                    vrs.action = "Window contains all targets";
+                    pushState("Count equals target length. Window is valid! Checking min length.", "line-while", map);
+
+                    if (r - l + 1 < minLen) {
+                        minLen = r - l + 1;
+                        minStart = l;
+                        vrs.minLen = minLen;
+                        vrs.minStart = minStart;
+                        vrs.currentResult = s.substring(minStart, minStart + minLen);
+                        vrs.action = "Found a new minimum!";
+                        pushState(`Current window size (${minLen}) is the smallest so far.`, "line-update-min", map, l);
+                    } else {
+                        vrs.action = "Window is larger than min";
+                        pushState(`Current window size (${r - l + 1}) is not smaller than minimum (${minLen}).`, "line-if-min", map);
+                    }
+
+                    let cl = s.charCodeAt(l);
+                    let clStr = s[l];
+                    
+                    vrs.action = `Shrink window from left (l=${l})`;
+                    pushState(`Preparing to shrink window. Left char 'cl' is '${clStr}'.`, "line-cl", map, l);
+
+                    map[cl]++;
+                    vrs.action = `Restore '${clStr}' in map`;
+                    pushState(`Removed '${clStr}' from window. Restored its requirement in the map.`, "line-map-cl", map, l, clStr);
+
+                    if (map[cl] > 0) {
+                        count--;
+                        vrs.count = count;
+                        vrs.action = `Window became invalid`;
+                        pushState(`We need '${clStr}' again (map value > 0). Decrement count to ${count}. Window is now invalid.`, "line-count-dec", map, l, clStr);
+                    } else {
+                        vrs.action = `Window still valid`;
+                        pushState(`'${clStr}' was a surplus char (map value <= 0). Count remains ${count}. Window is still valid!`, "line-count-dec", map, l, clStr);
+                    }
+
+                    l++;
+                    vrs.l = l;
+                    vrs.action = `Increment left pointer`;
+                    pushState(`Moved left pointer to ${l}.`, "line-l-inc", map);
+                }
+            }
+
+            vrs.r = s.length;
+            vrs.l = l;
+            vrs.action = 'Algorithm Finished';
+            if(minLen === Number.MAX_VALUE) {
+                vrs.currentResult = '"" (No valid window found)';
+                pushState(`Finished scanning. No valid window was found. Returning "".`, "line-return", map);
+            } else {
+                pushState(`Finished scanning. Smallest window found is "${vrs.currentResult}".`, "line-return", map);
+            }
+        }
+
+        // Render Canvas DOM
+        function renderArrayDOM(visuals) {
+            const container = document.getElementById('canvas-array');
+            let html = '';
+            
+            const s = visuals.s;
+            const l = visuals.l;
+            // Cap r visualization at string length to avoid overflow visual issues at the very end
+            const visualR = Math.min(visuals.r, s.length - 1); 
+
+            for (let i = 0; i < s.length; i++) {
+                let boxClass = 'char-box';
+                let pointerHtml = '';
+                
+                // Highlight the active processing character
+                if(i === visuals.hlIdx) {
+                    boxClass += ' active-process';
+                }
+
+                // Window highlights
+                if (i >= l && i <= visualR && visuals.r < s.length) {
+                    boxClass += ' in-window';
+                }
+                
+                // Min Window permanent highlight if exists
+                if (visuals.minLen !== '∞' && i >= visuals.minStart && i < visuals.minStart + visuals.minLen) {
+                    // Make it subtly different to show the "best" path
+                    boxClass += ' min-window';
+                }
+
+                // Pointers
+                if (i === l) {
+                    pointerHtml += `<div class="pointer pointer-l">L</div>`;
+                }
+                if (i === visualR && visuals.r < s.length) {
+                    pointerHtml += `<div class="pointer pointer-r">R</div>`;
+                }
+                
+                // Edge case: when r reaches end, point it at the edge
+                if(i === s.length - 1 && visuals.r >= s.length) {
+                    pointerHtml += `<div class="pointer pointer-r" style="right: -22px">R</div>`;
+                }
+
+                html += `
+                    <div class="${boxClass}">
+                        <span class="char-index">${i}</span>
+                        ${s[i]}
+                        ${pointerHtml}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderMapDOM(visuals) {
+            const container = document.getElementById('canvas-map');
+            let html = '';
+            
+            visuals.mapVisual.forEach(item => {
+                let valClass = '';
+                if(item.val === 0) valClass = 'zero';
+                else if(item.val > 0) valClass = 'positive';
+                else valClass = 'negative';
+
+                let hlClass = (visuals.hlMap === item.char) ? 'highlight' : '';
+
+                html += `
+                    <div class="map-tile ${hlClass}">
+                        <div class="map-char">${item.char}</div>
+                        <div class="map-val ${valClass}">${item.val}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render DOM
+            renderArrayDOM(state.visuals);
+            renderMapDOM(state.visuals);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-l').innerText = state.vars.l;
+            document.getElementById('var-r').innerText = state.vars.r;
+            document.getElementById('var-count').innerText = state.vars.count;
+            document.getElementById('var-target-len').innerText = state.vars.targetLen;
+            document.getElementById('var-minlen').innerText = state.vars.minLen;
+            document.getElementById('var-result').innerText = state.vars.currentResult === " " ? "(None)" : state.vars.currentResult;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>

@@ -1,5 +1,31 @@
 [
   {
+    "id": "76",
+    "title": "Minimum Window Substring",
+    "difficulty": "Hard",
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/minimum-window-substring/",
+    "solutions": [
+      {
+        "name": "Brute",
+        "url": "sliding-window/minimum-window-substring-brute.html"
+      },
+      {
+        "name": "Better",
+        "url": "sliding-window/minimum-window-substring-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "sliding-window/minimum-window-substring.html"
+      }
+    ]
+  },
+  {
     "id": "1034",
     "title": "Subarrays with K Different Integers",
     "difficulty": "Hard",
