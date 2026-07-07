@@ -92,7 +92,7 @@
             to { opacity: 0; transform: scale(0.98); visibility: hidden; }
         }
         
-        #view-setup, #view-canvas {
+        #view-setup, #view-canvas, #view-code {
             transition: opacity 0.4s ease, visibility 0.4s ease;
         }
         
@@ -167,14 +167,20 @@
         </div>
         
         <!-- View Toggles -->
-        <div id="view-controls" class="hidden flex gap-3">
+        <div id="view-controls" class="hidden flex gap-2 sm:gap-3 flex-wrap justify-end">
              <button id="btn-back-setup" class="bg-cardbg border border-borderlight hover:border-gray-500 text-gray-300 text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Edit Source
             </button>
-            <button id="btn-export" class="bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
+            <button id="btn-nav-code" class="bg-cardbg border border-borderlight hover:border-primary/50 text-gray-300 text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-file-code text-primary"></i> Combined Code
+            </button>
+            <button id="btn-nav-canvas" class="bg-cardbg border border-borderlight hover:border-accent/50 text-gray-300 text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-network-wired text-accent"></i> Topology
+            </button>
+            <button id="btn-export" class="hidden bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
                 <i class="fa-solid fa-download"></i> Export PNG
             </button>
-            <button id="btn-reset-all" class="bg-danger/10 hover:bg-danger/20 text-danger text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2 border border-danger/30 ml-4">
+            <button id="btn-reset-all" class="bg-danger/10 hover:bg-danger/20 text-danger text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2 border border-danger/30 sm:ml-4">
                 <i class="fa-solid fa-power-off"></i> Reset
             </button>
         </div>
@@ -195,8 +201,6 @@
                 <p class="text-[11px] text-gray-500" id="form-instructions">Paste full Java classes or multiple methods. Engine maps calls automatically.</p>
             </div>
             
-            <!-- Usage context moved to modal -->
-
             <div class="p-4 flex-1 flex flex-col gap-4 relative">
                 <div class="flex-1 flex flex-col border border-borderlight rounded-lg overflow-hidden focus-within:border-primary/50 transition-colors shadow-inner">
                     <div class="bg-cardbg border-b border-borderlight px-3 py-1.5 flex justify-between items-center">
@@ -226,19 +230,24 @@
         <main class="flex-1 bg-appbg h-full flex flex-col overflow-hidden relative">
             
             <!-- Generate Visualization Banner (Sticky Top) -->
-            <div id="generate-banner" class="bg-accent/10 border-b border-accent/30 p-4 flex justify-between items-center hidden fade-in absolute top-0 left-0 w-full z-20 backdrop-blur-md">
+            <div id="generate-banner" class="bg-primary/10 border-b border-primary/30 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hidden fade-in absolute top-0 left-0 w-full z-20 backdrop-blur-md">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center border border-accent/40 text-accent">
-                        <i class="fa-solid fa-check"></i>
+                    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/40 text-primary">
+                        <i class="fa-solid fa-check-double"></i>
                     </div>
                     <div>
                         <h3 class="text-white font-medium text-sm">All Dependencies Resolved</h3>
-                        <p class="text-accent/70 text-xs">Ready for visual generation.</p>
+                        <p class="text-primary/70 text-xs">Ready to view the final assembled code.</p>
                     </div>
                 </div>
-                <button id="btn-generate-viz" class="bg-accent text-black hover:bg-green-400 font-bold py-2 px-6 rounded-lg transition-all shadow-[0_0_20px_rgba(0,230,118,0.3)] flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-network-wired"></i> Render Canvas
-                </button>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <button id="btn-generate-code" class="flex-1 sm:flex-none bg-primary text-black hover:bg-primarydark font-bold py-2 px-6 rounded-lg transition-all shadow-[0_0_20px_rgba(0,229,255,0.3)] flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-file-code"></i> View Combined Code
+                    </button>
+                    <button id="btn-generate-viz" class="flex-1 sm:flex-none bg-accent/20 border border-accent/40 text-accent hover:bg-accent hover:text-black font-bold py-2 px-4 rounded-lg transition-all flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-network-wired"></i> Topology
+                    </button>
+                </div>
             </div>
 
             <div class="flex-1 overflow-y-auto" id="main-scroll-area">
@@ -326,7 +335,22 @@
         </main>
     </div>
 
-    <!-- VIEW 2: CANVAS VISUALIZATION -->
+    <!-- VIEW 2: COMBINED CODE -->
+    <div id="view-code" class="hidden-view flex flex-col h-full bg-appbg">
+        <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
+            <h2 class="text-lg font-mono font-bold text-white flex items-center gap-3">
+                <i class="fa-solid fa-file-code text-primary"></i> Assembled Source Code
+            </h2>
+            <button id="btn-copy-code" class="bg-cardbg border border-borderlight hover:border-primary/50 hover:text-primary text-gray-300 text-sm font-medium py-1.5 px-4 rounded transition-colors flex items-center gap-2">
+                <i class="fa-regular fa-copy"></i> Copy to Clipboard
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-[#282c34] relative code-scroll shadow-inner">
+            <pre class="m-0 h-full max-w-5xl mx-auto"><code id="combined-code-content" class="language-java text-sm font-mono leading-relaxed bg-transparent p-0 block"></code></pre>
+        </div>
+    </div>
+
+    <!-- VIEW 3: CANVAS VISUALIZATION -->
     <div id="view-canvas" class="hidden-view">
         <!-- Canvas Container -->
         <div id="network-canvas" class="absolute inset-0 w-full h-full bg-appbg bg-dots"></div>
@@ -378,39 +402,39 @@
         </div>
     </div> <!-- Close Canvas View Container -->
 
-    <!-- Code Viewer Modal -->
+    <!-- Code Viewer Modal (For Node Double Click) -->
     <div id="code-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity">
         <div class="bg-cardbg border border-borderlight rounded-xl shadow-2xl w-full max-w-4xl flex flex-col h-[85vh] relative overflow-hidden fade-in">
-                <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
-                    <h3 class="text-white font-mono font-bold flex items-center gap-2">
-                        <i class="fa-solid fa-code text-primary"></i> <span id="modal-func-name">functionName()</span>
-                    </h3>
-                    <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-                <div class="flex-1 overflow-y-auto p-4 bg-[#282c34] relative code-scroll">
-                    <pre class="m-0 h-full"><code id="modal-code-content" class="language-java text-sm font-mono leading-relaxed bg-transparent p-0"></code></pre>
-                </div>
+            <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
+                <h3 class="text-white font-mono font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-code text-primary"></i> <span id="modal-func-name">functionName()</span>
+                </h3>
+                <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-[#282c34] relative code-scroll">
+                <pre class="m-0 h-full"><code id="modal-code-content" class="language-java text-sm font-mono leading-relaxed bg-transparent p-0"></code></pre>
             </div>
         </div>
+    </div>
 
-        <!-- Usages Modal -->
-        <div id="usage-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity">
-            <div class="bg-cardbg border border-borderlight rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[80vh] relative overflow-hidden fade-in">
-                <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
-                    <h3 class="text-white font-mono font-bold flex items-center gap-2 text-sm">
-                        <i class="fa-solid fa-microscope text-primary"></i> Usages of <span id="usage-modal-func-name" class="text-primary mx-1"></span>()
-                    </h3>
-                    <button id="btn-close-usage-modal" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-                <div id="usage-list-modal" class="flex-1 overflow-y-auto p-4 bg-appbg space-y-3 code-scroll">
-                    <!-- Populated by JS -->
-                </div>
+    <!-- Usages Modal -->
+    <div id="usage-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-cardbg border border-borderlight rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[80vh] relative overflow-hidden fade-in">
+            <div class="p-4 border-b border-borderlight flex justify-between items-center bg-panelbg shrink-0">
+                <h3 class="text-white font-mono font-bold flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-microscope text-primary"></i> Usages of <span id="usage-modal-func-name" class="text-primary mx-1"></span>()
+                </h3>
+                <button id="btn-close-usage-modal" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="usage-list-modal" class="flex-1 overflow-y-auto p-4 bg-appbg space-y-3 code-scroll">
+                <!-- Populated by JS -->
             </div>
         </div>
+    </div>
 
     <script>
         // --- State Management ---
@@ -425,7 +449,7 @@
         let nodes = new vis.DataSet([]);
         let edges = new vis.DataSet([]);
         let physicsEnabled = true;
-        let layoutMode = 'hierarchical-ud'; // 'hierarchical-ud', 'hierarchical-lr' or 'force'
+        let layoutMode = 'hierarchical-ud';
 
         const IGNORED_KEYWORDS = new Set([
             'if', 'for', 'while', 'switch', 'catch', 'return', 'new', 'super', 'this',
@@ -471,16 +495,21 @@
             btnSkipFiltered: document.getElementById('btn-skip-filtered'),
 
             generateBanner: document.getElementById('generate-banner'),
+            btnGenerateCode: document.getElementById('btn-generate-code'),
             btnGenerateViz: document.getElementById('btn-generate-viz'),
             mainScrollArea: document.getElementById('main-scroll-area'),
             
             viewSetup: document.getElementById('view-setup'),
+            viewCode: document.getElementById('view-code'),
             viewCanvas: document.getElementById('view-canvas'),
             viewControls: document.getElementById('view-controls'),
             
             btnBackSetup: document.getElementById('btn-back-setup'),
+            btnNavCode: document.getElementById('btn-nav-code'),
+            btnNavCanvas: document.getElementById('btn-nav-canvas'),
             btnResetAll: document.getElementById('btn-reset-all'),
             btnExport: document.getElementById('btn-export'),
+            btnCopyCode: document.getElementById('btn-copy-code'),
             
             canvasSearch: document.getElementById('canvas-search'),
             btnFit: document.getElementById('btn-fit'),
@@ -488,19 +517,16 @@
             layoutMode: document.getElementById('layout-mode'),
             canvasContainer: document.getElementById('network-canvas'),
             
+            combinedCodeContent: document.getElementById('combined-code-content'),
+
             codeModal: document.getElementById('code-modal'),
             modalFuncName: document.getElementById('modal-func-name'),
             modalCodeContent: document.getElementById('modal-code-content'),
             btnCloseModal: document.getElementById('btn-close-modal')
         };
 
-        /**
-         * Cleans code and extracts method calls along with their line numbers.
-         */
         function analyzeJavaCode(code) {
             let cleanCode = code;
-            
-            // Replace with spaces to preserve original string length and line counts!
             cleanCode = cleanCode.replace(/\/\/.*/g, match => ' '.repeat(match.length));
             cleanCode = cleanCode.replace(/\/\*[\s\S]*?\*\//g, match => match.replace(/[^\n]/g, ' '));
             cleanCode = cleanCode.replace(/"([^"\\]|\\.)*"/g, match => '"' + ' '.repeat(match.length - 2) + '"');
@@ -509,14 +535,12 @@
 
             const regex = /(?:\.\s*)?\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g;
             let match;
-            // Use Object.create(null) to avoid prototype pollution (e.g. "toString", "constructor")
             const callsData = Object.create(null);
             const originalLines = code.split('\n');
 
             while ((match = regex.exec(cleanCode)) !== null) {
                 const funcName = match[1];
                 if (!IGNORED_KEYWORDS.has(funcName)) {
-                    // Calculate line number based on index
                     const upToMatch = cleanCode.substring(0, match.index);
                     const lineNum = (upToMatch.match(/\n/g) || []).length;
                     
@@ -640,7 +664,6 @@
                         };
                     }
                     
-                    // Register caller information
                     callsData[calledName].forEach(callInstance => {
                         const exists = functionMap[calledName].callers.some(c => c.caller === funcName && c.lineNum === callInstance.lineNum);
                         if (!exists) {
@@ -689,6 +712,30 @@
             }
         }
 
+        function ignoreGettersSetters() {
+            let changed = false;
+            Object.keys(functionMap).forEach(funcName => {
+                if (functionMap[funcName].status === 'pending') {
+                    if (funcName.startsWith('get') || funcName.startsWith('set') || funcName.startsWith('is')) {
+                        functionMap[funcName].status = 'ignored';
+                        changed = true;
+                    }
+                }
+            });
+            if (changed) updateSidebarLists();
+        }
+
+        function ignoreAllPending() {
+            let changed = false;
+            Object.keys(functionMap).forEach(funcName => {
+                if (functionMap[funcName].status === 'pending') {
+                    functionMap[funcName].status = 'ignored';
+                    changed = true;
+                }
+            });
+            if (changed) updateSidebarLists();
+        }
+
         function updateSidebarLists() {
             let pendingHTML = '';
             let resolvedHTML = '';
@@ -704,9 +751,8 @@
                     totalLoc += (data.loc || 0);
                 }
 
-                // Filter check
                 if (setupSearchQuery && !funcName.toLowerCase().startsWith(setupSearchQuery)) {
-                    return; // Skip rendering this item
+                    return; 
                 }
 
                 const isRoot = funcName === rootFunction;
@@ -770,7 +816,6 @@
                 }
             });
 
-            // Update DOM
             els.listPending.innerHTML = pendingHTML;
             els.listResolved.innerHTML = resolvedHTML;
             els.listIgnored.innerHTML = ignoredHTML;
@@ -779,7 +824,6 @@
             els.countResolved.innerText = counts.provided;
             els.countIgnored.innerText = counts.ignored;
             
-            // Stats Dashboard & Search Updates
             const totalFuncs = counts.pending + counts.provided + counts.ignored;
             els.statTotal.innerText = totalFuncs;
             els.statLoc.innerText = totalLoc;
@@ -793,7 +837,6 @@
                 els.btnSkipFiltered.classList.add('hidden');
             }
 
-            // Layout Management
             if (Object.keys(functionMap).length > 0) {
                 els.setupEmpty.classList.add('hidden');
                 els.statsDashboard.classList.remove('hidden');
@@ -813,13 +856,13 @@
                 els.panelIgnored.classList.add('hidden');
             }
 
-            // Generate Banner Logic (Show if we have functions, and NONE are pending)
+            // Banner Logic (Ready for final code/viz)
             if (Object.keys(functionMap).length > 0 && counts.pending === 0) {
                 els.generateBanner.classList.remove('hidden');
-                els.mainScrollArea.classList.add('pt-16'); // make room for sticky banner
+                els.mainScrollArea.classList.add('pt-24', 'sm:pt-20'); // space for banner
             } else {
                 els.generateBanner.classList.add('hidden');
-                els.mainScrollArea.classList.remove('pt-16');
+                els.mainScrollArea.classList.remove('pt-24', 'sm:pt-20');
             }
         }
 
@@ -890,6 +933,74 @@
             if (modalEl) modalEl.classList.remove('hidden');
         }
 
+        // --- NEW CODE GENERATION FEATURE ---
+        function renderCombinedCode() {
+            let combinedString = "/**\n * Auto-assembled Java Source Code \n * Generated by JavaFlow Visualizer\n */\n\n";
+            
+            // Try putting root function first, then others
+            if (rootFunction && functionMap[rootFunction] && functionMap[rootFunction].status === 'provided') {
+                combinedString += "// --- Root Entry Point ---\n";
+                combinedString += functionMap[rootFunction].code.trim() + "\n\n";
+            }
+            
+            Object.keys(functionMap).forEach(func => {
+                if (func !== rootFunction && functionMap[func].status === 'provided' && functionMap[func].code) {
+                    combinedString += functionMap[func].code.trim() + "\n\n";
+                }
+            });
+
+            els.combinedCodeContent.textContent = combinedString;
+            
+            // Re-apply highlight.js
+            delete els.combinedCodeContent.dataset.highlighted; 
+            hljs.highlightElement(els.combinedCodeContent);
+        }
+
+        function switchToCodeView() {
+            els.viewSetup.classList.remove('active-view');
+            els.viewSetup.classList.add('hidden-view');
+            els.viewCanvas.classList.remove('active-view');
+            els.viewCanvas.classList.add('hidden-view');
+            
+            els.viewCode.classList.remove('hidden-view');
+            els.viewCode.classList.add('active-view');
+            
+            els.viewControls.classList.remove('hidden');
+            els.btnExport.classList.add('hidden'); // Export is only for canvas
+            
+            renderCombinedCode();
+        }
+
+        function switchToCanvasView() {
+            els.viewSetup.classList.remove('active-view');
+            els.viewSetup.classList.add('hidden-view');
+            els.viewCode.classList.remove('active-view');
+            els.viewCode.classList.add('hidden-view');
+            
+            els.viewCanvas.classList.remove('hidden-view');
+            els.viewCanvas.classList.add('active-view');
+            
+            els.viewControls.classList.remove('hidden');
+            els.btnExport.classList.remove('hidden');
+            
+            if (!network) {
+                initNetwork();
+            }
+            updateNetworkGraph();
+        }
+        
+        function switchToSetupView() {
+            els.viewCanvas.classList.remove('active-view');
+            els.viewCanvas.classList.add('hidden-view');
+            els.viewCode.classList.remove('active-view');
+            els.viewCode.classList.add('hidden-view');
+            
+            els.viewSetup.classList.remove('hidden-view');
+            els.viewSetup.classList.add('active-view');
+            
+            els.viewControls.classList.add('hidden');
+        }
+
         function initNetwork() {
             const data = { nodes: nodes, edges: edges };
             const options = {
@@ -930,8 +1041,7 @@
                         els.modalFuncName.innerText = nodeId + '()';
                         els.modalCodeContent.textContent = funcData.code;
                         
-                        // Apply syntax highlighting
-                        delete els.modalCodeContent.dataset.highlighted; // Clear previous highlight state
+                        delete els.modalCodeContent.dataset.highlighted; 
                         hljs.highlightElement(els.modalCodeContent);
                         
                         els.codeModal.classList.remove('hidden');
@@ -955,7 +1065,6 @@
 
             Object.keys(functionMap).forEach(funcName => {
                 const data = functionMap[funcName];
-                
                 if (data.status === 'pending') return;
                 
                 let isMatch = true;
@@ -975,7 +1084,6 @@
                 if (!isMatch) {
                     style = dimmedStyle;
                 } else if (canvasSearchQuery && isMatch) {
-                    // Brighten matching nodes if searching
                     style = { ...style, borderWidth: 4, shadow: { enabled: true, color: 'rgba(255,255,255,0.2)', size: 20 } };
                 }
 
@@ -1036,8 +1144,6 @@
         function exportCanvas() {
             const canvas = els.canvasContainer.querySelector('canvas');
             if (canvas) {
-                // Ensure temporary white background for PNG transparency visibility if needed, 
-                // but dark themes look better kept as is. vis-network canvas is transparent by default.
                 const ctx = canvas.getContext('2d');
                 ctx.globalCompositeOperation = 'destination-over';
                 ctx.fillStyle = "#000000"; 
@@ -1048,7 +1154,7 @@
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // restore transparency
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
             }
         }
 
@@ -1068,31 +1174,6 @@
                     physics: { enabled: physicsEnabled, solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -100, centralGravity: 0.01, springLength: 200, springConstant: 0.08 } }
                 });
             }
-        }
-
-        function switchToCanvasView() {
-            els.viewSetup.classList.remove('active-view');
-            els.viewSetup.classList.add('hidden-view');
-            
-            els.viewCanvas.classList.remove('hidden-view');
-            els.viewCanvas.classList.add('active-view');
-            
-            els.viewControls.classList.remove('hidden');
-            
-            if (!network) {
-                initNetwork();
-            }
-            updateNetworkGraph();
-        }
-        
-        function switchToSetupView() {
-            els.viewCanvas.classList.remove('active-view');
-            els.viewCanvas.classList.add('hidden-view');
-            
-            els.viewSetup.classList.remove('hidden-view');
-            els.viewSetup.classList.add('active-view');
-            
-            els.viewControls.classList.add('hidden');
         }
 
         function resetAll() {
@@ -1125,40 +1206,62 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateSidebarLists();
 
-            // Setup Search Actions
+            // Search Actions
             els.setupSearch.addEventListener('input', (e) => {
                 setupSearchQuery = e.target.value.toLowerCase();
                 updateSidebarLists();
             });
-            
             els.btnSkipFiltered.addEventListener('click', ignoreFilteredPending);
 
-            // Canvas Search Actions
             els.canvasSearch.addEventListener('input', (e) => {
                 canvasSearchQuery = e.target.value.toLowerCase();
-                if (network) {
-                    updateNetworkGraph();
-                }
+                if (network) updateNetworkGraph();
             });
 
             // Main Actions
             els.btnAnalyze.addEventListener('click', processCodeSubmission);
             els.btnCancelResolve.addEventListener('click', resetFormToDefault);
             
-            // View Switching
+            // View Switching Events
+            els.btnGenerateCode.addEventListener('click', switchToCodeView);
             els.btnGenerateViz.addEventListener('click', switchToCanvasView);
+            
             els.btnBackSetup.addEventListener('click', switchToSetupView);
+            els.btnNavCode.addEventListener('click', switchToCodeView);
+            els.btnNavCanvas.addEventListener('click', switchToCanvasView);
+            
             els.btnResetAll.addEventListener('click', resetAll);
             els.btnExport.addEventListener('click', exportCanvas);
             els.layoutMode.addEventListener('change', handleLayoutChange);
 
-            els.btnCloseModal.addEventListener('click', () => {
-                els.codeModal.classList.add('hidden');
+            // Copy Code Logic
+            els.btnCopyCode.addEventListener('click', function() {
+                const code = els.combinedCodeContent.textContent;
+                
+                // create a temporary text area to ensure copying works perfectly in iframes
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
+                    this.classList.add('text-accent', 'border-accent');
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.classList.remove('text-accent', 'border-accent');
+                    }, 2000);
+                } catch(err) {
+                    console.error("Failed to copy code", err);
+                } finally {
+                    document.body.removeChild(textarea);
+                }
             });
 
-            els.btnCloseUsageModal.addEventListener('click', () => {
-                els.usageModal.classList.add('hidden');
-            });
+            els.btnCloseModal.addEventListener('click', () => els.codeModal.classList.add('hidden'));
+            els.btnCloseUsageModal.addEventListener('click', () => els.usageModal.classList.add('hidden'));
 
             // Canvas Controls
             els.btnFit.addEventListener('click', () => {
@@ -1167,9 +1270,8 @@
 
             els.btnPhysics.addEventListener('click', () => {
                 physicsEnabled = !physicsEnabled;
-                if(network) {
-                    network.setOptions({ physics: { enabled: physicsEnabled } });
-                }
+                if(network) network.setOptions({ physics: { enabled: physicsEnabled } });
+                
                 if(physicsEnabled) {
                     els.btnPhysics.classList.remove('bg-transparent', 'text-gray-500');
                     els.btnPhysics.classList.add('bg-primary/10', 'text-primary');

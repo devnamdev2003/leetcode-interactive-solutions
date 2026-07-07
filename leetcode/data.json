@@ -1,5 +1,25 @@
 [
   {
+    "id": "1370",
+    "title": "Count Number of Nice Subarrays",
+    "difficulty": "Medium",
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Math",
+      "Sliding Window",
+      "Prefix Sum"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/count-number-of-nice-subarrays/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "sliding-window/count-number-of-nice-subarrays.html"
+      }
+    ]
+  },
+  {
     "id": "966",
     "title": "Binary Subarrays With Sum",
     "difficulty": "Medium",
