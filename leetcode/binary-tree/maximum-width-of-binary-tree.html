@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Maximum Width of Binary Tree</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Tree Visualization Styles */
+        .tree-container { position: relative; width: 100%; height: 100%; min-width: 800px; min-height: 400px; }
+        .tree-node {
+            position: absolute;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-weight: 600; font-size: 14px;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            border: 2px solid transparent;
+        }
+        
+        .tree-node .node-idx { position: absolute; top: -20px; font-size: 10px; font-family: 'Fira Code', monospace; background: #1e293b; padding: 1px 4px; border-radius: 4px; color: #94a3b8; border: 1px solid #334155; }
+        
+        .node-default { background-color: #334155; color: #f8fafc; border-color: #475569; }
+        .node-active { background-color: #fcd34d; color: #000; border-color: #fbbf24; transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 20px rgba(252, 211, 77, 0.6); z-index: 20; }
+        .node-in-queue { background-color: #3b82f6; color: #fff; border-color: #60a5fa; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .node-added { background-color: #10b981; color: #fff; border-color: #34d399; transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); z-index: 15; }
+        .node-null { display: none; }
+        
+        .tree-edge { position: absolute; z-index: 5; pointer-events: none; }
+        
+        /* Queue Styles */
+        .queue-container { display: flex; gap: 8px; padding: 12px; background: #1e293b; border-radius: 8px; border: 1px solid #334155; min-width: 100px; min-height: 70px; overflow-x: auto; align-items: center;}
+        .queue-item { display: flex; flex-direction: column; background: #0f172a; border: 1px solid #475569; border-radius: 6px; padding: 4px 12px; min-width: 50px; text-align: center; font-family: 'Fira Code', monospace; font-size: 12px; animation: slideIn 0.3s ease; }
+        .queue-item-val { font-weight: bold; color: #3b82f6; font-size: 14px;}
+        .queue-item-idx { color: #94a3b8; font-size: 10px; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Max Width of Binary Tree</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-lg">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Binary Tree Array Representation</label>
+            <input type="text" id="input-tree" class="input-field" value="1,3,2,5,3,null,9" placeholder="e.g. 1,3,2,5,3,null,9">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid array format. Use comma-separated values (e.g., 1, 3, 2, null).</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-auto flex flex-col p-6 gap-6 transition-opacity duration-300 justify-start items-center">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Visual Tree Canvas -->
+                    <div class="w-full flex-grow overflow-auto relative rounded-lg border border-borderMain/50 bg-black/20 shadow-inner" style="min-height: 400px;">
+                        <!-- SVG for Edges -->
+                        <svg id="tree-edges" class="absolute top-0 left-0 w-full h-full pointer-events-none"></svg>
+                        <!-- Divs for Nodes -->
+                        <div id="tree-nodes" class="absolute top-0 left-0 w-full h-full"></div>
+                    </div>
+                    
+                    <!-- Queue Area -->
+                    <div class="w-full flex flex-col mt-2 shrink-0">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-syntaxPink">Queue&lt;Pair&gt;</span> q</h3>
+                                <span class="text-[10px] text-slate-500">(BFS Traversal Front)</span>
+                            </div>
+                            <div id="level-indicator" class="text-xs text-syntaxBlue font-mono font-bold hidden">Processing Level...</div>
+                        </div>
+                        <div id="queue-display" class="queue-container">
+                            <!-- Queue items generated via JS -->
+                            <div class="text-slate-600 italic text-sm w-full text-center py-2">Queue is empty</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 200px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm col-span-2">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Global Maximum Width</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-arrows-alt-h text-success"></i>
+                                    <span id="var-maxWidth" class="font-mono text-success text-2xl font-bold">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Level Size</span>
+                                <span id="var-size" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Min Index (Level)</span>
+                                <span id="var-minIndex" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col gap-1">
+                                <span class="block text-[10px] text-slate-500 uppercase">First Idx</span>
+                                <span id="var-first" class="font-mono text-slate-300 font-bold text-base">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm flex flex-col gap-1">
+                                <span class="block text-[10px] text-slate-500 uppercase">Last Idx</span>
+                                <span id="var-last" class="font-mono text-slate-300 font-bold text-base">-</span>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2">
+                                <span class="block text-[10px] text-slate-500 uppercase border-b border-borderMain pb-1">Current Node Processed</span>
+                                <div class="grid grid-cols-3 gap-2 mt-1">
+                                    <div>
+                                        <span class="text-[9px] text-slate-400 uppercase">Node.val</span>
+                                        <div id="var-currVal" class="font-mono text-syntaxYellow font-bold">-</div>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] text-slate-400 uppercase">Raw Idx</span>
+                                        <div id="var-currIdx" class="font-mono text-slate-300">-</div>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] text-syntaxPink uppercase font-bold">Norm Idx</span>
+                                        <div id="var-normIdx" class="font-mono text-syntaxPink font-bold">-</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-slate-300 font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div id="line-class" class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">private static class</span> Pair {</div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content">        TreeNode node;</div></div>
+                        <div class="debug-line"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">int</span> index;</div></div>
+                        <div class="debug-line"><div class="line-num">5</div><div class="code-content">        Pair(TreeNode node, <span class="text-syntaxPink">int</span> index) {</div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content">            <span class="text-syntaxPink">this</span>.node = node;</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">            <span class="text-syntaxPink">this</span>.index = index;</div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">9</div><div class="code-content">    }</div></div>
+                        <div id="line-func" class="debug-line"><div class="line-num">10</div><div class="code-content">    <span class="text-syntaxPink">public int</span> widthOfBinaryTree(TreeNode root) {</div></div>
+                        <div id="line-null-check" class="debug-line"><div class="line-num">11</div><div class="code-content">        <span class="text-syntaxPink">if</span> (root == <span class="text-syntaxBlue">null</span>) <span class="text-syntaxPink">return</span> <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-init-max" class="debug-line"><div class="line-num">12</div><div class="code-content">        <span class="text-syntaxPink">int</span> maxWidth = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div id="line-init-q" class="debug-line"><div class="line-num">13</div><div class="code-content">        Queue&lt;Pair&gt; q = <span class="text-syntaxPink">new</span> ArrayDeque&lt;&gt;();</div></div>
+                        <div id="line-offer-root" class="debug-line"><div class="line-num">14</div><div class="code-content">        q.offer(<span class="text-syntaxPink">new</span> Pair(root, <span class="text-syntaxPink">0</span>));</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content">        </div></div>
+                        <div id="line-while" class="debug-line"><div class="line-num">16</div><div class="code-content">        <span class="text-syntaxPink">while</span> (!q.isEmpty()) {</div></div>
+                        <div id="line-size" class="debug-line"><div class="line-num">17</div><div class="code-content">            <span class="text-syntaxPink">int</span> size = q.size();</div></div>
+                        <div id="line-min-idx" class="debug-line"><div class="line-num">18</div><div class="code-content">            <span class="text-syntaxPink">int</span> minIndex = q.peek().index;</div></div>
+                        <div id="line-first-last" class="debug-line"><div class="line-num">19</div><div class="code-content">            <span class="text-syntaxPink">int</span> first = <span class="text-syntaxPink">0</span>, last = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">            </div></div>
+                        <div id="line-for" class="debug-line"><div class="line-num">21</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; size; i++) {</div></div>
+                        <div id="line-poll" class="debug-line"><div class="line-num">22</div><div class="code-content">                Pair current = q.poll();</div></div>
+                        <div id="line-norm-idx" class="debug-line"><div class="line-num">23</div><div class="code-content">                TreeNode node = current.node;</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">                <span class="text-syntaxPink">int</span> normalizedIndex = current.index - minIndex;</div></div>
+                        <div class="debug-line"><div class="line-num">25</div><div class="code-content">                </div></div>
+                        <div id="line-if-first" class="debug-line"><div class="line-num">26</div><div class="code-content">                <span class="text-syntaxPink">if</span> (i == <span class="text-syntaxPink">0</span>) first = normalizedIndex;</div></div>
+                        <div id="line-if-last" class="debug-line"><div class="line-num">27</div><div class="code-content">                <span class="text-syntaxPink">if</span> (i == size - <span class="text-syntaxPink">1</span>) last = normalizedIndex;</div></div>
+                        <div class="debug-line"><div class="line-num">28</div><div class="code-content">                </div></div>
+                        <div id="line-if-left" class="debug-line"><div class="line-num">29</div><div class="code-content">                <span class="text-syntaxPink">if</span> (node.left != <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div id="line-offer-left" class="debug-line"><div class="line-num">30</div><div class="code-content">                    q.offer(<span class="text-syntaxPink">new</span> Pair(node.left, <span class="text-syntaxPink">2</span> * normalizedIndex + <span class="text-syntaxPink">1</span>));</div></div>
+                        <div class="debug-line"><div class="line-num">31</div><div class="code-content">                }</div></div>
+                        <div id="line-if-right" class="debug-line"><div class="line-num">32</div><div class="code-content">                <span class="text-syntaxPink">if</span> (node.right != <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div id="line-offer-right" class="debug-line"><div class="line-num">33</div><div class="code-content">                    q.offer(<span class="text-syntaxPink">new</span> Pair(node.right, <span class="text-syntaxPink">2</span> * normalizedIndex + <span class="text-syntaxPink">2</span>));</div></div>
+                        <div class="debug-line"><div class="line-num">34</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">35</div><div class="code-content">            }</div></div>
+                        <div id="line-max-width" class="debug-line"><div class="line-num">36</div><div class="code-content">            maxWidth = Math.max(maxWidth, last - first + <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">37</div><div class="code-content">        }</div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">38</div><div class="code-content">        <span class="text-syntaxPink">return</span> maxWidth;</div></div>
+                        <div class="debug-line"><div class="line-num">39</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">40</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution uses a <strong>Breadth-First Search (BFS) / Level-Order Traversal</strong> approach to calculate the maximum width of a binary tree. The width of one level is defined as the length between the end-nodes (the leftmost and rightmost non-null nodes in the level, where the null nodes between the end-nodes are also counted into the length calculation).</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Concept: Index Normalization</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Heap Indexing:</strong> We can assign an index to every node just like in a Binary Heap array representation. If a node has index <code>i</code>, its left child is at <code>2 * i + 1</code> and its right child is at <code>2 * i + 2</code>.
+                        </li>
+                        <li>
+                            <strong>The Overflow Problem:</strong> For highly skewed trees, this index can grow exponentially and quickly overflow standard 32-bit integers, leading to completely incorrect calculations.
+                        </li>
+                        <li>
+                            <strong>The Solution (Normalization):</strong> At the start of each level, we find the minimum index (which is always the index of the first node in the queue for that level). For every node on that level, we calculate a <code>normalizedIndex = current.index - minIndex</code>. We use this normalized index to calculate the children's indices. This prevents the indices from blowing up to infinity while correctly preserving relative spacing!
+                        </li>
+                        <li>
+                            <strong>Width Calculation:</strong> At each level, the width is simply <code>(last - first + 1)</code>. We track the global maximum of this value across all levels.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where N is the total number of nodes in the binary tree. We visit each node exactly once during our BFS traversal. Queue operations (offer, poll) take O(1) time.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(W)</span>
+                        <p class="text-xs text-slate-400">Where W is the maximum width of the tree. The queue stores nodes level by level. In the worst case (a complete binary tree), the last level will have roughly N/2 nodes, making the space complexity O(N).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) toggleFocusMode();
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // --- ALGORITHM VISUALIZATION LOGIC ---
+
+        // Tree Node Definition
+        class TreeNode {
+            constructor(val, id) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+                this.id = id;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        function parseInputArray(str) {
+            let arr = str.split(',').map(s => s.trim());
+            if (arr.length === 0 || arr[0] === '') return null;
+            
+            let idCounter = 0;
+            if (arr[0] === 'null') return null;
+            
+            let root = new TreeNode(parseInt(arr[0]), idCounter++);
+            let queue = [root];
+            let i = 1;
+            
+            while (queue.length > 0 && i < arr.length) {
+                let current = queue.shift();
+                
+                // Left child
+                if (i < arr.length && arr[i] !== 'null') {
+                    current.left = new TreeNode(parseInt(arr[i]), idCounter++);
+                    queue.push(current.left);
+                }
+                i++;
+                
+                // Right child
+                if (i < arr.length && arr[i] !== 'null') {
+                    current.right = new TreeNode(parseInt(arr[i]), idCounter++);
+                    queue.push(current.right);
+                }
+                i++;
+            }
+            return root;
+        }
+
+        function calculateLayout(root, x, y, hSpacing, vSpacing) {
+            if (!root) return;
+            root.x = x;
+            root.y = y;
+            calculateLayout(root.left, x - hSpacing, y + vSpacing, hSpacing / 2.2, vSpacing);
+            calculateLayout(root.right, x + hSpacing, y + vSpacing, hSpacing / 2.2, vSpacing);
+        }
+
+        // Core State Management
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const inputStr = document.getElementById('input-tree').value;
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                let root = parseInputArray(inputStr);
+                
+                // Calculate static layout for drawing
+                if (root) calculateLayout(root, 400, 40, 180, 70); 
+                
+                generateStates(root);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+                console.error(e);
+            }
+        }
+
+        function buildNodeList(root) {
+            let list = [];
+            function traverse(node) {
+                if(!node) return;
+                list.push({ id: node.id, val: node.val, x: node.x, y: node.y, status: 'default', idxText: '' });
+                traverse(node.left);
+                traverse(node.right);
+            }
+            traverse(root);
+            return list;
+        }
+
+        function buildEdgeList(root) {
+            let edges = [];
+            function traverse(node) {
+                if(!node) return;
+                if(node.left) { edges.push({ from: node.id, to: node.left.id }); traverse(node.left); }
+                if(node.right) { edges.push({ from: node.id, to: node.right.id }); traverse(node.right); }
+            }
+            traverse(root);
+            return edges;
+        }
+
+        // Algorithm Simulator 
+        function generateStates(root) {
+            states = [];
+            
+            let allNodes = buildNodeList(root);
+            let allEdges = buildEdgeList(root);
+            
+            let vrs = { 
+                maxWidth: 0, size: '-', minIndex: '-', first: '-', last: '-', 
+                i: '-', currVal: '-', currIdx: '-', normIdx: '-', action: 'Initialization' 
+            };
+
+            let visualQueue = [];
+
+            const pushState = (msg, line, activeNodeIds = [], queueNodes = [], addedNodeIds = []) => {
+                let snapNodes = allNodes.map(n => ({...n}));
+                
+                // Assign visual statuses based on the algorithm context
+                snapNodes.forEach(n => {
+                    if (activeNodeIds.includes(n.id)) n.status = 'active';
+                    else if (addedNodeIds.includes(n.id)) n.status = 'added';
+                    else if (queueNodes.some(qItem => qItem.node.id === n.id)) n.status = 'in-queue';
+                    
+                    // Show indices on nodes currently in queue or active
+                    let qItem = queueNodes.find(q => q.node.id === n.id);
+                    if (qItem) n.idxText = String(qItem.index);
+                });
+
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: { nodes: snapNodes, edges: allEdges, queue: queueNodes.map(q => ({ val: q.node.val, idx: q.index })) }
+                });
+            };
+
+            vrs.action = "Start function";
+            pushState(`Checking if root is null`, "line-func");
+
+            if (root == null) {
+                vrs.action = "Return 0";
+                pushState(`Root is null, return 0`, "line-null-check");
+                return;
+            }
+
+            vrs.maxWidth = 0;
+            vrs.action = "Initialize maxWidth";
+            pushState(`maxWidth initialized to 0`, "line-init-max");
+
+            vrs.action = "Initialize Queue";
+            pushState(`Created empty Queue`, "line-init-q");
+
+            let q = [];
+            q.push({node: root, index: 0});
+            visualQueue = [...q];
+            vrs.action = "Offer Root";
+            pushState(`Added root to queue with index 0`, "line-offer-root", [], visualQueue);
+
+            while (q.length > 0) {
+                vrs.action = "Check if Queue is empty";
+                pushState(`Queue is not empty. Proceeding to next level.`, "line-while", [], visualQueue);
+
+                let size = q.length;
+                vrs.size = size;
+                vrs.action = `Level size = ${size}`;
+                pushState(`Calculated level size: ${size}`, "line-size", [], visualQueue);
+
+                let minIndex = q[0].index;
+                vrs.minIndex = minIndex;
+                vrs.action = `minIndex = ${minIndex}`;
+                pushState(`minIndex (front of queue) is ${minIndex}`, "line-min-idx", [], visualQueue);
+
+                let first = 0, last = 0;
+                vrs.first = 0; vrs.last = 0;
+                vrs.action = "Initialize first, last bounds";
+                pushState(`Initialized first and last bounds for current level`, "line-first-last", [], visualQueue);
+
+                for (let i = 0; i < size; i++) {
+                    vrs.i = i;
+                    vrs.action = `Processing node ${i+1}/${size} of level`;
+                    pushState(`Starting loop iteration i=${i}`, "line-for", [], visualQueue);
+
+                    let current = q.shift();
+                    visualQueue = [...q]; // update visual queue after poll
+                    let node = current.node;
+                    
+                    vrs.currVal = node.val;
+                    vrs.currIdx = current.index;
+                    vrs.action = `Polled Node(${node.val}) from Queue`;
+                    pushState(`Polled front of queue: Node with value ${node.val}, index ${current.index}`, "line-poll", [node.id], visualQueue);
+
+                    let normalizedIndex = current.index - minIndex;
+                    vrs.normIdx = normalizedIndex;
+                    vrs.action = `Normalize Index`;
+                    pushState(`Normalized index: ${current.index} - ${minIndex} = ${normalizedIndex}`, "line-norm-idx", [node.id], visualQueue);
+
+                    if (i === 0) {
+                        first = normalizedIndex;
+                        vrs.first = first;
+                        vrs.action = `Update first index`;
+                        pushState(`First node in level, set first = ${normalizedIndex}`, "line-if-first", [node.id], visualQueue);
+                    }
+                    if (i === size - 1) {
+                        last = normalizedIndex;
+                        vrs.last = last;
+                        vrs.action = `Update last index`;
+                        pushState(`Last node in level, set last = ${normalizedIndex}`, "line-if-last", [node.id], visualQueue);
+                    }
+
+                    if (node.left !== null) {
+                        vrs.action = `Check Left Child`;
+                        pushState(`Node has a left child`, "line-if-left", [node.id], visualQueue);
+                        
+                        let leftIdx = 2 * normalizedIndex + 1;
+                        q.push({node: node.left, index: leftIdx});
+                        visualQueue = [...q];
+                        
+                        vrs.action = `Offer Left Child`;
+                        pushState(`Added left child Node(${node.left.val}) with index ${leftIdx} (2*${normalizedIndex}+1)`, "line-offer-left", [node.id], visualQueue, [node.left.id]);
+                    }
+
+                    if (node.right !== null) {
+                        vrs.action = `Check Right Child`;
+                        pushState(`Node has a right child`, "line-if-right", [node.id], visualQueue);
+                        
+                        let rightIdx = 2 * normalizedIndex + 2;
+                        q.push({node: node.right, index: rightIdx});
+                        visualQueue = [...q];
+                        
+                        vrs.action = `Offer Right Child`;
+                        pushState(`Added right child Node(${node.right.val}) with index ${rightIdx} (2*${normalizedIndex}+2)`, "line-offer-right", [node.id], visualQueue, [node.right.id]);
+                    }
+                }
+
+                let currentWidth = last - first + 1;
+                vrs.maxWidth = Math.max(vrs.maxWidth, currentWidth);
+                
+                vrs.i = '-'; vrs.currVal = '-'; vrs.currIdx = '-'; vrs.normIdx = '-';
+                vrs.action = `Calculate Level Width`;
+                pushState(`Level complete. Width = ${last} - ${first} + 1 = ${currentWidth}. Max Width is now ${vrs.maxWidth}`, "line-max-width", [], visualQueue);
+            }
+
+            vrs.action = "Return result";
+            pushState(`Queue is empty. Algorithm finished. Final Max Width = ${vrs.maxWidth}`, "line-return", [], []);
+        }
+
+        // Render Canvas DOM
+        function renderVisualsDOM(visuals) {
+            const nodesContainer = document.getElementById('tree-nodes');
+            const edgesContainer = document.getElementById('tree-edges');
+            const queueContainer = document.getElementById('queue-display');
+            
+            // Render Edges (SVG)
+            let svgHTML = '';
+            visuals.edges.forEach(edge => {
+                let n1 = visuals.nodes.find(n => n.id === edge.from);
+                let n2 = visuals.nodes.find(n => n.id === edge.to);
+                if (n1 && n2) {
+                    // Check if edge is connected to an active node
+                    let isHighlighted = n1.status === 'active' && (n2.status === 'added' || n2.status === 'active');
+                    let strokeColor = isHighlighted ? '#fcd34d' : '#475569';
+                    let strokeWidth = isHighlighted ? '3' : '2';
+                    svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />`;
+                }
+            });
+            edgesContainer.innerHTML = svgHTML;
+
+            // Render Nodes
+            let nodesHTML = '';
+            visuals.nodes.forEach(n => {
+                let cssClass = 'node-default';
+                if (n.status === 'active') cssClass = 'node-active';
+                if (n.status === 'in-queue') cssClass = 'node-in-queue';
+                if (n.status === 'added') cssClass = 'node-added';
+                
+                let idxHTML = n.idxText ? `<div class="node-idx">${n.idxText}</div>` : '';
+                nodesHTML += `<div class="tree-node ${cssClass}" style="left: ${n.x}px; top: ${n.y}px;">${n.val}${idxHTML}</div>`;
+            });
+            nodesContainer.innerHTML = nodesHTML;
+
+            // Render Queue
+            if (visuals.queue.length === 0) {
+                queueContainer.innerHTML = `<div class="text-slate-600 italic text-sm w-full text-center py-2">Queue is empty</div>`;
+            } else {
+                let queueHTML = '';
+                visuals.queue.forEach((qItem, i) => {
+                    queueHTML += `
+                        <div class="queue-item">
+                            <span class="queue-item-val">${qItem.val}</span>
+                            <span class="queue-item-idx">idx: ${qItem.idx}</span>
+                        </div>
+                    `;
+                });
+                queueContainer.innerHTML = queueHTML;
+            }
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Render Visuals
+            if (state.visuals) renderVisualsDOM(state.visuals);
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-maxWidth').innerText = state.vars.maxWidth;
+            document.getElementById('var-size').innerText = state.vars.size;
+            document.getElementById('var-minIndex').innerText = state.vars.minIndex;
+            document.getElementById('var-first').innerText = state.vars.first;
+            document.getElementById('var-last').innerText = state.vars.last;
+            document.getElementById('var-currVal').innerText = state.vars.currVal;
+            document.getElementById('var-currIdx').innerText = state.vars.currIdx;
+            document.getElementById('var-normIdx').innerText = state.vars.normIdx;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>

@@ -1,5 +1,24 @@
 [
   {
+    "id": "662",
+    "title": "Maximum Width of Binary Tree",
+    "difficulty": "Medium",
+    "tags": [
+      "Tree",
+      "Depth-First Search",
+      "Breadth-First Search",
+      "Binary Tree"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/maximum-width-of-binary-tree/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "binary-tree/maximum-width-of-binary-tree.html"
+      }
+    ]
+  },
+  {
     "id": "236",
     "title": "Lowest Common Ancestor of a Binary Tree",
     "difficulty": "Medium",
