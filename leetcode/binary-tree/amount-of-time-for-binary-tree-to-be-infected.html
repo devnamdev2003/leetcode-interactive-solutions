@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Amount of Time for Binary Tree to Be Infected</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Tree Visualization Styles */
+        #tree-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tree-node {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #f8fafc;
+            transform: translate(-50%, -50%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .tree-node.state-processing {
+            background-color: #3b82f6;
+            border-color: #60a5fa;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        .tree-node.state-target {
+            border-color: #f59e0b;
+            border-width: 3px;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+        }
+
+        .tree-node.state-infected {
+            background-color: #ef4444;
+            border-color: #f87171;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
+            animation: pulse-danger 1.5s infinite;
+        }
+
+        @keyframes pulse-danger {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .tree-edge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .edge-line {
+            stroke: #475569;
+            stroke-width: 2;
+            transition: all 0.4s ease;
+        }
+
+        .edge-line.active {
+            stroke: #3b82f6;
+            stroke-width: 3;
+            stroke-dasharray: 5, 5;
+            animation: dash 1s linear infinite;
+        }
+
+        .edge-line.infected {
+            stroke: #ef4444;
+            stroke-width: 3;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -10; }
+        }
+
+        /* Data Structure Badges */
+        .queue-item {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: 'Fira Code', monospace;
+            color: #e2e8f0;
+            animation: popIn 0.2s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 30px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; font-size: 11.5px;}
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-danger flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-red-500/20">
+                <i class="fas fa-biohazard"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Tree Infection Spread (BFS)</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-md">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Tree Array (Level-order, use 'null')</label>
+            <input type="text" id="input-tree" class="input-field" value="1, 5, 3, null, 4, 10, 6, 9, 2">
+        </div>
+        <div class="flex-1 w-full max-w-[120px]">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Start Node</label>
+            <input type="number" id="input-start" class="input-field" value="3">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> <span id="error-msg">Invalid input.</span></div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="phase-badge" class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[9px] border border-blue-500/30">Phase 1: Parent Mapping</span>
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0 ml-2" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-hidden flex flex-col transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-4 left-4 right-4 flex items-center gap-2 text-slate-300 text-sm font-medium z-20 bg-bgPanel/95 px-4 py-3 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary mt-0.5" id="status-icon"></i>
+                        <span id="step-msg" class="leading-tight">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Tree Container -->
+                    <div id="tree-container" class="mt-20">
+                        <svg class="tree-edge" id="edges-layer"></svg>
+                        <div id="nodes-layer" class="absolute inset-0"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 500px; width: 500px; min-width: 300px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 180px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Time (ans)</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-clock text-danger"></i>
+                                    <span id="var-ans" class="font-mono text-white text-xl font-bold">-1</span>
+                                </div>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Map m.size()</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-database text-purple-400"></i>
+                                    <span id="var-map-size" class="font-mono text-white text-xl font-bold">0</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Queue Viewer -->
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2 min-h-[70px]">
+                                <div class="flex justify-between items-center">
+                                    <span class="block text-[10px] text-slate-500 uppercase">Queue (BFS)</span>
+                                    <span id="var-q-size" class="text-[10px] text-slate-400 font-mono">Size: 0</span>
+                                </div>
+                                <div id="var-queue" class="flex flex-wrap gap-2 items-center min-h-[28px]">
+                                    <!-- Queue items injected here -->
+                                </div>
+                            </div>
+
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 200px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono transition-opacity duration-300">
+                        <div class="debug-line" id="line-1"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line" id="line-2"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public int</span> amountOfTime(TreeNode root, <span class="text-syntaxPink">int</span> start) {</div></div>
+                        <div class="debug-line" id="line-3"><div class="line-num">3</div><div class="code-content">        <span class="text-syntaxPink">int</span> ans = -1;</div></div>
+                        <div class="debug-line" id="line-4"><div class="line-num">4</div><div class="code-content">        Map&lt;TreeNode, TreeNode&gt; m = <span class="text-syntaxPink">new</span> HashMap&lt;&gt;();</div></div>
+                        <div class="debug-line" id="line-5"><div class="line-num">5</div><div class="code-content">        TreeNode target = helper(root, start, m);</div></div>
+                        <div class="debug-line" id="line-6"><div class="line-num">6</div><div class="code-content">        Queue&lt;TreeNode&gt; q = <span class="text-syntaxPink">new</span> ArrayDeque&lt;&gt;();</div></div>
+                        <div class="debug-line" id="line-7"><div class="line-num">7</div><div class="code-content">        q.offer(target);</div></div>
+                        <div class="debug-line" id="line-8"><div class="line-num">8</div><div class="code-content">        <span class="text-syntaxPink">while</span> (!q.isEmpty()) {</div></div>
+                        <div class="debug-line" id="line-9"><div class="line-num">9</div><div class="code-content">            <span class="text-syntaxPink">int</span> s = q.size();</div></div>
+                        <div class="debug-line" id="line-10"><div class="line-num">10</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; s; i++) {</div></div>
+                        <div class="debug-line" id="line-11"><div class="line-num">11</div><div class="code-content">                TreeNode current = q.poll();</div></div>
+                        <div class="debug-line" id="line-12"><div class="line-num">12</div><div class="code-content">                TreeNode parent = m.get(current);</div></div>
+                        <div class="debug-line" id="line-13"><div class="line-num">13</div><div class="code-content">                <span class="text-syntaxPink">if</span> (current.left != <span class="text-syntaxBlue">null</span> && m.containsKey(current.left)) {</div></div>
+                        <div class="debug-line" id="line-14"><div class="line-num">14</div><div class="code-content">                    q.offer(current.left);</div></div>
+                        <div class="debug-line" id="line-15"><div class="line-num">15</div><div class="code-content">                }</div></div>
+                        <div class="debug-line" id="line-16"><div class="line-num">16</div><div class="code-content">                <span class="text-syntaxPink">if</span> (current.right != <span class="text-syntaxBlue">null</span> && m.containsKey(current.right)) {</div></div>
+                        <div class="debug-line" id="line-17"><div class="line-num">17</div><div class="code-content">                    q.offer(current.right);</div></div>
+                        <div class="debug-line" id="line-18"><div class="line-num">18</div><div class="code-content">                }</div></div>
+                        <div class="debug-line" id="line-19"><div class="line-num">19</div><div class="code-content">                <span class="text-syntaxPink">if</span> (parent != <span class="text-syntaxBlue">null</span> && m.containsKey(parent)) {</div></div>
+                        <div class="debug-line" id="line-20"><div class="line-num">20</div><div class="code-content">                    q.offer(parent);</div></div>
+                        <div class="debug-line" id="line-21"><div class="line-num">21</div><div class="code-content">                }</div></div>
+                        <div class="debug-line" id="line-22"><div class="line-num">22</div><div class="code-content">                <span class="text-slate-500 italic"> // Marks current node as visited</span></div></div>
+                        <div class="debug-line" id="line-23"><div class="line-num">23</div><div class="code-content">                m.remove(current);</div></div>
+                        <div class="debug-line" id="line-24"><div class="line-num">24</div><div class="code-content">            }</div></div>
+                        <div class="debug-line" id="line-25"><div class="line-num">25</div><div class="code-content">            ans++;</div></div>
+                        <div class="debug-line" id="line-26"><div class="line-num">26</div><div class="code-content">        }</div></div>
+                        <div class="debug-line" id="line-27"><div class="line-num">27</div><div class="code-content">        <span class="text-syntaxPink">return</span> ans;</div></div>
+                        <div class="debug-line" id="line-28"><div class="line-num">28</div><div class="code-content">    }</div></div>
+                        <div class="debug-line" id="line-29"><div class="line-num">29</div><div class="code-content"></div></div>
+                        <div class="debug-line" id="line-30"><div class="line-num">30</div><div class="code-content">    <span class="text-syntaxPink">public</span> TreeNode helper(TreeNode root, <span class="text-syntaxPink">int</span> k, Map&lt;TreeNode, TreeNode&gt; m) {</div></div>
+                        <div class="debug-line" id="line-31"><div class="line-num">31</div><div class="code-content">        Queue&lt;TreeNode&gt; q = <span class="text-syntaxPink">new</span> ArrayDeque&lt;&gt;();</div></div>
+                        <div class="debug-line" id="line-32"><div class="line-num">32</div><div class="code-content">        TreeNode target = <span class="text-syntaxPink">new</span> TreeNode();</div></div>
+                        <div class="debug-line" id="line-33"><div class="line-num">33</div><div class="code-content">        m.put(root, <span class="text-syntaxBlue">null</span>);</div></div>
+                        <div class="debug-line" id="line-34"><div class="line-num">34</div><div class="code-content">        q.offer(root);</div></div>
+                        <div class="debug-line" id="line-35"><div class="line-num">35</div><div class="code-content">        <span class="text-syntaxPink">while</span> (!q.isEmpty()) {</div></div>
+                        <div class="debug-line" id="line-36"><div class="line-num">36</div><div class="code-content">            TreeNode temp = q.poll();</div></div>
+                        <div class="debug-line" id="line-37"><div class="line-num">37</div><div class="code-content">            <span class="text-syntaxPink">if</span> (temp.left != <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div class="debug-line" id="line-38"><div class="line-num">38</div><div class="code-content">                q.offer(temp.left);</div></div>
+                        <div class="debug-line" id="line-39"><div class="line-num">39</div><div class="code-content">                m.put(temp.left, temp);</div></div>
+                        <div class="debug-line" id="line-40"><div class="line-num">40</div><div class="code-content">            }</div></div>
+                        <div class="debug-line" id="line-41"><div class="line-num">41</div><div class="code-content">            <span class="text-syntaxPink">if</span> (temp.right != <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div class="debug-line" id="line-42"><div class="line-num">42</div><div class="code-content">                q.offer(temp.right);</div></div>
+                        <div class="debug-line" id="line-43"><div class="line-num">43</div><div class="code-content">                m.put(temp.right, temp);</div></div>
+                        <div class="debug-line" id="line-44"><div class="line-num">44</div><div class="code-content">            }</div></div>
+                        <div class="debug-line" id="line-45"><div class="line-num">45</div><div class="code-content">            <span class="text-syntaxPink">if</span> (temp.val == k) {</div></div>
+                        <div class="debug-line" id="line-46"><div class="line-num">46</div><div class="code-content">                target = temp;</div></div>
+                        <div class="debug-line" id="line-47"><div class="line-num">47</div><div class="code-content">            }</div></div>
+                        <div class="debug-line" id="line-48"><div class="line-num">48</div><div class="code-content">        }</div></div>
+                        <div class="debug-line" id="line-49"><div class="line-num">49</div><div class="code-content">        <span class="text-syntaxPink">return</span> target;</div></div>
+                        <div class="debug-line" id="line-50"><div class="line-num">50</div><div class="code-content">    }</div></div>
+                        <div class="debug-line" id="line-51"><div class="line-num">51</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This solution effectively transforms the directed binary tree structure into an undirected graph to simulate an infection spreading radially from a starting node. It does this using a <strong>Two-Pass Breadth-First Search (BFS)</strong> approach.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3 border-b border-borderMain pb-2">Phase 1: Parent Mapping (The <code>helper</code> function)</h3>
+                    <p class="mb-4 text-slate-300">Standard binary trees only have pointers downward (left, right). To spread an infection upward, we need parent pointers. The first BFS traverses the entire tree and populates a HashMap <code>m</code> mapping every <code>ChildNode -> ParentNode</code>. Simultaneously, it identifies and stores the reference to the <code>target</code> node (the starting point of the infection).</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3 border-b border-borderMain pb-2">Phase 2: Infection Spread</h3>
+                    <p class="mb-2 text-slate-300">The second BFS starts with the <code>target</code> node in a queue. It processes the tree level-by-level (representing minutes passing). For each node, it attempts to spread to:</p>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-300 mb-4">
+                        <li>Its left child (if it exists).</li>
+                        <li>Its right child (if it exists).</li>
+                        <li>Its parent (looked up via the HashMap <code>m</code>).</li>
+                    </ul>
+                    
+                    <div class="bg-blue-900/20 border border-blue-500/30 rounded p-4 mb-4">
+                        <strong class="text-blue-400 block mb-1">Clever Trick: Map as a Visited Set</strong>
+                        <p class="text-slate-300">To avoid infinite loops (A infects B, B infects A), we need to track visited nodes. This specific algorithm reuses the parent map <code>m</code>. When processing a neighbor, it checks <code>m.containsKey(neighbor)</code>. Crucially, after a node finishes processing its neighbors, it executes <code>m.remove(current)</code>. This removes the node from the map entirely, marking it as "visited/infected" so it won't be added to the queue again.</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where N is the number of nodes in the binary tree. The first BFS (helper) visits every node exactly once to build the parent map. The second BFS visits every node at most once as the infection spreads. $O(N) + O(N) = O(N)$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The auxiliary space is dominated by the HashMap `m` which stores parent pointers for all $N$ nodes, taking $O(N)$ space. The Queue used for BFS can also hold at most $O(N)$ elements in the worst case (e.g., a completely unbalanced tree or maximum width of a balanced tree).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // --- UI Layout Management ---
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 500; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) toggleFocusMode();
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 300) newWidth = 300;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // --- Core Application Logic ---
+        
+        class TreeNode {
+            constructor(val, id) {
+                this.val = val;
+                this.id = id; // Unique ID for DOM mapping
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let treeRoot = null;
+        let startVal = null;
+        let allNodes = []; // Flat array of references
+
+        function parseTreeInput(inputStr) {
+            const cleanStr = inputStr.replace(/[\[\]]/g, '');
+            if(!cleanStr.trim()) return null;
+            
+            const parts = cleanStr.split(',').map(s => s.trim());
+            if(parts.length === 0 || parts[0] === 'null' || parts[0] === '') return null;
+
+            allNodes = [];
+            let root = new TreeNode(parseInt(parts[0]), 0);
+            allNodes.push(root);
+            
+            let queue = [root];
+            let i = 1;
+            let idCounter = 1;
+
+            while (queue.length > 0 && i < parts.length) {
+                let curr = queue.shift();
+                
+                // Left child
+                if (i < parts.length && parts[i] !== 'null' && parts[i] !== '') {
+                    curr.left = new TreeNode(parseInt(parts[i]), idCounter++);
+                    allNodes.push(curr.left);
+                    queue.push(curr.left);
+                }
+                i++;
+                
+                // Right child
+                if (i < parts.length && parts[i] !== 'null' && parts[i] !== '') {
+                    curr.right = new TreeNode(parseInt(parts[i]), idCounter++);
+                    allNodes.push(curr.right);
+                    queue.push(curr.right);
+                }
+                i++;
+            }
+            return root;
+        }
+
+        // Calculate positions for rendering
+        function layoutTree(node, depth, xFraction, widthFraction) {
+            if (!node) return;
+            const verticalSpacing = 70;
+            node.y = depth * verticalSpacing + 40;
+            node.x = xFraction * 100; // Store as percentage
+
+            layoutTree(node.left, depth + 1, xFraction - widthFraction / 2, widthFraction / 2);
+            layoutTree(node.right, depth + 1, xFraction + widthFraction / 2, widthFraction / 2);
+        }
+
+        function initSimulationFromInputs() {
+            const errEl = document.getElementById('input-error');
+            const errMsg = document.getElementById('error-msg');
+            errEl.classList.add('hidden');
+
+            try {
+                const treeStr = document.getElementById('input-tree').value;
+                const startStr = document.getElementById('input-start').value;
+                
+                startVal = parseInt(startStr);
+                if(isNaN(startVal)) throw new Error("Start node must be a number");
+
+                treeRoot = parseTreeInput(treeStr);
+                if(!treeRoot) throw new Error("Invalid tree array structure");
+
+                // Verify start node exists
+                if(!allNodes.some(n => n.val === startVal)) {
+                    throw new Error(`Start node ${startVal} not found in the tree`);
+                }
+
+                layoutTree(treeRoot, 0, 0.5, 0.25);
+                generateStates();
+                
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+            } catch (e) {
+                errMsg.innerText = e.message;
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // --- State Generation Engine ---
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        function updateSpeed(val) {
+            animSpeed = 2500 - (val * 22); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function generateStates() {
+            states = [];
+            
+            // Simulation structures
+            let m = new Map(); // node.id -> parent.id (using IDs for simplicity in JS simulation)
+            let mSize = 0;
+            let q = [];
+            let ans = -1;
+            let targetNodeId = null;
+            
+            // Visual state tracking
+            let nodeVisuals = {}; // id -> {status: 'unvisited'|'processing'|'infected'|'target'}
+            let activeEdges = []; // {u: id, v: id, type: 'active'|'infected'}
+            
+            allNodes.forEach(n => {
+                nodeVisuals[n.id] = 'unvisited';
+            });
+
+            // Helper to take a snapshot
+            const pushState = (msg, line, action, phase) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    phase: phase, // 1 or 2
+                    vars: {
+                        ans: ans,
+                        mapSize: mSize,
+                        queueArr: q.map(n => n.val),
+                        action: action
+                    },
+                    visuals: {
+                        nodes: JSON.parse(JSON.stringify(nodeVisuals)),
+                        edges: JSON.parse(JSON.stringify(activeEdges))
+                    }
+                });
+            };
+
+            // --- Phase 1: helper function ---
+            pushState("Initializing BFS for Parent Mapping", "line-5", "Calling helper()", 1);
+            
+            q.push(treeRoot);
+            m.set(treeRoot.id, null); mSize++;
+            pushState(`Put root(${treeRoot.val}) in map, added to queue`, "line-33", "Setup Phase 1", 1);
+            
+            while(q.length > 0) {
+                let temp = q.shift();
+                nodeVisuals[temp.id] = 'processing';
+                pushState(`Dequeue node ${temp.val}`, "line-36", `Processing ${temp.val}`, 1);
+                
+                if (temp.left !== null) {
+                    q.push(temp.left);
+                    m.set(temp.left.id, temp.id); mSize++;
+                    activeEdges = [{u: temp.id, v: temp.left.id, type: 'active'}];
+                    pushState(`Map ${temp.left.val} -> ${temp.val} (parent)`, "line-39", `Mapped left child`, 1);
+                }
+                
+                if (temp.right !== null) {
+                    q.push(temp.right);
+                    m.set(temp.right.id, temp.id); mSize++;
+                    activeEdges = [{u: temp.id, v: temp.right.id, type: 'active'}];
+                    pushState(`Map ${temp.right.val} -> ${temp.val} (parent)`, "line-43", `Mapped right child`, 1);
+                }
+                
+                if (temp.val === startVal) {
+                    targetNodeId = temp.id;
+                    nodeVisuals[temp.id] = 'target';
+                    pushState(`Target node ${startVal} found!`, "line-46", "Target Acquired", 1);
+                } else {
+                    nodeVisuals[temp.id] = 'unvisited'; // Reset processing highlight
+                }
+                activeEdges = [];
+            }
+            pushState("Parent map complete. Target returned.", "line-49", "Phase 1 Complete", 1);
+
+            // --- Phase 2: Infection Spread ---
+            pushState("Initializing Infection BFS", "line-6", "Setup Phase 2", 2);
+            
+            let targetNode = allNodes.find(n => n.id === targetNodeId);
+            q = [targetNode];
+            nodeVisuals[targetNodeId] = 'infected';
+            pushState(`Enqueued target ${targetNode.val}`, "line-7", "Start Infection", 2);
+
+            pushState(`Entering BFS While Loop`, "line-8", "Check Queue", 2);
+            
+            while (q.length > 0) {
+                let s = q.length;
+                pushState(`Level size: ${s}`, "line-9", `Level start`, 2);
+                
+                let newlyInfectedIdsThisLevel = [];
+
+                for (let i = 0; i < s; i++) {
+                    let current = q.shift();
+                    pushState(`Poll node ${current.val}`, "line-11", `Processing ${current.val}`, 2);
+                    
+                    let parentId = m.get(current.id);
+                    
+                    // Check Left
+                    if (current.left !== null && m.has(current.left.id)) {
+                        q.push(current.left);
+                        newlyInfectedIdsThisLevel.push(current.left.id);
+                        activeEdges.push({u: current.id, v: current.left.id, type: 'infected'});
+                        pushState(`Infect left child ${current.left.val}`, "line-14", "Spread Left", 2);
+                    }
+                    
+                    // Check Right
+                    if (current.right !== null && m.has(current.right.id)) {
+                        q.push(current.right);
+                        newlyInfectedIdsThisLevel.push(current.right.id);
+                        activeEdges.push({u: current.id, v: current.right.id, type: 'infected'});
+                        pushState(`Infect right child ${current.right.val}`, "line-17", "Spread Right", 2);
+                    }
+                    
+                    // Check Parent
+                    if (parentId !== null && parentId !== undefined && m.has(parentId)) {
+                        let parentNode = allNodes.find(n => n.id === parentId);
+                        q.push(parentNode);
+                        newlyInfectedIdsThisLevel.push(parentId);
+                        activeEdges.push({u: current.id, v: parentId, type: 'infected'});
+                        pushState(`Infect parent ${parentNode.val}`, "line-20", "Spread Up", 2);
+                    }
+                    
+                    // Mark Visited
+                    m.delete(current.id); mSize--;
+                    pushState(`Removed ${current.val} from map (marked visited)`, "line-23", "Mark Visited", 2);
+                }
+                
+                ans++;
+                // Apply visual infection to nodes processed this level
+                newlyInfectedIdsThisLevel.forEach(id => {
+                    nodeVisuals[id] = 'infected';
+                });
+                activeEdges = []; // Clear edges after level
+                pushState(`Level complete. Time elapsed: ${ans}`, "line-25", `Time = ${ans}`, 2);
+            }
+            
+            pushState(`Queue empty. Total time to infect: ${ans}`, "line-27", "Algorithm Finished", 2);
+        }
+
+        // --- Rendering Logic ---
+
+        function drawStaticTreeEdges() {
+            const svg = document.getElementById('edges-layer');
+            let html = '';
+            
+            // We need pixel coordinates for SVG. We'll use % based on a fixed coordinate system,
+            // or just rely on CSS absolute positioning for HTML elements and calculate lines via JS.
+            // Since tree-container size can change, recalculating lines is safest.
+            
+            const container = document.getElementById('tree-container');
+            const w = container.clientWidth || 800;
+            const h = Math.max(container.clientHeight, 400); // ensure some min height
+            
+            allNodes.forEach(node => {
+                const startX = node.x; // %
+                const startY = node.y; // px
+                
+                if (node.left) {
+                    html += `<line x1="${startX}%" y1="${startY}" x2="${node.left.x}%" y2="${node.left.y}" class="edge-line" id="edge-${node.id}-${node.left.id}" />`;
+                }
+                if (node.right) {
+                    html += `<line x1="${startX}%" y1="${startY}" x2="${node.right.x}%" y2="${node.right.y}" class="edge-line" id="edge-${node.id}-${node.right.id}" />`;
+                }
+            });
+            svg.innerHTML = html;
+        }
+
+        function drawNodesDOM() {
+            const container = document.getElementById('nodes-layer');
+            let html = '';
+            allNodes.forEach(node => {
+                html += `<div id="node-${node.id}" class="tree-node" style="left: ${node.x}%; top: ${node.y}px;">${node.val}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text & Progress
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+
+            // Phase Badge
+            const badge = document.getElementById('phase-badge');
+            if (state.phase === 1) {
+                badge.className = "bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[9px] border border-blue-500/30 uppercase font-bold tracking-wider";
+                badge.innerText = "Phase 1: Parent Mapping";
+            } else {
+                badge.className = "bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-[9px] border border-red-500/30 uppercase font-bold tracking-wider";
+                badge.innerText = "Phase 2: Infection Spread";
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Init DOM if step 0 to ensure sizing is right
+            if (idx === 0) {
+                drawStaticTreeEdges();
+                drawNodesDOM();
+            }
+
+            // Update Nodes Visuals
+            allNodes.forEach(node => {
+                const el = document.getElementById(`node-${node.id}`);
+                if (el) {
+                    const status = state.visuals.nodes[node.id];
+                    el.className = `tree-node state-${status}`;
+                }
+            });
+
+            // Update Edges Visuals
+            document.querySelectorAll('.edge-line').forEach(el => {
+                el.classList.remove('active', 'infected');
+            });
+            state.visuals.edges.forEach(e => {
+                // Determine direction to find the right ID
+                let edgeId = `edge-${e.u}-${e.v}`;
+                let el = document.getElementById(edgeId);
+                if(!el) {
+                    edgeId = `edge-${e.v}-${e.u}`; // Try reverse (for parent traversal)
+                    el = document.getElementById(edgeId);
+                }
+                if (el) {
+                    el.classList.add(e.type);
+                }
+            });
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+            }
+
+            document.getElementById('var-ans').innerText = state.vars.ans;
+            document.getElementById('var-map-size').innerText = state.vars.mapSize;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Render Queue
+            document.getElementById('var-q-size').innerText = `Size: ${state.vars.queueArr.length}`;
+            let qHtml = '';
+            state.vars.queueArr.forEach(val => {
+                qHtml += `<div class="queue-item">${val}</div>`;
+            });
+            document.getElementById('var-queue').innerHTML = qHtml || '<span class="text-xs text-slate-600 italic">Empty</span>';
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    // Scroll logic with offset
+                    const container = document.getElementById('content-code');
+                    const offset = activeEl.offsetTop - (container.clientHeight / 2);
+                    container.scrollTo({ top: offset, behavior: 'smooth' });
+                }
+            }
+        }
+
+        // --- Playback Controls ---
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        // Handle window resize to redraw SVG lines correctly
+        window.addEventListener('resize', () => {
+            if(states.length > 0) {
+                drawStaticTreeEdges();
+                renderState(currState); // Re-apply classes
+            }
+        });
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
