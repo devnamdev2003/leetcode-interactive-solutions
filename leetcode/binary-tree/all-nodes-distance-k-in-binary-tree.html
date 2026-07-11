@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Distance K in Binary Tree</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Tree Node Styles */
+        .tree-node {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            margin-left: -22px; /* Center adjustment */
+            margin-top: -22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #1e293b;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .node-default { background-color: #334155; color: #f8fafc; }
+        .node-target { background-color: #ea580c; border-color: #fb923c; color: white; transform: scale(1.1); box-shadow: 0 0 15px rgba(234, 88, 12, 0.5); }
+        .node-queue { background-color: #2563eb; border-color: #60a5fa; color: white; }
+        .node-processing { background-color: #9333ea; border-color: #d8b4fe; color: white; transform: scale(1.15); box-shadow: 0 0 20px rgba(147, 51, 234, 0.7); z-index: 20; }
+        .node-visited { background-color: #064e3b; border-color: #059669; color: #a7f3d0; opacity: 0.8; }
+        .node-ans { background-color: #10b981; border-color: #34d399; color: white; transform: scale(1.15); box-shadow: 0 0 20px rgba(16, 185, 129, 0.7); z-index: 15; }
+
+        .tree-edge {
+            stroke: #475569;
+            stroke-width: 2.5;
+            fill: none;
+            transition: all 0.3s;
+        }
+        .edge-active {
+            stroke: #9333ea;
+            stroke-width: 4;
+            filter: drop-shadow(0 0 4px rgba(147, 51, 234, 0.5));
+        }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Distance K in Binary Tree</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-lg">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Tree Level-Order (CSV)</label>
+            <input type="text" id="input-tree" class="input-field" value="3,5,1,6,2,0,8,null,null,7,4" placeholder="e.g., 3,5,1,6,2,0,8,null,null,7,4">
+        </div>
+        <div class="w-24 shrink-0">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Target</label>
+            <input type="number" id="input-target" class="input-field" value="5">
+        </div>
+        <div class="w-24 shrink-0">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Distance K</label>
+            <input type="number" id="input-k" class="input-field" value="2">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> <span id="error-msg">Invalid input.</span></div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas (Radial BFS)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-auto flex flex-col transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="fixed top-[130px] left-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-30 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur" id="status-overlay">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Visual Tree Container -->
+                    <div id="canvas-tree-container" class="relative min-w-full min-h-full" style="width: 800px; height: 600px; transform-origin: top left;">
+                        <!-- SVG for Edges -->
+                        <svg id="tree-svg" class="absolute top-0 left-0 w-full h-full pointer-events-none"></svg>
+                        <!-- Divs for Nodes injected here -->
+                        <div id="tree-nodes"></div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 480px; width: 480px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden flex flex-col gap-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Target</span>
+                                    <span id="var-target" class="font-mono text-orange-400 font-bold text-lg">-</span>
+                                </div>
+                                <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                    <span class="block text-[10px] text-slate-500 uppercase mb-1">Distance (K) left</span>
+                                    <span id="var-k" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Queue Tracker -->
+                            <div class="bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="block text-[10px] text-slate-500 uppercase">Queue &lt;Node, Parent&gt;</span>
+                                    <span class="text-[10px] text-slate-400 font-mono" id="var-q-size">Size: 0</span>
+                                </div>
+                                <div id="var-queue" class="flex flex-wrap gap-2 min-h-[30px]"></div>
+                            </div>
+
+                            <!-- Hash Map Tracker -->
+                            <div class="bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2 max-h-[150px] overflow-y-auto">
+                                <div class="flex justify-between items-center">
+                                    <span class="block text-[10px] text-slate-500 uppercase">HashMap (Parents)</span>
+                                </div>
+                                <div id="var-hash" class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-mono"></div>
+                            </div>
+
+                            <!-- Result Array -->
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Result List (ans)</span>
+                                <div id="var-ans" class="font-mono text-success text-base flex flex-wrap gap-1 min-h-[24px]">[]</div>
+                            </div>
+
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 1.5 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div id="line-func" class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> List&lt;Integer&gt; distanceK(TreeNode root, TreeNode target, <span class="text-syntaxPink">int</span> k) {</div></div>
+                        <div id="line-init-ans" class="debug-line"><div class="line-num">3</div><div class="code-content">        List&lt;Integer&gt; ans = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div id="line-init-q" class="debug-line"><div class="line-num">4</div><div class="code-content">        Queue&lt;Map.Entry&lt;TreeNode, TreeNode&gt;&gt; q = <span class="text-syntaxPink">new</span> ArrayDeque&lt;&gt;();</div></div>
+                        <div id="line-init-hash" class="debug-line"><div class="line-num">5</div><div class="code-content">        Map&lt;TreeNode, TreeNode&gt; hash = <span class="text-syntaxPink">new</span> HashMap&lt;&gt;();</div></div>
+                        <div id="line-offer-root" class="debug-line"><div class="line-num">6</div><div class="code-content">        q.offer(Map.entry(root, <span class="text-syntaxPink">new</span> TreeNode(-<span class="text-syntaxPink">1</span>)));</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content">        </div></div>
+                        <div class="debug-line"><div class="line-num">8</div><div class="code-content text-slate-500 italic">        // Phase 1: Map node to parent</div></div>
+                        <div id="line-w1-cond" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">while</span> (!q.isEmpty()) {</div></div>
+                        <div id="line-w1-temp" class="debug-line"><div class="line-num">10</div><div class="code-content">            TreeNode temp = q.peek().getKey();</div></div>
+                        <div id="line-w1-temp2" class="debug-line"><div class="line-num">11</div><div class="code-content">            TreeNode temp2 = q.peek().getValue();</div></div>
+                        <div id="line-w1-left" class="debug-line"><div class="line-num">12</div><div class="code-content">            <span class="text-syntaxPink">if</span> (temp.left != <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div id="line-w1-left-offer" class="debug-line"><div class="line-num">13</div><div class="code-content">                q.offer(Map.entry(temp.left, temp));</div></div>
+                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">            }</div></div>
+                        <div id="line-w1-right" class="debug-line"><div class="line-num">15</div><div class="code-content">            <span class="text-syntaxPink">if</span> (temp.right != <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div id="line-w1-right-offer" class="debug-line"><div class="line-num">16</div><div class="code-content">                q.offer(Map.entry(temp.right, temp));</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">            }</div></div>
+                        <div id="line-w1-hash-put" class="debug-line"><div class="line-num">18</div><div class="code-content">            hash.put(temp, temp2);</div></div>
+                        <div id="line-w1-poll" class="debug-line"><div class="line-num">19</div><div class="code-content">            q.poll();</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">21</div><div class="code-content">        </div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content text-slate-500 italic">        // Phase 2: BFS radiating outward from target</div></div>
+                        <div id="line-offer-target" class="debug-line"><div class="line-num">23</div><div class="code-content">        q.offer(Map.entry(target, hash.get(target)));</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content"></div></div>
+                        <div id="line-w2-cond" class="debug-line"><div class="line-num">25</div><div class="code-content">        <span class="text-syntaxPink">while</span> (k != <span class="text-syntaxPink">0</span>) {</div></div>
+                        <div id="line-w2-size" class="debug-line"><div class="line-num">26</div><div class="code-content">            <span class="text-syntaxPink">int</span> s = q.size();</div></div>
+                        <div id="line-w2-for" class="debug-line"><div class="line-num">27</div><div class="code-content">            <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = <span class="text-syntaxPink">0</span>; i &lt; s; i++) {</div></div>
+                        <div id="line-w2-temp" class="debug-line"><div class="line-num">28</div><div class="code-content">                TreeNode temp = q.peek().getKey();</div></div>
+                        <div id="line-w2-temp2" class="debug-line"><div class="line-num">29</div><div class="code-content">                TreeNode temp2 = q.peek().getValue();</div></div>
+                        <div id="line-w2-left" class="debug-line"><div class="line-num">30</div><div class="code-content">                <span class="text-syntaxPink">if</span> (temp.left != <span class="text-syntaxBlue">null</span> && hash.containsKey(temp.left)) {</div></div>
+                        <div id="line-w2-left-offer" class="debug-line"><div class="line-num">31</div><div class="code-content">                    q.offer(Map.entry(temp.left, temp));</div></div>
+                        <div class="debug-line"><div class="line-num">32</div><div class="code-content">                }</div></div>
+                        <div id="line-w2-right" class="debug-line"><div class="line-num">33</div><div class="code-content">                <span class="text-syntaxPink">if</span> (temp.right != <span class="text-syntaxBlue">null</span> && hash.containsKey(temp.right)) {</div></div>
+                        <div id="line-w2-right-offer" class="debug-line"><div class="line-num">34</div><div class="code-content">                    q.offer(Map.entry(temp.right, temp));</div></div>
+                        <div class="debug-line"><div class="line-num">35</div><div class="code-content">                }</div></div>
+                        <div id="line-w2-parent" class="debug-line"><div class="line-num">36</div><div class="code-content">                <span class="text-syntaxPink">if</span> (temp2.val != -<span class="text-syntaxPink">1</span> && hash.containsKey(temp2)) {</div></div>
+                        <div id="line-w2-parent-offer-root" class="debug-line"><div class="line-num">37</div><div class="code-content">                    <span class="text-syntaxPink">if</span> (temp2 == root) {</div></div>
+                        <div class="debug-line"><div class="line-num">38</div><div class="code-content">                        q.offer(Map.entry(temp2, <span class="text-syntaxPink">new</span> TreeNode(-<span class="text-syntaxPink">1</span>)));</div></div>
+                        <div id="line-w2-parent-offer-reg" class="debug-line"><div class="line-num">39</div><div class="code-content">                    } <span class="text-syntaxPink">else</span> {</div></div>
+                        <div class="debug-line"><div class="line-num">40</div><div class="code-content">                        q.offer(Map.entry(temp2, hash.get(temp2)));</div></div>
+                        <div class="debug-line"><div class="line-num">41</div><div class="code-content">                    }</div></div>
+                        <div class="debug-line"><div class="line-num">42</div><div class="code-content">                }</div></div>
+                        <div id="line-w2-poll" class="debug-line"><div class="line-num">43</div><div class="code-content">                q.poll();</div></div>
+                        <div id="line-w2-remove" class="debug-line"><div class="line-num">44</div><div class="code-content">                hash.remove(temp);</div></div>
+                        <div class="debug-line"><div class="line-num">45</div><div class="code-content">            }</div></div>
+                        <div id="line-w2-k" class="debug-line"><div class="line-num">46</div><div class="code-content">            k--;</div></div>
+                        <div class="debug-line"><div class="line-num">47</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">48</div><div class="code-content"></div></div>
+                        <div id="line-ans-for" class="debug-line"><div class="line-num">49</div><div class="code-content">        <span class="text-syntaxPink">for</span> (Map.Entry&lt;TreeNode, TreeNode&gt; en : q) {</div></div>
+                        <div id="line-ans-add" class="debug-line"><div class="line-num">50</div><div class="code-content">            ans.add(en.getKey().val);</div></div>
+                        <div class="debug-line"><div class="line-num">51</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">52</div><div class="code-content"></div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">53</div><div class="code-content">        <span class="text-syntaxPink">return</span> ans;</div></div>
+                        <div class="debug-line"><div class="line-num">54</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">55</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">Finding nodes at distance K in a binary tree requires moving both <strong>downwards</strong> (to children) and <strong>upwards</strong> (to parents). Since standard tree nodes only have pointers to children, this algorithm converts the tree into an undirected graph.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3 text-primary">Phase 1: Map Parents (Lines 4-20)</h3>
+                    <p class="text-slate-300 mb-4">We perform a standard Breadth-First Search (BFS) to traverse the tree. As we explore, we record each node's parent in a <code>HashMap</code>. The root is given a dummy parent with value -1.</p>
+
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3 text-orange-400">Phase 2: Radial BFS from Target (Lines 22-47)</h3>
+                    <p class="text-slate-300 mb-4">Starting from the <code>target</code> node, we perform a second BFS. Instead of just pushing left and right children, we push <strong>left, right, and parent</strong> into the queue, radiating outwards by 1 unit of distance per loop iteration.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3 text-emerald-400">Cycle Prevention</h3>
+                    <p class="text-slate-300 mb-4">In a graph, moving back and forth between a parent and child causes an infinite loop. This algorithm cleverly uses the existing <code>HashMap</code> as a <em>visited tracker</em>. Once a node is pulled from the queue and processed, it is <strong>removed from the hash map</strong> (<code>hash.remove(temp)</code>). The algorithm only pushes neighbors if they still exist in the map (<code>hash.containsKey(...)</code>).</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Where N is the number of nodes in the tree. The first BFS visits every node exactly once to build the parent map. The second BFS starts from the target and radiates outwards. Because we use the map removal to prevent cycles, each node is processed at most once during the second BFS.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The <code>HashMap</code> stores all N nodes to map their parents, taking $O(N)$ space. The <code>Queue</code> during either BFS can contain at most $N/2$ nodes (the width of the bottom level of a perfect binary tree), taking $O(N)$ space. Overall auxiliary space is linear.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="60" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 480; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            const statusOverlay = document.getElementById('status-overlay');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+                statusOverlay.style.top = '16px';
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+                statusOverlay.style.top = '130px';
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) toggleFocusMode();
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '1.5 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => { isResizingV = true; document.body.classList.add('resizing'); resizerV.classList.add('active'); });
+            resizerH.addEventListener('mousedown', () => { isResizingH = true; document.body.classList.add('resizing-h'); resizerH.classList.add('active'); });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 300) newWidth = 300;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) { isResizingV = false; document.body.classList.remove('resizing'); resizerV.classList.remove('active'); }
+                if (isResizingH) { isResizingH = false; document.body.classList.remove('resizing-h'); resizerH.classList.remove('active'); }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // --- Core Simulation Logic ---
+        
+        class TreeNode {
+            constructor(val, id) {
+                this.val = val;
+                this.id = id;
+                this.left = null;
+                this.right = null;
+                // Display coords
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        function buildTree(arrStr) {
+            const arr = arrStr.split(',').map(s => s.trim() === 'null' || s.trim() === '' ? null : parseInt(s));
+            if (!arr.length || arr[0] === null) return null;
+            
+            let idCounter = 0;
+            let root = new TreeNode(arr[0], idCounter++);
+            let q = [root];
+            let i = 1;
+            while(q.length > 0 && i < arr.length) {
+                let curr = q.shift();
+                if (arr[i] !== null && arr[i] !== undefined) {
+                    curr.left = new TreeNode(arr[i], idCounter++);
+                    q.push(curr.left);
+                }
+                i++;
+                if (i < arr.length && arr[i] !== null && arr[i] !== undefined) {
+                    curr.right = new TreeNode(arr[i], idCounter++);
+                    q.push(curr.right);
+                }
+                i++;
+            }
+            return root;
+        }
+
+        // Layout algorithm
+        function layoutTree(root) {
+            if(!root) return;
+            let maxDepth = 0;
+            let inorderRank = 0;
+            function traverse(node, depth) {
+                if(!node) return;
+                traverse(node.left, depth + 1);
+                node.x = ++inorderRank;
+                node.y = depth;
+                maxDepth = Math.max(maxDepth, depth);
+                traverse(node.right, depth + 1);
+            }
+            traverse(root, 0);
+            
+            // Assign actual pixel coordinates
+            const H_SPACING = 55;
+            const V_SPACING = 70;
+            const OFFSET_X = 20;
+            const OFFSET_Y = 40;
+            
+            let nodesList = [];
+            function mapCoords(node) {
+                if(!node) return;
+                node.px = node.x * H_SPACING + OFFSET_X;
+                node.py = node.y * V_SPACING + OFFSET_Y;
+                nodesList.push(node);
+                mapCoords(node.left);
+                mapCoords(node.right);
+            }
+            mapCoords(root);
+            
+            return {
+                width: (inorderRank + 1) * H_SPACING + 40,
+                height: (maxDepth + 1) * V_SPACING + 80,
+                nodes: nodesList
+            };
+        }
+
+        function findNodeByVal(node, val) {
+            if(!node) return null;
+            if(node.val === val) return node;
+            return findNodeByVal(node.left, val) || findNodeByVal(node.right, val);
+        }
+
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function showError(msg) {
+            const errEl = document.getElementById('input-error');
+            document.getElementById('error-msg').innerText = msg;
+            errEl.classList.remove('hidden');
+        }
+
+        function initSimulationFromInputs() {
+            document.getElementById('input-error').classList.add('hidden');
+            const treeStr = document.getElementById('input-tree').value;
+            const targetVal = parseInt(document.getElementById('input-target').value);
+            const kVal = parseInt(document.getElementById('input-k').value);
+            
+            try {
+                const root = buildTree(treeStr);
+                if (!root) throw new Error("Tree is empty.");
+                const targetNode = findNodeByVal(root, targetVal);
+                if (!targetNode) throw new Error("Target value not found in tree.");
+                
+                generateStates(root, targetNode, kVal);
+                
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) switchTab('dry-tab');
+
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        // Logic Engine translation
+        function generateStates(root, target, k) {
+            states = [];
+            let layoutInfo = layoutTree(root);
+            let edges = []; // initial tree edges
+            function buildEdges(node) {
+                if(!node) return;
+                if(node.left) { edges.push({u: node.id, v: node.left.id}); buildEdges(node.left); }
+                if(node.right) { edges.push({u: node.id, v: node.right.id}); buildEdges(node.right); }
+            }
+            buildEdges(root);
+
+            let nodeStatuses = {}; // node.id -> status ('default', 'queue', 'processing', 'visited', 'target', 'ans')
+            layoutInfo.nodes.forEach(n => nodeStatuses[n.id] = 'default');
+
+            let vrs = {
+                targetStr: target.val.toString(),
+                k: k,
+                action: 'Initialization',
+                q: [], // [{currVal, parentVal}]
+                hash: {}, // id -> parentId
+                ans: []
+            };
+
+            const getSnapshot = () => {
+                return {
+                    layout: layoutInfo,
+                    edges: JSON.parse(JSON.stringify(edges)),
+                    statuses: JSON.parse(JSON.stringify(nodeStatuses))
+                };
+            };
+
+            const pushState = (msg, line) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: JSON.parse(JSON.stringify(vrs)),
+                    visuals: getSnapshot()
+                });
+            };
+
+            vrs.action = "Start function";
+            pushState(`Initialize algorithm.`, 'line-func');
+            pushState(`Created result list 'ans'.`, 'line-init-ans');
+            pushState(`Created Queue 'q'.`, 'line-init-q');
+            pushState(`Created HashMap 'hash'.`, 'line-init-hash');
+            
+            // Phase 1
+            let q1 = [{curr: root, parent: {val: -1, id: -1}}];
+            vrs.q.push({currVal: root.val, parentVal: -1});
+            nodeStatuses[root.id] = 'queue';
+            vrs.action = "Init mapping BFS";
+            pushState(`Enqueued root node with dummy parent (-1).`, 'line-offer-root');
+
+            while(q1.length > 0) {
+                pushState(`Queue not empty. Iterating to map parents.`, 'line-w1-cond');
+                let peek = q1[0];
+                let temp = peek.curr;
+                let temp2 = peek.parent;
+                
+                nodeStatuses[temp.id] = 'processing';
+                vrs.action = `Mapping parent for Node ${temp.val}`;
+                pushState(`Peeked Node ${temp.val}.`, 'line-w1-temp');
+                pushState(`Peeked Parent ${temp2.val}.`, 'line-w1-temp2');
+
+                pushState(`Checking if Node ${temp.val} has left child.`, 'line-w1-left');
+                if (temp.left != null) {
+                    q1.push({curr: temp.left, parent: temp});
+                    vrs.q.push({currVal: temp.left.val, parentVal: temp.val});
+                    if(nodeStatuses[temp.left.id] !== 'processing') nodeStatuses[temp.left.id] = 'queue';
+                    pushState(`Enqueued left child ${temp.left.val}.`, 'line-w1-left-offer');
+                }
+
+                pushState(`Checking if Node ${temp.val} has right child.`, 'line-w1-right');
+                if (temp.right != null) {
+                    q1.push({curr: temp.right, parent: temp});
+                    vrs.q.push({currVal: temp.right.val, parentVal: temp.val});
+                    if(nodeStatuses[temp.right.id] !== 'processing') nodeStatuses[temp.right.id] = 'queue';
+                    pushState(`Enqueued right child ${temp.right.val}.`, 'line-w1-right-offer');
+                }
+
+                vrs.hash[temp.id] = temp2;
+                pushState(`Mapped parent of ${temp.val} -> ${temp2.val} in Hash.`, 'line-w1-hash-put');
+
+                q1.shift();
+                vrs.q.shift();
+                nodeStatuses[temp.id] = 'default';
+                pushState(`Polled Node ${temp.val} from queue.`, 'line-w1-poll');
+            }
+
+            vrs.action = "Parent mapping complete";
+            pushState(`Finished Phase 1. All parents mapped.`, 'line-w1-cond');
+            
+            // Phase 2
+            vrs.action = "Prepare Target BFS";
+            nodeStatuses[target.id] = 'target';
+            
+            let q2 = [{curr: target, parent: vrs.hash[target.id]}];
+            vrs.q.push({currVal: target.val, parentVal: vrs.hash[target.id].val});
+            pushState(`Enqueued Target Node ${target.val} to start radial BFS.`, 'line-offer-target');
+
+            while(k !== 0) {
+                pushState(`K is ${k} (!= 0), starting level traversal.`, 'line-w2-cond');
+                let s = q2.length;
+                pushState(`Queue size for current distance level is ${s}.`, 'line-w2-size');
+                
+                for(let i=0; i<s; i++) {
+                    pushState(`Processing node ${i+1} of ${s} in this level.`, 'line-w2-for');
+                    
+                    let peek = q2[0];
+                    let temp = peek.curr;
+                    let temp2 = peek.parent;
+                    
+                    if(nodeStatuses[temp.id] !== 'target') nodeStatuses[temp.id] = 'processing';
+                    vrs.action = `Radiating from Node ${temp.val}`;
+                    
+                    pushState(`Peeked Node ${temp.val}.`, 'line-w2-temp');
+                    pushState(`Peeked Parent ${temp2.val}.`, 'line-w2-temp2');
+
+                    pushState(`Checking left child of ${temp.val}.`, 'line-w2-left');
+                    if (temp.left != null && vrs.hash.hasOwnProperty(temp.left.id)) {
+                        q2.push({curr: temp.left, parent: temp});
+                        vrs.q.push({currVal: temp.left.val, parentVal: temp.val});
+                        if(nodeStatuses[temp.left.id] === 'default') nodeStatuses[temp.left.id] = 'queue';
+                        pushState(`Enqueued left child ${temp.left.val}.`, 'line-w2-left-offer');
+                    }
+
+                    pushState(`Checking right child of ${temp.val}.`, 'line-w2-right');
+                    if (temp.right != null && vrs.hash.hasOwnProperty(temp.right.id)) {
+                        q2.push({curr: temp.right, parent: temp});
+                        vrs.q.push({currVal: temp.right.val, parentVal: temp.val});
+                        if(nodeStatuses[temp.right.id] === 'default') nodeStatuses[temp.right.id] = 'queue';
+                        pushState(`Enqueued right child ${temp.right.val}.`, 'line-w2-right-offer');
+                    }
+
+                    pushState(`Checking parent of ${temp.val}.`, 'line-w2-parent');
+                    if (temp2.val != -1 && vrs.hash.hasOwnProperty(temp2.id)) {
+                        if (temp2.id === root.id) {
+                            q2.push({curr: temp2, parent: {val: -1, id: -1}});
+                            vrs.q.push({currVal: temp2.val, parentVal: -1});
+                            pushState(`Enqueued parent ${temp2.val} (which is root).`, 'line-w2-parent-offer-root');
+                        } else {
+                            q2.push({curr: temp2, parent: vrs.hash[temp2.id]});
+                            vrs.q.push({currVal: temp2.val, parentVal: vrs.hash[temp2.id].val});
+                            pushState(`Enqueued parent ${temp2.val}.`, 'line-w2-parent-offer-reg');
+                        }
+                        if(nodeStatuses[temp2.id] === 'default') nodeStatuses[temp2.id] = 'queue';
+                    }
+
+                    q2.shift();
+                    vrs.q.shift();
+                    pushState(`Polled Node ${temp.val} from queue.`, 'line-w2-poll');
+                    
+                    delete vrs.hash[temp.id];
+                    if(nodeStatuses[temp.id] !== 'target') nodeStatuses[temp.id] = 'visited';
+                    vrs.action = `Marked Node ${temp.val} as visited (removed from Hash)`;
+                    pushState(`Removed Node ${temp.val} from Hash to prevent cycles.`, 'line-w2-remove');
+                }
+                
+                k--;
+                vrs.k = k;
+                vrs.action = `Decremented K to ${k}`;
+                pushState(`Finished level. Decrement K.`, 'line-w2-k');
+            }
+            
+            vrs.action = "Extract Results";
+            pushState(`K is 0. Queue contains nodes at distance K.`, 'line-w2-cond');
+            
+            for(let en of q2) {
+                nodeStatuses[en.curr.id] = 'ans';
+                pushState(`Collecting node ${en.curr.val}.`, 'line-ans-for');
+                vrs.ans.push(en.curr.val);
+                pushState(`Added ${en.curr.val} to results.`, 'line-ans-add');
+            }
+            
+            vrs.action = "Complete";
+            pushState(`Algorithm complete. Returning ${JSON.stringify(vrs.ans)}.`, 'line-return');
+        }
+
+        // Render Canvas DOM
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Basic UI Updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // --- Variables Panel ---
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('flex');
+            }
+            
+            document.getElementById('var-target').innerText = state.vars.targetStr;
+            document.getElementById('var-k').innerText = state.vars.k;
+            document.getElementById('var-action').innerText = state.vars.action;
+            
+            // Queue Render
+            document.getElementById('var-q-size').innerText = `Size: ${state.vars.q.length}`;
+            document.getElementById('var-queue').innerHTML = state.vars.q.map(item => 
+                `<div class="bg-blue-600/20 border border-blue-500 text-blue-300 text-[11px] px-2 py-0.5 rounded flex gap-1 items-center">
+                    <span class="font-bold">${item.currVal}</span>
+                    <i class="fas fa-arrow-right text-[8px] opacity-60"></i>
+                    <span class="opacity-80">${item.parentVal}</span>
+                </div>`
+            ).join('') || '<span class="text-slate-500 text-xs italic">Empty</span>';
+            
+            // Hash Map Render
+            let hashHtml = '';
+            for (let [id, parentNode] of Object.entries(state.vars.hash)) {
+                // Find node val by ID from the visual snapshot
+                let nVal = state.visuals.layout.nodes.find(n => n.id == id)?.val || id;
+                hashHtml += `<div class="flex items-center gap-2 border-b border-borderMain/50 pb-1"><span class="text-slate-300 font-bold">${nVal}</span> <i class="fas fa-long-arrow-alt-right text-slate-500"></i> <span class="text-slate-400">${parentNode.val}</span></div>`;
+            }
+            document.getElementById('var-hash').innerHTML = hashHtml || '<div class="col-span-2 text-slate-500 text-xs italic">Empty Map</div>';
+
+            // Ans Render
+            document.getElementById('var-ans').innerText = `[${state.vars.ans.join(', ')}]`;
+
+            // Code Line Highlight
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // --- Canvas Render ---
+            const container = document.getElementById('canvas-tree-container');
+            const svg = document.getElementById('tree-svg');
+            const nodesDiv = document.getElementById('tree-nodes');
+            
+            container.style.width = `${state.visuals.layout.width}px`;
+            container.style.height = `${state.visuals.layout.height}px`;
+
+            // Draw Edges
+            let svgHtml = '';
+            state.visuals.edges.forEach(edge => {
+                let uNode = state.visuals.layout.nodes.find(n => n.id === edge.u);
+                let vNode = state.visuals.layout.nodes.find(n => n.id === edge.v);
+                if(uNode && vNode) {
+                    // Curved line
+                    let d = `M ${uNode.px} ${uNode.py} C ${uNode.px} ${(uNode.py + vNode.py)/2}, ${vNode.px} ${(uNode.py + vNode.py)/2}, ${vNode.px} ${vNode.py}`;
+                    let edgeClass = "tree-edge";
+                    // If either is processing, highlight edge (optional nice touch)
+                    if(state.visuals.statuses[uNode.id] === 'processing' || state.visuals.statuses[vNode.id] === 'processing') {
+                         // edgeClass += " edge-active";
+                    }
+                    svgHtml += `<path d="${d}" class="${edgeClass}" />`;
+                }
+            });
+            svg.innerHTML = svgHtml;
+
+            // Draw Nodes
+            let nodesHtml = '';
+            state.visuals.layout.nodes.forEach(node => {
+                let status = state.visuals.statuses[node.id];
+                let className = `tree-node node-${status}`;
+                nodesHtml += `<div class="${className}" style="left: ${node.px}px; top: ${node.py}px;">${node.val}</div>`;
+            });
+            nodesDiv.innerHTML = nodesHtml;
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) { currState++; renderState(currState); } 
+            else pauseAnim();
+        }
+        function prevStep() {
+            if (currState > 0) { currState--; renderState(currState); }
+        }
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) { currState = states.length - 1; renderState(currState); }
+        }
+        function togglePlay() {
+            if (isPlaying) pauseAnim(); else playAnim();
+        }
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(60); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
