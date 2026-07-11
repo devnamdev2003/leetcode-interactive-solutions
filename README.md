@@ -1,148 +1,108 @@
-# [🚀 LeetCode & Algorithms Vault](https://algoflows.netlify.app/)
 
-Welcome to **LeetCode & Algorithms Vault** — an interactive platform for learning Data Structures & Algorithms through **visual debugging, step-by-step execution, and detailed problem explanations**.
+# 🚀 AlgoFlows
 
-Unlike traditional LeetCode repositories that only provide source code, this project focuses on helping developers **understand how an algorithm works internally**. Every problem is accompanied by explanations, multiple approaches, complexity analysis, and interactive visualizations that simulate the algorithm execution in real time.
+<p align="center">
+  <strong>Interactive Visual Learning Platform for Data Structures, Algorithms & System Design</strong>
+</p>
+
+<p align="center">
+  Learn concepts visually, understand the intuition, and prepare for technical interviews with interactive explanations.
+</p>
+
+---
+![Platform](https://img.shields.io/badge/Platform-Web-blue)
+![Status](https://img.shields.io/badge/Status-Active-success)
+![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red)
+![DSA](https://img.shields.io/badge/DSA-Visualized-orange)
+![System Design](https://img.shields.io/badge/System%20Design-Included-purple)
+
+
+
+## 🌐 Live Website
+
+👉 **Explore AlgoFlows here:**
+
+**https://algoflows.netlify.app/**
+
+**https://systemalgo.netlify.app/**
 
 ---
 
-## ✨ Key Features
+## 📖 What is AlgoFlows?
 
-### 🎯 Interactive Algorithm Visualizer
+**AlgoFlows** is an interactive learning platform built to make technical interview preparation easier.
 
-Understand algorithms like you're debugging them in an IDE.
+Instead of only providing code solutions, AlgoFlows helps you understand **how** and **why** an algorithm works through visual explanations, animations, dry runs, and structured learning resources.
 
-* Step-by-step execution
-* Variable state tracking
-* Live memory visualization
-* Code line highlighting
-* Execution flow animation
-* Play, pause, next, previous, and restart controls
+Along with **LeetCode problems**, the platform also includes **System Design** concepts to help learners prepare for both coding and design interviews.
 
 ---
 
-### 📚 Multiple Solution Approaches
+## ✨ Features
 
-Each problem includes:
+### 🧠 Data Structures & Algorithms
 
-* Brute Force Approach
-* Better Approach
-* Optimal Approach
+* 📖 Easy-to-understand problem explanations
+* 💡 Algorithm intuition
+* 🔄 Brute Force → Better → Optimal approaches
+* 🎬 Interactive algorithm animations
+* 🧩 Step-by-step dry runs
+* 📊 Time & Space Complexity analysis
+* 🌳 Tree & Graph visualizations
 
-This helps you understand the evolution of the solution and why optimizations work.
+### 🏗️ System Design
 
----
-
-### 🔍 Advanced Debugging Experience
-
-Inspired by professional debuggers and execution tracers:
-
-* Live variable watch panel
-* Current operation tracking
-* Memory state visualization
-* Binary representation visualization (where applicable)
-* Mathematical interpretation of algorithm steps
-* Real-time code execution walkthrough
-
----
-
-### 🧠 Learn the "Why", Not Just the Code
-
-Every problem contains:
-
-* Problem explanation
-* Intuition behind the solution
-* Detailed approach breakdown
-* Complexity analysis
-* Edge case discussion
-* Optimized implementation
+* Interactive System Design concept visualizations
+* High-Level Design (HLD) learning
+* Low-Level Design (LLD) fundamentals
+* Architecture patterns
+* Databases
+* Caching
+* Load Balancing
+* Message Queues
+* API Design
+* Scalability concepts
+* Distributed Systems
+* Interview-focused learning resources
 
 ---
 
-### 📖 Browser-Friendly Learning
+## 🎯 Who is it for?
 
-Solutions are stored as individual HTML pages, allowing you to:
-
-* Read explanations directly in the browser
-* Visualize algorithm execution
-* Navigate easily between problems
-* Learn without opening an IDE
-
----
-
-### 🔎 Practice-Oriented Repository
-
-This repository is designed to be a complete DSA revision companion:
-
-* Interview preparation
-* LeetCode practice
-* Pattern recognition
-* Algorithm revision
-* Concept reinforcement through visualization
+* Students learning DSA
+* LeetCode enthusiasts
+* Software Engineers
+* Backend Developers
+* Interview Preparation
+* Anyone wanting to understand algorithms visually
 
 ---
 
-### 🎨 Modern Interactive Dashboard
+## 📸 Preview
 
-Includes:
-
-* Searchable problem collection
-* Organized problem categories
-* Dynamic problem metadata
-* Fast navigation experience
-* Progress-friendly structure
+![Screenshot 2026-06-26 202038.png](https://assets.leetcode.com/users/images/bc7175eb-1a84-4a90-9ce7-3d03d0cbc083_1782485449.7097569.png)
+![Screenshot 2026-06-26 201937.png](https://assets.leetcode.com/users/images/d92fedf4-4de0-43e8-816e-fb684a2a4c14_1782485408.602134.png)
 
 ---
 
-## 🚀 Example Learning Experience
+## 🚀 Why I Built This
 
-Instead of simply showing:
+While preparing for coding interviews, I found that most resources focused on providing the final solution instead of explaining the reasoning behind it.
 
-```java
-ans *= currentProduct;
-```
+I wanted a platform where learners could **visualize algorithms**, understand the underlying intuition, and easily revisit concepts before interviews.
 
-The visualizer demonstrates:
-
-* Which variable is changing
-* Why it is changing
-* Which line of code is executing
-* How the algorithm state evolves
-* How the final answer is constructed
-
-This transforms problem-solving from **reading code** into **understanding execution**.
+That's why I built **AlgoFlows**.
 
 ---
 
-## 🎯 Repository Goal
+## 🌟 Support
 
-The goal of this project is to:
+If AlgoFlows helps you in your interview preparation, consider giving this repository a ⭐ and sharing it with others.
 
-* Build a structured collection of coding interview problems.
-* Provide visual explanations for algorithms.
-* Document the complete problem-solving journey.
-* Help developers understand optimizations intuitively.
-* Create a powerful revision tool for technical interviews.
-* Make DSA learning more interactive and engaging.
+Your feedback and feature suggestions are always welcome!
 
 ---
 
-## 🤝 Contributing
-
-Contributions, suggestions, and improvements are welcome.
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push your branch
-5. Open a Pull Request
-
----
-
-## ⭐ Support
-
-If this project helps you learn algorithms or prepare for interviews, consider giving it a star.
-
-Your support motivates continuous improvements and new visualizations.
-
-⭐ Star the repository if you find it useful!
+<p align="center">
+Made with ❤️ for the developer community.
+</p>
