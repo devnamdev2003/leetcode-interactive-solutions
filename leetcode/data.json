@@ -1,5 +1,24 @@
 [
   {
+    "id": "222",
+    "title": "Count Complete Tree Nodes",
+    "difficulty": "Easy",
+    "tags": [
+      "Binary Search",
+      "Bit Manipulation",
+      "Tree",
+      "Binary Tree"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/count-complete-tree-nodes/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "binary-tree/count-complete-tree-nodes.html"
+      }
+    ]
+  },
+  {
     "id": "2461",
     "title": "Amount of Time for Binary Tree to Be Infected",
     "difficulty": "Medium",
