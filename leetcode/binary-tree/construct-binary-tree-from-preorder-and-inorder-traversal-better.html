@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Construct Binary Tree</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Array Elements */
+        .arr-cell {
+            width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;
+            background: #1e293b; border: 1px solid #334155; font-family: 'Fira Code', monospace;
+            font-size: 14px; position: relative; transition: all 0.3s;
+        }
+        .arr-cell.active-l { border-left: 3px solid #3b82f6; }
+        .arr-cell.active-r { border-right: 3px solid #3b82f6; }
+        .arr-cell.in-range { background: rgba(59, 130, 246, 0.15); }
+        .arr-cell.highlight-pre { background: rgba(244, 114, 182, 0.3); border-color: #f472b6; z-index: 10; box-shadow: 0 0 10px rgba(244, 114, 182, 0.4); }
+        .arr-cell.highlight-root { background: rgba(52, 211, 153, 0.3); border-color: #34d399; z-index: 10; box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+        
+        /* Tree Visuals */
+        #tree-container {
+            position: relative; width: 100%; height: 100%; min-height: 400px;
+        }
+        .tree-node {
+            position: absolute; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            background: #1e293b; border: 2px solid #334155; font-family: 'Fira Code', monospace;
+            font-weight: bold; color: #f8fafc; transform: translate(-50%, -50%);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); z-index: 20; opacity: 0; scale: 0.5;
+        }
+        .tree-node.visible { opacity: 1; scale: 1; }
+        .tree-node.active { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); background: rgba(59, 130, 246, 0.2); }
+        .tree-node.completed { border-color: #10b981; background: #0f172a; color: #94a3b8; }
+        
+        #edges-svg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;
+        }
+        .tree-edge {
+            fill: none; stroke: #334155; stroke-width: 2;
+            transition: all 0.4s ease; stroke-dasharray: 1000; stroke-dashoffset: 1000;
+        }
+        .tree-edge.visible { stroke-dashoffset: 0; }
+        .tree-edge.active { stroke: #3b82f6; stroke-width: 3; filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.5)); }
+        
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Construct Binary Tree</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-sm">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Preorder Array (comma-separated)</label>
+            <input type="text" id="input-pre" class="input-field" value="3, 9, 20, 15, 7">
+        </div>
+        <div class="flex-1 w-full max-w-sm">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Inorder Array (comma-separated)</label>
+            <input type="text" id="input-in" class="input-field" value="9, 3, 15, 20, 7">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> <span id="error-text">Invalid input. Arrays must contain the same elements.</span></div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas (Recursion Tree)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-hidden flex flex-col transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-4 right-4 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Arrays Display -->
+                    <div class="w-full p-4 border-b border-borderMain/50 bg-bgBase/80 backdrop-blur shrink-0 flex flex-col gap-4">
+                        <!-- Preorder -->
+                        <div class="flex items-center gap-4">
+                            <span class="w-20 text-xs font-mono text-syntaxPink">preorder</span>
+                            <div class="flex gap-1" id="arr-preorder"></div>
+                        </div>
+                        <!-- Inorder -->
+                        <div class="flex items-center gap-4">
+                            <span class="w-20 text-xs font-mono text-syntaxGreen">inorder</span>
+                            <div class="flex gap-1 relative" id="arr-inorder">
+                                <!-- L and R Pointers appended dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tree Canvas Area -->
+                    <div class="flex-grow relative overflow-auto" id="tree-viewport">
+                        <div id="tree-container">
+                            <svg id="edges-svg"></svg>
+                            <!-- Nodes appended dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <!-- Global state -->
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm col-span-2 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-500 uppercase">Class State</span>
+                                <div class="flex gap-2 items-center">
+                                    <span class="text-xs font-mono text-syntaxPink">preIndex =</span>
+                                    <span id="var-preIndex" class="font-mono text-white font-bold text-sm bg-slate-800 px-2 py-0.5 rounded">-</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Call Args -->
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">helper( l )</span>
+                                <span id="var-l" class="font-mono text-blue-400 font-bold text-lg">-</span>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">helper( r )</span>
+                                <span id="var-r" class="font-mono text-purple-400 font-bold text-lg">-</span>
+                            </div>
+                            
+                            <!-- Local vars inside helper -->
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2">
+                                <span class="block text-[10px] text-slate-500 uppercase">Method Variables</span>
+                                
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-xs text-slate-400 font-mono">root.val</span>
+                                    <span id="var-rootVal" class="font-mono text-syntaxGreen font-bold">-</span>
+                                </div>
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-xs text-slate-400 font-mono">rootIndex</span>
+                                    <span id="var-rootIndex" class="font-mono text-syntaxYellow font-bold">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-2 rounded shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Action Engine</span>
+                                <span id="var-action" class="text-xs text-syntaxBlue font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">private int</span> preIndex = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">3</div><div class="code-content"></div></div>
+                        <div id="line-wrapper" class="debug-line"><div class="line-num">4</div><div class="code-content">    <span class="text-syntaxPink">public</span> TreeNode buildTree(<span class="text-syntaxPink">int</span>[] preorder, <span class="text-syntaxPink">int</span>[] inorder) {</div></div>
+                        <div class="debug-line"><div class="line-num">5</div><div class="code-content">        <span class="text-syntaxPink">return</span> helper(preorder, inorder, <span class="text-syntaxPink">0</span>, inorder.length - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div class="debug-line"><div class="line-num">6</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content"></div></div>
+                        <div id="line-helper" class="debug-line"><div class="line-num">8</div><div class="code-content">    <span class="text-syntaxPink">private</span> TreeNode helper(<span class="text-syntaxPink">int</span>[] pre, <span class="text-syntaxPink">int</span>[] in, <span class="text-syntaxPink">int</span> l, <span class="text-syntaxPink">int</span> r) {</div></div>
+                        <div id="line-base" class="debug-line"><div class="line-num">9</div><div class="code-content">        <span class="text-syntaxPink">if</span> (l > r) { <span class="text-syntaxPink">return null</span>; }</div></div>
+                        <div class="debug-line"><div class="line-num">10</div><div class="code-content">        </div></div>
+                        <div id="line-root" class="debug-line"><div class="line-num">11</div><div class="code-content">        TreeNode root = <span class="text-syntaxPink">new</span> TreeNode(pre[preIndex++]);</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content">        </div></div>
+                        <div id="line-search" class="debug-line"><div class="line-num">13</div><div class="code-content">        <span class="text-syntaxPink">int</span> rootIndex = <span class="text-syntaxPink">0</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">14</div><div class="code-content">        <span class="text-syntaxPink">for</span> (<span class="text-syntaxPink">int</span> i = l; i <= r; i++) {</div></div>
+                        <div class="debug-line"><div class="line-num">15</div><div class="code-content">            <span class="text-syntaxPink">if</span> (root.val == in[i]) {</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">                rootIndex = i;</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content">                <span class="text-syntaxPink">break</span>;</div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">19</div><div class="code-content">        }</div></div>
+                        <div class="debug-line"><div class="line-num">20</div><div class="code-content">        </div></div>
+                        <div id="line-left" class="debug-line"><div class="line-num">21</div><div class="code-content">        root.left = helper(pre, in, l, rootIndex - <span class="text-syntaxPink">1</span>);</div></div>
+                        <div id="line-right" class="debug-line"><div class="line-num">22</div><div class="code-content">        root.right = helper(pre, in, rootIndex + <span class="text-syntaxPink">1</span>, r);</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content">        </div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">24</div><div class="code-content">        <span class="text-syntaxPink">return</span> root;</div></div>
+                        <div class="debug-line"><div class="line-num">25</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">26</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This algorithm uses a <strong>Divide & Conquer / Recursive</strong> approach to construct a Binary Tree. It leverages the unique properties of Preorder (Root, Left, Right) and Inorder (Left, Root, Right) traversals.</p>
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Step 1: Identify the Root</strong><br>
+                            The first element of the <code>preorder</code> traversal is always the root of the current subtree. We pick this element and increment our global <code>preIndex</code>.
+                        </li>
+                        <li>
+                            <strong>Step 2: Find Left and Right Subtrees</strong><br>
+                            We search for this root value inside the <code>inorder</code> array. The elements to the <em>left</em> of this root in the inorder array form the left subtree, and elements to the <em>right</em> form the right subtree.
+                        </li>
+                        <li>
+                            <strong>Step 3: Recursive Construction</strong><br>
+                            We recursively call our helper function for the left portion (from <code>l</code> to <code>rootIndex - 1</code>) and attach it to <code>root.left</code>. Then we do the same for the right portion (from <code>rootIndex + 1</code> to <code>r</code>). 
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N²) worst-case</span>
+                        <p class="text-xs text-slate-400">In the provided solution, for each node, we perform a linear search <code>O(N)</code> to find the root in the inorder array. Across N nodes, this is $O(N^2)$. <br><br><em>Note: This can be optimized to <strong>O(N)</strong> by preprocessing the inorder array into a HashMap for O(1) lookups!</em></p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">The auxiliary space is $O(N)$ representing the maximum depth of the recursion stack. This worst-case scenario happens if the tree is completely skewed (like a linked list). The tree itself also requires $O(N)$ space to store the constructed nodes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // --- UI State Management ---
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+        let panelsState = { vars: true, code: true };
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => { isResizingV = true; document.body.classList.add('resizing'); resizerV.classList.add('active'); });
+            resizerH.addEventListener('mousedown', () => { isResizingH = true; document.body.classList.add('resizing-h'); resizerH.classList.add('active'); });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+                if (isResizingV) {
+                    let newWidth = window.innerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > window.innerWidth - 300) newWidth = window.innerWidth - 300;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isResizingV = false; isResizingH = false;
+                document.body.classList.remove('resizing', 'resizing-h');
+                resizerV.classList.remove('active'); resizerH.classList.remove('active');
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // --- Core Simulation State Management ---
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) { clearInterval(playInterval); playInterval = setInterval(nextStep, animSpeed); }
+        }
+
+        function parseInput(val) {
+            return val.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        }
+
+        function initSimulationFromInputs() {
+            const preStr = document.getElementById('input-pre').value;
+            const inStr = document.getElementById('input-in').value;
+            const errEl = document.getElementById('input-error');
+            const errText = document.getElementById('error-text');
+            errEl.classList.add('hidden');
+
+            try {
+                const preorder = parseInput(preStr);
+                const inorder = parseInput(inStr);
+
+                if (preorder.length === 0 || inorder.length === 0) {
+                    throw new Error("Arrays cannot be empty.");
+                }
+                if (preorder.length !== inorder.length) {
+                    throw new Error("Preorder and Inorder arrays must have the same length.");
+                }
+                
+                // Verify arrays have same elements
+                const preSorted = [...preorder].sort((a,b)=>a-b);
+                const inSorted = [...inorder].sort((a,b)=>a-b);
+                for(let i=0; i<preSorted.length; i++){
+                    if(preSorted[i] !== inSorted[i]) throw new Error("Arrays must contain the same exact elements.");
+                }
+
+                generateStates(preorder, inorder);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+            } catch (e) {
+                errText.innerText = e.message;
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // --- Algorithm Simulator Engine ---
+        function generateStates(preorder, inorder) {
+            states = [];
+            let simPreIndex = 0;
+            let treeData = {}; // id -> {val, parent, isLeft, depth, x, y, status}
+            let nextNodeId = 0;
+            
+            // Basic Layout config
+            const x_spacing = 60;
+            const y_spacing = 70;
+            const x_offset = 30; // padding
+            const y_offset = 40; // padding
+
+            let currentAction = 'Initialization';
+
+            const pushState = (msg, line, vL, vR, rootVal, rootIdx, activeId) => {
+                // Deep copy treeData to preserve historical tree states
+                const visualTree = {};
+                for(let k in treeData) { visualTree[k] = {...treeData[k]}; }
+
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: {
+                        preIndex: simPreIndex,
+                        l: vL, r: vR, 
+                        rootVal: rootVal !== undefined ? rootVal : '-',
+                        rootIndex: rootIdx !== undefined ? rootIdx : '-',
+                        action: currentAction
+                    },
+                    visuals: {
+                        preorder: [...preorder],
+                        inorder: [...inorder],
+                        activePreIndex: simPreIndex,
+                        l: vL, r: vR,
+                        rootIndex: rootIdx,
+                        tree: visualTree,
+                        activeNodeId: activeId
+                    }
+                });
+            };
+
+            currentAction = "Starting Build Tree";
+            pushState("Initial setup: calling helper function", 'line-wrapper', 0, inorder.length - 1);
+
+            function helper(l, r, parentId, isLeft, depth) {
+                const currentL = l, currentR = r;
+                let activeId = null;
+
+                currentAction = `helper(${l}, ${r})`;
+                pushState(`Entering helper function for range [${l}, ${r}]`, 'line-helper', l, r);
+                
+                pushState(`Checking base case: is l > r? (${l} > ${r})`, 'line-base', l, r);
+                if (l > r) {
+                    currentAction = "Base case reached";
+                    pushState(`Base case met! Returning null.`, 'line-base', l, r);
+                    return null;
+                }
+
+                const nodeVal = preorder[simPreIndex];
+                const myPreIndex = simPreIndex; // capture for state display before increment
+                
+                // Peek ahead for tree layout coordinates
+                const layoutInorderIdx = inorder.indexOf(nodeVal);
+                
+                const nodeId = nextNodeId++;
+                treeData[nodeId] = {
+                    id: nodeId, val: nodeVal, parent: parentId, isLeft: isLeft, 
+                    depth: depth, 
+                    x: layoutInorderIdx * x_spacing + x_offset,
+                    y: depth * y_spacing + y_offset,
+                    status: 'active'
+                };
+                activeId = nodeId;
+
+                currentAction = `Creating Node (${nodeVal})`;
+                pushState(`Fetching pre[${simPreIndex}] = ${nodeVal}. Creating new TreeNode. preIndex will increment.`, 'line-root', l, r, nodeVal);
+                simPreIndex++;
+
+                currentAction = `Searching Inorder Array`;
+                pushState(`Initializing rootIndex search...`, 'line-search', l, r, nodeVal);
+                
+                let rootIndex = -1;
+                for (let i = l; i <= r; i++) {
+                    if (nodeVal === inorder[i]) {
+                        rootIndex = i;
+                        break;
+                    }
+                }
+                
+                pushState(`Found root.val (${nodeVal}) at index ${rootIndex} in inorder array.`, 'line-search', l, r, nodeVal, rootIndex, activeId);
+
+                currentAction = `Building Left Subtree`;
+                pushState(`Recursively calling helper for Left child (l=${l}, r=${rootIndex-1})`, 'line-left', l, r, nodeVal, rootIndex, activeId);
+                let leftRes = helper(l, rootIndex - 1, nodeId, true, depth + 1);
+
+                currentAction = `Building Right Subtree`;
+                pushState(`Recursively calling helper for Right child (l=${rootIndex+1}, r=${r})`, 'line-right', l, r, nodeVal, rootIndex, activeId);
+                let rightRes = helper(rootIndex + 1, r, nodeId, false, depth + 1);
+
+                currentAction = `Returning Subtree`;
+                treeData[nodeId].status = 'completed';
+                pushState(`Finished building subtree for root ${nodeVal}. Returning node.`, 'line-return', l, r, nodeVal, rootIndex, activeId);
+
+                return nodeId;
+            }
+
+            helper(0, inorder.length - 1, null, false, 0);
+
+            currentAction = "Algorithm Completed";
+            pushState("Entire tree has been constructed successfully!", 'line-wrapper', 0, inorder.length - 1);
+        }
+
+        // --- Render Engine ---
+        function drawTree(visuals) {
+            const container = document.getElementById('tree-container');
+            const svg = document.getElementById('edges-svg');
+            
+            // Clear existing
+            container.querySelectorAll('.tree-node').forEach(el => el.remove());
+            svg.innerHTML = '';
+            
+            const tree = visuals.tree;
+            if(!tree) return;
+            
+            let maxW = 0, maxH = 0;
+
+            for (let key in tree) {
+                const node = tree[key];
+                
+                // Track max dimensions for scrolling
+                if(node.x > maxW) maxW = node.x;
+                if(node.y > maxH) maxH = node.y;
+
+                // Draw edge if parent exists
+                if (node.parent !== null && tree[node.parent]) {
+                    const p = tree[node.parent];
+                    // Curved line formula
+                    const startX = p.x; const startY = p.y + 15; // Bottom of parent
+                    const endX = node.x; const endY = node.y - 15; // Top of child
+                    const midY = (startY + endY) / 2;
+                    
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute('d', `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`);
+                    
+                    let edgeClass = 'tree-edge visible';
+                    // Active edge highlighting
+                    if (node.status === 'active') edgeClass += ' active';
+                    
+                    path.setAttribute('class', edgeClass);
+                    svg.appendChild(path);
+                }
+
+                // Draw Node
+                const div = document.createElement('div');
+                let cl = 'tree-node visible';
+                if (node.status === 'active') cl += ' active';
+                else if (node.status === 'completed') cl += ' completed';
+                if (visuals.activeNodeId == node.id) cl += ' border-primary shadow-[0_0_20px_rgba(59,130,246,0.8)]';
+
+                div.className = cl;
+                div.style.left = node.x + 'px';
+                div.style.top = node.y + 'px';
+                div.innerText = node.val;
+                container.appendChild(div);
+            }
+            
+            // Update container size for scroll
+            container.style.minWidth = (maxW + 60) + 'px';
+            container.style.minHeight = (maxH + 60) + 'px';
+        }
+
+        function drawArrays(visuals) {
+            const preContainer = document.getElementById('arr-preorder');
+            const inContainer = document.getElementById('arr-inorder');
+            preContainer.innerHTML = ''; inContainer.innerHTML = '';
+            
+            // Draw Preorder
+            visuals.preorder.forEach((val, idx) => {
+                const div = document.createElement('div');
+                div.className = 'arr-cell';
+                if (idx === visuals.activePreIndex) div.className += ' highlight-pre';
+                else if (idx < visuals.activePreIndex) div.className += ' opacity-50 bg-slate-800'; // processed
+                div.innerText = val;
+                
+                // Add tiny label for preIndex
+                if (idx === visuals.activePreIndex) {
+                    const lbl = document.createElement('div');
+                    lbl.className = 'absolute -top-5 text-[9px] text-syntaxPink font-bold w-[60px] text-center left-1/2 -translate-x-1/2';
+                    lbl.innerText = 'preIndex';
+                    div.appendChild(lbl);
+                }
+                preContainer.appendChild(div);
+            });
+
+            // Draw Inorder
+            visuals.inorder.forEach((val, idx) => {
+                const div = document.createElement('div');
+                div.className = 'arr-cell';
+                
+                const inL = visuals.l; const inR = visuals.r;
+                
+                if (idx >= inL && idx <= inR) div.className += ' in-range';
+                if (idx === visuals.rootIndex) div.className += ' highlight-root';
+                
+                div.innerText = val;
+                
+                // Pointers L and R (placed at bottom edge of cell)
+                if (idx === inL) {
+                    div.className += ' active-l';
+                    const lbl = document.createElement('div');
+                    lbl.className = 'absolute -bottom-5 text-[10px] text-blue-400 font-bold';
+                    lbl.innerText = 'l';
+                    div.appendChild(lbl);
+                }
+                if (idx === inR) {
+                    div.className += ' active-r';
+                    const lbl = document.createElement('div');
+                    lbl.className = 'absolute -bottom-5 text-[10px] text-purple-400 font-bold right-0';
+                    lbl.innerText = 'r';
+                    div.appendChild(lbl);
+                }
+
+                inContainer.appendChild(div);
+            });
+        }
+
+        function renderState(idx) {
+            if (!states || states.length === 0) return;
+            const state = states[idx];
+            
+            // Top UI
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length - 1}`;
+            document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Visuals
+            drawArrays(state.visuals);
+            drawTree(state.visuals);
+
+            // Variables Watch
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+
+            document.getElementById('var-preIndex').innerText = state.vars.preIndex;
+            document.getElementById('var-l').innerText = state.vars.l;
+            document.getElementById('var-r').innerText = state.vars.r;
+            document.getElementById('var-rootVal').innerText = state.vars.rootVal;
+            document.getElementById('var-rootIndex').innerText = state.vars.rootIndex;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // --- Playback Controls ---
+        function nextStep() {
+            if (currState < states.length - 1) { currState++; renderState(currState); } 
+            else pauseAnim();
+        }
+        function prevStep() {
+            if (currState > 0) { currState--; renderState(currState); }
+        }
+        function skipToEnd() {
+            pauseAnim(); if (states.length > 0) { currState = states.length - 1; renderState(currState); }
+        }
+        function togglePlay() {
+            if (isPlaying) pauseAnim(); else playAnim();
+        }
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            document.getElementById('playIcon').className = 'fas fa-pause text-xs';
+            document.getElementById('playText').innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            document.getElementById('playIcon').className = 'fas fa-play text-xs ml-0.5';
+            document.getElementById('playText').innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+        function resetAnim() {
+            pauseAnim(); currState = 0; renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70);
+            initSimulationFromInputs();
+        };
+    </script>
+</body>
+</html>
