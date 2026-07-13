@@ -1,5 +1,26 @@
 [
   {
+    "id": "297",
+    "title": "Serialize and Deserialize Binary Tree",
+    "difficulty": "Hard",
+    "tags": [
+      "String",
+      "Tree",
+      "Depth-First Search",
+      "Breadth-First Search",
+      "Design",
+      "Binary Tree"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "binary-tree/serialize-and-deserialize-binary-tree.html"
+      }
+    ]
+  },
+  {
     "id": "106",
     "title": "Construct Binary Tree from Inorder and Postorder Traversal",
     "difficulty": "Medium",
