@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Morris Inorder Traversal (O(1) Space)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* Tree Visualization Styles */
+        #tree-container {
+            position: relative;
+            width: 1000px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        .tree-node {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #f8fafc;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        .tree-node.node-visited {
+            background-color: #10b981;
+            border-color: #059669;
+            color: white;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .tree-node.node-curr {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.5);
+            z-index: 20;
+        }
+
+        .tree-node.node-prev {
+            border-color: #f472b6;
+            box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.3);
+            z-index: 15;
+        }
+        
+        .tree-node.node-curr.node-prev {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
+        }
+
+        .pointer-label {
+            position: absolute;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 30;
+            letter-spacing: 0.5px;
+        }
+
+        .curr-label { background: #3b82f6; color: white; transform: translate(-50%, -130%); }
+        .prev-label { background: #f472b6; color: white; transform: translate(-50%, 90%); }
+
+        svg.tree-edges {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .edge-solid {
+            stroke: #475569;
+            stroke-width: 2.5;
+            transition: stroke 0.3s;
+        }
+
+        .edge-thread {
+            stroke: #f472b6;
+            stroke-width: 2;
+            stroke-dasharray: 6 4;
+            fill: none;
+            stroke-linecap: round;
+            animation: dashScroll 1s linear infinite;
+        }
+
+        @keyframes dashScroll {
+            to { stroke-dashoffset: -20; }
+        }
+
+        /* Array Box Styles */
+        .array-box {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            color: #f8fafc;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            border-radius: 4px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-network-wired"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Morris Inorder Traversal</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Tree Input (Level Order Array)</label>
+            <input type="text" id="input-tree" class="input-field" value="1,2,3,4,5,null,6,null,null,7" placeholder="e.g. 1,2,3,null,4">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Visualize Threading
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input. Please enter a valid comma-separated list of numbers and 'null'.</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Memory Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-auto flex flex-col justify-start items-center p-4">
+                    
+                    <!-- Status Overlay -->
+                    <div class="sticky top-2 right-2 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur mb-4 self-end">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Visual Tree Container -->
+                    <div id="tree-container">
+                        <svg class="tree-edges" id="tree-svg">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
+                                    <polygon points="0 0, 8 3, 0 6" fill="#f472b6" />
+                                </marker>
+                            </defs>
+                            <g id="edges-layer"></g>
+                        </svg>
+                        <div id="nodes-layer"></div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Bottom Results Tracker -->
+                <div class="absolute bottom-0 left-0 w-full bg-bgPanel/90 border-t border-borderMain p-4 backdrop-blur-sm z-30">
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><span class="text-success">List&lt;Integer&gt;</span> inorder</h3>
+                    </div>
+                    <div id="inorder-list" class="flex flex-wrap gap-2 min-h-[32px]">
+                        <!-- Inorder elements injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-4">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden flex flex-col gap-4">
+                            <!-- Memory Pointers -->
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-3 border-b border-borderMain pb-1">Pointers</span>
+                                
+                                <div class="flex items-center justify-between mb-3 bg-[#0f1423] p-2 rounded border border-blue-500/30">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                                        <span class="font-mono text-sm text-slate-300">TreeNode <span class="text-blue-400 font-bold">curr</span></span>
+                                    </div>
+                                    <span id="var-curr" class="font-mono text-white bg-slate-800 px-2 py-0.5 rounded text-sm shadow">null</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between bg-[#0f1423] p-2 rounded border border-pink-500/30">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-pink-500"></div>
+                                        <span class="font-mono text-sm text-slate-300">TreeNode <span class="text-pink-400 font-bold">prev</span></span>
+                                    </div>
+                                    <span id="var-prev" class="font-mono text-white bg-slate-800 px-2 py-0.5 rounded text-sm shadow">null</span>
+                                </div>
+                            </div>
+                            
+                            <!-- State Action -->
+                            <div class="bg-bgBase border border-borderMain p-3 rounded-lg shadow-sm">
+                                <span class="block text-[10px] text-slate-500 uppercase mb-2">Algorithm Action</span>
+                                <span id="var-action" class="text-xs text-syntaxYellow font-medium leading-relaxed block">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> List&lt;Integer&gt; getInorder(TreeNode root) {</div></div>
+                        <div id="line-init" class="debug-line"><div class="line-num">3</div><div class="code-content">        List&lt;Integer&gt; inorder = <span class="text-syntaxPink">new</span> ArrayList&lt;&gt;();</div></div>
+                        <div id="line-curr-root" class="debug-line"><div class="line-num">4</div><div class="code-content">        TreeNode curr = root;</div></div>
+                        <div class="debug-line"><div class="line-num">5</div><div class="code-content"></div></div>
+                        <div id="line-while" class="debug-line"><div class="line-num">6</div><div class="code-content">        <span class="text-syntaxPink">while</span> (curr != <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div class="debug-line"><div class="line-num">7</div><div class="code-content text-slate-500 italic">            // If there is no left child, visit the node</div></div>
+                        <div id="line-if-left-null" class="debug-line"><div class="line-num">8</div><div class="code-content">            <span class="text-syntaxPink">if</span> (curr.left == <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div id="line-add-val-1" class="debug-line"><div class="line-num">9</div><div class="code-content">                inorder.add(curr.val);</div></div>
+                        <div id="line-curr-right-1" class="debug-line"><div class="line-num">10</div><div class="code-content">                curr = curr.right;</div></div>
+                        <div class="debug-line"><div class="line-num">11</div><div class="code-content">            } <span class="text-syntaxPink">else</span> {</div></div>
+                        <div class="debug-line"><div class="line-num">12</div><div class="code-content text-slate-500 italic">                // Find the inorder predecessor</div></div>
+                        <div id="line-prev-left" class="debug-line"><div class="line-num">13</div><div class="code-content">                TreeNode prev = curr.left;</div></div>
+                        <div id="line-while-prev" class="debug-line"><div class="line-num">14</div><div class="code-content">                <span class="text-syntaxPink">while</span> (prev.right != <span class="text-syntaxBlue">null</span> && prev.right != curr) {</div></div>
+                        <div id="line-prev-right" class="debug-line"><div class="line-num">15</div><div class="code-content">                    prev = prev.right;</div></div>
+                        <div class="debug-line"><div class="line-num">16</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">17</div><div class="code-content"></div></div>
+                        <div class="debug-line"><div class="line-num">18</div><div class="code-content text-slate-500 italic">                // Create a temporary thread</div></div>
+                        <div id="line-if-prev-right-null" class="debug-line"><div class="line-num">19</div><div class="code-content">                <span class="text-syntaxPink">if</span> (prev.right == <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div id="line-thread-create" class="debug-line"><div class="line-num">20</div><div class="code-content">                    prev.right = curr;</div></div>
+                        <div id="line-curr-left" class="debug-line"><div class="line-num">21</div><div class="code-content">                    curr = curr.left;</div></div>
+                        <div class="debug-line"><div class="line-num">22</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">23</div><div class="code-content text-slate-500 italic">                // Remove the thread and visit the node</div></div>
+                        <div class="debug-line"><div class="line-num">24</div><div class="code-content">                <span class="text-syntaxPink">else</span> {</div></div>
+                        <div id="line-thread-remove" class="debug-line"><div class="line-num">25</div><div class="code-content">                    prev.right = <span class="text-syntaxBlue">null</span>;</div></div>
+                        <div id="line-add-val-2" class="debug-line"><div class="line-num">26</div><div class="code-content">                    inorder.add(curr.val);</div></div>
+                        <div id="line-curr-right-2" class="debug-line"><div class="line-num">27</div><div class="code-content">                    curr = curr.right;</div></div>
+                        <div class="debug-line"><div class="line-num">28</div><div class="code-content">                }</div></div>
+                        <div class="debug-line"><div class="line-num">29</div><div class="code-content">            }</div></div>
+                        <div class="debug-line"><div class="line-num">30</div><div class="code-content">        }</div></div>
+                        <div id="line-return" class="debug-line"><div class="line-num">31</div><div class="code-content">        <span class="text-syntaxPink">return</span> inorder;</div></div>
+                        <div class="debug-line"><div class="line-num">32</div><div class="code-content">    }</div></div>
+                        <div class="debug-line"><div class="line-num">33</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">The <strong>Morris Inorder Traversal</strong> is an ingenious algorithm that performs an inorder traversal of a binary tree in <span class="font-mono text-primary">$O(N)$</span> time while using only <span class="font-mono text-syntaxPink">$O(1)$</span> extra space. Traditional approaches use recursion or a stack, both of which require <span class="font-mono">$O(H)$</span> space (where $H$ is the height of the tree) to remember the path back to the parent nodes.</p>
+                    <p class="mb-4">Morris Traversal solves this by temporarily modifying the tree structure to establish a link (a <strong>thread</strong>) from a node's in-order predecessor directly back to the node itself. This allows the algorithm to safely navigate back up the tree without a stack.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Case 1: No Left Child</strong><br>
+                            If the current node <code>curr</code> has no left child, we process <code>curr</code> (add to inorder list) and move to its right child.
+                        </li>
+                        <li>
+                            <strong>Case 2: Has a Left Child</strong><br>
+                            If a left child exists, we find the <strong>inorder predecessor</strong> of <code>curr</code> (the rightmost node in <code>curr</code>'s left subtree).
+                            <ul class="list-disc pl-5 mt-2 space-y-2 text-slate-400">
+                                <li><em>Creating a Thread:</em> If the predecessor's right child is null, it means we haven't visited this subtree yet. We link <code>prev.right = curr</code> (create a thread) and move <code>curr = curr.left</code>.</li>
+                                <li><em>Removing a Thread:</em> If the predecessor's right child already points to <code>curr</code>, it means we have finished exploring the left subtree. We break the thread (<code>prev.right = null</code>), process <code>curr</code>, and move <code>curr = curr.right</code>.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Although there is a nested <code>while</code> loop to find the predecessor, notice that each edge in the tree is traversed at most 3 times (once to find the predecessor, once to create the thread, and once to traverse down/remove the thread). Thus, the time complexity remains strictly linear $O(N)$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(1)</span>
+                        <p class="text-xs text-slate-400">The primary advantage of Morris Traversal. It modifies the existing tree structure temporarily, using only two pointer variables (<code>curr</code> and <code>prev</code>) regardless of the tree's depth. (Note: The space required for the output array is not counted as auxiliary space).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) toggleFocusMode();
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // --- Core Algorithm Logic & Tree Building ---
+        
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+        let treeNodesList = []; 
+
+        function buildTree(arr) {
+            if (!arr || arr.length === 0 || arr[0] === 'null') return null;
+            let root = { id: 0, val: arr[0], left: null, right: null };
+            let queue = [root];
+            treeNodesList = [root];
+            let i = 1;
+            let idCounter = 1;
+            
+            while (queue.length > 0 && i < arr.length) {
+                let curr = queue.shift();
+                
+                // Left Child
+                if (i < arr.length && arr[i] !== 'null') {
+                    curr.left = { id: idCounter++, val: arr[i], left: null, right: null };
+                    queue.push(curr.left);
+                    treeNodesList.push(curr.left);
+                }
+                i++;
+                
+                // Right Child
+                if (i < arr.length && arr[i] !== 'null') {
+                    curr.right = { id: idCounter++, val: arr[i], left: null, right: null };
+                    queue.push(curr.right);
+                    treeNodesList.push(curr.right);
+                }
+                i++;
+            }
+            return root;
+        }
+
+        function calculatePositions(node, x, y, xOffset) {
+            if (!node) return;
+            node.x = x;
+            node.y = y;
+            if (node.left) calculatePositions(node.left, x - xOffset, y + 80, xOffset / 2);
+            if (node.right) calculatePositions(node.right, x + xOffset, y + 80, xOffset / 2);
+        }
+
+        function initSimulationFromInputs() {
+            const rawStr = document.getElementById('input-tree').value.trim();
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                if(!rawStr) throw new Error("Empty Input");
+                const arr = rawStr.split(',').map(s => s.trim());
+                
+                treeNodesList = [];
+                let root = buildTree(arr);
+                if (!root) throw new Error("Invalid Tree");
+                
+                // Root is at top-center of container
+                calculatePositions(root, 500, 50, 200); 
+
+                generateStates(root);
+                
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+            } catch (e) {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function generateStates(root) {
+            states = [];
+            let inorder = [];
+            let curr = root;
+            let threads = []; // Array of {from: id, to: id}
+
+            const pushState = (msg, line, action, currNode, prevNode, visitedArr, threadsArr) => {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: {
+                        curr: currNode ? currNode.val : 'null',
+                        prev: prevNode ? prevNode.val : 'null',
+                        action: action
+                    },
+                    visuals: {
+                        currId: currNode ? currNode.id : null,
+                        prevId: prevNode ? prevNode.id : null,
+                        inorder: [...visitedArr],
+                        threads: [...threadsArr]
+                    }
+                });
+            };
+
+            pushState(`Initialize variables and start at root`, "line-init", "Initialization", null, null, inorder, threads);
+            pushState(`Set curr to root node`, "line-curr-root", "Setting curr pointer", curr, null, inorder, threads);
+
+            while (curr != null) {
+                pushState(`Check if curr is null`, "line-while", `Checking loop condition: curr (${curr.val}) != null`, curr, null, inorder, threads);
+                
+                pushState(`Check if curr has left child`, "line-if-left-null", `Checking curr.left == null`, curr, null, inorder, threads);
+                if (curr.left == null) {
+                    inorder.push(curr.val);
+                    pushState(`No left child. Add ${curr.val} to inorder list.`, "line-add-val-1", `Adding ${curr.val} to results`, curr, null, inorder, threads);
+                    
+                    let next = curr.right;
+                    curr = next;
+                    pushState(`Move curr to its right child`, "line-curr-right-1", `Advancing curr to curr.right`, curr, null, inorder, threads);
+                } else {
+                    let prev = curr.left;
+                    pushState(`Has left child. Initialize prev pointer to curr.left`, "line-prev-left", `Start looking for predecessor`, curr, prev, inorder, threads);
+                    
+                    while (prev.right != null && prev.right.id !== curr.id) {
+                        pushState(`Check if we can move right`, "line-while-prev", `Traversing to rightmost node`, curr, prev, inorder, threads);
+                        prev = prev.right;
+                        pushState(`Move prev to prev.right`, "line-prev-right", `Traversing right...`, curr, prev, inorder, threads);
+                    }
+                    pushState(`Found predecessor or existing thread`, "line-while-prev", `While loop ends`, curr, prev, inorder, threads);
+
+                    pushState(`Check if predecessor has right child (thread exists?)`, "line-if-prev-right-null", `Checking prev.right == null`, curr, prev, inorder, threads);
+                    if (prev.right == null) {
+                        threads.push({from: prev.id, to: curr.id});
+                        prev.right = curr; // <--- FIX: Ensure underlying tree structure updates so logic can follow thread later
+                        
+                        pushState(`Create thread from predecessor ${prev.val} back to ${curr.val}`, "line-thread-create", `Creating Thread`, curr, prev, inorder, threads);
+                        
+                        curr = curr.left;
+                        pushState(`Move curr down to left child`, "line-curr-left", `Advancing curr to curr.left`, curr, prev, inorder, threads);
+                    } else {
+                        // Thread already exists
+                        prev.right = null; // <--- FIX: Undo underlying structure change so infinite loops don't occur
+                        
+                        pushState(`Thread already exists. We have returned to parent.`, "line-thread-remove", `Removing thread from ${prev.val}`, curr, prev, inorder, threads);
+                        threads = threads.filter(t => !(t.from === prev.id && t.to === curr.id));
+                        pushState(`Thread removed.`, "line-thread-remove", `Thread successfully disconnected`, curr, prev, inorder, threads);
+                        
+                        inorder.push(curr.val);
+                        pushState(`Subtree done. Add ${curr.val} to inorder list.`, "line-add-val-2", `Adding ${curr.val} to results`, curr, prev, inorder, threads);
+                        
+                        curr = curr.right; // Follow standard right pointer or threaded pointer!
+                        pushState(`Move curr to its right child`, "line-curr-right-2", `Advancing curr to curr.right`, curr, prev, inorder, threads);
+                    }
+                }
+            }
+            pushState(`Loop finished as curr is null. Return inorder list.`, "line-return", "Algorithm Finished", null, null, inorder, threads);
+        }
+
+        // UI Rendering Logic
+        function renderTreeDOM(visuals) {
+            const svgLayer = document.getElementById('edges-layer');
+            const nodesLayer = document.getElementById('nodes-layer');
+            
+            let svgHtml = '';
+            let nodesHtml = '';
+
+            // Draw standard edges
+            treeNodesList.forEach(node => {
+                if(node.left) {
+                    svgHtml += `<line x1="${node.x}" y1="${node.y}" x2="${node.left.x}" y2="${node.left.y}" class="edge-solid" />`;
+                }
+                if(node.right) {
+                    // Check if this rightward pointer is actually just a temporary Morris thread 
+                    let isThread = visuals.threads.some(t => t.from === node.id && t.to === node.right.id);
+                    if (!isThread) {
+                        svgHtml += `<line x1="${node.x}" y1="${node.y}" x2="${node.right.x}" y2="${node.right.y}" class="edge-solid" />`;
+                    }
+                }
+            });
+
+            // Draw Thread edges
+            visuals.threads.forEach(t => {
+                let fromNode = treeNodesList.find(n => n.id === t.from);
+                let toNode = treeNodesList.find(n => n.id === t.to);
+                if(fromNode && toNode) {
+                    // Quadratic curve for threads so they don't overlap exactly
+                    let midX = (fromNode.x + toNode.x) / 2 + 50; 
+                    let midY = (fromNode.y + toNode.y) / 2;
+                    let pathData = `M ${fromNode.x} ${fromNode.y} Q ${midX} ${midY} ${toNode.x} ${toNode.y}`;
+                    svgHtml += `<path d="${pathData}" class="edge-thread" marker-end="url(#arrowhead)"/>`;
+                }
+            });
+
+            // Draw Nodes
+            treeNodesList.forEach(node => {
+                let classes = 'tree-node';
+                if(visuals.inorder.includes(node.val)) classes += ' node-visited';
+                if(node.id === visuals.currId) classes += ' node-curr';
+                if(node.id === visuals.prevId) classes += ' node-prev';
+
+                let labels = '';
+                if(node.id === visuals.currId) labels += `<div class="pointer-label curr-label">curr</div>`;
+                if(node.id === visuals.prevId) labels += `<div class="pointer-label prev-label">prev</div>`;
+
+                nodesHtml += `
+                    <div class="${classes}" style="left: ${node.x}px; top: ${node.y}px;" id="node-${node.id}">
+                        ${node.val}
+                        ${labels}
+                    </div>
+                `;
+            });
+
+            svgLayer.innerHTML = svgHtml;
+            nodesLayer.innerHTML = nodesHtml;
+            
+            // Render the Inorder Array bottom bar
+            const arrayContainer = document.getElementById('inorder-list');
+            arrayContainer.innerHTML = visuals.inorder.map(val => `<div class="array-box">${val}</div>`).join('');
+        }
+
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            renderTreeDOM(state.visuals);
+
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('flex');
+            }
+
+            document.getElementById('var-curr').innerText = state.vars.curr;
+            document.getElementById('var-prev').innerText = state.vars.prev;
+            document.getElementById('var-action').innerText = state.vars.action;
+
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
