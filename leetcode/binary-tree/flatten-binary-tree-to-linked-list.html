@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoFlows - Flatten Binary Tree to Linked List</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: { 
+                        bgBase: '#0b1120', 
+                        bgPanel: '#111827', 
+                        bgInput: '#0f172a',
+                        borderMain: '#1e293b',
+                        primary: '#3b82f6', 
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        codeBg: '#0f1423',
+                        syntaxPink: '#f472b6',
+                        syntaxBlue: '#60a5fa',
+                        syntaxGreen: '#34d399',
+                        syntaxYellow: '#fcd34d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Form Inputs */
+        .input-field { background-color: #0b1120; border: 1px solid #1e293b; color: #f8fafc; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; transition: all 0.2s; font-size: 0.875rem; outline: none; font-family: 'Fira Code', monospace; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
+
+        /* Canvas Styles */
+        .dotted-bg { background-size: 24px 24px; background-image: radial-gradient(circle, #334155 1px, transparent 1px); }
+        
+        /* SVG Tree Elements */
+        .node-circle { transition: all 0.3s ease; stroke-width: 2px; }
+        .node-text { font-family: 'Fira Code', monospace; font-size: 14px; fill: white; text-anchor: middle; dominant-baseline: central; font-weight: 600; pointer-events: none; }
+        .edge-line { stroke: #475569; stroke-width: 2px; transition: all 0.3s ease; fill: none; }
+        .edge-rewired { stroke: #10b981; stroke-width: 3px; stroke-dasharray: 6 4; animation: dash 1s linear infinite; fill: none; }
+        
+        @keyframes dash {
+            to { stroke-dashoffset: -20; }
+        }
+
+        /* Status Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Speed Slider */
+        input[type=range] { -webkit-appearance: none; width: 100px; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
+
+        /* Code Debugger Styles */
+        .debug-line { transition: all 0.2s; padding: 2px 8px; border-left: 3px solid transparent; display: flex; border-radius: 0 4px 4px 0;}
+        .debug-line.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: #3b82f6; }
+        .line-num { width: 24px; text-align: right; margin-right: 16px; color: #475569; user-select: none; flex-shrink: 0; }
+        .code-content { white-space: pre; }
+
+        /* Resizer Styles */
+        .resizer-v { width: 6px; background-color: #1e293b; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-v:hover, .resizer-v.active { background-color: #3b82f6; }
+        .resizer-h { height: 6px; background-color: #1e293b; cursor: row-resize; flex-shrink: 0; transition: background-color 0.2s; z-index: 30; }
+        .resizer-h:hover, .resizer-h.active { background-color: #3b82f6; }
+        
+        body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; pointer-events: none !important; }
+        body.resizing-h, body.resizing-h * { cursor: row-resize !important; user-select: none !important; pointer-events: none !important; }
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <!-- Top Header -->
+    <header id="main-header" class="h-16 bg-bgBase border-b border-borderMain flex items-center justify-between px-6 shrink-0 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wide leading-tight">AlgoFlows</h1>
+                <p class="text-xs text-slate-500">Flatten Binary Tree</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <nav class="bg-bgPanel rounded-full p-1 border border-borderMain flex text-xs font-medium">
+                <button onclick="switchTab('dry-tab')" id="btn-dry-tab" class="px-4 py-1.5 rounded-full bg-primary text-white shadow transition-all">Interactive Debugger</button>
+                <button onclick="switchTab('theory-tab')" id="btn-theory-tab" class="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">Theory & Complexity</button>
+            </nav>
+            <a href="https://github.com/devnamdev2003/leetcode-interactive-solutions" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm ml-2" title="Contribute on GitHub">
+                <i class="fab fa-github text-xl"></i>
+                <span class="hidden sm:inline font-medium">Contribute</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Inputs Bar -->
+    <section id="inputs-bar" class="bg-bgPanel border-b border-borderMain p-4 shrink-0 z-10 flex flex-col md:flex-row items-end gap-6 transition-all duration-300">
+        <div class="flex-1 w-full max-w-xl">
+            <label class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Binary Tree (Level Order, comma-separated)</label>
+            <input type="text" id="input-tree" class="input-field" value="1,2,5,3,4,null,6" placeholder="e.g. 1,2,5,3,4,null,6">
+        </div>
+        <button onclick="initSimulationFromInputs()" class="h-[38px] px-6 bg-success hover:bg-emerald-400 text-white text-sm font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <i class="fas fa-play text-xs"></i> Start Debugging
+        </button>
+    </section>
+    <div id="input-error" class="bg-red-500/10 text-red-400 text-xs py-1 px-6 border-b border-red-500/20 hidden"><i class="fas fa-exclamation-triangle mr-1"></i> Invalid input format. Please use comma-separated integers (or 'null').</div>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex overflow-hidden relative">
+        
+        <!-- Tab: Interactive Debugger -->
+        <div id="dry-tab" class="tab-content active w-full flex-col lg:flex-row">
+            
+            <!-- Left: Canvas -->
+            <div id="panel-canvas" style="flex: 1 1 0%; min-width: 300px;" class="relative flex flex-col transition-all duration-300">
+                <!-- Canvas Header -->
+                <div id="canvas-header" class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0 overflow-hidden">
+                    <div id="canvas-title-wrapper" class="flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-eye text-primary"></i> 
+                        <span>Live Recursion Canvas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFocusMode()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Focus Mode (Esc to exit)">
+                            <i id="focus-toggle-icon" class="fas fa-expand text-[13px]"></i>
+                        </button>
+                        <button onclick="toggleCanvasFullscreen()" class="hover:text-white transition-colors p-1 flex-shrink-0" title="Toggle Right Panel">
+                            <i id="canvas-toggle-icon" class="fas fa-chevron-right text-[13px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Content -->
+                <div id="panel-canvas-content" class="flex-grow relative bg-bgBase dotted-bg overflow-auto flex flex-col items-center justify-center transition-opacity duration-300">
+                    
+                    <!-- Status Overlay -->
+                    <div class="absolute top-6 right-6 flex items-center gap-2 text-slate-400 text-sm font-medium z-20 bg-bgBase/90 px-4 py-2 rounded-lg border border-borderMain shadow-lg backdrop-blur">
+                        <i class="fas fa-circle-notch fa-spin text-primary hidden" id="status-spinner"></i>
+                        <i class="fas fa-info-circle text-primary" id="status-icon"></i>
+                        <span id="step-msg">Waiting to begin...</span>
+                    </div>
+
+                    <!-- Visual SVG Tree -->
+                    <div id="svg-container" class="w-full h-full flex items-center justify-center p-4">
+                        <svg id="tree-canvas" style="width: 100%; height: 100%; overflow: visible;">
+                            <!-- Dynamically generated tree elements will go here -->
+                        </svg>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Vertical Resizer -->
+            <div id="resizer-v" class="resizer-v hidden lg:block"></div>
+
+            <!-- Right: Debugger Panels -->
+            <div id="panel-right" style="flex: 0 0 450px; width: 450px; min-width: 280px;" class="shrink-0 flex flex-col bg-bgBase transition-all duration-300 border-l border-borderMain">
+                
+                <!-- Variables Watch -->
+                <div id="panel-vars" class="flex flex-col bg-bgPanel/50 transition-all duration-300" style="flex: 1 1 0%; min-height: 150px;">
+                    <!-- Vars Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-bolt text-purple-400"></i> Local Variables Watch</div>
+                        <button onclick="togglePanel('vars')" class="hover:text-white transition-colors p-1"><i id="vars-toggle-icon" class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <!-- Vars Content -->
+                    <div id="content-vars" class="flex-grow p-4 overflow-y-auto flex flex-col justify-start transition-opacity duration-300 gap-3">
+                        <div id="empty-vars" class="text-slate-500 text-xs italic text-center w-full mt-10">Execution Reset...</div>
+                        
+                        <div id="active-vars" class="hidden grid grid-cols-2 gap-3">
+                            <div class="bg-bgBase border border-borderMain p-3 rounded shadow-sm relative overflow-hidden group">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Current Root</span>
+                                <span id="var-root" class="font-mono text-blue-400 font-bold text-xl">-</span>
+                                <p class="text-[9px] text-slate-500 mt-1 italic">Active execution node.</p>
+                            </div>
+                            <div class="bg-bgBase border border-borderMain p-3 rounded shadow-sm relative overflow-hidden group">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-pink-400"></div>
+                                <span class="block text-[10px] text-slate-500 uppercase mb-1">Pre Pointer</span>
+                                <span id="var-pre" class="font-mono text-pink-400 font-bold text-xl">-</span>
+                                <p class="text-[9px] text-slate-500 mt-1 italic">Previously processed node.</p>
+                            </div>
+                            <div class="col-span-2 bg-bgBase border border-borderMain p-3 rounded shadow-sm flex flex-col gap-2">
+                                <span class="block text-[10px] text-slate-500 uppercase">Legend</span>
+                                <div class="flex items-center gap-4 text-[11px] text-slate-300">
+                                    <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border-2 border-blue-400 bg-blue-500/20"></div> Active Node</div>
+                                    <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border-2 border-pink-400 bg-pink-500/20"></div> Pre Node</div>
+                                    <div class="flex items-center gap-1.5"><div class="w-4 h-0.5 bg-success relative"><div class="absolute right-0 -top-[3px] border-[3px] border-transparent border-l-success"></div></div> Flatten Edge</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Resizer -->
+                <div id="resizer-h" class="resizer-h hidden lg:block border-y border-borderMain"></div>
+
+                <!-- Code Execution -->
+                <div id="panel-code" class="flex flex-col bg-codeBg relative transition-all duration-300" style="flex: 2 1 0%; min-height: 150px;">
+                    <!-- Code Header -->
+                    <div class="px-4 py-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center justify-between border-b border-borderMain bg-bgPanel/50 h-[37px] shrink-0">
+                        <div class="flex items-center gap-2"><i class="fas fa-code text-blue-400"></i> Source Code Execution</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-500 normal-case">Java</span>
+                            <button onclick="togglePanel('code')" class="hover:text-white transition-colors p-1"><i id="code-toggle-icon" class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <!-- Code Content -->
+                    <div id="content-code" class="flex-grow p-4 overflow-y-auto font-mono text-[12px] leading-5 transition-opacity duration-300">
+                        <div class="debug-line" id="line-class"><div class="line-num">1</div><div class="code-content"><span class="text-syntaxPink">class</span> Solution {</div></div>
+                        <div class="debug-line" id="line-var"><div class="line-num">2</div><div class="code-content">    <span class="text-syntaxPink">public</span> TreeNode pre = <span class="text-syntaxBlue">null</span>;</div></div>
+                        <div class="debug-line" id="line-func"><div class="line-num">3</div><div class="code-content">    <span class="text-syntaxPink">public void</span> flatten(TreeNode root) {</div></div>
+                        <div class="debug-line" id="line-if"><div class="line-num">4</div><div class="code-content">        <span class="text-syntaxPink">if</span>(root == <span class="text-syntaxBlue">null</span>) {</div></div>
+                        <div class="debug-line" id="line-ret"><div class="line-num">5</div><div class="code-content">            <span class="text-syntaxPink">return</span>;</div></div>
+                        <div class="debug-line" id="line-endif"><div class="line-num">6</div><div class="code-content">        }</div></div>
+                        <div class="debug-line" id="line-right"><div class="line-num">7</div><div class="code-content">        flatten(root.right);</div></div>
+                        <div class="debug-line" id="line-left"><div class="line-num">8</div><div class="code-content">        flatten(root.left);</div></div>
+                        <div class="debug-line" id="line-rootright"><div class="line-num">9</div><div class="code-content">        root.right = pre;</div></div>
+                        <div class="debug-line" id="line-rootleft"><div class="line-num">10</div><div class="code-content">        root.left = <span class="text-syntaxBlue">null</span>;</div></div>
+                        <div class="debug-line" id="line-preroot"><div class="line-num">11</div><div class="code-content">        pre = root;</div></div>
+                        <div class="debug-line" id="line-endfunc"><div class="line-num">12</div><div class="code-content">    }</div></div>
+                        <div class="debug-line" id="line-endclass"><div class="line-num">13</div><div class="code-content">}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Theory & Complexity -->
+        <div id="theory-tab" class="tab-content w-full overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-brain text-primary"></i> Algorithm Logic & Theory</h2>
+                <div class="bg-bgPanel border border-borderMain rounded-xl p-6 mb-8 text-sm leading-relaxed">
+                    <p class="mb-4">This elegant algorithm flattens a binary tree into a "linked list" structurally identical to a <strong>pre-order traversal</strong>, doing so completely <strong>in-place</strong> without creating new nodes.</p>
+                    
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">The Magic of Reverse Post-Order Traversal</h3>
+                    <p class="text-slate-300 mb-4">If we try to flatten the tree strictly from top-to-bottom (pre-order), modifying the <code>root.right</code> pointer overwrites the original right child before we have a chance to explore it. This typically requires an external stack or queue to keep track of lost children.</p>
+                    <p class="text-slate-300 mb-4">The genius of this solution is realizing that a pre-order traversal sequence generated backwards is equivalent to traversing the tree in a <strong>Right ➔ Left ➔ Root</strong> order. By processing nodes backwards, we effectively build the linked list from the <em>tail</em> up to the <em>head</em>.</p>
+
+                    <h3 class="text-lg font-bold text-white mt-6 mb-3">Core Steps:</h3>
+                    <ul class="list-disc pl-5 space-y-4 text-slate-300">
+                        <li>
+                            <strong>Step 1: Traverse Right Subtree</strong><br>
+                            Dive deeply into the <code>root.right</code> branch first until you hit a leaf.
+                        </li>
+                        <li>
+                            <strong>Step 2: Traverse Left Subtree</strong><br>
+                            Then dive into the <code>root.left</code> branch.
+                        </li>
+                        <li>
+                            <strong>Step 3: Re-wire the Pointers</strong><br>
+                            Because we traversed the right side first, our global <code>pre</code> pointer holds the <em>previously processed node</em>—which logically belongs immediately after the current <code>root</code> in the final flattened list.<br>
+                            We set <code>root.right = pre</code> and clear the left pointer <code>root.left = null</code>.
+                        </li>
+                        <li>
+                            <strong>Step 4: Shift the `pre` Pointer</strong><br>
+                            Finally, we update <code>pre = root</code> so that as the recursion bubbles up, the parent node will attach to this newly wired sub-chain.
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-primary transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                        <span class="text-primary font-mono font-bold text-lg block mb-2">Time Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Every single node in the binary tree is visited exactly once during the recursive traversal. Work done inside the function (assigning pointers) is $O(1)$. Thus, total time scales linearly with the number of nodes $N$.</p>
+                    </div>
+                    <div class="bg-[#0f1423] p-6 rounded-xl border border-borderMain relative overflow-hidden group hover:border-syntaxPink transition-colors">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-syntaxPink/10 rounded-full blur-2xl group-hover:bg-syntaxPink/20 transition-colors"></div>
+                        <span class="text-syntaxPink font-mono font-bold text-lg block mb-2">Space Complexity</span>
+                        <span class="text-white text-2xl font-bold block mb-2">O(N)</span>
+                        <p class="text-xs text-slate-400">Although it operates in-place on the tree's pointers (using no extra data structures like arrays or queues), it utilizes the implicit call stack for recursion. In the worst-case scenario (a skewed tree), the recursion depth reaches $N$, requiring $O(N)$ memory space. For a balanced tree, it takes $O(\log N)$ space.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer id="control-bar" class="bg-bgPanel border-t border-borderMain px-6 py-4 shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-20 transition-all duration-300">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <button onclick="prevStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Previous Step">
+                <i class="fas fa-step-backward text-sm"></i>
+            </button>
+            <button onclick="togglePlay()" id="playBtn" class="w-28 h-10 rounded-full bg-primary hover:bg-blue-600 font-bold transition-all flex items-center justify-center gap-2 text-white shadow-lg shadow-blue-500/20">
+                <i class="fas fa-play text-xs" id="playIcon"></i> <span id="playText">Play</span>
+            </button>
+            <button onclick="nextStep()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Next Step">
+                <i class="fas fa-step-forward text-sm"></i>
+            </button>
+            <button onclick="skipToEnd()" class="w-10 h-10 rounded-full bg-bgBase hover:bg-slate-800 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Skip to End">
+                <i class="fas fa-fast-forward text-sm"></i>
+            </button>
+            <button onclick="resetAnim()" class="w-10 h-10 ml-2 rounded-full bg-bgBase hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 border border-borderMain flex items-center justify-center transition-colors text-slate-300 tooltip" title="Restart">
+                <i class="fas fa-redo text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="flex-grow w-full max-w-md mx-0 md:mx-6">
+            <div class="w-full bg-bgBase h-1.5 rounded-full overflow-hidden border border-borderMain relative">
+                <div id="progress-bar" class="bg-primary h-full w-0 transition-all duration-300 relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/30 blur-[1px]"></div>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono mt-1 text-center md:text-left" id="step-counter">Step 0 / 0</div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 w-full md:w-auto">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-500 hidden sm:inline">Speed</span>
+            <span class="text-xs text-slate-400">Slow</span>
+            <input type="range" min="0" max="100" value="70" oninput="updateSpeed(this.value)" class="w-24">
+            <span class="text-xs text-slate-400">Fast</span>
+        </div>
+    </footer>
+
+    <script>
+        // UI State for Expand/Collapse Panels
+        let isSplitView = true;
+        let isFocusMode = false;
+        let rightPanelWidth = 450; 
+        let varsPanelHeight = 'flex: 1 1 0%';
+
+        function toggleCanvasFullscreen() {
+            const panelRight = document.getElementById('panel-right');
+            const resizerV = document.getElementById('resizer-v');
+            const icon = document.getElementById('canvas-toggle-icon');
+            
+            isSplitView = !isSplitView;
+            
+            if (isSplitView) {
+                panelRight.style.display = 'flex';
+                resizerV.style.display = 'block';
+                icon.className = 'fas fa-chevron-right text-[13px]'; 
+            } else {
+                panelRight.style.display = 'none';
+                resizerV.style.display = 'none';
+                icon.className = 'fas fa-chevron-left text-[13px]'; 
+            }
+        }
+
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            const header = document.getElementById('main-header');
+            const inputsBar = document.getElementById('inputs-bar');
+            const icon = document.getElementById('focus-toggle-icon');
+            
+            if (isFocusMode) {
+                header.style.display = 'none';
+                inputsBar.style.display = 'none';
+                icon.classList.replace('fa-expand', 'fa-compress');
+                icon.classList.add('text-primary');
+            } else {
+                header.style.display = 'flex';
+                // Only restore inputs bar if we are on the debugger tab
+                if (document.getElementById('dry-tab').classList.contains('active')) {
+                    inputsBar.style.display = 'flex';
+                }
+                icon.classList.replace('fa-compress', 'fa-expand');
+                icon.classList.remove('text-primary');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFocusMode) {
+                toggleFocusMode();
+            }
+        });
+
+        let panelsState = { vars: true, code: true };
+
+        function togglePanel(panelName) {
+            const content = document.getElementById(`content-${panelName}`);
+            const panel = document.getElementById(`panel-${panelName}`);
+            const icon = document.getElementById(`${panelName}-toggle-icon`);
+            const resizerH = document.getElementById('resizer-h');
+            
+            panelsState[panelName] = !panelsState[panelName];
+            
+            if(panelsState[panelName]) {
+                content.classList.remove('hidden');
+                if(panelName === 'vars') {
+                    panel.style.flex = varsPanelHeight;
+                    resizerH.style.display = 'block';
+                } else {
+                    panel.style.flex = '2 1 0%';
+                    resizerH.style.display = 'block';
+                }
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('hidden');
+                panel.style.flex = '0 0 37px';
+                if(panelName === 'vars') resizerH.style.display = 'none';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Resizer Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizerV = document.getElementById('resizer-v');
+            const resizerH = document.getElementById('resizer-h');
+            const panelRight = document.getElementById('panel-right');
+            const panelVars = document.getElementById('panel-vars');
+            
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', () => {
+                isResizingV = true;
+                document.body.classList.add('resizing');
+                resizerV.classList.add('active');
+            });
+
+            resizerH.addEventListener('mousedown', () => {
+                isResizingH = true;
+                document.body.classList.add('resizing-h');
+                resizerH.classList.add('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingV && !isResizingH) return;
+
+                if (isResizingV) {
+                    const containerWidth = window.innerWidth;
+                    let newWidth = containerWidth - e.clientX;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > containerWidth - 300) newWidth = containerWidth - 300;
+                    rightPanelWidth = newWidth;
+                    panelRight.style.flex = `0 0 ${newWidth}px`;
+                    panelRight.style.width = `${newWidth}px`;
+                }
+
+                if (isResizingH) {
+                    const rect = panelRight.getBoundingClientRect();
+                    let newHeight = e.clientY - rect.top;
+                    if (newHeight < 100) newHeight = 100;
+                    if (newHeight > rect.height - 100) newHeight = rect.height - 100;
+                    varsPanelHeight = `0 0 ${newHeight}px`;
+                    panelVars.style.flex = varsPanelHeight;
+                    panelVars.style.height = `${newHeight}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizingV) {
+                    isResizingV = false;
+                    document.body.classList.remove('resizing');
+                    resizerV.classList.remove('active');
+                }
+                if (isResizingH) {
+                    isResizingH = false;
+                    document.body.classList.remove('resizing-h');
+                    resizerH.classList.remove('active');
+                }
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('bg-primary', 'text-white', 'shadow');
+                el.classList.add('text-slate-400');
+            });
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('bg-primary', 'text-white', 'shadow');
+            }
+
+            const inputsBar = document.getElementById('inputs-bar');
+            const controlBar = document.getElementById('control-bar');
+            
+            if (tabId === 'theory-tab') {
+                inputsBar.style.display = 'none';
+                controlBar.style.display = 'none';
+            } else {
+                if (!isFocusMode) inputsBar.style.display = 'flex';
+                controlBar.style.display = 'flex';
+            }
+        }
+
+        // Tree Logic and Data Structures
+        class Node {
+            constructor(val, id) {
+                this.val = val;
+                this.id = id;
+                this.origLeft = null;
+                this.origRight = null;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        function parseLevelOrder(arr) {
+            if (!arr.length || arr[0] === 'null' || arr[0] === '') return null;
+            let root = new Node(parseInt(arr[0]), 'node_0');
+            let queue = [root];
+            let i = 1;
+            let idCounter = 1;
+
+            while (queue.length > 0 && i < arr.length) {
+                let curr = queue.shift();
+
+                if (i < arr.length && arr[i] !== 'null') {
+                    let v = parseInt(arr[i]);
+                    if(!isNaN(v)) {
+                        curr.origLeft = new Node(v, 'node_' + idCounter++);
+                        curr.left = curr.origLeft;
+                        queue.push(curr.origLeft);
+                    }
+                }
+                i++;
+
+                if (i < arr.length && arr[i] !== 'null') {
+                    let v = parseInt(arr[i]);
+                    if(!isNaN(v)) {
+                        curr.origRight = new Node(v, 'node_' + idCounter++);
+                        curr.right = curr.origRight;
+                        queue.push(curr.origRight);
+                    }
+                }
+                i++;
+            }
+            return root;
+        }
+
+        function layoutTree(root) {
+            let maxDepth = 0;
+
+            function setDepth(node, d) {
+                if(!node) return;
+                maxDepth = Math.max(maxDepth, d);
+                setDepth(node.origLeft, d+1);
+                setDepth(node.origRight, d+1);
+            }
+            setDepth(root, 0);
+
+            let xOffset = 0;
+            function assignX(node) {
+                if(!node) return;
+                assignX(node.origLeft);
+                node.x = xOffset * 65; 
+                xOffset++;
+                assignX(node.origRight);
+            }
+            assignX(root);
+
+            function assignY(node, d) {
+                if(!node) return;
+                node.y = d * 85; 
+                assignY(node.origLeft, d+1);
+                assignY(node.origRight, d+1);
+            }
+            assignY(root, 0);
+        }
+
+        // Core State Management
+        let states = [];
+        let currState = 0;
+        let playInterval = null;
+        let isPlaying = false;
+        let animSpeed = 1000;
+
+        function updateSpeed(val) {
+            animSpeed = 3000 - (val * 27); 
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(nextStep, animSpeed);
+            }
+        }
+
+        function initSimulationFromInputs() {
+            const inputStr = document.getElementById('input-tree').value.trim();
+            const errEl = document.getElementById('input-error');
+            errEl.classList.add('hidden');
+
+            try {
+                if(!inputStr) throw new Error("Empty");
+                
+                generateStates(inputStr);
+                pauseAnim();
+                currState = 0;
+                renderState(0);
+                
+                if(!document.getElementById('dry-tab').classList.contains('active')) {
+                    switchTab('dry-tab');
+                }
+
+            } catch (e) {
+                errEl.classList.remove('hidden');
+                console.error(e);
+            }
+        }
+
+        // Algorithm Simulator
+        function generateStates(rootStr) {
+            states = [];
+            let arr = rootStr.split(',').map(s => s.trim());
+            let root = parseLevelOrder(arr);
+            
+            if (!root) {
+                throw new Error("Invalid Tree");
+            }
+
+            let nodesMap = new Map();
+            function indexNodes(n) {
+                if(!n) return;
+                nodesMap.set(n.id, n);
+                indexNodes(n.origLeft);
+                indexNodes(n.origRight);
+            }
+            indexNodes(root);
+            layoutTree(root);
+
+            let preNodeId = null;
+
+            function getSnapshot(activeId) {
+                let nodesSnap = Array.from(nodesMap.values()).map(n => ({
+                    id: n.id,
+                    val: n.val,
+                    x: n.x,
+                    y: n.y,
+                    left: n.left ? n.left.id : null,
+                    right: n.right ? n.right.id : null,
+                    origRight: n.origRight ? n.origRight.id : null
+                }));
+                return {
+                    nodes: nodesSnap,
+                    activeId: activeId,
+                    preId: preNodeId
+                };
+            }
+
+            function pushState(msg, line, activeId) {
+                states.push({
+                    msg: msg,
+                    activeLine: line,
+                    vars: {
+                        root: activeId ? nodesMap.get(activeId).val : 'null',
+                        pre: preNodeId ? nodesMap.get(preNodeId).val : 'null'
+                    },
+                    visuals: getSnapshot(activeId)
+                });
+            }
+
+            pushState("Initialize pre pointer to null and call flatten(root)", "line-var", root.id);
+
+            function flattenSim(nodeId) {
+                pushState(`flatten() called on node ${nodeId ? nodesMap.get(nodeId).val : 'null'}`, "line-func", nodeId);
+
+                pushState(`Check if root is null`, "line-if", nodeId);
+                if (!nodeId) {
+                    pushState(`Root is null, returning...`, "line-ret", nodeId);
+                    return;
+                }
+
+                let node = nodesMap.get(nodeId);
+
+                pushState(`Recursively flatten right subtree of ${node.val}`, "line-right", nodeId);
+                flattenSim(node.origRight ? node.origRight.id : null);
+
+                pushState(`Return to ${node.val}. Recursively flatten left subtree`, "line-left", nodeId);
+                flattenSim(node.origLeft ? node.origLeft.id : null);
+
+                let preNodeText = preNodeId ? nodesMap.get(preNodeId).val : 'null';
+                pushState(`Wire node ${node.val}'s right pointer to pre (${preNodeText})`, "line-rootright", nodeId);
+                node.right = preNodeId ? nodesMap.get(preNodeId) : null;
+
+                pushState(`Clear node ${node.val}'s left pointer to null`, "line-rootleft", nodeId);
+                node.left = null;
+
+                pushState(`Update pre pointer to current root (${node.val})`, "line-preroot", nodeId);
+                preNodeId = nodeId;
+            }
+
+            flattenSim(root.id);
+            pushState("Algorithm Finished. The binary tree is fully flattened!", "line-endfunc", null);
+        }
+
+        // Get curved path for rewired connections
+        function getEdgePath(n1, n2, isRewired) {
+            if (!isRewired) {
+                return `M ${n1.x} ${n1.y} L ${n2.x} ${n2.y}`;
+            } else {
+                let dx = n2.x - n1.x;
+                let dy = n2.y - n1.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist === 0) return ``; 
+                
+                let midX = (n1.x + n2.x) / 2;
+                let midY = (n1.y + n2.y) / 2;
+                
+                // Calculate normal vector
+                let nx = -dy / dist;
+                let ny = dx / dist;
+                
+                // Force curve to always bow upwards (negative Y) for consistency
+                if (ny > 0) {
+                    nx = -nx;
+                    ny = -ny;
+                }
+                
+                // Scale offset by distance for natural looking arcs
+                let offset = Math.min(dist * 0.4, 70); 
+                
+                let cpX = midX + nx * offset;
+                let cpY = midY + ny * offset;
+                
+                return `M ${n1.x} ${n1.y} Q ${cpX} ${cpY} ${n2.x} ${n2.y}`;
+            }
+        }
+
+        // Render Canvas DOM
+        function renderState(idx) {
+            const state = states[idx];
+            if (!state) return;
+            
+            // Text updates
+            document.getElementById('step-msg').innerText = state.msg;
+            document.getElementById('step-counter').innerText = `Step ${idx}/${states.length > 0 ? states.length - 1 : 0}`;
+            
+            if(states.length > 1) {
+                document.getElementById('progress-bar').style.width = `${(idx / (states.length - 1)) * 100}%`;
+            } else {
+                document.getElementById('progress-bar').style.width = `100%`;
+            }
+            
+            if(isPlaying) {
+                document.getElementById('status-spinner').classList.remove('hidden');
+                document.getElementById('status-icon').classList.add('hidden');
+            } else {
+                document.getElementById('status-spinner').classList.add('hidden');
+                document.getElementById('status-icon').classList.remove('hidden');
+            }
+
+            // Variables Panel
+            document.getElementById('empty-vars').classList.add('hidden');
+            if(panelsState.vars) {
+                document.getElementById('active-vars').classList.remove('hidden');
+                document.getElementById('active-vars').classList.add('grid');
+            }
+            document.getElementById('var-root').innerText = state.vars.root;
+            document.getElementById('var-pre').innerText = state.vars.pre;
+
+            // Highlight Code Line
+            document.querySelectorAll('.debug-line').forEach(el => el.classList.remove('active'));
+            if(state.activeLine) {
+                let activeEl = document.getElementById(state.activeLine);
+                if(activeEl) {
+                    activeEl.classList.add('active');
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // Render SVG Canvas
+            let svg = document.getElementById('tree-canvas');
+            
+            if (!state.visuals || state.visuals.nodes.length === 0) {
+                svg.innerHTML = '';
+                return;
+            }
+
+            let nodes = state.visuals.nodes;
+            
+            // Calculate ViewBox to auto-center tree
+            let minX = Math.min(...nodes.map(n => n.x));
+            let maxX = Math.max(...nodes.map(n => n.x));
+            let minY = Math.min(...nodes.map(n => n.y));
+            let maxY = Math.max(...nodes.map(n => n.y));
+            
+            // Provide ample padding
+            let pX = 80, pY = 80;
+            let vW = Math.max((maxX - minX + pX*2), 600);
+            let vH = Math.max((maxY - minY + pY*2), 400);
+            
+            // Re-center horizontally if tree is narrow
+            let currentW = (maxX - minX + pX*2);
+            let targetX = minX - pX;
+            if (currentW < 600) {
+                targetX -= (600 - currentW)/2;
+            }
+            
+            svg.setAttribute('viewBox', `${targetX} ${minY - pY} ${vW} ${vH}`);
+
+            // Build SVG inner HTML
+            let defs = `
+                <defs>
+                    <marker id="arrowHead" viewBox="0 0 10 10" refX="30" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+                    </marker>
+                </defs>
+            `;
+            let edgesHtml = '';
+            let nodesHtml = '';
+
+            let nodeMap = new Map();
+            nodes.forEach(n => nodeMap.set(n.id, n));
+
+            nodes.forEach(n => {
+                // Left Edge (Always standard if exists)
+                if (n.left) {
+                    let tgt = nodeMap.get(n.left);
+                    if(tgt) edgesHtml += `<path class="edge-line" d="${getEdgePath(n, tgt, false)}" />`;
+                }
+                
+                // Right Edge
+                if (n.right) {
+                    let tgt = nodeMap.get(n.right);
+                    if(tgt) {
+                        let isRewired = (n.right !== n.origRight);
+                        let edgeClass = isRewired ? 'edge-rewired' : 'edge-line';
+                        let marker = isRewired ? 'marker-end="url(#arrowHead)"' : '';
+                        edgesHtml += `<path class="${edgeClass}" d="${getEdgePath(n, tgt, isRewired)}" ${marker} />`;
+                    }
+                }
+
+                // Node styling based on state
+                let isRoot = n.id === state.visuals.activeId;
+                let isPre = n.id === state.visuals.preId;
+                
+                let fill = '#1e293b'; 
+                let stroke = '#334155';
+                
+                if (isPre) {
+                    fill = 'rgba(244, 114, 182, 0.2)'; // Pink tint
+                    stroke = '#f472b6';
+                }
+                if (isRoot) {
+                    fill = '#3b82f6';
+                    stroke = '#60a5fa';
+                }
+
+                nodesHtml += `
+                    <g transform="translate(${n.x}, ${n.y})">
+                        <circle class="node-circle" r="20" fill="${fill}" stroke="${stroke}" ${isRoot ? 'filter="drop-shadow(0 0 8px rgba(59,130,246,0.6))"' : ''} />
+                        <text class="node-text">${n.val}</text>
+                    </g>
+                `;
+            });
+
+            svg.innerHTML = defs + edgesHtml + nodesHtml;
+        }
+
+        // Playback Controls
+        function nextStep() {
+            if (currState < states.length - 1) {
+                currState++;
+                renderState(currState);
+            } else {
+                pauseAnim();
+            }
+        }
+
+        function prevStep() {
+            if (currState > 0) {
+                currState--;
+                renderState(currState);
+            }
+        }
+
+        function skipToEnd() {
+            pauseAnim();
+            if (states.length > 0) {
+                currState = states.length - 1;
+                renderState(currState);
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) pauseAnim();
+            else playAnim();
+        }
+
+        function playAnim() {
+            if (currState >= states.length - 1) currState = 0; 
+            isPlaying = true;
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-pause text-xs';
+            pTxt.innerText = 'Pause';
+            document.getElementById('playBtn').classList.replace('bg-primary', 'bg-slate-700');
+            
+            renderState(currState);
+            playInterval = setInterval(nextStep, animSpeed); 
+        }
+
+        function pauseAnim() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            
+            const pBtn = document.getElementById('playIcon');
+            const pTxt = document.getElementById('playText');
+            pBtn.className = 'fas fa-play text-xs ml-0.5';
+            pTxt.innerText = 'Play';
+            document.getElementById('playBtn').classList.replace('bg-slate-700', 'bg-primary');
+            renderState(currState); 
+        }
+
+        function resetAnim() {
+            pauseAnim();
+            currState = 0;
+            renderState(currState);
+        }
+
+        window.onload = () => {
+            updateSpeed(70); 
+            initSimulationFromInputs();
+            switchTab('dry-tab'); 
+        };
+    </script>
+</body>
+</html>
