@@ -1,0 +1,684 @@
+{
+  "title": "IBPS SO IT Officer Mains 2023 Quiz",
+  "description": "Memory Based Questions - Held on 28 January 2024",
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "question": "In indirect addressing mode, what does the address field of an instruction contain?",
+      "options": [
+        "The effective address of the operand directly",
+        "The operand value itself",
+        "The address of a memory location that stores the effective address",
+        "The address stored in the program counter",
+        "The register number containing the operand"
+      ],
+      "answer": "The address of a memory location that stores the effective address"
+    },
+    {
+      "id": 2,
+      "type": "single",
+      "question": "What will be the output of the following Java code snippet that calculates the length of a string without using the built-in length() method?",
+      "options": [
+        "The length of the string \"Hello, World!\" is: 13",
+        "The length of the string \"Hello, World!\" is: 12",
+        "Compilation Error",
+        "Runtime Error: String cannot be null",
+        "The length of the string \"Hello, World!\" is: 14"
+      ],
+      "answer": "The length of the string \"Hello, World!\" is: 13"
+    },
+    {
+      "id": 3,
+      "type": "single",
+      "question": "Which process is used to convert a grayscale image into a binary image, and which edge detection algorithm is well known for using gradient calculation along with non -maximum suppression and hysteresis thresholding?",
+      "options": [
+        "Thresholding, Laplacian",
+        "Quantization, Sobel",
+        "Sampling, Prewitt",
+        "Thresholding, Canny",
+        "Compression, Roberts"
+      ],
+      "answer": "Thresholding, Canny"
+    },
+    {
+      "id": 4,
+      "type": "single",
+      "question": "Which grayscale conversion approach generates a grayscale image by assigning equal importance to all three RGB components?",
+      "options": [
+        "Weighted luminance transformation",
+        "Unweighted averaging of the RGB channels",
+        "Edge-based grayscale transformation",
+        "Alpha-transparency mapping",
+        "Contrast-normalized grayscale encoding"
+      ],
+      "answer": "Unweighted averaging of the RGB channels"
+    },
+    {
+      "id": 5,
+      "type": "single",
+      "question": "Which of the following statements correctly describe the return values of the fork() system call in a Unix-like operating system?",
+      "options": [
+        "0 to the child process and a positive value (child’s PID) to the parent process",
+        "1 to the child process and 0 to the parent process",
+        "A negative value if the fork fails",
+        "Both (a) and (c)",
+        "None of the above"
+      ],
+      "answer": "Both (a) and (c)"
+    },
+    {
+      "id": 6,
+      "type": "single",
+      "question": "Convert the hexadecimal number 1B0 into its binary equivalent.",
+      "options": [
+        "000110110000",
+        "001011100000",
+        "000101110000",
+        "000110101000",
+        "000100110000"
+      ],
+      "answer": "000110110000"
+    },
+    {
+      "id": 7,
+      "type": "single",
+      "question": "Which of the following operators has the highest precedence in C++?",
+      "options": [
+        "Addition (+)",
+        "Logical AND (&&)",
+        "Multiplication (*)",
+        "Function call operator (())",
+        "Assignment (=)"
+      ],
+      "answer": "Function call operator (())"
+    },
+    {
+      "id": 8,
+      "type": "single",
+      "question": "What will be the output of the following C++ code snippet? #include <iostream> using namespace std; int main() { int a = 25, b = 14; cout << a << \" + \" << b << \" = \" << a + b; return 0; }",
+      "options": [
+        "14 + 12 = 25",
+        "14 - 0 = 14",
+        "25 + 14 = 39",
+        "Compilation Error",
+        "Syntax Error"
+      ],
+      "answer": "25 + 14 = 39"
+    },
+    {
+      "id": 9,
+      "type": "single",
+      "question": "Assuming each arithmetic and output operation takes constant time, what is the overall time complexity of the following code?    4",
+      "options": ["O(n)", "O(n²)", "O(n³)", "O(n log n)", "O(log n)"],
+      "answer": "O(n³)"
+    },
+    {
+      "id": 10,
+      "type": "single",
+      "question": "Which TCP port is traditionally assigned as the standard default port for unencrypted SMTP communication between mail servers?",
+      "options": ["80", "25", "110", "143", "465"],
+      "answer": "25"
+    },
+    {
+      "id": 11,
+      "type": "single",
+      "question": "Which data structure is most commonly used to support Last-In-First-Out (LIFO) behavior required for UNDO and REDO operations in text editors?",
+      "options": ["Queue", "Stack", "Linked List", "Heap", "Hash Table"],
+      "answer": "Stack"
+    },
+    {
+      "id": 12,
+      "type": "single",
+      "question": "What is the process of converting a grayscale or color image into a binary image containing only two possible pixel intensity values called?",
+      "options": [
+        "Binarization",
+        "Image Enhancement",
+        "Grayscale Conversion",
+        "Quantization",
+        "Segmentation"
+      ],
+      "answer": "Binarization"
+    },
+    {
+      "id": 13,
+      "type": "single",
+      "question": "Which of the following statements is TRUE regarding the COCOMO?",
+      "options": [
+        "COCOMO completely ignores cost drivers such as hardware and personnel factors.",
+        "COCOMO is mainly designed for managing Agile sprint backlogs and scrum cycles.",
+        "Intermediate COCOMO refines software effort estimation using cost drivers.",
+        "COCOMO estimates software quality using normalization and dependency analysis only.",
+        "COCOMO is primarily used for real-time packet scheduling in operating systems."
+      ],
+      "answer": "Intermediate COCOMO refines software effort estimation using cost drivers."
+    },
+    {
+      "id": 14,
+      "type": "single",
+      "question": "Which command in Linux is used to estimate and display the disk space usage of files and directories?",
+      "options": ["ls  5", "df", "du", "top", "mkdir"],
+      "answer": "du"
+    },
+    {
+      "id": 15,
+      "type": "single",
+      "question": "Which of the following statements is true regarding a Foreign Key in a relational database?",
+      "options": [
+        "A foreign key uniquely identifies every record in a table.",
+        "A foreign key is primarily used to sort records in ascending order.",
+        "A foreign key establishes a relationship between two tables using referenced values.",
+        "A foreign key must always contain only unique values.",
+        "A foreign key cannot contain duplicate or NULL values."
+      ],
+      "answer": "A foreign key establishes a relationship between two tables using referenced values."
+    },
+    {
+      "id": 16,
+      "type": "single",
+      "question": "What is the maximum file size supported by the original Macintosh Hierarchical File System (HFS)?",
+      "options": ["2 GB", "4 GB", "8 GB", "16 GB", "32 GB"],
+      "answer": "2 GB"
+    },
+    {
+      "id": 17,
+      "type": "single",
+      "question": "Which of the following is primarily classified as a high-level scripting language rather than a low-level or system programming language?",
+      "options": ["Assembly", "C", "Perl", "C++", "Machine Language"],
+      "answer": "Perl"
+    },
+    {
+      "id": 18,
+      "type": "single",
+      "question": "A software company is developing a banking application where all requirements are finalized before development begins, and client involvement after the requirement phase is minimal. The development process follows a strictly linear sequence in which each p hase must be completed before the next phase starts. Which software development model is most suitable for this project?",
+      "options": ["Agile", "Waterfall", "Spiral", "V-Model", "Prototyping"],
+      "answer": "Waterfall"
+    },
+    {
+      "id": 19,
+      "type": "single",
+      "question": "What will be the output of the following C++ program?  6 #include <iostream> #include <stack> using namespace std; void insertBottom(stack<int>& s, int x) { if (s.empty()) { s.push(x); return; } int t = s.top(); s.pop(); insertBottom(s, x); s.push(t); } void reverseStack(stack<int>& s) { if (s.empty()) return; int t = s.top(); s.pop(); reverseStack(s); insertBottom(s, t); } void printStack(stack<int> s) { while (!s.empty()) { cout << s.top() << \" \"; s.pop(); } } int main() { stack<int> s; s.push(34); s.push(25); s.push(58); s.push(96); s.push(12); reverseStack(s); cout << \"Reversed Stack: \"; printStack(s); return 0; }",
+      "options": [
+        "Reversed Stack: 12 96 58 25 34",
+        "Reversed Stack: 34 25 58 96 12",
+        "Reversed Stack: 25 34 58 96 12",
+        "Reversed Stack: 96 58 25 34 12",
+        "Compilation Error  7"
+      ],
+      "answer": "Reversed Stack: 34 25 58 96 12"
+    },
+    {
+      "id": 20,
+      "type": "single",
+      "question": "Consider the following processes, all arriving at time 0, with their respective burst times: Process Burst Time (ms) P1 6 P2 8 P3 7 P4 3 Using Non-Preemptive Shortest Job First (SJF) scheduling, calculate the average waiting time.",
+      "options": ["7.0 ms", "5.5 ms", "6.25 ms", "5.0 ms", "6.0 ms"],
+      "answer": "7.0 ms"
+    },
+    {
+      "id": 21,
+      "type": "single",
+      "question": "If two attributes, P and Q, satisfy the functional dependencies P → Q and Q → P, then they exhibit:",
+      "options": [
+        "Partial Dependency",
+        "Full Functional Dependency",
+        "Transitive Dependency",
+        "Multivalued Dependency",
+        "Mutual Functional Dependency"
+      ],
+      "answer": "Mutual Functional Dependency"
+    },
+    {
+      "id": 22,
+      "type": "single",
+      "question": "Which primary function of a hypervisor (Virtual Machine Manager) involves ensuring efficient distribution and management of CPU, memory, and storage resources among virtual machines?",
+      "options": [
+        "Virtual Machine Isolation",
+        "Hardware Emulation",
+        "Resource Allocation",
+        "Network Virtualization",
+        "Snapshot Management"
+      ],
+      "answer": "Resource Allocation"
+    },
+    {
+      "id": 23,
+      "type": "single",
+      "question": "In an operating system, where are newly submitted processes typically stored before they are admitted into main memory for execution?",
+      "options": [
+        "Job Pool",
+        "Process Table",
+        "Ready Queue",
+        "Cache Memory",
+        "Stack"
+      ],
+      "answer": "Job Pool"
+    },
+    {
+      "id": 24,
+      "type": "single",
+      "question": "Which SQL operator is used to filter rows by checking whether a value matches any value in a specified list?  8",
+      "options": ["BETWEEN", "IN", "LIKE", "EXISTS", "DISTINCT"],
+      "answer": "IN"
+    },
+    {
+      "id": 25,
+      "type": "single",
+      "question": "Which of the following statements regarding mutual exclusion in operating systems is false?",
+      "options": [
+        "No two processes can execute in their critical sections simultaneously.",
+        "Multiple processes can safely access a shared critical resource simultaneously without synchronization.",
+        "Processes outside the critical section should not interfere with processes inside the critical section.",
+        "Mutual exclusion helps prevent race conditions during shared resource access.",
+        "Only one process is allowed to access a critical resource at a time."
+      ],
+      "answer": "Multiple processes can safely access a shared critical resource simultaneously without synchronization."
+    },
+    {
+      "id": 26,
+      "type": "single",
+      "question": "According to Fitts's Law, what factor significantly affects the time required to move a cursor to a target on the screen?",
+      "options": [
+        "The color of the target",
+        "The size of the cursor",
+        "The distance to the target and the size of the target",
+        "The screen resolution",
+        "The type of input device used"
+      ],
+      "answer": "The distance to the target and the size of the target"
+    },
+    {
+      "id": 27,
+      "type": "single",
+      "question": "Which of the following is the most fundamental benefit provided by inheritance in object -oriented programming?",
+      "options": [
+        "Faster execution of programs",
+        "Enhanced code readability",
+        "Increased code reusability",
+        "Simplified debugging process",
+        "Improved memory management"
+      ],
+      "answer": "Increased code reusability"
+    },
+    {
+      "id": 28,
+      "type": "single",
+      "question": "Which of the following best describes the function of the z-index property in CSS?",
+      "options": [
+        "It determines the horizontal position of an element.",
+        "It specifies the vertical position of an element.",
+        "It controls the stacking order of elements along the z-axis.",
+        "It adjusts the opacity of an element.",
+        "It sets the font size of an element."
+      ],
+      "answer": "It controls the stacking order of elements along the z-axis."
+    },
+    {
+      "id": 29,
+      "type": "single",
+      "question": "Which of the following is an aggregate function in SQL?",
+      "options": ["CONCAT()", "AVG()  9", "SUBSTRING()", "LENGTH()", "NOW()"],
+      "answer": "AVG()  9"
+    },
+    {
+      "id": 30,
+      "type": "single",
+      "question": "Which of the following statements regarding Super Key and Primary Key is incorrect?",
+      "options": [
+        "Every primary key is a super key.",
+        "A super key may contain additional attributes not required for unique identification.",
+        "A table can have multiple super keys.",
+        "Every super key is selected as the primary key of a table.",
+        "A primary key uniquely identifies each record in a table."
+      ],
+      "answer": "Every super key is selected as the primary key of a table."
+    },
+    {
+      "id": 31,
+      "type": "single",
+      "question": "Which of the following is a valid use of the netsh command in Windows?",
+      "options": [
+        "To modify network interface settings.",
+        "To create a new directory.",
+        "To open the Task Manager.",
+        "To install a software application.",
+        "To check the system temperature."
+      ],
+      "answer": "To modify network interface settings."
+    },
+    {
+      "id": 32,
+      "type": "single",
+      "question": "Consider the following Java code snippet:  What will be the output of the program?",
+      "options": [
+        "Length of the string : 19",
+        "Length of the string : 13",
+        "Length of the string : 17",
+        "Length of the string : 9",
+        "Compilation Error"
+      ],
+      "answer": "Length of the string : 9"
+    },
+    {
+      "id": 33,
+      "type": "single",
+      "question": "Which type of DDoS attack uses spoofed ICMP echo requests sent to broadcast addresses, causing multiple systems to flood the victim with ICMP reply packets?",
+      "options": [
+        "SYN Flood",
+        "Ping of Death   10",
+        "Smurf Attack",
+        "DNS Amplification",
+        "UDP Flood"
+      ],
+      "answer": "Smurf Attack"
+    },
+    {
+      "id": 34,
+      "type": "single",
+      "question": "Which of the following statements regarding the #define directive in C is incorrect?",
+      "options": [
+        "#define can be used to create symbolic constants.",
+        "#define can define function-like macros with parameters.",
+        "Macros created using #define are expanded by the preprocessor before compilation.",
+        "#define can be used to create multi-line macros using the backslash () continuation character.",
+        "#define macros provide automatic type checking similar to C functions."
+      ],
+      "answer": "#define macros provide automatic type checking similar to C functions."
+    },
+    {
+      "id": 35,
+      "type": "single",
+      "question": "Which of the following commands in Linux is primarily used for network scanning and security auditing?",
+      "options": ["netset", "tcpdump", "ifconfig", "nmap", "traceroute"],
+      "answer": "nmap"
+    },
+    {
+      "id": 36,
+      "type": "single",
+      "question": "In MongoDB, which feature is particularly useful for ensuring data availability and reliability in case of hardware failure or network issues?",
+      "options": [
+        "Sharding",
+        "Indexing",
+        "Replication",
+        "Aggregation",
+        "Caching"
+      ],
+      "answer": "Replication"
+    },
+    {
+      "id": 37,
+      "type": "single",
+      "question": "Identify the local link address from the following IPv6 addresses:",
+      "options": [
+        "2001:0db8:abcd:0012:0000:0000:0000:0001",
+        "FE80:0000:0000:0000:0202:B3FF:FE1E:8329",
+        "FF02:0000:0000:0000:0000:0000:0000:0001",
+        "::1",
+        "2001:4860:4860::8888"
+      ],
+      "answer": "FE80:0000:0000:0000:0202:B3FF:FE1E:8329"
+    },
+    {
+      "id": 38,
+      "type": "single",
+      "question": "If set A has 4 elements and set B has 5 elements, then find the total number of elements in the Cartesian product A×B:",
+      "options": ["9", "45", "20  11", "54", "None of the above"],
+      "answer": "20  11"
+    },
+    {
+      "id": 39,
+      "type": "single",
+      "question": "Salesforce CRM is an example of which cloud service model?",
+      "options": [
+        "Infrastructure as a Service (IaaS)",
+        "Platform as a Service (PaaS)",
+        "Software as a Service (SaaS)",
+        "Database Management System (DBMS)",
+        "None of the above"
+      ],
+      "answer": "Software as a Service (SaaS)"
+    },
+    {
+      "id": 40,
+      "type": "single",
+      "question": "How is the salting technique used in hashing for enhanced security?",
+      "options": [
+        "It converts plain text into hashed text using the MD5 algorithm without adding any extra data.",
+        "It adds a random value to the input data before hashing to make each hash unique.",
+        "It encrypts the hashed data using a symmetric encryption algorithm.",
+        "It stores the hash directly without any modification or additional data.",
+        "It compresses the hash to reduce storage space."
+      ],
+      "answer": "It adds a random value to the input data before hashing to make each hash unique."
+    },
+    {
+      "id": 41,
+      "type": "single",
+      "question": "If you are unable to connect to a website despite having a working internet connection, which of the following is most likely the reason?",
+      "options": [
+        "DNS server is down or misconfigured",
+        "The website’s IP address has changed recently",
+        "Browser cache is not cleared",
+        "Incorrect firewall settings",
+        "Outdated operating system"
+      ],
+      "answer": "DNS server is down or misconfigured"
+    },
+    {
+      "id": 42,
+      "type": "single",
+      "question": "What happens during a cache hit in a computer system?",
+      "options": [
+        "Data is transferred directly to the hard drive",
+        "Data is fetched from main memory into the cache",
+        "Requested data is retrieved directly from the cache memory",
+        "Data is permanently stored in the cache",
+        "The cache memory is cleared"
+      ],
+      "answer": "Requested data is retrieved directly from the cache memory"
+    },
+    {
+      "id": 43,
+      "type": "single",
+      "question": "Which of the following Excel formulas performs a calculation only when cell A1 contains a value-type entry, and otherwise returns 0?",
+      "options": [
+        "=IF(CELL(\"contents\",A1)=\"v\",A1*2,0)",
+        "=IF(CELL(\"format\",A1)=\"v\",A1*2,0)",
+        "=IF(CELL(\"type\",A1)=\"v\",A1*2,0)",
+        "=IF(CELL(\"address\",A1)=\"v\",A1*2,0)",
+        "=IF(CELL(\"col\",A1)=\"v\",A1*2,0)  12"
+      ],
+      "answer": "=IF(CELL(\"type\",A1)=\"v\",A1*2,0)"
+    },
+    {
+      "id": 44,
+      "type": "single",
+      "question": "Which of the following is a condition that occurs in computer systems when the system spends more time in swapping data between RAM and the hard drive than executing actual tasks?",
+      "options": [
+        "Deadlock",
+        "Thrashing",
+        "Starvation",
+        "Fragmentation",
+        "Bottleneck"
+      ],
+      "answer": "Thrashing"
+    },
+    {
+      "id": 45,
+      "type": "single",
+      "question": "Under standard DBMS transaction theory used in basic SQL classification, which of the following commands is generally rollback-able before COMMIT?",
+      "options": ["SELECT", "COMMIT", "DELETE", "CREATE", "ALTER"],
+      "answer": "DELETE"
+    },
+    {
+      "id": 46,
+      "type": "single",
+      "question": "What is the tcpdump command in Linux used for?",
+      "options": [
+        "To capture and analyze network packets.",
+        "To display disk usage statistics.",
+        "To monitor CPU and memory usage.",
+        "To manage user accounts.",
+        "To create and manage cron jobs."
+      ],
+      "answer": "To capture and analyze network packets."
+    },
+    {
+      "id": 47,
+      "type": "single",
+      "question": "In a relational database, which term represents a missing, unknown, or unavailable attribute value?",
+      "options": [
+        "Empty table",
+        "Derived value",
+        "Null value",
+        "Default value",
+        "Zero value"
+      ],
+      "answer": "Null value"
+    },
+    {
+      "id": 48,
+      "type": "single",
+      "question": "Consider the following C code snippet:  13  What is the purpose of the feof(file) function call in this program?",
+      "options": [
+        "To read the next character from the file stream",
+        "To determine whether the end-of-file indicator for the file stream has been set",
+        "To close the file after all characters are read",
+        "To move the file pointer to the beginning of the file",
+        "To open the file in read mode"
+      ],
+      "answer": "To determine whether the end-of-file indicator for the file stream has been set"
+    },
+    {
+      "id": 49,
+      "type": "single",
+      "question": "A Class B network with default mask /16 is subnetted using the mask /20. Assuming modern subnetting rules where subnet-zero is allowed, how many subnets are created?",
+      "options": ["8", "16", "32", "64", "256"],
+      "answer": "16"
+    },
+    {
+      "id": 50,
+      "type": "single",
+      "question": "Which feature of an L2 switch allows network administrators to segment a network into multiple broadcast domains, each behaving like a separate network?",
+      "options": [
+        "Spanning Tree Protocol (STP)",
+        "Port Mirroring",
+        "VLAN (Virtual Local Area Network)",
+        "Link Aggregation",
+        "QoS (Quality of Service)"
+      ],
+      "answer": "VLAN (Virtual Local Area Network)"
+    },
+    {
+      "id": 51,
+      "type": "single",
+      "question": "Which of the following RF connectors is commonly used with coaxial cables for high-frequency signal transmission?",
+      "options": ["BNC", "HDMI", "RJ45", "DVI", "PS/2"],
+      "answer": "BNC"
+    },
+    {
+      "id": 52,
+      "type": "single",
+      "question": "A repeater works at which of the following layers in the OSI model?",
+      "options": [
+        "Physical Layer",
+        "Data Link Layer",
+        "Network Layer",
+        "Transport Layer",
+        "Application Layer"
+      ],
+      "answer": "Physical Layer"
+    },
+    {
+      "id": 53,
+      "type": "single",
+      "question": "Which statement correctly describes the functionality of the var_dump() function in PHP?",
+      "options": [
+        "It assigns default values to one or more variables during execution.",
+        "It dumps information about one or more variables, including their type and value.",
+        "It formats and logs error messages for debugging purposes.",
+        "It creates a new variable and sets its data type automatically.",
+        "It initializes arrays and objects for further processing."
+      ],
+      "answer": "It dumps information about one or more variables, including their type and value."
+    },
+    {
+      "id": 54,
+      "type": "single",
+      "question": "Which of the following functions is not declared in <stdio.h>?",
+      "options": ["printf()", "scanf()", "fopen()", "sqrt()", "fprintf()"],
+      "answer": "sqrt()"
+    },
+    {
+      "id": 55,
+      "type": "single",
+      "question": "Which sorting algorithm has a worst-case time complexity of O(n2)?",
+      "options": [
+        "Merge Sort  15",
+        "Radix Sort",
+        "Bubble Sort",
+        "Heap Sort",
+        "None of the above"
+      ],
+      "answer": "Bubble Sort"
+    },
+    {
+      "id": 56,
+      "type": "single",
+      "question": "What is the maximum number of elements present simultaneously in the operand stack while evaluating the postfix expression: 6 2 3 + - 3 8 2 / + *",
+      "options": ["1", "2", "3", "4", "None of the above"],
+      "answer": "4"
+    },
+    {
+      "id": 57,
+      "type": "single",
+      "question": "Which of the following algorithms is not used for finding a Minimum Spanning Tree ?",
+      "options": [
+        "Kruskal's Algorithm",
+        "Prim's Algorithm",
+        "Boru vka's Algorithm",
+        "Bellman-Ford Algorithm",
+        "Reverse-Delete Algorithm"
+      ],
+      "answer": "Bellman-Ford Algorithm"
+    },
+    {
+      "id": 58,
+      "type": "single",
+      "question": "Which ACID property ensures that a transaction brings the database from one valid state to another, maintaining all predefined rules?",
+      "options": [
+        "Atomicity",
+        "Consistency",
+        "Isolation",
+        "Durability",
+        "None of the above"
+      ],
+      "answer": "Consistency"
+    },
+    {
+      "id": 59,
+      "type": "single",
+      "question": "Which schema model is widely used in traditional data warehouse design for organizing fact tables and dimension tables?",
+      "options": [
+        "Star schema",
+        "Mesh schema",
+        "Hierarchical schema",
+        "Graph schema",
+        "None of the above"
+      ],
+      "answer": "Star schema"
+    },
+    {
+      "id": 60,
+      "type": "single",
+      "question": "Which authorization framework is commonly used in modern web applications to enable token-based access and is often integrated into Single Sign-On (SSO) systems?   16",
+      "options": [
+        "Secure Sockets Layer",
+        "Kerberos",
+        "OAuth 2.0",
+        "Lightweight Directory Access Protocol",
+        "Transport Layer Security"
+      ],
+      "answer": "OAuth 2.0"
+    }
+  ]
+}

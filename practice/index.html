@@ -1,0 +1,1184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Quiz App v2.2</title>
+    <!-- Tailwind CDN with Typography Plugin for Markdown styling -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body class="bg-slate-950 text-slate-200 font-sans min-h-screen flex flex-col items-center justify-center p-4 relative overflow-x-hidden select-none">
+    
+    <!-- Ambient Background -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-0 left-1/4 -translate-x-1/2 -translate-y-1/4 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px]"></div>
+      <div class="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[100px]"></div>
+      <div class="absolute top-1/2 right-0 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[120px]"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl shadow-2xl shadow-black/50 w-full max-w-5xl overflow-hidden p-6 md:p-8 z-10 relative min-h-[600px] flex flex-col transition-all duration-500">
+
+      <!-- DASHBOARD SECTION -->
+      <div id="dashboard-section" class="hidden flex-col w-full flex-1">
+        
+        <!-- Header & Stats -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+          <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Welcome back</h1>
+            <p class="text-xs text-slate-400 mt-1">Here is your learning progress and saved quizzes.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btn-settings" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all border border-slate-700 hover:border-slate-500 shadow-md flex items-center justify-center" title="Settings & Data">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+            <button id="btn-show-upload" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:-translate-y-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Upload Quiz
+            </button>
+          </div>
+        </div>
+
+        <!-- Analytics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <!-- Stat: Total Questions -->
+          <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 flex items-center gap-4 relative overflow-hidden group">
+            <div class="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-colors"></div>
+            <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-medium uppercase tracking-wider mb-0.5">Total Answered</p>
+              <h3 class="text-2xl font-bold text-white leading-none" id="stat-total-q">0</h3>
+            </div>
+          </div>
+          
+          <!-- Stat: Accuracy -->
+          <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 flex items-center gap-4 relative overflow-hidden group">
+             <div class="absolute -right-6 -top-6 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors"></div>
+            <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-medium uppercase tracking-wider mb-0.5">Avg. Accuracy</p>
+              <h3 class="text-2xl font-bold text-white leading-none"><span id="stat-accuracy">0</span>%</h3>
+            </div>
+          </div>
+
+          <!-- Stat: Daily Growth -->
+          <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 flex items-center justify-between relative overflow-hidden group">
+             <div class="absolute -right-6 -top-6 w-20 h-20 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-colors"></div>
+            <div class="flex gap-4 items-center z-10">
+              <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              </div>
+              <div>
+                <p class="text-slate-400 text-[10px] font-medium uppercase tracking-wider mb-0.5">Today</p>
+                <h3 class="text-2xl font-bold text-white leading-none"><span id="stat-today">0</span> <span class="text-xs font-normal text-slate-500">Qs</span></h3>
+              </div>
+            </div>
+            <!-- Mini 7 Day Chart -->
+            <div class="flex items-end gap-1 h-8 z-10" id="activity-chart">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800/80">
+          <h2 class="text-base font-medium text-slate-300">Your Quizzes</h2>
+        </div>
+        
+        <!-- Grid for Quiz Cards -->
+        <div id="quiz-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Cards injected via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-dashboard" class="hidden flex-col items-center justify-center py-12 text-center h-full flex-1 bg-slate-900/30 rounded-2xl border border-dashed border-slate-700/50">
+          <div class="w-16 h-16 bg-slate-800/80 rounded-2xl flex items-center justify-center mb-4 text-slate-500 shadow-inner shadow-black/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">No quizzes found</h3>
+          <p class="text-xs text-slate-400 max-w-sm mb-6">We couldn't find any default quizzes. Upload your own to get started.</p>
+          <button id="btn-empty-upload" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-900/20 hover:-translate-y-0.5">
+            Upload Your First Quiz
+          </button>
+        </div>
+      </div>
+
+      <!-- SETTINGS MODAL OVERLAY -->
+      <div id="settings-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 w-full max-w-sm shadow-2xl relative">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              Settings & Data
+            </h2>
+            <button id="btn-close-settings" class="text-slate-500 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <p class="text-xs text-slate-400 mb-2 uppercase font-medium tracking-wider">Backup Data</p>
+              <div class="flex gap-2">
+                <button id="btn-export-data" class="flex-1 p-3 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl text-sm font-medium hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Export
+                </button>
+                <input type="file" id="import-file" class="hidden" accept=".json">
+                <label for="import-file" class="flex-1 p-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-sm font-medium hover:bg-emerald-500/20 transition-colors cursor-pointer flex items-center justify-center gap-2 text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  Import
+                </label>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800">
+              <p class="text-xs text-red-400/80 mb-2 uppercase font-medium tracking-wider">Danger Zone</p>
+              <button id="btn-reset-data" class="w-full p-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-sm font-medium hover:bg-red-500/20 hover:text-red-300 transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                Reset All Progress & Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPLOAD SECTION -->
+      <div id="upload-section" class="hidden flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-slate-700/70 rounded-3xl bg-slate-900/40 hover:border-blue-500/50 transition-colors flex-1 mt-4 group">
+        <div class="p-5 bg-slate-800 rounded-full mb-5 group-hover:scale-110 group-hover:bg-blue-900/30 group-hover:text-blue-400 transition-all duration-300 shadow-xl text-slate-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-2">Upload Quiz Data</h2>
+        <p class="text-sm text-slate-400 mb-6 text-center max-w-sm">Select a valid JSON file containing your quiz questions, options, and answers format.</p>
+        <input type="file" id="file-input" accept=".json" class="hidden" />
+        <div class="flex gap-3">
+          <button id="btn-cancel-upload" class="hidden px-6 py-3 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-700 transition-all hover:-translate-y-0.5">Cancel</button>
+          <label for="file-input" class="px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl cursor-pointer hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/30 hover:-translate-y-0.5">Select JSON File</label>
+        </div>
+        <div id="upload-error" class="text-red-400 text-xs mt-6 hidden bg-red-500/10 border border-red-500/30 px-4 py-2 rounded-xl flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span id="upload-error-msg">Error parsing file.</span>
+        </div>
+      </div>
+
+      <!-- MODE SELECTION -->
+      <div id="mode-section" class="hidden flex flex-col items-center text-center py-8 flex-1">
+        <div class="w-full flex justify-start mb-6">
+          <button id="btn-back-from-modes" class="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-medium transition-colors bg-slate-800/50 px-3 py-1.5 rounded-lg hover:bg-slate-700/50 border border-slate-700/50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back
+          </button>
+        </div>
+        <div class="space-y-2 mb-8">
+          <div class="inline-flex items-center justify-center p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          </div>
+          <h1 id="quiz-title" class="text-2xl font-bold tracking-tight text-white"></h1>
+          <p id="quiz-desc" class="text-sm text-slate-400 max-w-lg mx-auto"></p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+          <button id="btn-practice" class="group flex flex-col items-center p-6 bg-slate-800/40 border border-slate-700/50 rounded-3xl hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-left relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors"></div>
+            <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1.5">Practice Mode</h3>
+            <p class="text-xs text-slate-400 text-center leading-relaxed">Learn at your own pace. See correct answers immediately after answering each question.</p>
+          </button>
+          
+          <button id="btn-quiz" class="group flex flex-col items-center p-6 bg-slate-800/40 border border-slate-700/50 rounded-3xl hover:border-blue-500/50 hover:bg-blue-500/5 transition-all text-left relative overflow-hidden">
+             <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-colors"></div>
+            <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1.5">Quiz Mode</h3>
+            <p class="text-xs text-slate-400 text-center leading-relaxed">Test your knowledge. Take the full quiz and see your final score and stats at the end.</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- PRACTICE SETUP SECTION -->
+      <div id="practice-setup-section" class="hidden flex flex-col items-center justify-center text-center space-y-6 py-10 flex-1">
+        <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 mb-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-1">Practice Setup</h2>
+          <p class="text-sm text-slate-400">How many questions would you like to practice today?</p>
+        </div>
+        <div class="flex flex-col items-center gap-3 bg-slate-800/40 p-6 rounded-3xl border border-slate-700/50 w-full max-w-sm">
+          <div class="flex items-end gap-3 text-2xl">
+            <input type="number" id="practice-num-questions" min="1" value="10" class="w-24 bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-xl" />
+            <span class="text-lg text-slate-500 font-mono mb-2" id="practice-max-questions">/ 10</span>
+          </div>
+          <button id="btn-practice-all" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium py-1.5 px-3 rounded-lg hover:bg-emerald-500/10">Select All Questions</button>
+        </div>
+        <div class="flex gap-3 w-full max-w-sm mt-2">
+          <button id="btn-cancel-practice" class="flex-1 px-5 py-3 bg-slate-800 text-slate-300 border border-slate-700 rounded-xl hover:bg-slate-700 transition text-sm font-semibold">Cancel</button>
+          <button id="btn-start-practice" class="flex-1 px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all shadow-lg shadow-emerald-900/30 text-sm font-semibold hover:-translate-y-0.5">Start Session</button>
+        </div>
+      </div>
+
+      <!-- QUIZ SECTION -->
+      <div id="quiz-section" class="hidden flex flex-col space-y-5 flex-1">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button id="btn-exit-quiz" class="text-slate-400 hover:text-white flex items-center gap-1.5 text-xs font-medium transition-colors bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Exit
+            </button>
+            <button id="btn-finish-early" class="hidden text-blue-400 hover:text-white flex items-center gap-1.5 text-xs font-medium transition-colors bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/30 hover:bg-blue-500/20" title="Submit current progress and finish">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg> Finish Early
+            </button>
+          </div>
+          
+          <div id="practice-stats" class="hidden flex items-center gap-4 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800">
+             <div class="flex items-center gap-1.5">
+               <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+               <span class="text-[10px] text-slate-400 uppercase font-medium">Correct</span>
+               <span class="text-xs font-bold text-emerald-400" id="stat-correct">0</span>
+             </div>
+             <div class="w-px h-4 bg-slate-700"></div>
+             <div class="flex items-center gap-1.5">
+               <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+               <span class="text-[10px] text-slate-400 uppercase font-medium">Wrong</span>
+               <span class="text-xs font-bold text-red-400" id="stat-wrong">0</span>
+             </div>
+          </div>
+
+          <span id="mode-badge" class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm"></span>
+        </div>
+
+        <div class="space-y-4 pt-1">
+          <div class="flex items-center gap-3">
+            <div class="h-1.5 flex-1 bg-slate-800 rounded-full overflow-hidden shadow-inner">
+              <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-500 ease-out" style="width: 10%"></div>
+            </div>
+            <span id="progress-text" class="text-slate-400 text-xs font-mono font-medium min-w-[3.5rem] text-right"></span>
+          </div>
+
+          <div class="bg-slate-800/30 p-5 md:p-6 rounded-2xl border border-slate-700/50 min-h-[100px] flex items-center justify-center shadow-inner relative group">
+            <button id="btn-copy-question" class="absolute top-3 right-3 p-2 bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors border border-slate-700 shadow-sm" title="Copy Question & Options">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+            <div id="question-text" class="prose prose-invert max-w-none w-full pt-4"></div>
+          </div>
+        </div>
+
+        <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+          <!-- Options rendered dynamically -->
+        </div>
+
+        <!-- Submit Multi-Choice container (hidden by default) -->
+        <div id="multi-submit-container" class="hidden flex justify-end mt-4">
+            <button id="btn-submit-multi" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all shadow-lg shadow-emerald-600/30 text-sm font-semibold hover:-translate-y-0.5">Check Answer</button>
+        </div>
+
+        <div class="mt-auto flex justify-between items-center pt-6 border-t border-slate-800">
+          <button id="btn-prev-question" class="hidden px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors flex items-center gap-2 text-sm font-medium border border-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Previous</button>
+          <button id="next-btn" class="hidden px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 text-sm font-semibold ml-auto hover:-translate-y-0.5">Next Question <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </div>
+
+      <!-- RESULT SECTION -->
+      <div id="result-section" class="hidden flex flex-col items-center justify-center text-center py-8 space-y-6 flex-1">
+        <div class="space-y-3 w-full max-w-xl">
+          <div class="inline-flex items-center justify-center p-3 bg-yellow-500/10 text-yellow-500 rounded-full mb-1 shadow-lg shadow-yellow-500/20">
+             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tight text-white">Quiz Completed!</h2>
+          <p class="text-sm text-slate-400">Your results have been saved to your dashboard.</p>
+          
+          <div id="score-text" class="p-8 bg-slate-900/60 border border-slate-700/50 rounded-3xl shadow-2xl mt-6 relative overflow-hidden">
+            <!-- Ambient glow behind score -->
+            <div id="score-glow" class="absolute inset-0 bg-blue-500/5 blur-2xl rounded-full"></div>
+            <!-- Score rendered dynamically -->
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 w-full max-w-sm mt-6">
+          <button id="btn-restart" class="flex-1 px-5 py-3 bg-slate-800 text-slate-300 border border-slate-700 text-sm font-medium rounded-xl hover:bg-slate-700 transition">Retake Quiz</button>
+          <button id="btn-back-to-dashboard" class="flex-1 px-5 py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-500 transition shadow-lg shadow-blue-900/30 hover:-translate-y-0.5">Dashboard</button>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      // --- State Variables ---
+      let savedQuizzes = []; // Uploaded quizzes (persisted to localStorage)
+      let defaultQuizzes = []; // Quizzes fetched from ./json-data/ (NOT saved to localStorage)
+      
+      let activeQuizId = null;
+      let activeQuestions = [];
+      let currentQuestionIndex = 0;
+      let currentMode = 'quiz';
+      let userAnswers = []; // Arrays of answers. Will hold null until answered.
+      let optionButtons = [];
+      let hasAnsweredCurrent = false;
+
+      // User Stats State
+      let userStats = {
+          totalAnswered: 0,
+          totalCorrect: 0,
+          dailyActivity: {} // format: 'YYYY-MM-DD': count
+      };
+
+      // --- DOM Elements ---
+      const dashboardSection = document.getElementById('dashboard-section');
+      const uploadSection = document.getElementById('upload-section');
+      const modeSection = document.getElementById('mode-section');
+      const quizSection = document.getElementById('quiz-section');
+      const resultSection = document.getElementById('result-section');
+      const practiceSetupSection = document.getElementById('practice-setup-section');
+      const settingsModal = document.getElementById('settings-modal');
+
+      const quizGrid = document.getElementById('quiz-grid');
+      const emptyDashboard = document.getElementById('empty-dashboard');
+      const btnShowUpload = document.getElementById('btn-show-upload');
+      const btnEmptyUpload = document.getElementById('btn-empty-upload');
+      const btnCancelUpload = document.getElementById('btn-cancel-upload');
+      const fileInput = document.getElementById('file-input');
+      const uploadError = document.getElementById('upload-error');
+      const uploadErrorMsg = document.getElementById('upload-error-msg');
+
+      const btnSettings = document.getElementById('btn-settings');
+      const btnCloseSettings = document.getElementById('btn-close-settings');
+      const btnResetData = document.getElementById('btn-reset-data');
+      const btnExportData = document.getElementById('btn-export-data');
+      const importFile = document.getElementById('import-file');
+
+      const quizTitleEl = document.getElementById('quiz-title');
+      const quizDescEl = document.getElementById('quiz-desc');
+      const btnPractice = document.getElementById('btn-practice');
+      const btnQuiz = document.getElementById('btn-quiz');
+      const btnBackFromModes = document.getElementById('btn-back-from-modes');
+
+      const progressText = document.getElementById('progress-text');
+      const progressBar = document.getElementById('progress-bar');
+      const modeBadge = document.getElementById('mode-badge');
+      const questionText = document.getElementById('question-text');
+      const optionsContainer = document.getElementById('options-container');
+      const nextBtn = document.getElementById('next-btn');
+      const btnPrevQuestion = document.getElementById('btn-prev-question');
+      const btnExitQuiz = document.getElementById('btn-exit-quiz');
+      const btnFinishEarly = document.getElementById('btn-finish-early');
+      const btnCopyQuestion = document.getElementById('btn-copy-question');
+      const multiSubmitContainer = document.getElementById('multi-submit-container');
+      const btnSubmitMulti = document.getElementById('btn-submit-multi');
+
+      const practiceNumQuestions = document.getElementById('practice-num-questions');
+      const practiceMaxQuestions = document.getElementById('practice-max-questions');
+      const btnCancelPractice = document.getElementById('btn-cancel-practice');
+      const btnStartPractice = document.getElementById('btn-start-practice');
+      const btnPracticeAll = document.getElementById('btn-practice-all');
+      const practiceStats = document.getElementById('practice-stats');
+      const statCorrect = document.getElementById('stat-correct');
+      const statWrong = document.getElementById('stat-wrong');
+      
+      const scoreText = document.getElementById('score-text');
+      const scoreGlow = document.getElementById('score-glow');
+      const btnRestart = document.getElementById('btn-restart');
+      const btnBackToDashboard = document.getElementById('btn-back-to-dashboard');
+
+      // Dashboard Stat Elements
+      const statTotalQEl = document.getElementById('stat-total-q');
+      const statAccuracyEl = document.getElementById('stat-accuracy');
+      const statTodayEl = document.getElementById('stat-today');
+      const activityChartEl = document.getElementById('activity-chart');
+
+      // --- Core Functions & Data ---
+
+      function hideAll() {
+        dashboardSection.classList.add('hidden');
+        dashboardSection.classList.remove('flex');
+        uploadSection.classList.add('hidden');
+        uploadSection.classList.remove('flex');
+        modeSection.classList.add('hidden');
+        practiceSetupSection.classList.add('hidden');
+        quizSection.classList.add('hidden');
+        resultSection.classList.add('hidden');
+      }
+
+      function getAllQuizzes() {
+          return [...defaultQuizzes, ...savedQuizzes];
+      }
+
+      async function loadDefaultsFromFolder() {
+        try {
+          const response = await fetch('./json-data/manifest.json');
+          if (response.ok) {
+             const manifest = await response.json();
+             const filesToLoad = Array.isArray(manifest) ? manifest : (manifest.files || []);
+             const fetchedQuizzes = [];
+             for (const file of filesToLoad) {
+                const quizRes = await fetch(`./json-data/${file}`);
+                if (quizRes.ok) {
+                   const quiz = await quizRes.json();
+                   quiz.id = quiz.id || 'folder-' + Math.random().toString(36).substr(2, 9);
+                   quiz.isDefault = true; // Mark as default so it can't be deleted in UI
+                   fetchedQuizzes.push(quiz);
+                }
+             }
+             return fetchedQuizzes;
+          }
+        } catch (e) {
+          console.warn("Could not load defaults from ./json-data/ folder (CORS error or folder doesn't exist). Make sure you run on a local web server.");
+        }
+        return [];
+      }
+
+      async function loadData() {
+        // Load Stats first
+        const storedStats = localStorage.getItem('userQuizStats');
+        if (storedStats) {
+            try {
+                userStats = JSON.parse(storedStats);
+                if (!userStats.dailyActivity) userStats.dailyActivity = {};
+            } catch (e) {}
+        }
+
+        // Load Uploaded Quizzes
+        const storedQuizzes = localStorage.getItem('savedQuizzes');
+        if (storedQuizzes) {
+          try {
+            savedQuizzes = JSON.parse(storedQuizzes);
+          } catch (e) {
+            savedQuizzes = [];
+          }
+        } 
+        
+        // Always try fetching defaults on load (not saving them to localstorage)
+        defaultQuizzes = await loadDefaultsFromFolder();
+      }
+
+      function saveData() {
+        // Only save manually uploaded quizzes and stats
+        localStorage.setItem('savedQuizzes', JSON.stringify(savedQuizzes));
+        localStorage.setItem('userQuizStats', JSON.stringify(userStats));
+      }
+
+      function saveActiveSession() {
+          const sessionData = {
+              activeQuizId,
+              activeQuestions,
+              currentQuestionIndex,
+              currentMode,
+              userAnswers,
+              hasAnsweredCurrent
+          };
+          localStorage.setItem('activeQuizSession', JSON.stringify(sessionData));
+      }
+
+      function clearActiveSession() {
+          localStorage.removeItem('activeQuizSession');
+      }
+
+      function restoreActiveSession() {
+          const sessionStr = localStorage.getItem('activeQuizSession');
+          if (sessionStr) {
+              try {
+                  const sessionData = JSON.parse(sessionStr);
+                  activeQuizId = sessionData.activeQuizId;
+                  activeQuestions = sessionData.activeQuestions;
+                  currentQuestionIndex = sessionData.currentQuestionIndex;
+                  currentMode = sessionData.currentMode;
+                  userAnswers = sessionData.userAnswers;
+                  hasAnsweredCurrent = sessionData.hasAnsweredCurrent;
+                  
+                  if (activeQuestions && activeQuestions.length > 0) {
+                      return true;
+                  }
+              } catch(e) {
+                  clearActiveSession();
+              }
+          }
+          return false;
+      }
+
+      function getTodayDateString() {
+          return new Date().toISOString().split('T')[0];
+      }
+
+      function updateStatsUI() {
+          // Total Answered
+          statTotalQEl.textContent = userStats.totalAnswered.toLocaleString();
+
+          // Accuracy
+          let accuracy = 0;
+          if (userStats.totalAnswered > 0) {
+              accuracy = Math.round((userStats.totalCorrect / userStats.totalAnswered) * 100);
+          }
+          statAccuracyEl.textContent = accuracy;
+
+          // Today
+          const todayStr = getTodayDateString();
+          const todayCount = userStats.dailyActivity[todayStr] || 0;
+          statTodayEl.textContent = todayCount;
+
+          // 7 Day Chart
+          activityChartEl.innerHTML = '';
+          const maxCount = Math.max(...Object.values(userStats.dailyActivity), 10); 
+          
+          for (let i = 6; i >= 0; i--) {
+              const d = new Date();
+              d.setDate(d.getDate() - i);
+              const dateStr = d.toISOString().split('T')[0];
+              const count = userStats.dailyActivity[dateStr] || 0;
+              
+              const heightPct = Math.max((count / maxCount) * 100, 10);
+              
+              const bar = document.createElement('div');
+              bar.className = `w-1 rounded-t-sm transition-all duration-500 ${i === 0 ? 'bg-indigo-400' : 'bg-slate-700'}`;
+              bar.style.height = `${heightPct}%`;
+              bar.title = `${dateStr}: ${count} questions`;
+              activityChartEl.appendChild(bar);
+          }
+      }
+
+      function renderDashboard() {
+        hideAll();
+        updateStatsUI();
+        dashboardSection.classList.remove('hidden');
+        dashboardSection.classList.add('flex');
+        
+        quizGrid.innerHTML = '';
+        
+        const allQuizzes = getAllQuizzes();
+
+        if (allQuizzes.length === 0) {
+          quizGrid.classList.add('hidden');
+          emptyDashboard.classList.remove('hidden');
+          emptyDashboard.classList.add('flex');
+          emptyDashboard.querySelector('h3').textContent = 'No quizzes found';
+        } else {
+          emptyDashboard.classList.add('hidden');
+          emptyDashboard.classList.remove('flex');
+          quizGrid.classList.remove('hidden');
+
+          allQuizzes.forEach(quiz => {
+            const isDefault = quiz.isDefault;
+            const card = document.createElement('div');
+            card.className = 'group flex flex-col p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl hover:border-blue-500/40 hover:bg-slate-800/80 transition-all shadow-sm relative overflow-hidden';
+            
+            const title = quiz.title || 'Untitled Quiz';
+            const desc = quiz.description || `${quiz.questions.length} questions available to practice.`;
+            
+            card.innerHTML = `
+              <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-colors"></div>
+              <div class="flex justify-between items-start mb-3 z-10">
+                <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg border border-blue-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <div class="flex gap-2">
+                    ${isDefault ? `<span class="inline-flex items-center px-2 py-0.5 rounded bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 font-mono text-[9px] font-bold tracking-wider">DEFAULT</span>` : ''}
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono text-[9px] font-bold tracking-wider">${quiz.questions.length} Qs</span>
+                </div>
+              </div>
+              <div class="z-10 mb-5">
+                <h3 class="text-base font-bold text-white line-clamp-1 mb-1">${title}</h3>
+                <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">${desc}</p>
+              </div>
+              <div class="mt-auto flex gap-2 pt-3 border-t border-slate-700/50 z-10">
+                <button onclick="selectQuiz('${quiz.id}')" class="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-blue-900/20 hover:-translate-y-0.5">Play Quiz</button>
+                ${!isDefault ? `
+                <button onclick="deleteQuiz('${quiz.id}')" class="px-3 py-2 bg-slate-700 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-transparent hover:border-red-500/30 rounded-xl transition-colors" title="Delete Quiz">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                </button>` : ''}
+              </div>
+            `;
+            quizGrid.appendChild(card);
+          });
+        }
+      }
+
+      function showUpload() {
+        hideAll();
+        uploadSection.classList.remove('hidden');
+        uploadSection.classList.add('flex');
+        
+        if (getAllQuizzes().length > 0) {
+            btnCancelUpload.classList.remove('hidden');
+        } else {
+            btnCancelUpload.classList.add('hidden');
+        }
+      }
+
+      // Globally accessible for inline onclick
+      window.selectQuiz = function(id) {
+        activeQuizId = id;
+        const quiz = getAllQuizzes().find(q => q.id === id);
+        if (!quiz) return;
+
+        hideAll();
+        modeSection.classList.remove('hidden');
+        quizTitleEl.textContent = quiz.title || 'Untitled Quiz';
+        quizDescEl.textContent = quiz.description || 'Select a mode below to begin practicing.';
+      }
+
+      window.deleteQuiz = function(id) {
+          if(confirm("Are you sure you want to delete this quiz? Your historical stats will remain.")) {
+              savedQuizzes = savedQuizzes.filter(q => q.id !== id);
+              saveData();
+              renderDashboard();
+          }
+      }
+
+      function getActiveQuiz() {
+          return getAllQuizzes().find(q => q.id === activeQuizId);
+      }
+
+      // --- Helper for Checkbox questions ---
+      function isMultiChoice(question) {
+          return Array.isArray(question.answer);
+      }
+
+      function checkAnswerCorrectness(question, answerGiven) {
+          if (isMultiChoice(question)) {
+              if (!Array.isArray(answerGiven)) return false;
+              if (answerGiven.length !== question.answer.length) return false;
+              const sortedCorrect = [...question.answer].sort();
+              const sortedGiven = [...answerGiven].sort();
+              for (let i = 0; i < sortedCorrect.length; i++) {
+                  if (sortedCorrect[i] !== sortedGiven[i]) return false;
+              }
+              return true;
+          } else {
+              return answerGiven === question.answer;
+          }
+      }
+
+      // --- Event Listeners: Settings Modal ---
+      btnSettings.addEventListener('click', () => {
+        settingsModal.classList.remove('hidden');
+      });
+      
+      btnCloseSettings.addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+      });
+
+      // Close modal on outside click
+      settingsModal.addEventListener('click', (e) => {
+        if(e.target === settingsModal) {
+            settingsModal.classList.add('hidden');
+        }
+      });
+
+      btnResetData.addEventListener('click', () => {
+        if(confirm("WARNING: This will permanently delete all your uploaded quizzes and learning progress. Are you absolutely sure?")) {
+            localStorage.removeItem('savedQuizzes');
+            localStorage.removeItem('userQuizStats');
+            clearActiveSession();
+            
+            // Re-initialize state
+            userStats = { totalAnswered: 0, totalCorrect: 0, dailyActivity: {} };
+            savedQuizzes = []; 
+            
+            settingsModal.classList.add('hidden');
+            renderDashboard();
+        }
+      });
+
+      btnExportData.addEventListener('click', () => {
+         const backupData = {
+             type: "json-quiz-app-backup",
+             version: "2.2",
+             date: new Date().toISOString(),
+             data: {
+                 quizzes: savedQuizzes,
+                 stats: userStats
+             }
+         };
+         
+         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+         const downloadAnchorNode = document.createElement('a');
+         downloadAnchorNode.setAttribute("href", dataStr);
+         downloadAnchorNode.setAttribute("download", "quiz_app_backup_" + getTodayDateString() + ".json");
+         document.body.appendChild(downloadAnchorNode);
+         downloadAnchorNode.click();
+         downloadAnchorNode.remove();
+      });
+
+      importFile.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const json = JSON.parse(event.target?.result);
+            if (json.type === "json-quiz-app-backup" && json.data) {
+                if (json.data.quizzes) savedQuizzes = json.data.quizzes;
+                if (json.data.stats) userStats = json.data.stats;
+                
+                saveData();
+                settingsModal.classList.add('hidden');
+                renderDashboard();
+                alert("Backup restored successfully!");
+            } else {
+                throw new Error("Invalid backup format.");
+            }
+          } catch (err) {
+            alert("Failed to import backup: " + (err.message || "Invalid file format."));
+          }
+          importFile.value = ''; // Reset
+        };
+        reader.readAsText(file);
+      });
+
+      // --- Event Listeners: Dashboard & Upload ---
+
+      btnShowUpload.addEventListener('click', showUpload);
+      btnEmptyUpload.addEventListener('click', showUpload);
+      btnCancelUpload.addEventListener('click', renderDashboard);
+      btnBackFromModes.addEventListener('click', renderDashboard);
+      btnExitQuiz.addEventListener('click', () => {
+          if (confirm("Are you sure you want to exit? Your current quiz progress will be lost.")) {
+              clearActiveSession();
+              renderDashboard();
+          }
+      });
+      btnBackToDashboard.addEventListener('click', renderDashboard);
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const json = JSON.parse(event.target?.result);
+            if (!json.questions || !Array.isArray(json.questions)) {
+              throw new Error('Missing questions array. Check your JSON format.');
+            }
+            
+            json.id = Date.now().toString();
+            if (!json.title) json.title = file.name.replace('.json', '');
+
+            savedQuizzes.push(json);
+            saveData();
+            
+            uploadError.classList.add('hidden');
+            renderDashboard();
+          } catch (err) {
+            uploadErrorMsg.textContent = err.message || 'Invalid JSON file format.';
+            uploadError.classList.remove('hidden');
+          }
+          fileInput.value = ''; // Reset
+        };
+        reader.readAsText(file);
+      });
+
+      // --- Event Listeners: Modes & Execution ---
+
+      btnPractice.addEventListener('click', () => startMode('practice'));
+      btnQuiz.addEventListener('click', () => startMode('quiz'));
+      btnCancelPractice.addEventListener('click', () => window.selectQuiz(activeQuizId));
+
+      btnPracticeAll.addEventListener('click', () => {
+          const quiz = getActiveQuiz();
+          if (quiz) practiceNumQuestions.value = String(quiz.questions.length);
+      });
+
+      function startMode(mode) {
+        const quiz = getActiveQuiz();
+        if (!quiz) return;
+        currentMode = mode;
+        
+        if (mode === 'practice') {
+            hideAll();
+            practiceSetupSection.classList.remove('hidden');
+            practiceNumQuestions.max = String(quiz.questions.length);
+            practiceNumQuestions.value = String(Math.min(10, quiz.questions.length));
+            practiceMaxQuestions.textContent = `/ ${quiz.questions.length}`;
+        } else {
+            activeQuestions = [...quiz.questions];
+            startQuizSession();
+        }
+      }
+
+      btnStartPractice.addEventListener('click', () => {
+          const quiz = getActiveQuiz();
+          if (!quiz) return;
+          let num = parseInt(practiceNumQuestions.value, 10);
+          if (isNaN(num) || num < 1) num = 1;
+          if (num > quiz.questions.length) num = quiz.questions.length;
+          
+          // Shuffle and slice for practice mode
+          activeQuestions = [...quiz.questions].sort(() => 0.5 - Math.random()).slice(0, num);
+          startQuizSession();
+      });
+
+      function startQuizSession() {
+        currentQuestionIndex = 0;
+        userAnswers = new Array(activeQuestions.length).fill(null); // use null to signify untouched
+        updatePracticeStats();
+        
+        if (currentMode === 'practice') {
+            modeBadge.textContent = 'Practice Mode';
+            modeBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30';
+        } else {
+            modeBadge.textContent = 'Quiz Mode';
+            modeBadge.className = 'px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/30';
+        }
+
+        saveActiveSession();
+        hideAll();
+        quizSection.classList.remove('hidden');
+        renderQuestion();
+      }
+
+      function updatePracticeStats() {
+          if (currentMode !== 'practice') {
+              practiceStats.classList.add('hidden');
+              return;
+          }
+          practiceStats.classList.remove('hidden');
+          practiceStats.classList.add('flex');
+          
+          let correctCount = 0;
+          let wrongCount = 0;
+          userAnswers.forEach((ans, idx) => {
+              if (ans !== null) { // if attempted
+                  const question = activeQuestions[idx];
+                  if (checkAnswerCorrectness(question, ans)) {
+                      correctCount++;
+                  } else {
+                      wrongCount++;
+                  }
+              }
+          });
+          statCorrect.textContent = String(correctCount);
+          statWrong.textContent = String(wrongCount);
+      }
+
+      function showNextBtn() {
+          nextBtn.innerHTML = currentQuestionIndex === activeQuestions.length - 1 
+              ? 'Finish Quiz <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>' 
+              : 'Next <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+          nextBtn.classList.remove('hidden');
+      }
+
+      function renderOptions(question, answeredState) {
+          optionsContainer.innerHTML = '';
+          optionButtons = [];
+          const isMulti = isMultiChoice(question);
+
+          question.options.forEach((option, index) => {
+              const btn = document.createElement('button');
+              
+              // Base classes
+              btn.className = 'group flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-slate-500 hover:bg-slate-800 transition-all text-left w-full shadow-sm';
+              const letter = String.fromCharCode(65 + index); // A, B, C...
+              
+              btn.innerHTML = `
+                <span class="flex items-center gap-3">
+                    <span class="option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-slate-900 text-slate-400 font-mono text-xs font-bold transition-colors border border-slate-700/50 shadow-inner shadow-black/20">${letter}</span>
+                    <span class="option-text text-sm text-slate-200">${option}</span>
+                </span>
+                <span class="feedback-icon hidden items-center gap-1.5 text-xs font-medium"></span>
+              `;
+              
+              const letterSpan = btn.querySelector('.option-letter');
+              const textSpan = btn.querySelector('.option-text');
+              const feedbackSpan = btn.querySelector('.feedback-icon');
+
+              // Determine State
+              let isSelected = false;
+              let currentAns = userAnswers[currentQuestionIndex];
+              
+              if (currentAns !== null) {
+                  if (isMulti) isSelected = Array.isArray(currentAns) && currentAns.includes(option);
+                  else isSelected = currentAns === option;
+              }
+
+              if (answeredState === 'graded' && currentMode === 'practice') {
+                  btn.disabled = true;
+                  const isCorrectTarget = isMulti ? question.answer.includes(option) : question.answer === option;
+
+                  if (isCorrectTarget) {
+                      // Option is correct, highlight green
+                      btn.className = 'group flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/50 rounded-xl transition-all text-left w-full ring-1 ring-emerald-500/20';
+                      letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-500 text-white font-mono text-xs font-bold shadow-lg shadow-emerald-500/30';
+                      textSpan.className = 'option-text text-sm text-white font-medium';
+                      
+                      feedbackSpan.className = 'feedback-icon flex items-center gap-1.5 text-emerald-400 text-xs font-bold';
+                      feedbackSpan.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                      if (!isSelected && isMulti) {
+                           // Missed a correct checkbox
+                           btn.className = 'group flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/30 rounded-xl transition-all text-left w-full border-dashed opacity-80';
+                           letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-900/50 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold';
+                           textSpan.className = 'option-text text-sm text-emerald-200';
+                           feedbackSpan.innerHTML = 'Missed';
+                      }
+                  } else if (isSelected && !isCorrectTarget) {
+                      // Option is incorrect but selected, highlight red
+                      btn.className = 'group flex items-center justify-between p-4 bg-red-500/10 border border-red-500/50 rounded-xl transition-all text-left w-full ring-1 ring-red-500/20';
+                      letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-red-500 text-white font-mono text-xs font-bold shadow-lg shadow-red-500/30';
+                      textSpan.className = 'option-text text-sm text-white font-medium';
+                      feedbackSpan.className = 'feedback-icon flex items-center gap-1.5 text-red-400 text-xs font-bold';
+                      feedbackSpan.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+                  } else {
+                      // Dim unselected incorrect options
+                      btn.classList.add('opacity-40');
+                  }
+              } 
+              else if (isSelected) {
+                  // Simply Selected (Unsubmitted or Quiz mode)
+                  btn.className = 'group flex items-center justify-between p-4 bg-blue-500/10 border border-blue-500/50 rounded-xl transition-all text-left w-full ring-1 ring-blue-500/20';
+                  letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-blue-500 text-white font-mono text-xs font-bold shadow-lg shadow-blue-500/30';
+                  textSpan.className = 'option-text text-sm text-white font-medium';
+              } else if (!hasAnsweredCurrent) {
+                  // Not selected yet, add hover effects
+                  letterSpan.classList.add('group-hover:bg-slate-700', 'group-hover:text-white');
+              }
+
+              btn.onclick = () => handleOptionClick(option);
+              optionsContainer.appendChild(btn);
+              optionButtons.push(btn);
+          });
+      }
+
+      function renderQuestion() {
+        const question = activeQuestions[currentQuestionIndex];
+        const previouslyAnsweredOption = userAnswers[currentQuestionIndex];
+        const isMulti = isMultiChoice(question);
+        
+        hasAnsweredCurrent = previouslyAnsweredOption !== null;
+
+        progressText.textContent = `${currentQuestionIndex + 1} / ${activeQuestions.length}`;
+        progressBar.style.width = `${((currentQuestionIndex + 1) / activeQuestions.length) * 100}%`;
+
+        if (currentQuestionIndex === activeQuestions.length - 1) {
+            btnFinishEarly.classList.add('hidden');
+        } else {
+            btnFinishEarly.classList.remove('hidden');
+        }
+
+        // Render Markdown content
+        questionText.innerHTML = marked.parse(question.question);
+
+        // Previous button
+        if (currentQuestionIndex > 0) btnPrevQuestion.classList.remove('hidden');
+        else btnPrevQuestion.classList.add('hidden');
+
+        // Layout states
+        if (hasAnsweredCurrent) {
+            if (currentMode === 'practice') {
+                renderOptions(question, 'graded');
+            } else {
+                renderOptions(question, 'selected');
+            }
+            showNextBtn();
+            multiSubmitContainer.classList.add('hidden');
+        } else {
+            renderOptions(question, 'unselected');
+            nextBtn.classList.add('hidden');
+            
+            // Show Check Answer button only for multiple choice in practice mode
+            if (currentMode === 'practice' && isMulti) {
+                multiSubmitContainer.classList.remove('hidden');
+            } else {
+                multiSubmitContainer.classList.add('hidden');
+            }
+        }
+      }
+
+      function handleOptionClick(selectedOption) {
+        if (hasAnsweredCurrent && currentMode === 'practice') return; // Locked in practice mode once submitted
+
+        const question = activeQuestions[currentQuestionIndex];
+        const isMulti = isMultiChoice(question);
+
+        if (isMulti) {
+            // Checkbox logic
+            if (userAnswers[currentQuestionIndex] === null) {
+                userAnswers[currentQuestionIndex] = [];
+            }
+            const currentAns = userAnswers[currentQuestionIndex];
+            const idx = currentAns.indexOf(selectedOption);
+            if (idx > -1) currentAns.splice(idx, 1);
+            else currentAns.push(selectedOption);
+
+            if (currentMode === 'practice') {
+                renderOptions(question, 'unselected'); // just update visual selection
+            } else {
+                hasAnsweredCurrent = true;
+                renderOptions(question, 'selected');
+                showNextBtn();
+            }
+        } else {
+            // Single choice logic
+            userAnswers[currentQuestionIndex] = selectedOption;
+            hasAnsweredCurrent = true;
+
+            if (currentMode === 'practice') {
+                renderOptions(question, 'graded');
+                updatePracticeStats();
+                multiSubmitContainer.classList.add('hidden');
+            } else {
+                renderOptions(question, 'selected');
+            }
+            showNextBtn();
+        }
+        
+        saveActiveSession();
+      }
+
+      btnSubmitMulti.addEventListener('click', () => {
+          if (userAnswers[currentQuestionIndex] === null) {
+              userAnswers[currentQuestionIndex] = []; // Grade as empty if submitted with none checked
+          }
+          hasAnsweredCurrent = true;
+          const question = activeQuestions[currentQuestionIndex];
+          renderOptions(question, 'graded');
+          updatePracticeStats();
+          showNextBtn();
+          multiSubmitContainer.classList.add('hidden');
+          saveActiveSession();
+      });
+
+      btnPrevQuestion.addEventListener('click', () => {
+         if (currentQuestionIndex > 0) {
+             currentQuestionIndex--;
+             saveActiveSession();
+             renderQuestion();
+         }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < activeQuestions.length) {
+          saveActiveSession();
+          renderQuestion();
+        } else {
+          showResults();
+        }
+      });
+
+      btnFinishEarly.addEventListener('click', () => {
+          if (confirm("Are you sure you want to finish the quiz early? Unanswered questions will be marked incorrect.")) {
+              showResults();
+          }
+      });
+
+      btnCopyQuestion.addEventListener('click', () => {
+          const question = activeQuestions[currentQuestionIndex];
+          if (!question) return;
+          
+          let textToCopy = `Question: ${question.question}\n\n`;
+          question.options.forEach((opt, idx) => {
+              textToCopy += `${String.fromCharCode(65 + idx)}) ${opt}\n`;
+          });
+          
+          const textArea = document.createElement("textarea");
+          textArea.value = textToCopy;
+          textArea.style.top = "0";
+          textArea.style.left = "0";
+          textArea.style.position = "fixed";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          try {
+              document.execCommand('copy');
+              const originalHTML = btnCopyQuestion.innerHTML;
+              btnCopyQuestion.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+              setTimeout(() => {
+                  btnCopyQuestion.innerHTML = originalHTML;
+              }, 1500);
+          } catch (err) {
+              console.error('Oops, unable to copy', err);
+          }
+          document.body.removeChild(textArea);
+      });
+
+      function recordAnalytics(answeredArray, correctCount) {
+          const attemptedCount = answeredArray.filter(ans => ans !== null).length;
+          
+          if (attemptedCount > 0) {
+              userStats.totalAnswered += attemptedCount;
+              userStats.totalCorrect += correctCount;
+              
+              const todayStr = getTodayDateString();
+              userStats.dailyActivity[todayStr] = (userStats.dailyActivity[todayStr] || 0) + attemptedCount;
+              
+              saveData();
+          }
+      }
+
+      function showResults() {
+        hideAll();
+        resultSection.classList.remove('hidden');
+        
+        let finalScore = 0;
+        userAnswers.forEach((ans, idx) => {
+            if (ans !== null) {
+                const question = activeQuestions[idx];
+                if (checkAnswerCorrectness(question, ans)) {
+                    finalScore++;
+                }
+            }
+        });
+
+        // Record this session's analytics
+        recordAnalytics(userAnswers, finalScore);
+        clearActiveSession(); // Clear session now that we recorded it
+
+        const total = activeQuestions.length;
+        const percentage = Math.round((finalScore / total) * 100);
+        
+        let colorClass = 'text-slate-400';
+        let glowClass = 'bg-slate-500/10';
+        let msg = 'Keep practicing';
+
+        if (percentage >= 80) {
+            colorClass = 'text-emerald-400';
+            glowClass = 'bg-emerald-500/10';
+            msg = 'Excellent work!';
+        } else if (percentage >= 50) {
+            colorClass = 'text-blue-400';
+            glowClass = 'bg-blue-500/10';
+            msg = 'Good job!';
+        }
+
+        scoreGlow.className = `absolute inset-0 ${glowClass} blur-2xl rounded-full`;
+
+        scoreText.innerHTML = `
+          <div class="relative z-10 flex flex-col items-center">
+            <span class="text-6xl font-bold tracking-tight ${colorClass} block mb-5 drop-shadow-md">${percentage}%</span>
+            <span class="text-lg font-medium text-white block mb-3">You scored <span class="${colorClass} font-bold">${finalScore}</span> out of <span class="text-slate-400 font-bold">${total}</span></span>
+            <span class="inline-flex px-3 py-1 bg-slate-800 rounded-full text-xs text-slate-400 font-mono uppercase tracking-widest border border-slate-700/50">
+                ${msg}
+            </span>
+          </div>
+        `;
+      }
+
+      btnRestart.addEventListener('click', () => window.selectQuiz(activeQuizId));
+
+      // --- Initialization ---
+      setTimeout(async () => {
+          await loadData();
+          
+          if (restoreActiveSession()) {
+              updatePracticeStats();
+              if (currentMode === 'practice') {
+                  modeBadge.textContent = 'Practice Mode';
+                  modeBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30';
+              } else {
+                  modeBadge.textContent = 'Quiz Mode';
+                  modeBadge.className = 'px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/30';
+              }
+              hideAll();
+              quizSection.classList.remove('hidden');
+              renderQuestion();
+          } else {
+              renderDashboard();
+          }
+      }, 0);
+
+    </script>
+  </body>
+</html>

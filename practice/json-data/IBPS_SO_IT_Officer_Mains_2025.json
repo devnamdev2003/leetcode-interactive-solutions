@@ -1,0 +1,677 @@
+{
+  "title": "IBPS SO IT Officer Mains 2025 Quiz",
+  "description": "Questions extracted from PDF",
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "question": "In JavaScript, null is a primitive value, but its type is reported as:",
+      "options": ["null", "undefined", "object", "number", "string"],
+      "answer": "object"
+    },
+    {
+      "id": 2,
+      "type": "single",
+      "question": "In Business Continuity Planning, a Disaster Recovery Plan is part of which international standard?",
+      "options": [
+        "ISO 27001",
+        "ISO 31000",
+        "ISO 9001",
+        "ISO 22301",
+        "ISO/IEC 20000"
+      ],
+      "answer": "ISO 22301"
+    },
+    {
+      "id": 3,
+      "type": "single",
+      "question": "The <template> tag in HTML is not used for:",
+      "options": [
+        "Holding reusable HTML blocks",
+        "Defining HTML to be used later with JavaScript",
+        "Rendering content immediately when page loads",
+        "Keeping code hidden from display",
+        "Delaying rendering until needed"
+      ],
+      "answer": "Rendering content immediately when page loads"
+    },
+    {
+      "id": 4,
+      "type": "single",
+      "question": "In Disaster Recovery Planning, which term refers to the maximum acceptable data loss measured in terms of time?",
+      "options": ["RTO", "RPO", "MTTF", "DRP", "BCP"],
+      "answer": "RPO"
+    },
+    {
+      "id": 5,
+      "type": "single",
+      "question": "Three processes P1, P2, and P3 arrive at time 0 with burst times of 6, 2, and 4 units respectively. Using Non-Preemptive SJF Scheduling, what is the Turnaround Time (TAT) for P3?",
+      "options": ["2 units", "4 units", "6 units", "8 units", "10 units"],
+      "answer": "6 units"
+    },
+    {
+      "id": 6,
+      "type": "single",
+      "question": "What is the output of the following JavaScript code? console.log(parseInt(\"10.5\") + parseInt(\"5.7\") + \"2\");",
+      "options": ["152", "17.7", "16.2", "152.7", "NaN"],
+      "answer": "152"
+    },
+    {
+      "id": 7,
+      "type": "single",
+      "question": "External fragmentation is commonly associated with which memory allocation technique?",
+      "options": [
+        "Contiguous memory allocation",
+        "Paging",
+        "Segmentation with paging",
+        "Non-contiguous memory allocation",
+        "Virtual memory"
+      ],
+      "answer": "Contiguous memory allocation"
+    },
+    {
+      "id": 8,
+      "type": "single",
+      "question": "In email handling, what is the function of a user agent?",
+      "options": [
+        "It transfers emails between different mail servers",
+        "It stores email messages permanently on a server",
+        "It provides an interface to the user to compose, send, and read emails",
+        "It filters spam emails before delivery",
+        "It encrypts messages for secure communication"
+      ],
+      "answer": "It provides an interface to the user to compose, send, and read emails"
+    },
+    {
+      "id": 9,
+      "type": "single",
+      "question": "What is the primary purpose of sequence numbers in the TCP protocol?",
+      "options": [
+        "To count the number of routers in a path",
+        "To detect congestion in the network",
+        "To identify the receiver’s port number",
+        "To ensure data is delivered in correct order",
+        "To encrypt data before transmission"
+      ],
+      "answer": "To ensure data is delivered in correct order"
+    },
+    {
+      "id": 10,
+      "type": "single",
+      "question": "A network has an MTU of 1500 bits. A data packet of 2000 bits needs to be transmitted. Assuming no header overhead, how many fragments will be created and what will be the size of each?",
+      "options": [
+        "1 fragment of 2000 bits",
+        "2 fragments: one of 1500 bits and one of 500 bits",
+        "3 fragments: each of 666.67 bits",
+        "2 fragments: each of 1000 bits",
+        "None of the above"
+      ],
+      "answer": "2 fragments: one of 1500 bits and one of 500 bits"
+    },
+    {
+      "id": 11,
+      "type": "single",
+      "question": "What does a router do if it receives an IP packet that is larger than the MTU of the outgoing link and the DF (Don't Fragment) bit is set? 3",
+      "options": [
+        "Fragments the packet and forwards it",
+        "Drops the packet and sends an ICMP \"Fragmentation Needed\" message",
+        "Forwards the packet unchanged to the next router",
+        "Reassembles the packet and resends it in parts",
+        "Compresses the packet and resends it on the link"
+      ],
+      "answer": "Drops the packet and sends an ICMP \"Fragmentation Needed\" message"
+    },
+    {
+      "id": 12,
+      "type": "single",
+      "question": "Which sequence does a DNS resolver follow to translate a domain name into its corresponding IP address?",
+      "options": [
+        "TLD server → root server → authoritative server → returns IP address",
+        "Authoritative server → TLD server → root server → returns IP address",
+        "Root server → TLD server → authoritative server → returns IP address",
+        "TLD server → authoritative server → root server → returns IP address",
+        "None of the above"
+      ],
+      "answer": "Root server → TLD server → authoritative server → returns IP address"
+    },
+    {
+      "id": 13,
+      "type": "single",
+      "question": "Which of the following is the standard used for digital certificates in a public key infrastructure?",
+      "options": ["SHA-256", "X.509", "TLS 1.2", "RSA", "AES"],
+      "answer": "X.509"
+    },
+    {
+      "id": 14,
+      "type": "single",
+      "question": "In Asymmetric Encryption, which key is used to encrypt the message before sending?",
+      "options": [
+        "Sender’s private key",
+        "Receiver’s public key",
+        "Sender’s public key",
+        "Receiver’s private key",
+        "Shared secret key"
+      ],
+      "answer": "Receiver’s public key"
+    },
+    {
+      "id": 15,
+      "type": "single",
+      "question": "Match the Access Control Models in Column A with their Features in Column B: Column A – Access Control Models Column B – Features A. Zero Trust 1. Based on roles in an organization B. DAC (Discretionary AC) 2. Based on security labels/classification 4 C. MAC (Mandatory AC) 3. Access decided by the data owner D. RBAC (Role-Based AC) 4. Never trust, always verify (assume breach) A. A–4, B–3, C–2, D–1 (b) A–1, B–2, C–3, D–4 (c) A–3, B–4, C–1, D–2 (d) A–2, B–1, C–4, D–3 (e) A–4, B–1, C–3, D–2",
+      "options": [
+        "A–1, B–2, C–3, D–4",
+        "A–3, B–4, C–1, D–2",
+        "A–2, B–1, C–4, D–3",
+        "A–4, B–1, C–3, D–2"
+      ],
+      "answer": ""
+    },
+    {
+      "id": 16,
+      "type": "single",
+      "question": "Which of the following best describes a Watering Hole Attack?",
+      "options": [
+        "Infecting software on a user’s local system through email attachments",
+        "Redirecting traffic from secure websites to fake login pages",
+        "Infecting a commonly visited website to target a specific group of users",
+        "Sending mass phishing emails to unknown users",
+        "Encrypting files and demanding ransom for access"
+      ],
+      "answer": "Infecting a commonly visited website to target a specific group of users"
+    },
+    {
+      "id": 17,
+      "type": "single",
+      "question": "Which of the following techniques helps prevent SQL Injection attacks?",
+      "options": [
+        "Running SQL queries in a loop",
+        "Giving admin rights to all users",
+        "Validating and sanitizing user inputs",
+        "Using simple and open SQL queries",
+        "Disabling the login screen"
+      ],
+      "answer": "Validating and sanitizing user inputs"
+    },
+    {
+      "id": 18,
+      "type": "single",
+      "question": "What is the value of y after executing the following C code? #include <stdio.h> int main() { int x = 10; printf(\"%d %d\", x++, ++x); return 0; }",
+      "options": ["10 12", "11 12", "10 11", "12 12", "Undefined behavior"],
+      "answer": "Undefined behavior"
+    },
+    {
+      "id": 19,
+      "type": "single",
+      "question": "In C programming, which file handling function is used to reposition the file pointer?",
+      "options": ["fread()", "fwrite()", "fprintf()", "fseek()", "fclose()"],
+      "answer": "fseek()"
+    },
+    {
+      "id": 20,
+      "type": "single",
+      "question": "What happens if a Java class has no constructors defined?",
+      "options": [
+        "The compiler throws an error",
+        "The compiler adds a default constructor automatically",
+        "A parameterized constructor is added by default",
+        "The object cannot be created using new keyword",
+        "Only static methods can be accessed"
+      ],
+      "answer": "The compiler adds a default constructor automatically"
+    },
+    {
+      "id": 21,
+      "type": "single",
+      "question": "Which of the following regular expressions will match the strings “cat” and “bat”, but not “at”?",
+      "options": ["^.[cb]at$", "[cat|bat]", "^at$", "^[cb]at$", ".*at$"],
+      "answer": "^[cb]at$"
+    },
+    {
+      "id": 22,
+      "type": "single",
+      "question": "Which exception is thrown in Java when a class is not found at runtime?",
+      "options": [
+        "NullPointerException",
+        "ClassNotFoundException",
+        "IOException",
+        "ArithmeticException",
+        "NoClassDefFoundError"
+      ],
+      "answer": "ClassNotFoundException"
+    },
+    {
+      "id": 23,
+      "type": "single",
+      "question": "Which of the following statements is correct with respect to method binding in Java?",
+      "options": [
+        "Dynamic binding is used for method overloading, which is resolved at runtime",
+        "Static binding is used for method overriding and is more flexible than dynamic binding",
+        "Static binding is faster than dynamic binding, and dynamic binding is not applicable to method overloading",
+        "Both static and dynamic binding are resolved at runtime",
+        "Method overloading in Java is resolved using dynamic dispatch"
+      ],
+      "answer": "Static binding is faster than dynamic binding, and dynamic binding is not applicable to method overloading"
+    },
+    {
+      "id": 24,
+      "type": "single",
+      "question": "In object-oriented programming, a subclass inherits all members of its base class except:",
+      "options": [
+        "Public members from the base class",
+        "Protected members from the base class 6",
+        "Private members from the base class",
+        "Static members from the base class",
+        "Friend functions of the base class"
+      ],
+      "answer": "Private members from the base class"
+    },
+    {
+      "id": 25,
+      "type": "single",
+      "question": "In Java 8 or later, which memory area is used for storing class metadata at runtime?",
+      "options": ["Stack", "Heap", "Metaspace", "PermGen", "None of the above"],
+      "answer": "Metaspace"
+    },
+    {
+      "id": 26,
+      "type": "single",
+      "question": "In C++, what does the this pointer refer to?",
+      "options": [
+        "Base class",
+        "Null pointer",
+        "Current object",
+        "Static member",
+        "Class name"
+      ],
+      "answer": "Current object"
+    },
+    {
+      "id": 27,
+      "type": "single",
+      "question": "Which algorithm finds the Minimum Spanning Tree by selecting edges in increasing order of weight?",
+      "options": [
+        "Prim’s Algorithm",
+        "Dijkstra’s Algorithm",
+        "Kruskal’s Algorithm",
+        "Floyd-Warshall Algorithm",
+        "Bellman-Ford Algorithm"
+      ],
+      "answer": "Kruskal’s Algorithm"
+    },
+    {
+      "id": 28,
+      "type": "single",
+      "question": "In which case is Insertion Sort better than Quick Sort and Merge Sort?",
+      "options": [
+        "Large, random input",
+        "Large input, needs stable sort",
+        "Small, nearly sorted, uses less memory",
+        "Sorting linked lists",
+        "Parallel sorting of big data"
+      ],
+      "answer": "Small, nearly sorted, uses less memory"
+    },
+    {
+      "id": 29,
+      "type": "single",
+      "question": "Which of the following sorting algorithms does not use comparison operations?",
+      "options": [
+        "Quick Sort",
+        "Merge Sort",
+        "Radix Sort",
+        "Heap Sort",
+        "Insertion Sort"
+      ],
+      "answer": "Radix Sort"
+    },
+    {
+      "id": 30,
+      "type": "single",
+      "question": "Which of the following is a graph traversal technique?",
+      "options": [
+        "DFS",
+        "Stack",
+        "Heap",
+        "Priority Queue",
+        "None of the above"
+      ],
+      "answer": "DFS"
+    },
+    {
+      "id": 31,
+      "type": "single",
+      "question": "What is the space complexity of a tail-recursive implementation of Quick Sort on an array of size n?",
+      "options": ["O(1)", "O(n)", "O(log n)", "O(n log n)", "O(n²)"],
+      "answer": "O(log n)"
+    },
+    {
+      "id": 32,
+      "type": "single",
+      "question": "In an ETL process, which phase is primarily responsible for refining, converting, or preparing data for further processing or analysis?",
+      "options": ["Extract", "Load", "Collect", "Transform", "Analyze"],
+      "answer": "Transform"
+    },
+    {
+      "id": 33,
+      "type": "single",
+      "question": "Which international standard defines the processes for the software development lifecycle, and is adopted by BIS?",
+      "options": [
+        "ISO/IEC 9126",
+        "ISO/IEC 12207",
+        "ISO 27001",
+        "ISO 9001",
+        "ISO/IEC 15504"
+      ],
+      "answer": "ISO/IEC 12207"
+    },
+    {
+      "id": 34,
+      "type": "single",
+      "question": "What does the term “Internet of Things (IoT)” primarily refer to?",
+      "options": [
+        "A globally distributed ecosystem of AI-enabled embedded systems that autonomously interact with big data engines in real-time through federated learning models.",
+        "A dynamic framework where cyber-physical systems utilize blockchain protocols and AI agents to perform autonomous decision-making in fog computing layers.",
+        "An interconnected network of physical objects integrated with sensors, actuators, and communication protocols, designed to collect, exchange, and act on real-world data over the internet.",
+        "A virtualized cloud infrastructure that supports containerized microservices interacting with machine learning algorithms for large-scale IoT deployment over 5G. 8",
+        "A secure hardware-software ecosystem focused on real-time threat detection and intrusion prevention in smart connected devices using biometric sensors and cryptographic algorithms."
+      ],
+      "answer": "An interconnected network of physical objects integrated with sensors, actuators, and communication protocols, designed to collect, exchange, and act on real-world data over the internet."
+    },
+    {
+      "id": 35,
+      "type": "single",
+      "question": "Which lightweight messaging protocol, designed for unreliable networks and constrained devices, uses a publish/subscribe model to enable efficient data transfer in Internet of Things environments?",
+      "options": ["HTTP", "FTP", "MQTT", "TCP", "SMTP"],
+      "answer": "MQTT"
+    },
+    {
+      "id": 36,
+      "type": "single",
+      "question": "Which of the following tools is not commonly used for data visualization?",
+      "options": [
+        "Matplotlib",
+        "Google Data Studio",
+        "Tableau",
+        "Power BI",
+        "NumPy"
+      ],
+      "answer": "NumPy"
+    },
+    {
+      "id": 37,
+      "type": "single",
+      "question": "Google Cloud Firestore is an example of which cloud service model?",
+      "options": ["IaaS", "PaaS", "SaaS", "DBaaS", "BaaS"],
+      "answer": "DBaaS"
+    },
+    {
+      "id": 38,
+      "type": "single",
+      "question": "Which HTTP status code represents an Internal Server Error?",
+      "options": ["200", "301", "404", "500", "403"],
+      "answer": "500"
+    },
+    {
+      "id": 39,
+      "type": "single",
+      "question": "Which of the following is mainly used for non-repudiation in cybersecurity?",
+      "options": [
+        "Firewall",
+        "Encryption",
+        "Digital certificate",
+        "Digital signature",
+        "Hash function"
+      ],
+      "answer": "Digital signature"
+    },
+    {
+      "id": 40,
+      "type": "single",
+      "question": "What is latent space in Generative AI?",
+      "options": [
+        "Structured input features directly fed into the model",
+        "Intermediary abstract space",
+        "Final output space generated after decoding",
+        "Pre-processed training dataset",
+        "Hidden memory layer used for storing learned weights"
+      ],
+      "answer": "Intermediary abstract space"
+    },
+    {
+      "id": 41,
+      "type": "single",
+      "question": "Which of the following is not a supervised machine learning algorithm?",
+      "options": [
+        "Decision Tree",
+        "K-Nearest Neighbors",
+        "Linear Regression",
+        "K-Means Clustering",
+        "Support Vector Machine"
+      ],
+      "answer": "K-Means Clustering"
+    },
+    {
+      "id": 42,
+      "type": "single",
+      "question": "Which Python library is commonly used for data mining and machine learning tasks?",
+      "options": [
+        "TensorFlow",
+        "NumPy",
+        "Pandas",
+        "Scikit-learn",
+        "Matplotlib"
+      ],
+      "answer": "Scikit-learn"
+    },
+    {
+      "id": 43,
+      "type": "single",
+      "question": "In BCNF, what should be true about the determinant in every functional dependency?",
+      "options": [
+        "Determinant can be any attribute",
+        "Determinant must be a primary key",
+        "Determinant must be a candidate key",
+        "Determinant must be a foreign key",
+        "Determinant can be a composite key or atomic key"
+      ],
+      "answer": "Determinant must be a candidate key"
+    },
+    {
+      "id": 44,
+      "type": "single",
+      "question": "A bank account starts with a balance of 1500. A transaction begins, a SAVEPOINT is set, 100 is added to the account, then a ROLLBACK TO SAVEPOINT is performed, and finally a COMMIT is issued. What is the final account balance?",
+      "options": [
+        "Account increases",
+        "Account decreases",
+        "Account remains same",
+        "Account becomes 0",
+        "None of the above"
+      ],
+      "answer": "Account remains same"
+    },
+    {
+      "id": 45,
+      "type": "single",
+      "question": "In data warehousing, a cuboid is used to represent: 10",
+      "options": [
+        "Summarized data from the data cube",
+        "Raw transactional data without aggregation",
+        "A single dimension table",
+        "Temporary staging data",
+        "None of the above"
+      ],
+      "answer": "Summarized data from the data cube"
+    },
+    {
+      "id": 46,
+      "type": "single",
+      "question": "Which of the following operations cannot be directly performed using Tuple Relational Calculus, compared to operations on relational tables?",
+      "options": [
+        "Projection",
+        "Selection",
+        "Join",
+        "Aggregation",
+        "Cartesian Product"
+      ],
+      "answer": "Aggregation"
+    },
+    {
+      "id": 47,
+      "type": "single",
+      "question": "What is the primary purpose of domain constraints in a relational database?",
+      "options": [
+        "It assigns rules about which values are allowed to be entered in a column.",
+        "It makes sure that no NULL values are allowed in any row.",
+        "It ensures that every row has a unique primary key.",
+        "It links two tables using common columns.",
+        "It automatically fills a default value when none is provided."
+      ],
+      "answer": "It assigns rules about which values are allowed to be entered in a column."
+    },
+    {
+      "id": 48,
+      "type": "single",
+      "question": "Which of the following is not a valid data type in the C++ programming language?",
+      "options": ["Float", "Double", "Int", "Real", "Char"],
+      "answer": "Real"
+    },
+    {
+      "id": 49,
+      "type": "single",
+      "question": "In object-oriented programming, what is the correct definition of a class?",
+      "options": [
+        "An instance allocated in memory",
+        "A data type that defines both properties and behaviors",
+        "A container for functions only",
+        "A blueprint containing method signatures only",
+        "A variable holder for all object states"
+      ],
+      "answer": "A data type that defines both properties and behaviors"
+    },
+    {
+      "id": 50,
+      "type": "single",
+      "question": "Which concurrency control protocol prevents deadlock and ensures serializability?",
+      "options": [
+        "2PL",
+        "Optimistic locking protocol",
+        "Timestamp ordering protocol 11",
+        "Strict 2PL",
+        "Shared locking protocol"
+      ],
+      "answer": "Timestamp ordering protocol 11"
+    },
+    {
+      "id": 51,
+      "type": "single",
+      "question": "A user transfers money from their bank account to a friend. The amount is debited from their account, but due to a system failure, the money is not credited to the friend’s account. Which database property is violated in this situation?",
+      "options": [
+        "Consistency",
+        "Atomicity",
+        "Isolation",
+        "Durability",
+        "Integrity"
+      ],
+      "answer": "Atomicity"
+    },
+    {
+      "id": 52,
+      "type": "single",
+      "question": "Which of the following set operations represents: \"All rows that are in R₁ but not in R₂\"?",
+      "options": [
+        "R₁ ∪ R₂",
+        "R₁ ∩ R₂",
+        "R₂ − R₁",
+        "R₁ − R₂",
+        "None of the above"
+      ],
+      "answer": "R₁ − R₂"
+    },
+    {
+      "id": 53,
+      "type": "single",
+      "question": "Which Linux command is used to display the current working directory?",
+      "options": ["dir", "cd", "pwd", "ls -l", "whoami"],
+      "answer": "pwd"
+    },
+    {
+      "id": 54,
+      "type": "single",
+      "question": "In Linux, which symbol or command is used to check the exit status of the last executed command?",
+      "options": ["$@", "$$", "$#", "$?", "echo $$"],
+      "answer": "$?"
+    },
+    {
+      "id": 55,
+      "type": "single",
+      "question": "In email communication, how are SMTP and POP3 different from each other?",
+      "options": [
+        "SMTP is used to get emails; POP3 is used to send emails",
+        "SMTP secures the message; POP3 stores it permanently",
+        "SMTP is used to send emails; POP3 is used to download them",
+        "SMTP manages file transfers; POP3 manages attachments",
+        "Both protocols do the same work in email systems 12"
+      ],
+      "answer": "SMTP is used to send emails; POP3 is used to download them"
+    },
+    {
+      "id": 56,
+      "type": "single",
+      "question": "What is the default port number used by RDP?",
+      "options": ["3389", "3390", "3388", "1433", "None of the above"],
+      "answer": "3389"
+    },
+    {
+      "id": 57,
+      "type": "single",
+      "question": "To prevent infinite looping of packets in a network, a field in the IP header that is decremented at each router is called:",
+      "options": [
+        "TTL",
+        "Hop Limit",
+        "Fragment Offset",
+        "Sequence Number",
+        "None of the above"
+      ],
+      "answer": "TTL"
+    },
+    {
+      "id": 58,
+      "type": "single",
+      "question": "What is the main purpose of a heuristic function in artificial intelligence?",
+      "options": [
+        "Find the exact solution to the problem",
+        "Estimate the cost from a state to the goal",
+        "Explore all possible solutions exhaustively",
+        "Store and retrieve data efficiently",
+        "Avoid using search algorithms"
+      ],
+      "answer": "Estimate the cost from a state to the goal"
+    },
+    {
+      "id": 59,
+      "type": "single",
+      "question": "Which SDLC model follows a sequential flow, where each phase must be completed before moving to the next?",
+      "options": [
+        "Agile Model",
+        "Spiral Model",
+        "Waterfall Model",
+        "V-Model",
+        "Incremental Model"
+      ],
+      "answer": "Waterfall Model"
+    },
+    {
+      "id": 60,
+      "type": "single",
+      "question": "Which of the following is a built-in feature of IPv6 that is not mandatory in IPv4?",
+      "options": [
+        "NAT",
+        "DHCP",
+        "IPsec encryption support",
+        "DNS",
+        "Static routing"
+      ],
+      "answer": "IPsec encryption support"
+    }
+  ]
+}

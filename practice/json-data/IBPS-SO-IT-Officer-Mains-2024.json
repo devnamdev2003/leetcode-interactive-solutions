@@ -1,0 +1,690 @@
+{
+  "title": "IBPS SO IT Officer Mains 2024 Quiz",
+  "description": "Memory-based questions from IBPS SO IT Officer Mains held on 14 December 2024.",
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "question": "A packet of size L bits is transmitted from a source to a destination through N intermediate routers using store-and-forward packet switching. Each link has a transmission rate of R bits per second. Ignoring propagation, processing, and queuing delays, what is the total transmission delay?",
+      "options": ["𝑅 𝐿", "𝑁𝐿 𝑅", "(𝑁+1)𝐿 𝑅", "(𝑁−1)𝐿 𝑅", "𝐿 𝑁𝑅"],
+      "answer": "(𝑁+1)𝐿 𝑅"
+    },
+    {
+      "id": 2,
+      "type": "single",
+      "question": "Which of the following operations are valid on pointers in C++?",
+      "options": [
+        "Pointer multiplication",
+        "Pointer division",
+        "Pointer addition and pointer subtraction with integers",
+        "Pointer modulus operation",
+        "Pointer exponentiation"
+      ],
+      "answer": "Pointer addition and pointer subtraction with integers"
+    },
+    {
+      "id": 3,
+      "type": "single",
+      "question": "What is the time complexity of the classical Dynamic Programming approach using nested loops for the LIS problem?",
+      "options": ["O(n)", "O(n log n)", "O(n²)", "O(log n)", "O(n³)"],
+      "answer": "O(n²)"
+    },
+    {
+      "id": 4,
+      "type": "single",
+      "question": "Which file mode in Python is primarily used to append new content to an existing file without deleting the previous data?",
+      "options": ["r", "w", "x", "a", "rb"],
+      "answer": "a"
+    },
+    {
+      "id": 5,
+      "type": "single",
+      "question": "In C++, which of the following correctly describes the purpose of endl and setw?",
+      "options": [
+        "endl formats output width, while setw inserts a new line",
+        "endl inserts a new line, while setw sets the output field width 2",
+        "endl reads input data, while setw displays output",
+        "endl allocates memory, while setw controls loops",
+        "endl performs type conversion, while setw handles exceptions"
+      ],
+      "answer": "endl inserts a new line, while setw sets the output field width 2"
+    },
+    {
+      "id": 6,
+      "type": "single",
+      "question": "Which Linux command option is commonly used with ls to display files sorted by their last modified time?",
+      "options": ["ls -a", "ls -l", "ls -r", "ls -t", "ls -s"],
+      "answer": "ls -t"
+    },
+    {
+      "id": 7,
+      "type": "single",
+      "question": "Which of the following is NOT a valid file system format used in operating systems?",
+      "options": ["NTFS", "exFAT", "FAT32", "FAT84", "ReFS"],
+      "answer": "FAT84"
+    },
+    {
+      "id": 8,
+      "type": "single",
+      "question": "Which OLAP operation is used to extract a smaller subset of data from a multidimensional data cube by selecting specific dimension values?",
+      "options": ["Drill-up", "Roll-up", "Slice", "Pivot", "Drill-through"],
+      "answer": "Slice"
+    },
+    {
+      "id": 9,
+      "type": "single",
+      "question": "Which type of testing in the Software Development Life Cycle (SDLC) is primarily performed to verify that the software satisfies business and compliance requirements?",
+      "options": [
+        "Unit Testing",
+        "Integration Testing",
+        "Blackbox Testing",
+        "Acceptance Testing",
+        "Regression Testing"
+      ],
+      "answer": "Acceptance Testing"
+    },
+    {
+      "id": 10,
+      "type": "single",
+      "question": "Which data warehouse schema is designed such that multiple fact tables share common dimension tables?",
+      "options": [
+        "Star Schema",
+        "Snowflake Schema 3",
+        "Hierarchical Schema",
+        "Fact Constellation Schema",
+        "Relational Schema"
+      ],
+      "answer": "Fact Constellation Schema"
+    },
+    {
+      "id": 11,
+      "type": "single",
+      "question": "Which OOP concept focuses on hiding internal implementation details and exposing only the necessary functionality to the user?",
+      "options": [
+        "Inheritance",
+        "Abstraction",
+        "Encapsulation",
+        "Polymorphism",
+        "Overloading"
+      ],
+      "answer": "Abstraction"
+    },
+    {
+      "id": 12,
+      "type": "single",
+      "question": "What will be the output of the following Python code? names = [\" Aman\", \"Rahul\", \"Peter\"] names.insert(1, \"John\") print(names[1])",
+      "options": ["Aman", "Rahul", "Peter", "John", "Error"],
+      "answer": "John"
+    },
+    {
+      "id": 13,
+      "type": "single",
+      "question": "What will be the output of the following Python code? a = (1,2,3,4,5) print(a[-4:-1])",
+      "options": [
+        "(2, 3, 4)",
+        "(3, 4, 5)",
+        "(3, 4)",
+        "(2, 3, 4, 5)",
+        "(1, 2, 3)"
+      ],
+      "answer": "(2, 3, 4)"
+    },
+    {
+      "id": 14,
+      "type": "single",
+      "question": "Which of the following statements correctly distinguishes Composition from Aggregation in Object - Oriented Programming (OOP)?",
+      "options": [
+        "Aggregation represents stronger dependency than Composition",
+        "In Composition, the child object depends on the lifecycle of the parent object",
+        "Composition allows child objects to exist independently of the parent",
+        "Aggregation and Composition both represent identical relationships",
+        "Composition is used only for multiple inheritance relationships"
+      ],
+      "answer": "In Composition, the child object depends on the lifecycle of the parent object"
+    },
+    {
+      "id": 15,
+      "type": "single",
+      "question": "What is the primary use of a global variable in C++?",
+      "options": [
+        "To store values that can be accessed only inside a loop",
+        "To create variables that exist only during function execution",
+        "To allow data to be accessed from multiple functions in a program",
+        "To permanently store data inside a file",
+        "To declare variables that cannot be modified"
+      ],
+      "answer": "To allow data to be accessed from multiple functions in a program"
+    },
+    {
+      "id": 16,
+      "type": "single",
+      "question": "What will be the output of the following C code? #include<stdio.h> int main() { int a = 1; a += 3; printf(\"%d\", a + a); return 0; }",
+      "options": ["4", "6", "8", "10", "2"],
+      "answer": "8"
+    },
+    {
+      "id": 17,
+      "type": "single",
+      "question": "Which of the following is commonly used in programming languages to store and represent a sequence of characters?",
+      "options": ["String", "Stack", "Queue", "Tree", "Graph"],
+      "answer": "String"
+    },
+    {
+      "id": 18,
+      "type": "single",
+      "question": "Which of the following is syntactically valid in a standard Bash shell script for iterating through a list of values using a for loop?",
+      "options": [
+        "for(i=0; i<5; i++) { }",
+        "for i in 1 2 3 4 5 do echo $i done",
+        "foreach i = 1 to 5 echo $i end 5",
+        "loop i from 1 to 5 print $i",
+        "for i = 1:5 echo $i endfor"
+      ],
+      "answer": "for i in 1 2 3 4 5 do echo $i done"
+    },
+    {
+      "id": 19,
+      "type": "single",
+      "question": "Which command in the Windows Recovery Environment is specifically used to repair the Master Boot Record?",
+      "options": [
+        "bootcfg /repair",
+        "bootrec /fixmbr",
+        "diskpart /mbr",
+        "sfc /repairboot",
+        "chkdsk /fixboot"
+      ],
+      "answer": "bootrec /fixmbr"
+    },
+    {
+      "id": 20,
+      "type": "single",
+      "question": "Given Python Code import re text = \"IBPS_SO_IT_2024\" result = re.findall(r'[A-Z]+', text) print(result[1]) What will be the output of the above code?",
+      "options": ["IBPS", "SO", "IT", "2024", "_"],
+      "answer": "SO"
+    },
+    {
+      "id": 21,
+      "type": "single",
+      "question": "Which operator is used in Python to directly check whether a key exists in a dictionary?",
+      "options": [
+        "find() operator",
+        "search() method",
+        "in operator",
+        "index() method",
+        "contains() function"
+      ],
+      "answer": "in operator"
+    },
+    {
+      "id": 22,
+      "type": "single",
+      "question": "Which of the following is used in Python to access command-line arguments passed to a program?",
+      "options": [
+        "os.path",
+        "sys.argv",
+        "input.argv",
+        "args.sys",
+        "command.line"
+      ],
+      "answer": "sys.argv"
+    },
+    {
+      "id": 23,
+      "type": "single",
+      "question": "Next-Generation Firewalls primarily belong to which generation of firewall technology?",
+      "options": [
+        "First Generation Firewall",
+        "Second Generation Firewall",
+        "Third Generation Firewall",
+        "Fourth Generation Firewall",
+        "Fifth Generation Firewall"
+      ],
+      "answer": "Third Generation Firewall"
+    },
+    {
+      "id": 24,
+      "type": "single",
+      "question": "Which security approach permits only predefined approved inputs or entities while rejecting all others by default?",
+      "options": [
+        "Packet Sniffing",
+        "Blacklisting",
+        "Input Masking",
+        "Whitelisting",
+        "Traffic Shaping"
+      ],
+      "answer": "Whitelisting"
+    },
+    {
+      "id": 25,
+      "type": "single",
+      "question": "Which of the following SQL queries correctly selects records where the First_Name contains a specific pattern, the Last_Name also matches a pattern using LIKE, and the City does not match a given pattern using NOT LIKE?",
+      "options": [
+        "SELECT * FROM Employee WHERE First_Name LIKE '%A%' AND Last_Name LIKE '%K%' AND City NOT LIKE '%Delhi%';",
+        "SELECT * FROM Employee WHERE First_Name = '%A%' AND Last_Name = '%K%' AND City != '%Delhi%';",
+        "SELECT * FROM Employee WHERE First_Name IN '%A%' AND Last_Name IN '%K%' AND City NOT IN '%Delhi%';",
+        "SELECT * FROM Employee WHERE First_Name LIKE '%A%' OR Last_Name LIKE '%K%' OR City NOT LIKE '%Delhi%';",
+        "SELECT * FROM Employee WHERE First_Name NOT LIKE '%A%' AND Last_Name LIKE '%K%' AND City LIKE '%Delhi%';"
+      ],
+      "answer": "SELECT * FROM Employee WHERE First_Name LIKE '%A%' AND Last_Name LIKE '%K%' AND City NOT LIKE '%Delhi%';"
+    },
+    {
+      "id": 26,
+      "type": "single",
+      "question": "Which networking mechanism translates private internal IP addresses into public IP addresses, allowing devices on a local network to communicate with external networks while concealing internal addressing?",
+      "options": ["VPN", "Router", "Proxy Server", "NAT", "Firewall"],
+      "answer": "NAT"
+    },
+    {
+      "id": 27,
+      "type": "single",
+      "question": "What is the primary function of the ARP in an IPv4 local network?",
+      "options": [
+        "To assign IP addresses dynamically",
+        "To resolve domain names into IP addresses",
+        "To determine the MAC address corresponding to an IP address",
+        "To encrypt network communication",
+        "To forward packets between different networks"
+      ],
+      "answer": "To determine the MAC address corresponding to an IP address"
+    },
+    {
+      "id": 28,
+      "type": "single",
+      "question": "Which FTP transfer mode reduces data size during transmission to improve bandwidth efficiency?",
+      "options": [
+        "Stream Mode",
+        "Compression Mode",
+        "Encapsulation Mode",
+        "Multiplexing Mode",
+        "Fragmentation Mode"
+      ],
+      "answer": "Compression Mode"
+    },
+    {
+      "id": 29,
+      "type": "single",
+      "question": "What is the correct postfix expression for the infix expression: (a+b)∗(c−d)",
+      "options": ["ab+cd-*", "+ab-cd*", "ab*cd+-", "abcd+*-", "ab+*cd-"],
+      "answer": "ab+cd-*"
+    },
+    {
+      "id": 30,
+      "type": "single",
+      "question": "In a hash table, the load factor primarily represents which of the following?",
+      "options": [
+        "Number of collisions per bucket",
+        "Ratio of stored elements to the total number of slots",
+        "Number of hash functions used",
+        "Total memory occupied by the hash table",
+        "Maximum size of a hash key"
+      ],
+      "answer": "Ratio of stored elements to the total number of slots"
+    },
+    {
+      "id": 31,
+      "type": "single",
+      "question": "Which of the following is commonly used to block or allow network ports such as HTTP and SSH? 8",
+      "options": [
+        "Compiler",
+        "Firewall",
+        "Load Balancer",
+        "Web Browser",
+        "Database Serve"
+      ],
+      "answer": "Firewall"
+    },
+    {
+      "id": 32,
+      "type": "single",
+      "question": "Which of the following correctly describes a feature of IMAP in email communication systems?",
+      "options": [
+        "Emails are automatically deleted from the server after downloading",
+        "Using IMAP , users can manage server-side mailbox properties such as read status and folders.",
+        "Emails can be transferred only within local networks",
+        "Emails are accessible only in offline mode",
+        "IMAP allows email synchronization without user authentication"
+      ],
+      "answer": "Using IMAP , users can manage server-side mailbox properties such as read status and folders."
+    },
+    {
+      "id": 33,
+      "type": "single",
+      "question": "Which networking device commonly supports traffic monitoring features such as port mirroring, enabling packet analyzers operating in promiscuous mode to inspect network traffic?",
+      "options": ["Repeater", "Hub", "Switch", "Bridge", "Router"],
+      "answer": "Switch"
+    },
+    {
+      "id": 34,
+      "type": "single",
+      "question": "In MySQL, which of the following statements correctly creates a trigger that executes automatically before inserting a row into the Employee table?",
+      "options": [
+        "CREATE TRIGGER trg_before_insert BEFORE INSERT ON Employee FOR EACH ROW SET @x = 1;",
+        "CREATE TABLE trg_before_insert BEFORE INSERT ON Employee;",
+        "TRIGGER trg_before_insert ON Employee BEFORE INSERT;",
+        "CREATE VIEW trg_before_insert BEFORE INSERT ON Employee;",
+        "CREATE INDEX trg_before_insert ON Employee(Before_Insert);"
+      ],
+      "answer": "CREATE TRIGGER trg_before_insert BEFORE INSERT ON Employee FOR EACH ROW SET @x = 1;"
+    },
+    {
+      "id": 35,
+      "type": "single",
+      "question": "What is the name of the cyber attack in which an attacker overwhelms a web server by sending a very large number of HTTP requests?",
+      "options": [
+        "Packet Sniffing 9",
+        "HTTP Flooding",
+        "DNS Spoofing",
+        "Session Hijacking",
+        "Port Scanning"
+      ],
+      "answer": "HTTP Flooding"
+    },
+    {
+      "id": 36,
+      "type": "single",
+      "question": "When a foreign key constraint is enforced in a relational database, which condition must normally be satisfied while inserting a non-NULL value into the foreign key column?",
+      "options": [
+        "The value can be inserted without checking the referenced table.",
+        "The value must match an existing value in the referenced primary key or unique key column.",
+        "A new primary key value is automatically generated in the parent table.",
+        "The foreign key checks only uniqueness of the inserted value.",
+        "The foreign key column must always contain NULL values."
+      ],
+      "answer": "The value must match an existing value in the referenced primary key or unique key column."
+    },
+    {
+      "id": 37,
+      "type": "single",
+      "question": "Which of the following threats is least effectively controlled by a traditional hardware firewall?",
+      "options": [
+        "Unauthorized port access",
+        "Malicious inbound traffic",
+        "External intrusion attempts",
+        "Data theft by authorized internal users",
+        "Unauthorized external network access"
+      ],
+      "answer": "Data theft by authorized internal users"
+    },
+    {
+      "id": 38,
+      "type": "single",
+      "question": "In TRC, which of the following expressions correctly retrieves all tuples from the Employee relation where the attribute salary is strictly greater than 50,000?",
+      "options": [
+        "{t∣Employee(t)∨t.salary>50000}",
+        "𝜎𝑠𝑎𝑙𝑎𝑟𝑦>50000(𝐸𝑚𝑝𝑙𝑜𝑦𝑒𝑒)",
+        "{t.salary>50000∣Employee(t)}",
+        "{t∣Employee(t)→t.salary>50000}",
+        "{t∣Employee(t)∧t.salary>50000}"
+      ],
+      "answer": "{t∣Employee(t)∧t.salary>50000}"
+    },
+    {
+      "id": 39,
+      "type": "single",
+      "question": "What is the primary purpose of the GROUP BY clause in SQL?",
+      "options": [
+        "To sort rows in ascending or descending order",
+        "To group rows with identical values in specified columns for aggregate processing",
+        "To permanently remove duplicate rows from a table",
+        "To filter rows before retrieval",
+        "To combine records from multiple tables"
+      ],
+      "answer": "To group rows with identical values in specified columns for aggregate processing"
+    },
+    {
+      "id": 40,
+      "type": "single",
+      "question": "Which of the following sorting algorithms has the same time complexity in the best, average, and worst cases?",
+      "options": [
+        "Merge Sort",
+        "Quick Sort 10",
+        "Bubble Sort",
+        "Insertion Sort",
+        "None of the above"
+      ],
+      "answer": "Merge Sort"
+    },
+    {
+      "id": 41,
+      "type": "single",
+      "question": "In the Cyber Kill Chain model, which phase involves combining a malicious payload with a specific exploit or vulnerability to prepare for attack delivery?",
+      "options": [
+        "Footprinting",
+        "Weaponization",
+        "Enumeration",
+        "Hardening",
+        "Sandboxing"
+      ],
+      "answer": "Weaponization"
+    },
+    {
+      "id": 42,
+      "type": "single",
+      "question": "A Binary Search Tree (BST) is constructed by inserting the following elements in the given order: 46, 72, 39, 58, 21, 13, 65, 87, 99 What will be the inorder traversal of the BST?",
+      "options": [
+        "46, 39, 21, 13, 72, 58, 65, 87, 99",
+        "13, 21, 39, 46, 58, 65, 72, 87, 99",
+        "99, 87, 72, 65, 58, 46, 39, 21, 13",
+        "13, 39, 21, 46, 58, 72, 65, 87, 99",
+        "21, 13, 39, 46, 65, 58, 72, 99, 87"
+      ],
+      "answer": "13, 21, 39, 46, 58, 65, 72, 87, 99"
+    },
+    {
+      "id": 43,
+      "type": "single",
+      "question": "Which web security attack causes a logged -in user’s browser to send unauthorized requests to a trusted web application without the user’s intentional consent?",
+      "options": [
+        "Phishing",
+        "SQL Injection",
+        "CSRF",
+        "Spoofing",
+        "Session Hijacking"
+      ],
+      "answer": "CSRF"
+    },
+    {
+      "id": 44,
+      "type": "single",
+      "question": "Which type of SQL JOIN automatically matches rows from two tables using columns that have the same name in both tables?",
+      "options": [
+        "Inner Join",
+        "Cross Join",
+        "Self Join",
+        "Natural Join",
+        "Left Join"
+      ],
+      "answer": "Natural Join"
+    },
+    {
+      "id": 45,
+      "type": "single",
+      "question": "Among the following in -place comparison -based sorting algorithms, which algorithm generally performs the minimum number of swaps in the worst case? 11",
+      "options": [
+        "Bubble Sort",
+        "Quick Sort",
+        "Selection Sort",
+        "Insertion Sort",
+        "Merge Sort"
+      ],
+      "answer": "Selection Sort"
+    },
+    {
+      "id": 46,
+      "type": "single",
+      "question": "Which SQL feature allows calculations to be performed across a group of related rows while still returning each individual row separately, typically using the PARTITION BY clause?",
+      "options": [
+        "Nested Query",
+        "Window Function",
+        "Trigger Function",
+        "Scalar Function",
+        "Aggregate Constraint"
+      ],
+      "answer": "Window Function"
+    },
+    {
+      "id": 47,
+      "type": "single",
+      "question": "What is the hexadecimal equivalent of the binary number: 10111010",
+      "options": ["BA", "9A", "A9", "AB", "B8"],
+      "answer": "BA"
+    },
+    {
+      "id": 48,
+      "type": "single",
+      "question": "What is the primary purpose of the $ symbol in Unix/Linux shell scripting?",
+      "options": [
+        "To terminate a running process",
+        "To define comments in a shell script",
+        "To access the value of a variable or perform command substitution",
+        "To declare loop variables in Bash",
+        "To redirect output to another file"
+      ],
+      "answer": "To access the value of a variable or perform command substitution"
+    },
+    {
+      "id": 49,
+      "type": "single",
+      "question": "What is the primary purpose of /bin/bash in Linux systems?",
+      "options": [
+        "To manage disk partitions",
+        "To execute shell commands and shell scripts",
+        "To configure network interfaces",
+        "To store system log files",
+        "To compile C programs automatically"
+      ],
+      "answer": "To execute shell commands and shell scripts"
+    },
+    {
+      "id": 50,
+      "type": "single",
+      "question": "What is the primary purpose of memoization in Dynamic Programming?",
+      "options": [
+        "To reduce memory allocation during execution",
+        "To store intermediate results of repeated subproblems",
+        "To increase recursion depth in algorithms 12",
+        "To execute multiple functions simultaneously",
+        "To convert iterative solutions into recursive solutions"
+      ],
+      "answer": "To store intermediate results of repeated subproblems"
+    },
+    {
+      "id": 51,
+      "type": "single",
+      "question": "In MySQL, which query correctly returns the salary appearing in the nth row after sorting all salaries in descending order from the Employees table?",
+      "options": [
+        "SELECT SALARY FROM Employees ORDER BY SALARY DESC LIMIT n, 1;",
+        "SELECT SALARY FROM Employees ORDER BY SALARY ASC LIMIT n-1, 1;",
+        "SELECT SALARY FROM Employees ORDER BY SALARY DESC LIMIT 1, n-1;",
+        "SELECT SALARY FROM Employees ORDER BY SALARY DESC LIMIT n-1, 1;",
+        "SELECT MAX(SALARY) FROM Employees WHERE SALARY < n;"
+      ],
+      "answer": "SELECT SALARY FROM Employees ORDER BY SALARY DESC LIMIT n-1, 1;"
+    },
+    {
+      "id": 52,
+      "type": "single",
+      "question": "Which of the following firewall monitors the state of every connection on the network and allows or blocks packets according to this context, providing stronger security?",
+      "options": [
+        "Proxy Firewall",
+        "Static Packet Firewall",
+        "Circuit-Level Gateway",
+        "Dynamic Packet Filtering Firewall",
+        "Application Gateway"
+      ],
+      "answer": "Dynamic Packet Filtering Firewall"
+    },
+    {
+      "id": 53,
+      "type": "single",
+      "question": "In SQL implementations that support the INSTR() function, what is the default starting index for the first character, and what value is returned if the specified substring is not found in the target string?",
+      "options": [
+        "Starts from 1; returns NULL if not found",
+        "Starts from 0; returns -1 if not found",
+        "Starts from 1; returns -1 if not found",
+        "Starts from 0; returns 0 if not found",
+        "Starts from 1; returns 0 if not found"
+      ],
+      "answer": "Starts from 1; returns 0 if not found"
+    },
+    {
+      "id": 54,
+      "type": "single",
+      "question": "Consider the following transactions operating on database items X and Y with initial values: X=200,Y=100 Transaction T₁ · Read X · X := X − 10 · Write X Transaction T₂ · Read Y · Y := Y + 20 · Write Y Both transactions execute completely and exactly once in any serial order without rollback or failure. What will be the final values of X and Y?",
+      "options": [
+        "X = 190, Y = 120",
+        "X = 210, Y = 120",
+        "X = 190, Y = 100",
+        "X = 200, Y = 100",
+        "X = 210, Y = 80"
+      ],
+      "answer": "X = 190, Y = 120"
+    },
+    {
+      "id": 55,
+      "type": "single",
+      "question": "Which ACID property ensures that a transaction is executed entirely or not executed at all, so that partial updates are not permanently applied if a failure occurs during execution?",
+      "options": [
+        "Consistency",
+        "Isolation",
+        "Recoverability",
+        "Atomicity",
+        "Durability"
+      ],
+      "answer": "Atomicity"
+    },
+    {
+      "id": 56,
+      "type": "single",
+      "question": "Consider the relation: R(Roll_No, Student_ID, Course_ID) with the following functional dependencies: · {Roll_No, Course_ID} → {Student_ID} · {Student_ID, Course_ID} → {Roll_No} · Student_ID → Roll_No The above dependencies completely describe all functional dependencies of the relation. Identify the highest normal form satisfied by the relation.",
+      "options": [
+        "First Normal Form",
+        "Second Normal Form",
+        "Third Normal Form",
+        "Boyce-Codd Normal Form",
+        "Fourth Normal Form"
+      ],
+      "answer": "Third Normal Form"
+    },
+    {
+      "id": 57,
+      "type": "single",
+      "question": "In TRC, which of the following mathematical notations is used as a quantifier to express that at least one tuple in the relation satisfies a specific condition? 14",
+      "options": ["∀", "∃", "σ", "π", "∪"],
+      "answer": "∃"
+    },
+    {
+      "id": 58,
+      "type": "single",
+      "question": "In most standard SQL implementations, which of the following statements regarding DROP and TRUNCATE commands is incorrect?",
+      "options": [
+        "DROP removes both the table structure and table data.",
+        "TRUNCATE removes all rows while preserving the table structure.",
+        "TRUNCATE is generally faster than DELETE for removing all rows from a table.",
+        "TRUNCATE can always be reversed using ROLLBACK regardless of the DBMS implementation.",
+        "DROP removes associated indexes and constraints along with the table."
+      ],
+      "answer": "TRUNCATE can always be reversed using ROLLBACK regardless of the DBMS implementation."
+    },
+    {
+      "id": 59,
+      "type": "single",
+      "question": "In DBMS, which referential integrity action of a foreign key constraint automatically deletes related child records when the corresponding parent record is deleted?",
+      "options": ["Restrict", "Commit", "Rollback", "Cascade", "Savepoint"],
+      "answer": "Cascade"
+    },
+    {
+      "id": 60,
+      "type": "single",
+      "question": "A rogue wireless access point that closely imitates a legitimate Wi -Fi network in order to trick users and capture their credentials is an example of which attack?",
+      "options": [
+        "Man-in-the-middle attack",
+        "Evil twin attack",
+        "DNS spoofing attack",
+        "ARP poisoning attack",
+        "Smurf attack"
+      ],
+      "answer": "Evil twin attack"
+    }
+  ]
+}
