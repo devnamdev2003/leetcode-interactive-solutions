@@ -1,5 +1,27 @@
 [
   {
+    "id": "783",
+    "title": "Search in a Binary Search Tree",
+    "difficulty": "Easy",
+    "tags": [
+      "Tree",
+      "Binary Search Tree",
+      "Binary Tree"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/search-in-a-binary-search-tree/",
+    "solutions": [
+      {
+        "name": "Better",
+        "url": "binary-search-tree/search-in-a-binary-search-tree-better.html"
+      },
+      {
+        "name": "Optimal",
+        "url": "binary-search-tree/search-in-a-binary-search-tree.html"
+      }
+    ]
+  },
+  {
     "id": "114",
     "title": "Flatten Binary Tree to Linked List",
     "difficulty": "Medium",

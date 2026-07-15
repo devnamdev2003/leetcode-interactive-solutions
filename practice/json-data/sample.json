@@ -1,0 +1,27 @@
+{
+  "title": "My Awesome Quiz",
+  "description": "This quiz supports **Markdown** in questions and *multi-select* answers.",
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "question": "What is **2 + 2**?",
+      "options": ["3", "4", "5", "6"],
+      "answer": "4"
+    },
+    {
+      "id": 2,
+      "type": "multiple",
+      "question": "Which of these are **programming languages**? (Select all that apply)",
+      "options": ["HTML", "Python", "JavaScript", "CSS"],
+      "answer": ["Python", "JavaScript"]
+    },
+    {
+      "id": 3,
+      "type": "single",
+      "question": "Check out this code snippet:\n\n```javascript\nconsole.log('Hello World');\n```\n\nWhat will it output?",
+      "options": ["Error", "Hello World", "Nothing"],
+      "answer": "Hello World"
+    }
+  ]
+}
