@@ -1,5 +1,41 @@
 [
   {
+    "id": "g-6",
+    "title": "Floor in BST",
+    "difficulty": "Medium",
+    "tags": [
+      "Tree",
+      "Binary Search Tree",
+      "Binary Tree"
+    ],
+    "platform": "GeeksForGeeks",
+    "platformUrl": "https://www.geeksforgeeks.org/problems/closest-neighbor-in-bst/1",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "binary-search-tree/closest-neighbor-in-bst.html"
+      }
+    ]
+  },
+  {
+    "id": "g-6",
+    "title": "Ceil in BST",
+    "difficulty": "Medium",
+    "tags": [
+      "Tree",
+      "Binary Search Tree",
+      "Binary Tree"
+    ],
+    "platform": "GeeksForGeeks",
+    "platformUrl": "https://www.geeksforgeeks.org/problems/implementing-ceil-in-bst/1",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "binary-search-tree/implementing-ceil-in-bst.html"
+      }
+    ]
+  },
+  {
     "id": "783",
     "title": "Search in a Binary Search Tree",
     "difficulty": "Easy",
