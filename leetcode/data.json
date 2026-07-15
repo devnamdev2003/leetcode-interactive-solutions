@@ -1,5 +1,23 @@
 [
   {
+    "id": "784",
+    "title": "Insert into a Binary Search Tree",
+    "difficulty": "Medium",
+    "tags": [
+      "Tree",
+      "Binary Search Tree",
+      "Binary Tree"
+    ],
+    "platform": "LeetCode",
+    "platformUrl": "https://leetcode.com/problems/insert-into-a-binary-search-tree/description/",
+    "solutions": [
+      {
+        "name": "Optimal",
+        "url": "binary-search-tree/insert-into-a-binary-search-tree.html"
+      }
+    ]
+  },
+  {
     "id": "g-7",
     "title": "Floor in BST",
     "difficulty": "Medium",
