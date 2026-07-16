@@ -26,15 +26,6 @@
           colors: {
             gray: { 750: '#2d3748', 850: '#1a202c', 950: '#0d1117' },
             brand: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5' }
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.4s ease-out forwards',
-            'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          },
-          keyframes: {
-            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-            slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
           }
         }
       }
@@ -63,10 +54,7 @@
     }
     
     .view-section { display: none; }
-    .view-section.active { display: flex; animation: slideUp 0.4s ease-out forwards; }
-    
-    .option-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .option-btn:active { transform: scale(0.98); }
+    .view-section.active { display: flex; }
     
     /* Markdown Styles tweaking */
     .prose pre { background-color: #0d1117 !important; border: 1px solid #374151; }
@@ -78,8 +66,8 @@
   
   <!-- Ambient Background Orbs -->
   <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand-600/10 blur-[120px] animate-pulse-slow"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-fuchsia-600/10 blur-[100px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand-600/10 blur-[120px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-fuchsia-600/10 blur-[100px]"></div>
   </div>
 
   <!-- Custom Toast Container -->
@@ -951,7 +939,7 @@
         }
 
         // Base Classes
-        btn.className = `option-btn group w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all ${
+        btn.className = `group w-full text-left p-4 rounded-xl border flex items-start gap-4 ${
           !state.isAnswered || state.mode === 'exam' 
           ? 'bg-gray-800/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50' 
           : ''
@@ -961,11 +949,11 @@
         const shapeClass = multi ? 'rounded-md' : 'rounded-full';
         
         btn.innerHTML = `
-          <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center border border-gray-600 ${shapeClass} mt-0.5 transition-colors bg-gray-900 group-hover:border-gray-400 indicator-box">
-             <span class="text-[9px] font-bold text-gray-400 indicator-text">${letter}</span>
+          <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center border border-gray-600 ${shapeClass} mt-0.5 bg-gray-900 group-hover:border-gray-400 indicator-box">
+             <span class="text-[10px] font-bold text-gray-400 indicator-text">${letter}</span>
           </div>
-          <div class="flex-1 text-sm text-gray-200 opt-text">${opt}</div>
-          <div class="flex-shrink-0 w-4 h-4 ml-1 hidden feedback-icon flex items-center justify-center"></div>
+          <div class="flex-1 text-sm md:text-base text-gray-200 opt-text">${opt}</div>
+          <div class="flex-shrink-0 w-5 h-5 ml-2 hidden feedback-icon flex items-center justify-center"></div>
         `;
 
         // Styling based on state
@@ -979,28 +967,28 @@
             fIcon.classList.remove('hidden');
 
             if (isCorrect) {
-                btn.className = `w-full text-left p-3 rounded-xl border flex items-start gap-3 bg-emerald-900/20 border-emerald-500/50 ring-1 ring-emerald-500/20`;
-                indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border-emerald-500 bg-emerald-500 ${shapeClass} mt-0.5 shadow-lg shadow-emerald-500/30`;
+                btn.className = `w-full text-left p-4 rounded-xl border flex items-start gap-4 bg-emerald-900/20 border-emerald-500/50 ring-1 ring-emerald-500/20`;
+                indBox.className = `flex-shrink-0 w-6 h-6 flex items-center justify-center border-emerald-500 bg-emerald-500 ${shapeClass} mt-0.5 shadow-lg shadow-emerald-500/30`;
                 indTxt.innerHTML = `<i class="ph-bold ph-check text-white"></i>`;
-                fIcon.innerHTML = `<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i>`;
+                fIcon.innerHTML = `<i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i>`;
                 if(multi && !isSel) {
-                    btn.className = `w-full text-left p-3 rounded-xl border border-dashed flex items-start gap-3 bg-emerald-900/10 border-emerald-500/30 opacity-70`;
-                    indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border border-emerald-500/50 bg-gray-900 ${shapeClass} mt-0.5`;
+                    btn.className = `w-full text-left p-4 rounded-xl border border-dashed flex items-start gap-4 bg-emerald-900/10 border-emerald-500/30 opacity-70`;
+                    indBox.className = `flex-shrink-0 w-6 h-6 flex items-center justify-center border border-emerald-500/50 bg-gray-900 ${shapeClass} mt-0.5`;
                     indTxt.innerHTML = `<i class="ph-bold ph-check text-emerald-500"></i>`;
-                    fIcon.innerHTML = `<span class="text-[9px] font-bold text-emerald-500 uppercase">Missed</span>`;
+                    fIcon.innerHTML = `<span class="text-[10px] font-bold text-emerald-500 uppercase">Missed</span>`;
                 }
             } else if (isSel) {
-                btn.className = `w-full text-left p-3 rounded-xl border flex items-start gap-3 bg-red-900/20 border-red-500/50 ring-1 ring-red-500/20`;
-                indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border-red-500 bg-red-500 ${shapeClass} mt-0.5 shadow-lg shadow-red-500/30`;
+                btn.className = `w-full text-left p-4 rounded-xl border flex items-start gap-4 bg-red-900/20 border-red-500/50 ring-1 ring-red-500/20`;
+                indBox.className = `flex-shrink-0 w-6 h-6 flex items-center justify-center border-red-500 bg-red-500 ${shapeClass} mt-0.5 shadow-lg shadow-red-500/30`;
                 indTxt.innerHTML = `<i class="ph-bold ph-x text-white"></i>`;
-                fIcon.innerHTML = `<i class="ph-fill ph-x-circle text-red-500 text-lg"></i>`;
+                fIcon.innerHTML = `<i class="ph-fill ph-x-circle text-red-500 text-xl"></i>`;
             } else {
                 btn.classList.add('opacity-40');
             }
         } else if (isSel) {
-            btn.className = `option-btn group w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all bg-brand-900/30 border-brand-500/50 ring-1 ring-brand-500/30`;
-            indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border-brand-500 bg-brand-500 ${shapeClass} mt-0.5 shadow-lg shadow-brand-500/30`;
-            indTxt.innerHTML = multi ? `<i class="ph-bold ph-check text-white"></i>` : `<div class="w-1.5 h-1.5 rounded-full bg-white"></div>`;
+            btn.className = `group w-full text-left p-4 rounded-xl border flex items-start gap-4 bg-brand-900/30 border-brand-500/50 ring-1 ring-brand-500/30`;
+            indBox.className = `flex-shrink-0 w-6 h-6 flex items-center justify-center border-brand-500 bg-brand-500 ${shapeClass} mt-0.5 shadow-lg shadow-brand-500/30`;
+            indTxt.innerHTML = multi ? `<i class="ph-bold ph-check text-white"></i>` : `<div class="w-2 h-2 rounded-full bg-white"></div>`;
         }
         
         if(!btn.disabled) btn.onclick = () => handleSelect(opt);
