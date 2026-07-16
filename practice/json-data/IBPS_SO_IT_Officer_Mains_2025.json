@@ -25,7 +25,7 @@
     {
       "id": 3,
       "type": "single",
-      "question": "The <template> tag in HTML is not used for:",
+      "question": "The `<template>` tag in HTML is not used for:",
       "options": [
         "Holding reusable HTML blocks",
         "Defining HTML to be used later with JavaScript",
@@ -111,7 +111,7 @@
     {
       "id": 11,
       "type": "single",
-      "question": "What does a router do if it receives an IP packet that is larger than the MTU of the outgoing link and the DF (Don't Fragment) bit is set? 3",
+      "question": "What does a router do if it receives an IP packet that is larger than the MTU of the outgoing link and the DF (Don't Fragment) bit is set?",
       "options": [
         "Fragments the packet and forwards it",
         "Drops the packet and sends an ICMP \"Fragmentation Needed\" message",
@@ -258,7 +258,7 @@
       "question": "In object-oriented programming, a subclass inherits all members of its base class except:",
       "options": [
         "Public members from the base class",
-        "Protected members from the base class 6",
+        "Protected members from the base class",
         "Private members from the base class",
         "Static members from the base class",
         "Friend functions of the base class"
@@ -372,7 +372,7 @@
         "A globally distributed ecosystem of AI-enabled embedded systems that autonomously interact with big data engines in real-time through federated learning models.",
         "A dynamic framework where cyber-physical systems utilize blockchain protocols and AI agents to perform autonomous decision-making in fog computing layers.",
         "An interconnected network of physical objects integrated with sensors, actuators, and communication protocols, designed to collect, exchange, and act on real-world data over the internet.",
-        "A virtualized cloud infrastructure that supports containerized microservices interacting with machine learning algorithms for large-scale IoT deployment over 5G. 8",
+        "A virtualized cloud infrastructure that supports containerized microservices interacting with machine learning algorithms for large-scale IoT deployment over 5G.",
         "A secure hardware-software ecosystem focused on real-time threat detection and intrusion prevention in smart connected devices using biometric sensors and cryptographic algorithms."
       ],
       "answer": "An interconnected network of physical objects integrated with sensors, actuators, and communication protocols, designed to collect, exchange, and act on real-world data over the internet."
@@ -492,7 +492,7 @@
     {
       "id": 45,
       "type": "single",
-      "question": "In data warehousing, a cuboid is used to represent: 10",
+      "question": "In data warehousing, a cuboid is used to represent: ",
       "options": [
         "Summarized data from the data cube",
         "Raw transactional data without aggregation",
@@ -555,11 +555,11 @@
       "options": [
         "2PL",
         "Optimistic locking protocol",
-        "Timestamp ordering protocol 11",
+        "Timestamp ordering protocol",
         "Strict 2PL",
         "Shared locking protocol"
       ],
-      "answer": "Timestamp ordering protocol 11"
+      "answer": "Timestamp ordering protocol"
     },
     {
       "id": 51,
@@ -610,7 +610,7 @@
         "SMTP secures the message; POP3 stores it permanently",
         "SMTP is used to send emails; POP3 is used to download them",
         "SMTP manages file transfers; POP3 manages attachments",
-        "Both protocols do the same work in email systems 12"
+        "Both protocols do the same work in email systems"
       ],
       "answer": "SMTP is used to send emails; POP3 is used to download them"
     },
