@@ -1,1277 +1,1351 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JSON Quiz App v2.2</title>
-    <!-- Tailwind CDN with Typography Plugin for Markdown styling -->
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <!-- Marked.js for Markdown parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  </head>
-  <body class="bg-slate-950 text-slate-200 font-sans min-h-screen flex flex-col items-center justify-center p-4 relative overflow-x-hidden">
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz App Pro | Advanced Learning Platform</title>
+  
+  <!-- Fonts: Inter for a clean, modern look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            gray: { 750: '#2d3748', 850: '#1a202c', 950: '#0d1117' },
+            brand: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5' }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.4s ease-out forwards',
+            'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Marked.js (Markdown parsing) & Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    /* Custom Scrollbar & Utils */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     
-    <!-- Ambient Background -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <div class="absolute top-0 left-1/4 -translate-x-1/2 -translate-y-1/4 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px]"></div>
-      <div class="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[100px]"></div>
-      <div class="absolute top-1/2 right-0 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[120px]"></div>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .view-section { display: none; }
+    .view-section.active { display: flex; animation: slideUp 0.4s ease-out forwards; }
+    
+    .option-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .option-btn:active { transform: scale(0.98); }
+    
+    /* Markdown Styles tweaking */
+    .prose pre { background-color: #0d1117 !important; border: 1px solid #374151; }
+    .prose code { color: #a5b4fc !important; }
+    .prose a { color: #818cf8 !important; }
+  </style>
+</head>
+<body class="bg-gray-950 text-gray-200 font-sans min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-x-hidden selection:bg-brand-500/30 selection:text-brand-200">
+  
+  <!-- Ambient Background Orbs -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand-600/10 blur-[120px] animate-pulse-slow"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-fuchsia-600/10 blur-[100px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+  </div>
+
+  <!-- Custom Toast Container -->
+  <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- Custom Confirm Modal -->
+  <div id="confirm-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="confirm-overlay"></div>
+    <div class="glass-panel w-full max-w-sm p-6 rounded-2xl shadow-2xl relative z-10 transform scale-95 opacity-0 transition-all duration-200" id="confirm-box">
+      <div class="flex items-center gap-3 text-xl font-semibold text-white mb-2">
+        <i class="ph-fill ph-warning-circle text-amber-500"></i>
+        <h3 id="confirm-title">Are you sure?</h3>
+      </div>
+      <p id="confirm-message" class="text-sm text-gray-400 mb-6 leading-relaxed">This action cannot be undone.</p>
+      <div class="flex justify-end gap-3">
+        <button id="btn-confirm-cancel" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">Cancel</button>
+        <button id="btn-confirm-action" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-brand-600 hover:bg-brand-500 shadow-lg shadow-brand-500/25 transition-all">Confirm</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Main App Container -->
-    <div id="app-container" class="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl shadow-2xl shadow-black/50 w-full max-w-5xl overflow-hidden p-6 md:p-8 z-10 relative min-h-[600px] flex flex-col transition-all duration-500">
-
-      <!-- DASHBOARD SECTION -->
-      <div id="dashboard-section" class="hidden flex-col w-full flex-1">
-        
-        <!-- Header & Stats -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
-          <div>
-            <h1 class="text-2xl font-bold text-white tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Welcome back</h1>
-            <p class="text-xs text-slate-400 mt-1">Here is your learning progress and saved quizzes.</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <button id="btn-settings" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all border border-slate-700 hover:border-slate-500 shadow-md flex items-center justify-center" title="Settings & Data">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </button>
-            <button id="btn-show-upload" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:-translate-y-0.5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-              Upload Quiz
-            </button>
-          </div>
+  <!-- Main App Window -->
+  <main class="glass-panel w-full max-w-6xl min-h-[600px] rounded-[2rem] shadow-2xl overflow-hidden relative z-10 flex flex-col">
+    
+    <!-- HEADER -->
+    <header id="main-header" class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/[0.02] transition-all duration-300">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+          <i class="ph-bold ph-lightning text-white text-xl"></i>
         </div>
+        <div>
+          <h1 class="text-lg font-bold text-white leading-none">QuizPro</h1>
+          <p class="text-xs text-gray-400 mt-1 font-medium">Advanced Learning Platform</p>
+        </div>
+      </div>
+      <nav class="flex items-center gap-3">
+        <button id="nav-btn-home" class="p-2.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all hidden" title="Dashboard">
+          <i class="ph-bold ph-house text-lg"></i>
+        </button>
+        <button id="nav-btn-upload" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium rounded-xl transition-all flex items-center gap-2">
+          <i class="ph-bold ph-upload-simple"></i> Upload JSON
+        </button>
+        <button id="nav-btn-settings" class="p-2.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all" title="Data & Settings">
+          <i class="ph-bold ph-gear text-lg"></i>
+        </button>
+      </nav>
+    </header>
 
-        <!-- Analytics Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <!-- Stat: Total Questions -->
-          <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 flex items-center gap-4 relative overflow-hidden group">
-            <div class="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-colors"></div>
-            <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            </div>
-            <div>
-              <p class="text-slate-400 text-[10px] font-medium uppercase tracking-wider mb-0.5">Total Answered</p>
-              <h3 class="text-2xl font-bold text-white leading-none" id="stat-total-q">0</h3>
-            </div>
+    <!-- VIEWS CONTAINER -->
+    <div class="flex-1 relative overflow-y-auto overflow-x-hidden p-6 md:p-8" id="views-wrapper">
+      
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="view-dashboard" class="view-section active flex-col w-full h-full">
+        <!-- Stats Bento Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="col-span-2 md:col-span-2 bg-gradient-to-br from-brand-900/40 to-gray-900 border border-brand-500/20 p-5 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl group-hover:bg-brand-500/20 transition-all"></div>
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-1">Welcome back!</h2>
+            <p class="text-xs text-brand-200/70">Ready to conquer your next challenge?</p>
           </div>
           
-          <!-- Stat: Accuracy -->
-          <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 flex items-center gap-4 relative overflow-hidden group">
-             <div class="absolute -right-6 -top-6 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors"></div>
-            <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+          <div class="bg-gray-800/50 border border-white/5 p-4 rounded-2xl flex flex-col justify-between hover:border-white/10 transition-colors">
+            <div class="flex items-center gap-2 text-emerald-400 mb-2">
+              <i class="ph-fill ph-target text-lg"></i>
+              <span class="text-[10px] font-semibold uppercase tracking-wider">Accuracy</span>
             </div>
-            <div>
-              <p class="text-slate-400 text-[10px] font-medium uppercase tracking-wider mb-0.5">Avg. Accuracy</p>
-              <h3 class="text-2xl font-bold text-white leading-none"><span id="stat-accuracy">0</span>%</h3>
+            <div class="flex items-end gap-1">
+              <span class="text-2xl font-bold text-white" id="stat-accuracy">0</span>
+              <span class="text-xs text-gray-400 font-medium mb-1">%</span>
             </div>
           </div>
 
-          <!-- Stat: Daily Growth -->
-          <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 flex items-center justify-between relative overflow-hidden group">
-             <div class="absolute -right-6 -top-6 w-20 h-20 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-colors"></div>
-            <div class="flex gap-4 items-center z-10">
-              <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-              </div>
-              <div>
-                <p class="text-slate-400 text-[10px] font-medium uppercase tracking-wider mb-0.5">Today</p>
-                <h3 class="text-2xl font-bold text-white leading-none"><span id="stat-today">0</span> <span class="text-xs font-normal text-slate-500">Qs</span></h3>
-              </div>
+          <div class="bg-gray-800/50 border border-white/5 p-4 rounded-2xl flex flex-col justify-between hover:border-white/10 transition-colors">
+            <div class="flex items-center gap-2 text-fuchsia-400 mb-2">
+              <i class="ph-fill ph-brain text-lg"></i>
+              <span class="text-[10px] font-semibold uppercase tracking-wider">Questions</span>
             </div>
-            <!-- Mini 7 Day Chart -->
-            <div class="flex items-end gap-1 h-8 z-10" id="activity-chart">
-              <!-- Rendered via JS -->
+            <div class="flex items-end gap-1">
+              <span class="text-2xl font-bold text-white" id="stat-total-q">0</span>
+              <span class="text-xs text-gray-400 font-medium mb-1">solved</span>
             </div>
           </div>
         </div>
 
-        <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800/80">
-          <h2 class="text-base font-medium text-slate-300">Your Quizzes</h2>
+        <!-- Quizzes Header & Search -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+            <i class="ph-bold ph-books text-gray-400"></i> Your Library
+          </h3>
+          <div class="relative w-full sm:w-64">
+            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="search-quiz" placeholder="Search quizzes..." class="w-full bg-gray-900/50 border border-gray-700 text-sm text-white rounded-xl pl-10 pr-4 py-2 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-500">
+          </div>
         </div>
-        
-        <!-- Grid for Quiz Cards -->
-        <div id="quiz-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Cards injected via JS -->
+
+        <!-- Quiz Grid -->
+        <div id="quiz-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pb-8">
+          <!-- Injected via JS -->
         </div>
 
         <!-- Empty State -->
-        <div id="empty-dashboard" class="hidden flex-col items-center justify-center py-12 text-center h-full flex-1 bg-slate-900/30 rounded-2xl border border-dashed border-slate-700/50">
-          <div class="w-16 h-16 bg-slate-800/80 rounded-2xl flex items-center justify-center mb-4 text-slate-500 shadow-inner shadow-black/20">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path></svg>
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-16 text-center border-2 border-dashed border-gray-700/50 rounded-2xl bg-gray-800/20">
+          <div class="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mb-4 text-gray-500 shadow-inner">
+            <i class="ph-bold ph-file-dashed text-3xl"></i>
           </div>
           <h3 class="text-lg font-semibold text-white mb-2">No quizzes found</h3>
-          <p class="text-xs text-slate-400 max-w-sm mb-6">We couldn't find any default quizzes. Upload your own to get started.</p>
-          <button id="btn-empty-upload" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-900/20 hover:-translate-y-0.5">
-            Upload Your First Quiz
+          <p class="text-sm text-gray-400 max-w-sm mb-6">Upload a JSON file containing your questions to get started, or clear your search filter.</p>
+          <button onclick="document.getElementById('file-input').click()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-brand-500/25 flex items-center gap-2">
+            <i class="ph-bold ph-upload-simple"></i> Browse Files
           </button>
         </div>
-      </div>
+      </section>
 
-      <!-- SETTINGS MODAL OVERLAY -->
-      <div id="settings-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 w-full max-w-sm shadow-2xl relative">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              Settings & Data
-            </h2>
-            <button id="btn-close-settings" class="text-slate-500 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <!-- 2. UPLOAD/SETTINGS VIEW -->
+      <section id="view-settings" class="view-section flex-col items-center justify-center max-w-2xl mx-auto py-10 w-full h-full">
+        <h2 class="text-2xl font-bold text-white mb-8">Settings & Data Management</h2>
+        
+        <div class="w-full space-y-6">
+          <!-- Upload Box -->
+          <div class="bg-gray-800/40 border border-gray-700/50 p-6 rounded-2xl relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-r from-brand-600/5 to-fuchsia-600/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider mb-2">Upload New Quiz</h3>
+            <p class="text-sm text-gray-400 mb-4">Add a new quiz using a structured JSON file. Ensure it follows the required schema.</p>
+            <input type="file" id="file-input" accept=".json" class="hidden" />
+            <button onclick="document.getElementById('file-input').click()" class="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 relative z-10">
+              <i class="ph-bold ph-file-json"></i> Select JSON File
             </button>
           </div>
-          
-          <div class="space-y-4">
-            <div>
-              <p class="text-xs text-slate-400 mb-2 uppercase font-medium tracking-wider">Backup Data</p>
-              <div class="flex gap-2">
-                <button id="btn-export-data" class="flex-1 p-3 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl text-sm font-medium hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                  Export
-                </button>
-                <input type="file" id="import-file" class="hidden" accept=".json">
-                <label for="import-file" class="flex-1 p-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-sm font-medium hover:bg-emerald-500/20 transition-colors cursor-pointer flex items-center justify-center gap-2 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                  Import
-                </label>
-              </div>
-            </div>
 
-            <div class="pt-4 border-t border-slate-800">
-              <p class="text-xs text-red-400/80 mb-2 uppercase font-medium tracking-wider">Danger Zone</p>
-              <button id="btn-reset-data" class="w-full p-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-sm font-medium hover:bg-red-500/20 hover:text-red-300 transition-colors flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                Reset All Progress & Data
+          <!-- Backup Box -->
+          <div class="bg-gray-800/40 border border-gray-700/50 p-6 rounded-2xl">
+            <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider mb-2">Backup & Restore</h3>
+            <p class="text-sm text-gray-400 mb-4">Export your progress and custom quizzes, or import a previous backup.</p>
+            <div class="flex gap-3">
+              <button id="btn-export" class="flex-1 py-3 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+                <i class="ph-bold ph-download-simple"></i> Export Data
+              </button>
+              <input type="file" id="import-file" class="hidden" accept=".json">
+              <button onclick="document.getElementById('import-file').click()" class="flex-1 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+                <i class="ph-bold ph-upload-simple"></i> Import Backup
               </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- UPLOAD SECTION -->
-      <div id="upload-section" class="hidden flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-slate-700/70 rounded-3xl bg-slate-900/40 hover:border-blue-500/50 transition-colors flex-1 mt-4 group">
-        <div class="p-5 bg-slate-800 rounded-full mb-5 group-hover:scale-110 group-hover:bg-blue-900/30 group-hover:text-blue-400 transition-all duration-300 shadow-xl text-slate-500">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-        </div>
-        <h2 class="text-2xl font-bold text-white mb-2">Upload Quiz Data</h2>
-        <p class="text-sm text-slate-400 mb-6 text-center max-w-sm">Select a valid JSON file containing your quiz questions, options, and answers format.</p>
-        <input type="file" id="file-input" accept=".json" class="hidden" />
-        <div class="flex gap-3">
-          <button id="btn-cancel-upload" class="hidden px-6 py-3 bg-slate-800 text-slate-300 text-sm font-medium rounded-xl hover:bg-slate-700 transition-all hover:-translate-y-0.5">Cancel</button>
-          <label for="file-input" class="px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl cursor-pointer hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/30 hover:-translate-y-0.5">Select JSON File</label>
-        </div>
-        <div id="upload-error" class="text-red-400 text-xs mt-6 hidden bg-red-500/10 border border-red-500/30 px-4 py-2 rounded-xl flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-          <span id="upload-error-msg">Error parsing file.</span>
-        </div>
-      </div>
-
-      <!-- MODE SELECTION -->
-      <div id="mode-section" class="hidden flex flex-col items-center text-center py-8 flex-1">
-        <div class="w-full flex justify-start mb-6">
-          <button id="btn-back-from-modes" class="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-medium transition-colors bg-slate-800/50 px-3 py-1.5 rounded-lg hover:bg-slate-700/50 border border-slate-700/50">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back
-          </button>
-        </div>
-        <div class="space-y-2 mb-8">
-          <div class="inline-flex items-center justify-center p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 mb-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-          </div>
-          <h1 id="quiz-title" class="text-2xl font-bold tracking-tight text-white"></h1>
-          <p id="quiz-desc" class="text-sm text-slate-400 max-w-lg mx-auto"></p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-          <button id="btn-practice" class="group flex flex-col items-center p-6 bg-slate-800/40 border border-slate-700/50 rounded-3xl hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-left relative overflow-hidden">
-            <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors"></div>
-            <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            </div>
-            <h3 class="text-lg font-bold text-white mb-1.5">Practice Mode</h3>
-            <p class="text-xs text-slate-400 text-center leading-relaxed">Learn at your own pace. See correct answers immediately after answering each question.</p>
-          </button>
-          
-          <button id="btn-quiz" class="group flex flex-col items-center p-6 bg-slate-800/40 border border-slate-700/50 rounded-3xl hover:border-blue-500/50 hover:bg-blue-500/5 transition-all text-left relative overflow-hidden">
-             <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-colors"></div>
-            <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400 mb-4 group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <h3 class="text-lg font-bold text-white mb-1.5">Quiz Mode</h3>
-            <p class="text-xs text-slate-400 text-center leading-relaxed">Test your knowledge. Take the full quiz and see your final score and stats at the end.</p>
-          </button>
-        </div>
-      </div>
-
-      <!-- PRACTICE SETUP SECTION -->
-      <div id="practice-setup-section" class="hidden flex flex-col items-center justify-center text-center space-y-6 py-10 flex-1">
-        <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 mb-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
-        </div>
-        <div>
-          <h2 class="text-2xl font-bold text-white mb-1">Practice Setup</h2>
-          <p class="text-sm text-slate-400">How many questions would you like to practice today?</p>
-        </div>
-        <div class="flex flex-col items-center gap-3 bg-slate-800/40 p-6 rounded-3xl border border-slate-700/50 w-full max-w-sm">
-          <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Select Range</p>
-          <div class="flex items-center gap-4 text-2xl w-full justify-center">
-            <div class="flex flex-col items-center gap-1">
-                <label for="practice-from" class="text-[10px] text-slate-500 font-bold uppercase">From</label>
-                <input type="number" id="practice-from" min="1" value="1" class="w-20 bg-slate-900 border border-slate-600 rounded-xl px-2 py-2 text-white text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-xl" />
-            </div>
-            <span class="text-slate-600 font-bold mt-4">-</span>
-            <div class="flex flex-col items-center gap-1">
-                <label for="practice-to" class="text-[10px] text-slate-500 font-bold uppercase">To</label>
-                <input type="number" id="practice-to" min="1" value="10" class="w-20 bg-slate-900 border border-slate-600 rounded-xl px-2 py-2 text-white text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-xl" />
-            </div>
-          </div>
-          <p class="text-sm text-slate-500 font-mono mt-2">Total Available: <span id="practice-max-questions" class="text-slate-300 font-bold">10</span></p>
-          <button id="btn-practice-all" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium py-1.5 px-3 rounded-lg hover:bg-emerald-500/10 mt-1 w-full border border-emerald-500/20 bg-emerald-500/5">Select All Questions</button>
-          <button id="btn-practice-starred" class="hidden text-xs text-yellow-400 hover:text-yellow-300 transition-colors font-medium py-1.5 px-3 rounded-lg hover:bg-yellow-500/10 mt-2 w-full border border-yellow-500/20 bg-yellow-500/5 flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            Practice Starred (<span id="starred-count">0</span>)
-          </button>
-        </div>
-        <div class="flex gap-3 w-full max-w-sm mt-2">
-          <button id="btn-cancel-practice" class="flex-1 px-5 py-3 bg-slate-800 text-slate-300 border border-slate-700 rounded-xl hover:bg-slate-700 transition text-sm font-semibold">Cancel</button>
-          <button id="btn-start-practice" class="flex-1 px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all shadow-lg shadow-emerald-900/30 text-sm font-semibold hover:-translate-y-0.5">Start Session</button>
-        </div>
-      </div>
-
-      <!-- QUIZ SECTION -->
-      <div id="quiz-section" class="hidden flex flex-col space-y-5 flex-1">
-        <div class="flex justify-between items-center pb-4 border-b border-slate-800">
-          <div class="flex items-center gap-2">
-            <button id="btn-exit-quiz" class="text-slate-400 hover:text-white flex items-center gap-1.5 text-xs font-medium transition-colors bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Exit
-            </button>
-            <button id="btn-finish-early" class="hidden text-blue-400 hover:text-white flex items-center gap-1.5 text-xs font-medium transition-colors bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/30 hover:bg-blue-500/20" title="Submit current progress and finish">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg> Finish Early
+          <!-- Danger Box -->
+          <div class="bg-red-950/20 border border-red-900/50 p-6 rounded-2xl">
+            <h3 class="text-sm font-bold text-red-400 uppercase tracking-wider mb-2">Danger Zone</h3>
+            <p class="text-sm text-gray-400 mb-4">Permanently delete all custom quizzes and reset your learning statistics.</p>
+            <button id="btn-reset-data" class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+              <i class="ph-bold ph-trash"></i> Reset All Data
             </button>
           </div>
-          
-          <div id="practice-stats" class="hidden flex items-center gap-4 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800">
-             <div class="flex items-center gap-1.5">
-               <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-               <span class="text-[10px] text-slate-400 uppercase font-medium">Correct</span>
-               <span class="text-xs font-bold text-emerald-400" id="stat-correct">0</span>
-             </div>
-             <div class="w-px h-4 bg-slate-700"></div>
-             <div class="flex items-center gap-1.5">
-               <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-               <span class="text-[10px] text-slate-400 uppercase font-medium">Wrong</span>
-               <span class="text-xs font-bold text-red-400" id="stat-wrong">0</span>
-             </div>
-          </div>
+        </div>
+      </section>
 
-          <span id="mode-badge" class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm"></span>
+      <!-- 3. SETUP QUIZ VIEW -->
+      <section id="view-setup" class="view-section flex-col items-center justify-center py-8 w-full h-full">
+        <button id="btn-back-setup" class="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center gap-2 text-sm font-medium transition-colors bg-white/5 px-4 py-2 rounded-xl hover:bg-white/10">
+          <i class="ph-bold ph-arrow-left"></i> Back
+        </button>
+
+        <div class="text-center max-w-2xl mx-auto mb-8 mt-6">
+          <span id="setup-tag" class="inline-block px-3 py-1 bg-brand-500/20 text-brand-300 text-[10px] font-bold uppercase tracking-wider rounded-lg mb-3 border border-brand-500/20"></span>
+          <h2 id="setup-title" class="text-2xl md:text-3xl font-extrabold text-white mb-3 tracking-tight"></h2>
+          <p id="setup-desc" class="text-gray-400 text-sm leading-relaxed"></p>
         </div>
 
-        <div class="space-y-4 pt-1">
-          <div class="flex items-center gap-3">
-            <div class="h-1.5 flex-1 bg-slate-800 rounded-full overflow-hidden shadow-inner">
-              <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-500 ease-out" style="width: 10%"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-3xl">
+          <!-- Practice Mode Card -->
+          <div class="bg-gray-800/40 border border-gray-700/50 rounded-2xl p-6 hover:border-emerald-500/40 transition-colors flex flex-col h-full">
+            <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center text-2xl mb-4">
+              <i class="ph-fill ph-barbell"></i>
             </div>
-            <span id="progress-text" class="text-slate-400 text-xs font-mono font-medium min-w-[3.5rem] text-right"></span>
-          </div>
-
-          <div class="bg-slate-800/30 p-5 md:p-6 rounded-2xl border border-slate-700/50 min-h-[100px] flex items-center justify-center shadow-inner relative group">
-            <div class="absolute top-3 right-3 flex gap-2">
-              <button id="btn-star-question" class="hidden p-2 bg-slate-800 text-slate-400 hover:text-yellow-400 rounded-lg transition-colors border border-slate-700 shadow-sm" title="Star/Unstar Question">
-                <svg id="star-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              </button>
-              <button id="btn-copy-question" class="p-2 bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors border border-slate-700 shadow-sm" title="Copy Question & Options">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              </button>
-            </div>
-            <div id="question-text" class="prose prose-invert max-w-none w-full pt-4"></div>
-          </div>
-        </div>
-
-        <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-          <!-- Options rendered dynamically -->
-        </div>
-
-        <!-- Submit Multi-Choice container (hidden by default) -->
-        <div id="multi-submit-container" class="hidden flex justify-end mt-4">
-            <button id="btn-submit-multi" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all shadow-lg shadow-emerald-600/30 text-sm font-semibold hover:-translate-y-0.5">Check Answer</button>
-        </div>
-
-        <div class="mt-auto flex justify-between items-center pt-6 border-t border-slate-800">
-          <button id="btn-prev-question" class="hidden px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors flex items-center gap-2 text-sm font-medium border border-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Previous</button>
-          <button id="next-btn" class="hidden px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 text-sm font-semibold ml-auto hover:-translate-y-0.5">Next Question <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
-        </div>
-      </div>
-
-      <!-- RESULT SECTION -->
-      <div id="result-section" class="hidden flex flex-col items-center justify-center text-center py-8 space-y-6 flex-1">
-        <div class="space-y-3 w-full max-w-xl">
-          <div class="inline-flex items-center justify-center p-3 bg-yellow-500/10 text-yellow-500 rounded-full mb-1 shadow-lg shadow-yellow-500/20">
-             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
-          </div>
-          <h2 class="text-3xl font-bold tracking-tight text-white">Quiz Completed!</h2>
-          <p class="text-sm text-slate-400">Your results have been saved to your dashboard.</p>
-          
-          <div id="score-text" class="p-8 bg-slate-900/60 border border-slate-700/50 rounded-3xl shadow-2xl mt-6 relative overflow-hidden">
-            <!-- Ambient glow behind score -->
-            <div id="score-glow" class="absolute inset-0 bg-blue-500/5 blur-2xl rounded-full"></div>
-            <!-- Score rendered dynamically -->
-          </div>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 w-full max-w-sm mt-6">
-          <button id="btn-restart" class="flex-1 px-5 py-3 bg-slate-800 text-slate-300 border border-slate-700 text-sm font-medium rounded-xl hover:bg-slate-700 transition">Retake Quiz</button>
-          <button id="btn-back-to-dashboard" class="flex-1 px-5 py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-500 transition shadow-lg shadow-blue-900/30 hover:-translate-y-0.5">Dashboard</button>
-        </div>
-      </div>
-
-    </div>
-
-    <script>
-      // --- State Variables ---
-      let savedQuizzes = []; // Uploaded quizzes (persisted to localStorage)
-      let defaultQuizzes = []; // Quizzes fetched from ./json-data/ (NOT saved to localStorage)
-      
-      let activeQuizId = null;
-      let activeQuestions = [];
-      let currentQuestionIndex = 0;
-      let currentMode = 'quiz';
-      let userAnswers = []; // Arrays of answers. Will hold null until answered.
-      let optionButtons = [];
-      let hasAnsweredCurrent = false;
-
-      // User Stats State
-      let userStats = {
-          totalAnswered: 0,
-          totalCorrect: 0,
-          dailyActivity: {}, // format: 'YYYY-MM-DD': count
-          starred: {} // format: { 'quizId': [questionId1, questionId2] }
-      };
-
-      // --- DOM Elements ---
-      const dashboardSection = document.getElementById('dashboard-section');
-      const uploadSection = document.getElementById('upload-section');
-      const modeSection = document.getElementById('mode-section');
-      const quizSection = document.getElementById('quiz-section');
-      const resultSection = document.getElementById('result-section');
-      const practiceSetupSection = document.getElementById('practice-setup-section');
-      const settingsModal = document.getElementById('settings-modal');
-
-      const quizGrid = document.getElementById('quiz-grid');
-      const emptyDashboard = document.getElementById('empty-dashboard');
-      const btnShowUpload = document.getElementById('btn-show-upload');
-      const btnEmptyUpload = document.getElementById('btn-empty-upload');
-      const btnCancelUpload = document.getElementById('btn-cancel-upload');
-      const fileInput = document.getElementById('file-input');
-      const uploadError = document.getElementById('upload-error');
-      const uploadErrorMsg = document.getElementById('upload-error-msg');
-
-      const btnSettings = document.getElementById('btn-settings');
-      const btnCloseSettings = document.getElementById('btn-close-settings');
-      const btnResetData = document.getElementById('btn-reset-data');
-      const btnExportData = document.getElementById('btn-export-data');
-      const importFile = document.getElementById('import-file');
-
-      const quizTitleEl = document.getElementById('quiz-title');
-      const quizDescEl = document.getElementById('quiz-desc');
-      const btnPractice = document.getElementById('btn-practice');
-      const btnQuiz = document.getElementById('btn-quiz');
-      const btnBackFromModes = document.getElementById('btn-back-from-modes');
-
-      const progressText = document.getElementById('progress-text');
-      const progressBar = document.getElementById('progress-bar');
-      const modeBadge = document.getElementById('mode-badge');
-      const questionText = document.getElementById('question-text');
-      const optionsContainer = document.getElementById('options-container');
-      const nextBtn = document.getElementById('next-btn');
-      const btnPrevQuestion = document.getElementById('btn-prev-question');
-      const btnExitQuiz = document.getElementById('btn-exit-quiz');
-      const btnFinishEarly = document.getElementById('btn-finish-early');
-      const btnCopyQuestion = document.getElementById('btn-copy-question');
-      const multiSubmitContainer = document.getElementById('multi-submit-container');
-      const btnSubmitMulti = document.getElementById('btn-submit-multi');
-
-      const practiceFrom = document.getElementById('practice-from');
-      const practiceTo = document.getElementById('practice-to');
-      const practiceMaxQuestions = document.getElementById('practice-max-questions');
-      const btnCancelPractice = document.getElementById('btn-cancel-practice');
-      const btnStartPractice = document.getElementById('btn-start-practice');
-      const btnPracticeAll = document.getElementById('btn-practice-all');
-      const btnPracticeStarred = document.getElementById('btn-practice-starred');
-      const starredCountEl = document.getElementById('starred-count');
-      const btnStarQuestion = document.getElementById('btn-star-question');
-      const starIcon = document.getElementById('star-icon');
-      const practiceStats = document.getElementById('practice-stats');
-      const statCorrect = document.getElementById('stat-correct');
-      const statWrong = document.getElementById('stat-wrong');
-      
-      const scoreText = document.getElementById('score-text');
-      const scoreGlow = document.getElementById('score-glow');
-      const btnRestart = document.getElementById('btn-restart');
-      const btnBackToDashboard = document.getElementById('btn-back-to-dashboard');
-
-      // Dashboard Stat Elements
-      const statTotalQEl = document.getElementById('stat-total-q');
-      const statAccuracyEl = document.getElementById('stat-accuracy');
-      const statTodayEl = document.getElementById('stat-today');
-      const activityChartEl = document.getElementById('activity-chart');
-
-      // --- Core Functions & Data ---
-
-      function hideAll() {
-        dashboardSection.classList.add('hidden');
-        dashboardSection.classList.remove('flex');
-        uploadSection.classList.add('hidden');
-        uploadSection.classList.remove('flex');
-        modeSection.classList.add('hidden');
-        practiceSetupSection.classList.add('hidden');
-        quizSection.classList.add('hidden');
-        resultSection.classList.add('hidden');
-      }
-
-      function getAllQuizzes() {
-          return [...defaultQuizzes, ...savedQuizzes];
-      }
-
-      async function loadDefaultsFromFolder() {
-        try {
-          const response = await fetch('./json-data/manifest.json');
-          if (response.ok) {
-             const manifest = await response.json();
-             const filesToLoad = Array.isArray(manifest) ? manifest : (manifest.files || []);
-             const fetchedQuizzes = [];
-             for (const file of filesToLoad) {
-                const quizRes = await fetch(`./json-data/${file}`);
-                if (quizRes.ok) {
-                   const quiz = await quizRes.json();
-                   quiz.id = quiz.id || 'folder-' + Math.random().toString(36).substr(2, 9);
-                   quiz.isDefault = true; // Mark as default so it can't be deleted in UI
-                   fetchedQuizzes.push(quiz);
-                }
-             }
-             return fetchedQuizzes;
-          }
-        } catch (e) {
-          console.warn("Could not load defaults from ./json-data/ folder (CORS error or folder doesn't exist). Make sure you run on a local web server.");
-        }
-        return [];
-      }
-
-      async function loadData() {
-        // Load Stats first
-        const storedStats = localStorage.getItem('userQuizStats');
-        if (storedStats) {
-            try {
-                userStats = JSON.parse(storedStats);
-                if (!userStats.dailyActivity) userStats.dailyActivity = {};
-                if (!userStats.starred) userStats.starred = {};
-            } catch (e) {}
-        }
-
-        // Load Uploaded Quizzes
-        const storedQuizzes = localStorage.getItem('savedQuizzes');
-        if (storedQuizzes) {
-          try {
-            savedQuizzes = JSON.parse(storedQuizzes);
-          } catch (e) {
-            savedQuizzes = [];
-          }
-        } 
-        
-        // Always try fetching defaults on load (not saving them to localstorage)
-        defaultQuizzes = await loadDefaultsFromFolder();
-      }
-
-      function saveData() {
-        // Only save manually uploaded quizzes and stats
-        localStorage.setItem('savedQuizzes', JSON.stringify(savedQuizzes));
-        localStorage.setItem('userQuizStats', JSON.stringify(userStats));
-      }
-
-      function saveActiveSession() {
-          const sessionData = {
-              activeQuizId,
-              activeQuestions,
-              currentQuestionIndex,
-              currentMode,
-              userAnswers,
-              hasAnsweredCurrent
-          };
-          localStorage.setItem('activeQuizSession', JSON.stringify(sessionData));
-      }
-
-      function clearActiveSession() {
-          localStorage.removeItem('activeQuizSession');
-      }
-
-      function restoreActiveSession() {
-          const sessionStr = localStorage.getItem('activeQuizSession');
-          if (sessionStr) {
-              try {
-                  const sessionData = JSON.parse(sessionStr);
-                  activeQuizId = sessionData.activeQuizId;
-                  activeQuestions = sessionData.activeQuestions;
-                  currentQuestionIndex = sessionData.currentQuestionIndex;
-                  currentMode = sessionData.currentMode;
-                  userAnswers = sessionData.userAnswers;
-                  hasAnsweredCurrent = sessionData.hasAnsweredCurrent;
-                  
-                  if (activeQuestions && activeQuestions.length > 0) {
-                      return true;
-                  }
-              } catch(e) {
-                  clearActiveSession();
-              }
-          }
-          return false;
-      }
-
-      function getTodayDateString() {
-          return new Date().toISOString().split('T')[0];
-      }
-
-      function updateStatsUI() {
-          // Total Answered
-          statTotalQEl.textContent = userStats.totalAnswered.toLocaleString();
-
-          // Accuracy
-          let accuracy = 0;
-          if (userStats.totalAnswered > 0) {
-              accuracy = Math.round((userStats.totalCorrect / userStats.totalAnswered) * 100);
-          }
-          statAccuracyEl.textContent = accuracy;
-
-          // Today
-          const todayStr = getTodayDateString();
-          const todayCount = userStats.dailyActivity[todayStr] || 0;
-          statTodayEl.textContent = todayCount;
-
-          // 7 Day Chart
-          activityChartEl.innerHTML = '';
-          const maxCount = Math.max(...Object.values(userStats.dailyActivity), 10); 
-          
-          for (let i = 6; i >= 0; i--) {
-              const d = new Date();
-              d.setDate(d.getDate() - i);
-              const dateStr = d.toISOString().split('T')[0];
-              const count = userStats.dailyActivity[dateStr] || 0;
-              
-              const heightPct = Math.max((count / maxCount) * 100, 10);
-              
-              const bar = document.createElement('div');
-              bar.className = `w-1 rounded-t-sm transition-all duration-500 ${i === 0 ? 'bg-indigo-400' : 'bg-slate-700'}`;
-              bar.style.height = `${heightPct}%`;
-              bar.title = `${dateStr}: ${count} questions`;
-              activityChartEl.appendChild(bar);
-          }
-      }
-
-      function renderDashboard() {
-        hideAll();
-        updateStatsUI();
-        dashboardSection.classList.remove('hidden');
-        dashboardSection.classList.add('flex');
-        
-        quizGrid.innerHTML = '';
-        
-        const allQuizzes = getAllQuizzes();
-
-        if (allQuizzes.length === 0) {
-          quizGrid.classList.add('hidden');
-          emptyDashboard.classList.remove('hidden');
-          emptyDashboard.classList.add('flex');
-          emptyDashboard.querySelector('h3').textContent = 'No quizzes found';
-        } else {
-          emptyDashboard.classList.add('hidden');
-          emptyDashboard.classList.remove('flex');
-          quizGrid.classList.remove('hidden');
-
-          allQuizzes.forEach(quiz => {
-            const isDefault = quiz.isDefault;
-            const card = document.createElement('div');
-            card.className = 'group flex flex-col p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl hover:border-blue-500/40 hover:bg-slate-800/80 transition-all shadow-sm relative overflow-hidden';
+            <h3 class="text-xl font-bold text-white mb-2">Practice Mode</h3>
+            <p class="text-sm text-gray-400 mb-6 flex-1">Learn step-by-step. Get immediate feedback after each question. Perfect for studying.</p>
             
-            const title = quiz.title || 'Untitled Quiz';
-            const desc = quiz.description || `${quiz.questions.length} questions available to practice.`;
-            
-            card.innerHTML = `
-              <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-colors"></div>
-              <div class="flex justify-between items-start mb-3 z-10">
-                <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg border border-blue-500/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </div>
-                <div class="flex gap-2">
-                    ${isDefault ? `<span class="inline-flex items-center px-2 py-0.5 rounded bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 font-mono text-[9px] font-bold tracking-wider">DEFAULT</span>` : ''}
-                    <span class="inline-flex items-center justify-center px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono text-[9px] font-bold tracking-wider">${quiz.questions.length} Qs</span>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-xl border border-white/5">
+                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Range</label>
+                <div class="flex items-center gap-2">
+                  <input type="number" id="practice-from" min="1" class="w-16 bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-white text-center text-sm focus:border-emerald-500 focus:outline-none">
+                  <span class="text-gray-500">-</span>
+                  <input type="number" id="practice-to" min="1" class="w-16 bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-white text-center text-sm focus:border-emerald-500 focus:outline-none">
                 </div>
               </div>
-              <div class="z-10 mb-5">
-                <h3 class="text-base font-bold text-white line-clamp-1 mb-1">${title}</h3>
-                <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">${desc}</p>
+              <button id="btn-start-practice" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30">Start Practice</button>
+            </div>
+          </div>
+
+          <!-- Exam Mode Card -->
+          <div class="bg-gray-800/40 border border-gray-700/50 rounded-2xl p-6 hover:border-brand-500/40 transition-colors flex flex-col h-full">
+            <div class="w-12 h-12 bg-brand-500/20 text-brand-400 rounded-xl flex items-center justify-center text-2xl mb-4">
+              <i class="ph-fill ph-exam"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Exam Mode</h3>
+            <p class="text-sm text-gray-400 mb-6 flex-1">Test your knowledge. No immediate feedback. Final score and review at the end.</p>
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-xl border border-white/5">
+                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Timer</label>
+                <select id="exam-timer" class="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-1 focus:border-brand-500 focus:outline-none cursor-pointer">
+                  <option value="0">None</option>
+                  <option value="5">5 Minutes</option>
+                  <option value="10">10 Minutes</option>
+                  <option value="30">30 Minutes</option>
+                  <option value="60">60 Minutes</option>
+                </select>
               </div>
-              <div class="mt-auto flex gap-2 pt-3 border-t border-slate-700/50 z-10">
-                <button onclick="selectQuiz('${quiz.id}')" class="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-blue-900/20 hover:-translate-y-0.5">Play Quiz</button>
-                ${!isDefault ? `
-                <button onclick="deleteQuiz('${quiz.id}')" class="px-3 py-2 bg-slate-700 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-transparent hover:border-red-500/30 rounded-xl transition-colors" title="Delete Quiz">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                </button>` : ''}
-              </div>
-            `;
-            quizGrid.appendChild(card);
-          });
-        }
-      }
+              <button id="btn-start-exam" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-brand-900/30">Start Exam</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      function showUpload() {
-        hideAll();
-        uploadSection.classList.remove('hidden');
-        uploadSection.classList.add('flex');
-        
-        if (getAllQuizzes().length > 0) {
-            btnCancelUpload.classList.remove('hidden');
-        } else {
-            btnCancelUpload.classList.add('hidden');
-        }
-      }
-
-      // Globally accessible for inline onclick
-      window.selectQuiz = function(id) {
-        activeQuizId = id;
-        const quiz = getAllQuizzes().find(q => q.id === id);
-        if (!quiz) return;
-
-        hideAll();
-        modeSection.classList.remove('hidden');
-        quizTitleEl.textContent = quiz.title || 'Untitled Quiz';
-        quizDescEl.textContent = quiz.description || 'Select a mode below to begin practicing.';
-      }
-
-      window.deleteQuiz = function(id) {
-          if(confirm("Are you sure you want to delete this quiz? Your historical stats will remain.")) {
-              savedQuizzes = savedQuizzes.filter(q => q.id !== id);
-              saveData();
-              renderDashboard();
-          }
-      }
-
-      function getActiveQuiz() {
-          return getAllQuizzes().find(q => q.id === activeQuizId);
-      }
-
-      // --- Helper for Checkbox questions ---
-      function isMultiChoice(question) {
-          return Array.isArray(question.answer);
-      }
-
-      function checkAnswerCorrectness(question, answerGiven) {
-          if (isMultiChoice(question)) {
-              if (!Array.isArray(answerGiven)) return false;
-              if (answerGiven.length !== question.answer.length) return false;
-              const sortedCorrect = [...question.answer].sort();
-              const sortedGiven = [...answerGiven].sort();
-              for (let i = 0; i < sortedCorrect.length; i++) {
-                  if (sortedCorrect[i] !== sortedGiven[i]) return false;
-              }
-              return true;
-          } else {
-              return answerGiven === question.answer;
-          }
-      }
-
-      // --- Event Listeners: Settings Modal ---
-      btnSettings.addEventListener('click', () => {
-        settingsModal.classList.remove('hidden');
-      });
-      
-      btnCloseSettings.addEventListener('click', () => {
-        settingsModal.classList.add('hidden');
-      });
-
-      // Close modal on outside click
-      settingsModal.addEventListener('click', (e) => {
-        if(e.target === settingsModal) {
-            settingsModal.classList.add('hidden');
-        }
-      });
-
-      btnResetData.addEventListener('click', () => {
-        if(confirm("WARNING: This will permanently delete all your uploaded quizzes and learning progress. Are you absolutely sure?")) {
-            localStorage.removeItem('savedQuizzes');
-            localStorage.removeItem('userQuizStats');
-            clearActiveSession();
+      <!-- 4. ACTIVE QUIZ VIEW -->
+      <section id="view-quiz" class="view-section flex-col h-full w-full max-w-4xl mx-auto">
+        <!-- Top Bar -->
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+          <div class="flex items-center gap-4">
+            <button id="btn-exit-quiz" class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors" title="Exit Quiz">
+              <i class="ph-bold ph-x"></i>
+            </button>
+            <div class="flex flex-col">
+              <span id="quiz-badge" class="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-0.5">Mode</span>
+              <span class="text-sm font-mono text-gray-300">Q <span id="q-current" class="text-white font-bold text-base">1</span> / <span id="q-total">10</span></span>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <!-- Practice Stats (Hidden in Exam Mode) -->
+            <div id="active-practice-stats" class="hidden items-center gap-3 bg-gray-900/60 px-3 py-1.5 rounded-lg border border-white/5 text-xs font-mono font-medium">
+              <span class="text-emerald-400"><i class="ph-fill ph-check-circle mr-1"></i><span id="live-correct">0</span></span>
+              <span class="w-px h-3 bg-gray-700"></span>
+              <span class="text-red-400"><i class="ph-fill ph-x-circle mr-1"></i><span id="live-wrong">0</span></span>
+            </div>
             
-            // Re-initialize state
-            userStats = { totalAnswered: 0, totalCorrect: 0, dailyActivity: {}, starred: {} };
-            savedQuizzes = [];
-            
-            settingsModal.classList.add('hidden');
-            renderDashboard();
-        }
-      });
+            <!-- Timer (Hidden if none) -->
+            <div id="quiz-timer-display" class="hidden items-center gap-2 px-3 py-1.5 bg-gray-900/80 border border-gray-700 rounded-lg text-gray-300 font-mono text-sm shadow-inner">
+              <i class="ph-bold ph-timer text-brand-400"></i>
+              <span id="timer-text">00:00</span>
+            </div>
+          </div>
+        </div>
 
-      btnExportData.addEventListener('click', () => {
-         const backupData = {
-             type: "json-quiz-app-backup",
-             version: "2.2",
-             date: new Date().toISOString(),
-             data: {
-                 quizzes: savedQuizzes,
-                 stats: userStats
-             }
-         };
-         
-         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
-         const downloadAnchorNode = document.createElement('a');
-         downloadAnchorNode.setAttribute("href", dataStr);
-         downloadAnchorNode.setAttribute("download", "quiz_app_backup_" + getTodayDateString() + ".json");
-         document.body.appendChild(downloadAnchorNode);
-         downloadAnchorNode.click();
-         downloadAnchorNode.remove();
-      });
+        <!-- Progress Bar -->
+        <div class="w-full h-1 bg-gray-800 rounded-full mb-8 overflow-hidden">
+          <div id="quiz-progress" class="h-full bg-brand-500 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
 
-      importFile.addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+        <!-- Question Area -->
+        <div class="flex-1 flex flex-col">
+          <div class="relative bg-gray-800/30 border border-white/5 rounded-2xl p-5 md:p-6 mb-5 shadow-inner min-h-[100px]">
+            <div class="absolute top-4 right-4 flex gap-2">
+              <button id="btn-star" class="text-gray-500 hover:text-amber-400 transition-colors hidden" title="Star Question">
+                <i id="icon-star" class="ph-bold ph-star text-lg"></i>
+              </button>
+              <button id="btn-copy" class="text-gray-500 hover:text-white transition-colors" title="Copy Text">
+                <i class="ph-bold ph-copy text-lg"></i>
+              </button>
+            </div>
+            <div id="question-content" class="prose prose-invert max-w-none text-base md:text-lg font-medium leading-relaxed mt-1 text-gray-100">
+              <!-- Rendered Markdown -->
+            </div>
+          </div>
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const json = JSON.parse(event.target?.result);
-            if (json.type === "json-quiz-app-backup" && json.data) {
-                if (json.data.quizzes) savedQuizzes = json.data.quizzes;
-                if (json.data.stats) userStats = json.data.stats;
-                
-                saveData();
-                settingsModal.classList.add('hidden');
-                renderDashboard();
-                alert("Backup restored successfully!");
-            } else {
-                throw new Error("Invalid backup format.");
-            }
-          } catch (err) {
-            alert("Failed to import backup: " + (err.message || "Invalid file format."));
-          }
-          importFile.value = ''; // Reset
-        };
-        reader.readAsText(file);
-      });
-
-      // --- Event Listeners: Dashboard & Upload ---
-
-      btnShowUpload.addEventListener('click', showUpload);
-      btnEmptyUpload.addEventListener('click', showUpload);
-      btnCancelUpload.addEventListener('click', renderDashboard);
-      btnBackFromModes.addEventListener('click', renderDashboard);
-      btnExitQuiz.addEventListener('click', () => {
-          if (confirm("Are you sure you want to exit? Your current quiz progress will be lost.")) {
-              clearActiveSession();
-              renderDashboard();
-          }
-      });
-      btnBackToDashboard.addEventListener('click', renderDashboard);
-
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const json = JSON.parse(event.target?.result);
-            if (!json.questions || !Array.isArray(json.questions)) {
-              throw new Error('Missing questions array. Check your JSON format.');
-            }
-            
-            json.id = Date.now().toString();
-            if (!json.title) json.title = file.name.replace('.json', '');
-
-            savedQuizzes.push(json);
-            saveData();
-            
-            uploadError.classList.add('hidden');
-            renderDashboard();
-          } catch (err) {
-            uploadErrorMsg.textContent = err.message || 'Invalid JSON file format.';
-            uploadError.classList.remove('hidden');
-          }
-          fileInput.value = ''; // Reset
-        };
-        reader.readAsText(file);
-      });
-
-      // --- Event Listeners: Modes & Execution ---
-
-      btnPractice.addEventListener('click', () => startMode('practice'));
-      btnQuiz.addEventListener('click', () => startMode('quiz'));
-      btnCancelPractice.addEventListener('click', () => window.selectQuiz(activeQuizId));
-
-      function startMode(mode) {
-        const quiz = getActiveQuiz();
-        if (!quiz) return;
-        currentMode = mode;
-        
-        if (mode === 'practice') {
-              hideAll();
-              practiceSetupSection.classList.remove('hidden');
-              practiceFrom.max = String(quiz.questions.length);
-              practiceTo.max = String(quiz.questions.length);
-              practiceFrom.value = "1";
-              practiceTo.value = String(Math.min(10, quiz.questions.length));
-              practiceMaxQuestions.textContent = String(quiz.questions.length);
-              
-              const starredList = userStats.starred[quiz.id] || [];
-              if (starredList.length > 0) {
-                  starredCountEl.textContent = starredList.length;
-                  btnPracticeStarred.classList.remove('hidden');
-                  btnPracticeStarred.classList.add('flex');
-              } else {
-                  btnPracticeStarred.classList.add('hidden');
-                  btnPracticeStarred.classList.remove('flex');
-              }
-          } else {
-            activeQuestions = [...quiz.questions];
-            startQuizSession();
-        }
-      }
-
-      btnStartPractice.addEventListener('click', () => {
-          const quiz = getActiveQuiz();
-          if (!quiz) return;
-          
-          let from = parseInt(practiceFrom.value, 10);
-          let to = parseInt(practiceTo.value, 10);
-          
-          // Validation to prevent errors
-          if (isNaN(from) || from < 1) from = 1;
-          if (isNaN(to) || to > quiz.questions.length) to = quiz.questions.length;
-          if (from > to) from = to; // Ensure 'from' is not greater than 'to'
-          
-          // Slice for practice mode based on range
-          activeQuestions = [...quiz.questions].slice(from - 1, to);
-          startQuizSession();
-      });
-
-      btnPracticeAll.addEventListener('click', () => {
-          const quiz = getActiveQuiz();
-          if (quiz) {
-              practiceFrom.value = "1";
-              practiceTo.value = String(quiz.questions.length);
-          }
-      });
-
-      btnPracticeStarred.addEventListener('click', () => {
-          const quiz = getActiveQuiz();
-          if (!quiz) return;
-          const starredIds = userStats.starred[quiz.id] || [];
-          if (starredIds.length === 0) return;
-          
-          activeQuestions = quiz.questions.filter(q => starredIds.includes(q.id));
-          startQuizSession();
-      });
-
-      function startQuizSession() {
-        currentQuestionIndex = 0;
-        userAnswers = new Array(activeQuestions.length).fill(null); // use null to signify untouched
-        updatePracticeStats();
-        
-        if (currentMode === 'practice') {
-            modeBadge.textContent = 'Practice Mode';
-            modeBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30';
-        } else {
-            modeBadge.textContent = 'Quiz Mode';
-            modeBadge.className = 'px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/30';
-        }
-
-        saveActiveSession();
-        hideAll();
-        quizSection.classList.remove('hidden');
-        renderQuestion();
-      }
-
-      function updatePracticeStats() {
-          if (currentMode !== 'practice') {
-              practiceStats.classList.add('hidden');
-              return;
-          }
-          practiceStats.classList.remove('hidden');
-          practiceStats.classList.add('flex');
-          
-          let correctCount = 0;
-          let wrongCount = 0;
-          userAnswers.forEach((ans, idx) => {
-              if (ans !== null) { // if attempted
-                  const question = activeQuestions[idx];
-                  if (checkAnswerCorrectness(question, ans)) {
-                      correctCount++;
-                  } else {
-                      wrongCount++;
-                  }
-              }
-          });
-          statCorrect.textContent = String(correctCount);
-          statWrong.textContent = String(wrongCount);
-      }
-
-      function showNextBtn() {
-          nextBtn.innerHTML = currentQuestionIndex === activeQuestions.length - 1 
-              ? 'Finish Quiz <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>' 
-              : 'Next <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
-          nextBtn.classList.remove('hidden');
-      }
-
-      function renderOptions(question, answeredState) {
-          optionsContainer.innerHTML = '';
-          optionButtons = [];
-          const isMulti = isMultiChoice(question);
-
-          question.options.forEach((option, index) => {
-              const btn = document.createElement('button');
-              
-              // Base classes
-              btn.className = 'group flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-slate-500 hover:bg-slate-800 transition-all text-left w-full shadow-sm';
-              const letter = String.fromCharCode(65 + index); // A, B, C...
-              
-              btn.innerHTML = `
-                <span class="flex items-center gap-3">
-                    <span class="option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-slate-900 text-slate-400 font-mono text-xs font-bold transition-colors border border-slate-700/50 shadow-inner shadow-black/20">${letter}</span>
-                    <span class="option-text text-sm text-slate-200">${option}</span>
-                </span>
-                <span class="feedback-icon hidden items-center gap-1.5 text-xs font-medium"></span>
-              `;
-              
-              const letterSpan = btn.querySelector('.option-letter');
-              const textSpan = btn.querySelector('.option-text');
-              const feedbackSpan = btn.querySelector('.feedback-icon');
-
-              // Determine State
-              let isSelected = false;
-              let currentAns = userAnswers[currentQuestionIndex];
-              
-              if (currentAns !== null) {
-                  if (isMulti) isSelected = Array.isArray(currentAns) && currentAns.includes(option);
-                  else isSelected = currentAns === option;
-              }
-
-              if (answeredState === 'graded' && currentMode === 'practice') {
-                  btn.disabled = true;
-                  const isCorrectTarget = isMulti ? question.answer.includes(option) : question.answer === option;
-
-                  if (isCorrectTarget) {
-                      // Option is correct, highlight green
-                      btn.className = 'group flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/50 rounded-xl transition-all text-left w-full ring-1 ring-emerald-500/20';
-                      letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-500 text-white font-mono text-xs font-bold shadow-lg shadow-emerald-500/30';
-                      textSpan.className = 'option-text text-sm text-white font-medium';
-                      
-                      feedbackSpan.className = 'feedback-icon flex items-center gap-1.5 text-emerald-400 text-xs font-bold';
-                      feedbackSpan.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-                      if (!isSelected && isMulti) {
-                           // Missed a correct checkbox
-                           btn.className = 'group flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/30 rounded-xl transition-all text-left w-full border-dashed opacity-80';
-                           letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-900/50 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold';
-                           textSpan.className = 'option-text text-sm text-emerald-200';
-                           feedbackSpan.innerHTML = 'Missed';
-                      }
-                  } else if (isSelected && !isCorrectTarget) {
-                      // Option is incorrect but selected, highlight red
-                      btn.className = 'group flex items-center justify-between p-4 bg-red-500/10 border border-red-500/50 rounded-xl transition-all text-left w-full ring-1 ring-red-500/20';
-                      letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-red-500 text-white font-mono text-xs font-bold shadow-lg shadow-red-500/30';
-                      textSpan.className = 'option-text text-sm text-white font-medium';
-                      feedbackSpan.className = 'feedback-icon flex items-center gap-1.5 text-red-400 text-xs font-bold';
-                      feedbackSpan.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-                  } else {
-                      // Dim unselected incorrect options
-                      btn.classList.add('opacity-40');
-                  }
-              } 
-              else if (isSelected) {
-                  // Simply Selected (Unsubmitted or Quiz mode)
-                  btn.className = 'group flex items-center justify-between p-4 bg-blue-500/10 border border-blue-500/50 rounded-xl transition-all text-left w-full ring-1 ring-blue-500/20';
-                  letterSpan.className = 'option-letter w-8 h-8 flex items-center justify-center rounded-lg bg-blue-500 text-white font-mono text-xs font-bold shadow-lg shadow-blue-500/30';
-                  textSpan.className = 'option-text text-sm text-white font-medium';
-              } else if (!hasAnsweredCurrent) {
-                  // Not selected yet, add hover effects
-                  letterSpan.classList.add('group-hover:bg-slate-700', 'group-hover:text-white');
-              }
-
-              btn.onclick = () => handleOptionClick(option);
-              optionsContainer.appendChild(btn);
-              optionButtons.push(btn);
-          });
-      }
-
-      function renderQuestion() {
-        const question = activeQuestions[currentQuestionIndex];
-        const previouslyAnsweredOption = userAnswers[currentQuestionIndex];
-        const isMulti = isMultiChoice(question);
-        
-        hasAnsweredCurrent = previouslyAnsweredOption !== null;
-
-        progressText.textContent = `${currentQuestionIndex + 1} / ${activeQuestions.length}`;
-        progressBar.style.width = `${((currentQuestionIndex + 1) / activeQuestions.length) * 100}%`;
-
-        if (currentQuestionIndex === activeQuestions.length - 1) {
-            btnFinishEarly.classList.add('hidden');
-        } else {
-            btnFinishEarly.classList.remove('hidden');
-        }
-
-        // Render Markdown content
-        questionText.innerHTML = marked.parse(question.question);
-
-        // Star button logic
-        if (currentMode === 'practice') {
-            btnStarQuestion.classList.remove('hidden');
-            const starredIds = userStats.starred[activeQuizId] || [];
-            if (starredIds.includes(question.id)) {
-                starIcon.setAttribute('fill', 'currentColor');
-                starIcon.classList.add('text-yellow-400');
-            } else {
-                starIcon.setAttribute('fill', 'none');
-                starIcon.classList.remove('text-yellow-400');
-            }
-        } else {
-            btnStarQuestion.classList.add('hidden');
-        }
-
-        // Previous button
-        if (currentQuestionIndex > 0) btnPrevQuestion.classList.remove('hidden');
-        else btnPrevQuestion.classList.add('hidden');
-
-        // Layout states
-        if (hasAnsweredCurrent) {
-            if (currentMode === 'practice') {
-                renderOptions(question, 'graded');
-            } else {
-                renderOptions(question, 'selected');
-            }
-            showNextBtn();
-            multiSubmitContainer.classList.add('hidden');
-        } else {
-            renderOptions(question, 'unselected');
-            nextBtn.classList.add('hidden');
-            
-            // Show Check Answer button only for multiple choice in practice mode
-            if (currentMode === 'practice' && isMulti) {
-                multiSubmitContainer.classList.remove('hidden');
-            } else {
-                multiSubmitContainer.classList.add('hidden');
-            }
-        }
-      }
-
-      function handleOptionClick(selectedOption) {
-        if (hasAnsweredCurrent && currentMode === 'practice') return; // Locked in practice mode once submitted
-
-        const question = activeQuestions[currentQuestionIndex];
-        const isMulti = isMultiChoice(question);
-
-        if (isMulti) {
-            // Checkbox logic
-            if (userAnswers[currentQuestionIndex] === null) {
-                userAnswers[currentQuestionIndex] = [];
-            }
-            const currentAns = userAnswers[currentQuestionIndex];
-            const idx = currentAns.indexOf(selectedOption);
-            if (idx > -1) currentAns.splice(idx, 1);
-            else currentAns.push(selectedOption);
-
-            if (currentMode === 'practice') {
-                renderOptions(question, 'unselected'); // just update visual selection
-            } else {
-                hasAnsweredCurrent = true;
-                renderOptions(question, 'selected');
-                showNextBtn();
-            }
-        } else {
-            // Single choice logic
-            userAnswers[currentQuestionIndex] = selectedOption;
-            hasAnsweredCurrent = true;
-
-            if (currentMode === 'practice') {
-                renderOptions(question, 'graded');
-                updatePracticeStats();
-                multiSubmitContainer.classList.add('hidden');
-            } else {
-                renderOptions(question, 'selected');
-            }
-            showNextBtn();
-        }
-        
-        saveActiveSession();
-      }
-
-      btnSubmitMulti.addEventListener('click', () => {
-          if (userAnswers[currentQuestionIndex] === null) {
-              userAnswers[currentQuestionIndex] = []; // Grade as empty if submitted with none checked
-          }
-          hasAnsweredCurrent = true;
-          const question = activeQuestions[currentQuestionIndex];
-          renderOptions(question, 'graded');
-          updatePracticeStats();
-          showNextBtn();
-          multiSubmitContainer.classList.add('hidden');
-          saveActiveSession();
-      });
-
-      btnPrevQuestion.addEventListener('click', () => {
-         if (currentQuestionIndex > 0) {
-             currentQuestionIndex--;
-             saveActiveSession();
-             renderQuestion();
-         }
-      });
-
-      nextBtn.addEventListener('click', () => {
-        currentQuestionIndex++;
-        if (currentQuestionIndex < activeQuestions.length) {
-          saveActiveSession();
-          renderQuestion();
-        } else {
-          showResults();
-        }
-      });
-
-      btnFinishEarly.addEventListener('click', () => {
-          if (confirm("Are you sure you want to finish the quiz early? Unanswered questions will be marked incorrect.")) {
-              showResults();
-          }
-      });
-
-      btnStarQuestion.addEventListener('click', () => {
-          const question = activeQuestions[currentQuestionIndex];
-          if (!question) return;
-          
-          if (!userStats.starred[activeQuizId]) {
-              userStats.starred[activeQuizId] = [];
-          }
-          
-          const starredIds = userStats.starred[activeQuizId];
-          const idx = starredIds.indexOf(question.id);
-          
-          if (idx > -1) {
-              starredIds.splice(idx, 1); // Unstar
-              starIcon.setAttribute('fill', 'none');
-              starIcon.classList.remove('text-yellow-400');
-          } else {
-              starredIds.push(question.id); // Star
-              starIcon.setAttribute('fill', 'currentColor');
-              starIcon.classList.add('text-yellow-400');
-          }
-          saveData(); // Persist the star status
-      });
-
-      btnCopyQuestion.addEventListener('click', () => {
-          const question = activeQuestions[currentQuestionIndex];
-          if (!question) return;
-          
-          let textToCopy = `Question: ${question.question}\n\n`;
-          question.options.forEach((opt, idx) => {
-              textToCopy += `${String.fromCharCode(65 + idx)}) ${opt}\n`;
-          });
-          
-          const textArea = document.createElement("textarea");
-          textArea.value = textToCopy;
-          textArea.style.top = "0";
-          textArea.style.left = "0";
-          textArea.style.position = "fixed";
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          try {
-              document.execCommand('copy');
-              const originalHTML = btnCopyQuestion.innerHTML;
-              btnCopyQuestion.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-              setTimeout(() => {
-                  btnCopyQuestion.innerHTML = originalHTML;
-              }, 1500);
-          } catch (err) {
-              console.error('Oops, unable to copy', err);
-          }
-          document.body.removeChild(textArea);
-      });
-
-      function recordAnalytics(answeredArray, correctCount) {
-          const attemptedCount = answeredArray.filter(ans => ans !== null).length;
-          
-          if (attemptedCount > 0) {
-              userStats.totalAnswered += attemptedCount;
-              userStats.totalCorrect += correctCount;
-              
-              const todayStr = getTodayDateString();
-              userStats.dailyActivity[todayStr] = (userStats.dailyActivity[todayStr] || 0) + attemptedCount;
-              
-              saveData();
-          }
-      }
-
-      function showResults() {
-        hideAll();
-        resultSection.classList.remove('hidden');
-        
-        let finalScore = 0;
-        userAnswers.forEach((ans, idx) => {
-            if (ans !== null) {
-                const question = activeQuestions[idx];
-                if (checkAnswerCorrectness(question, ans)) {
-                    finalScore++;
-                }
-            }
-        });
-
-        // Record this session's analytics
-        recordAnalytics(userAnswers, finalScore);
-        clearActiveSession(); // Clear session now that we recorded it
-
-        const total = activeQuestions.length;
-        const percentage = Math.round((finalScore / total) * 100);
-        
-        let colorClass = 'text-slate-400';
-        let glowClass = 'bg-slate-500/10';
-        let msg = 'Keep practicing';
-
-        if (percentage >= 80) {
-            colorClass = 'text-emerald-400';
-            glowClass = 'bg-emerald-500/10';
-            msg = 'Excellent work!';
-        } else if (percentage >= 50) {
-            colorClass = 'text-blue-400';
-            glowClass = 'bg-blue-500/10';
-            msg = 'Good job!';
-        }
-
-        scoreGlow.className = `absolute inset-0 ${glowClass} blur-2xl rounded-full`;
-
-        scoreText.innerHTML = `
-          <div class="relative z-10 flex flex-col items-center">
-            <span class="text-6xl font-bold tracking-tight ${colorClass} block mb-5 drop-shadow-md">${percentage}%</span>
-            <span class="text-lg font-medium text-white block mb-3">You scored <span class="${colorClass} font-bold">${finalScore}</span> out of <span class="text-slate-400 font-bold">${total}</span></span>
-            <span class="inline-flex px-3 py-1 bg-slate-800 rounded-full text-xs text-slate-400 font-mono uppercase tracking-widest border border-slate-700/50">
-                ${msg}
+          <div class="text-[10px] text-gray-500 mb-2 ml-2 font-medium tracking-wide uppercase flex justify-between items-center">
+            <span id="q-type-hint">Select one answer</span>
+            <span class="hidden sm:inline-flex gap-2">
+              <kbd class="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 text-[9px] text-gray-400 font-mono">1-4</kbd> to select
             </span>
           </div>
-        `;
+          
+          <!-- Options -->
+          <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            <!-- Buttons injected via JS -->
+          </div>
+          
+          <!-- Controls -->
+          <div class="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+            <button id="btn-prev" class="px-5 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-sm transition-colors flex items-center gap-2 invisible">
+              <i class="ph-bold ph-arrow-left"></i> Previous
+            </button>
+            
+            <div id="multi-action-container" class="hidden">
+              <button id="btn-check-answer" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-500/20">
+                Check Answer
+              </button>
+            </div>
+            
+            <button id="btn-next" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2 hidden">
+              Next <i class="ph-bold ph-arrow-right"></i>
+              <kbd class="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono">Enter</kbd>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. RESULTS VIEW -->
+      <section id="view-results" class="view-section flex-col items-center justify-center py-8 w-full h-full text-center">
+        <div id="result-icon-container" class="w-16 h-16 rounded-full flex items-center justify-center mb-5 shadow-2xl">
+           <i id="result-icon" class="ph-fill ph-trophy text-3xl"></i>
+        </div>
+        
+        <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 tracking-tight">Quiz Completed!</h2>
+        <p id="result-message" class="text-gray-400 text-sm mb-6 font-medium"></p>
+        
+        <div class="bg-gray-800/40 border border-white/5 rounded-3xl p-6 md:p-8 w-full max-w-sm relative overflow-hidden shadow-2xl mb-6 backdrop-blur-md">
+          <div id="result-glow" class="absolute inset-0 opacity-20 blur-3xl rounded-full mix-blend-screen"></div>
+          
+          <div class="relative z-10 flex flex-col items-center">
+            <div class="text-6xl font-black text-white tracking-tighter mb-1 drop-shadow-lg" id="result-score-pct">0%</div>
+            <div class="text-gray-300 text-sm font-medium mb-5 bg-black/20 px-4 py-1 rounded-full border border-white/5">
+              <span id="result-score-raw" class="text-white font-bold">0</span> out of <span id="result-total" class="font-bold">0</span> correct
+            </div>
+            
+            <div class="w-full grid grid-cols-2 gap-4 border-t border-white/10 pt-5 mt-1">
+              <div class="flex flex-col items-center">
+                <span class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Time Taken</span>
+                <span class="text-lg text-white font-mono" id="result-time">00:00</span>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Status</span>
+                <span class="text-sm font-bold uppercase tracking-wider px-2 py-0.5 rounded mt-0.5" id="result-status">PASS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-3 w-full max-w-md">
+          <button id="btn-review-wrong" class="flex-1 min-w-[140px] py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl transition-all border border-gray-600 flex items-center justify-center gap-2">
+            <i class="ph-bold ph-magnifying-glass"></i> Review Answers
+          </button>
+          <button id="btn-retake" class="flex-1 min-w-[140px] py-3 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl transition-all border border-white/10 flex items-center justify-center gap-2">
+            <i class="ph-bold ph-arrow-counter-clockwise"></i> Retake
+          </button>
+          <button id="btn-home-from-result" class="w-full py-3 mt-1 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-500/25">
+            Return to Dashboard
+          </button>
+        </div>
+      </section>
+
+      <!-- 6. REVIEW VIEW (NEW) -->
+      <section id="view-review" class="view-section flex-col h-full w-full max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i class="ph-bold ph-magnifying-glass text-brand-400"></i> Review Answers
+          </h2>
+          <button id="btn-exit-review" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium rounded-xl transition-colors">
+            Close Review
+          </button>
+        </div>
+
+        <div id="review-container" class="flex-1 overflow-y-auto space-y-6 pb-10 pr-2">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    /** --- STATE & CONFIG --- **/
+    const CONFIG = { manifestUrl: './json-data/manifest.json', defaultDir: './json-data/' };
+    
+    let state = {
+      quizzes: [],
+      stats: { totalSolved: 0, totalCorrect: 0, dailyActivity: {}, starred: {} },
+      activeQuiz: null,
+      activeQuestions: [],
+      userAnswers: [], // Array of selected options or array of arrays for multi
+      currentIndex: 0,
+      mode: 'practice', // 'practice' or 'exam'
+      timerDuration: 0, // seconds
+      timeElapsed: 0,
+      timerInterval: null,
+      isAnswered: false,
+      isReviewing: false
+    };
+
+    /** --- DOM ELEMENTS --- **/
+    const els = {
+      views: document.querySelectorAll('.view-section'),
+      toastContainer: document.getElementById('toast-container'),
+      confirmModal: document.getElementById('confirm-modal'),
+      
+      // Nav
+      navHome: document.getElementById('nav-btn-home'),
+      navUpload: document.getElementById('nav-btn-upload'),
+      navSettings: document.getElementById('nav-btn-settings'),
+      
+      // Dashboard
+      quizGrid: document.getElementById('quiz-grid'),
+      emptyState: document.getElementById('empty-state'),
+      searchInput: document.getElementById('search-quiz'),
+      statAcc: document.getElementById('stat-accuracy'),
+      statTot: document.getElementById('stat-total-q'),
+      
+      // Settings
+      fileInput: document.getElementById('file-input'),
+      importFile: document.getElementById('import-file'),
+      btnExport: document.getElementById('btn-export'),
+      btnReset: document.getElementById('btn-reset-data'),
+      
+      // Setup
+      btnBackSetup: document.getElementById('btn-back-setup'),
+      setupTitle: document.getElementById('setup-title'),
+      setupDesc: document.getElementById('setup-desc'),
+      setupTag: document.getElementById('setup-tag'),
+      pracFrom: document.getElementById('practice-from'),
+      pracTo: document.getElementById('practice-to'),
+      btnStartPrac: document.getElementById('btn-start-practice'),
+      btnStartExam: document.getElementById('btn-start-exam'),
+      examTimerSel: document.getElementById('exam-timer'),
+      
+      // Quiz
+      btnExitQuiz: document.getElementById('btn-exit-quiz'),
+      quizBadge: document.getElementById('quiz-badge'),
+      qCurrent: document.getElementById('q-current'),
+      qTotal: document.getElementById('q-total'),
+      timerDisplay: document.getElementById('quiz-timer-display'),
+      timerText: document.getElementById('timer-text'),
+      progress: document.getElementById('quiz-progress'),
+      qContent: document.getElementById('question-content'),
+      qTypeHint: document.getElementById('q-type-hint'),
+      optionsContainer: document.getElementById('options-container'),
+      btnPrev: document.getElementById('btn-prev'),
+      btnNext: document.getElementById('btn-next'),
+      btnCheck: document.getElementById('btn-check-answer'),
+      multiAction: document.getElementById('multi-action-container'),
+      pracStats: document.getElementById('active-practice-stats'),
+      liveCorrect: document.getElementById('live-correct'),
+      liveWrong: document.getElementById('live-wrong'),
+      btnCopy: document.getElementById('btn-copy'),
+      btnStar: document.getElementById('btn-star'),
+      iconStar: document.getElementById('icon-star'),
+      
+      // Results
+      resPct: document.getElementById('result-score-pct'),
+      resRaw: document.getElementById('result-score-raw'),
+      resTotal: document.getElementById('result-total'),
+      resMsg: document.getElementById('result-message'),
+      resTime: document.getElementById('result-time'),
+      resStatus: document.getElementById('result-status'),
+      resIcon: document.getElementById('result-icon'),
+      resIconBg: document.getElementById('result-icon-container'),
+      resGlow: document.getElementById('result-glow'),
+      btnReview: document.getElementById('btn-review-wrong'),
+      btnRetake: document.getElementById('btn-retake'),
+      btnHomeRes: document.getElementById('btn-home-from-result'),
+      
+      // Review
+      reviewContainer: document.getElementById('review-container'),
+      btnExitReview: document.getElementById('btn-exit-review')
+    };
+
+    /** --- UTILITIES --- **/
+    const showView = (id) => {
+      // Hide header on Quiz, Results, and Review screens to prevent accidental clicks
+      const header = document.getElementById('main-header');
+      if (['view-quiz', 'view-results', 'view-review'].includes(id)) {
+          header.classList.add('hidden');
+      } else {
+          header.classList.remove('hidden');
       }
 
-      btnRestart.addEventListener('click', () => window.selectQuiz(activeQuizId));
+      els.views.forEach(v => {
+        if(v.id === id) { v.classList.add('active'); v.classList.remove('hidden'); }
+        else { v.classList.remove('active'); v.classList.add('hidden'); }
+      });
+      els.navHome.classList.toggle('hidden', id === 'view-dashboard');
+      window.scrollTo(0, 0);
+    };
 
-      // --- Initialization ---
-      setTimeout(async () => {
-          await loadData();
-          
-          if (restoreActiveSession()) {
-              updatePracticeStats();
-              if (currentMode === 'practice') {
-                  modeBadge.textContent = 'Practice Mode';
-                  modeBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30';
-              } else {
-                  modeBadge.textContent = 'Quiz Mode';
-                  modeBadge.className = 'px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/30';
-              }
-              hideAll();
-              quizSection.classList.remove('hidden');
-              renderQuestion();
-          } else {
-              renderDashboard();
+    const showToast = (msg, type = 'success') => {
+      const colors = { success: 'bg-emerald-500/90', error: 'bg-red-500/90', info: 'bg-brand-500/90' };
+      const icons = { success: 'ph-check-circle', error: 'ph-warning-circle', info: 'ph-info' };
+      
+      const el = document.createElement('div');
+      el.className = `${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 backdrop-blur-md animate-slide-up transition-all duration-300 transform scale-100 opacity-100`;
+      el.innerHTML = `<i class="ph-fill ${icons[type]} text-xl"></i><span class="text-sm font-medium">${msg}</span>`;
+      
+      els.toastContainer.appendChild(el);
+      setTimeout(() => {
+        el.classList.replace('scale-100', 'scale-95');
+        el.classList.replace('opacity-100', 'opacity-0');
+        setTimeout(() => el.remove(), 300);
+      }, 3000);
+    };
+
+    const customConfirm = (title, message, onConfirm) => {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      els.confirmModal.classList.remove('hidden');
+      
+      // Animate in
+      setTimeout(() => {
+        document.getElementById('confirm-box').classList.remove('scale-95', 'opacity-0');
+        document.getElementById('confirm-box').classList.add('scale-100', 'opacity-100');
+      }, 10);
+
+      const close = () => {
+        document.getElementById('confirm-box').classList.remove('scale-100', 'opacity-100');
+        document.getElementById('confirm-box').classList.add('scale-95', 'opacity-0');
+        setTimeout(() => els.confirmModal.classList.add('hidden'), 200);
+      };
+
+      document.getElementById('btn-confirm-cancel').onclick = close;
+      document.getElementById('btn-confirm-action').onclick = () => { onConfirm(); close(); };
+      document.getElementById('confirm-overlay').onclick = close;
+    };
+
+    const formatTime = (secs) => {
+      const m = Math.floor(secs / 60).toString().padStart(2, '0');
+      const s = (secs % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    };
+
+    const isMulti = (q) => Array.isArray(q.answer);
+    
+    const checkAns = (q, userAns) => {
+      if(!userAns) return false;
+      if(isMulti(q)) {
+        if(!Array.isArray(userAns) || userAns.length !== q.answer.length) return false;
+        const sortedA = [...q.answer].sort();
+        const sortedU = [...userAns].sort();
+        return sortedA.every((val, i) => val === sortedU[i]);
+      }
+      return q.answer === userAns;
+    };
+
+    /** --- DATA MANAGEMENT & PERSISTENCE --- **/
+    const loadData = async () => {
+      // Load Local Storage
+      const storedStats = localStorage.getItem('qz_stats');
+      if(storedStats) state.stats = JSON.parse(storedStats);
+      
+      const storedQuizzes = localStorage.getItem('qz_custom');
+      let customQuizzes = storedQuizzes ? JSON.parse(storedQuizzes) : [];
+
+      // Fetch Defaults
+      let defaultQuizzes = [];
+      try {
+        const res = await fetch(CONFIG.manifestUrl);
+        if(res.ok) {
+          const files = await res.json();
+          for(const f of files) {
+            const qRes = await fetch(`${CONFIG.defaultDir}${f}`);
+            if(qRes.ok) {
+              const qData = await qRes.json();
+              qData.id = `def_${f}`;
+              qData.isDefault = true;
+              defaultQuizzes.push(qData);
+            }
           }
-      }, 0);
+        }
+      } catch(e) { console.warn("Defaults not loaded (run on local server)."); }
 
-    </script>
-  </body>
+      // Deduplicate by ID just in case
+      state.quizzes = [...defaultQuizzes, ...customQuizzes];
+      
+      // Attempt to restore active session if available
+      if (restoreSession()) {
+          // Sync UI headers to restored state
+          els.qTotal.textContent = state.activeQuestions.length;
+          if (state.mode === 'practice') {
+              els.quizBadge.textContent = 'Practice Mode';
+              els.quizBadge.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5';
+              els.pracStats.classList.remove('hidden');
+              els.pracStats.classList.add('flex');
+              els.timerDisplay.classList.add('hidden');
+              els.timerDisplay.classList.remove('flex');
+              els.btnStar.classList.remove('hidden');
+              updatePracStats();
+          } else {
+              els.quizBadge.textContent = 'Exam Mode';
+              els.quizBadge.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-0.5';
+              els.pracStats.classList.add('hidden');
+              els.pracStats.classList.remove('flex');
+              els.btnStar.classList.add('hidden');
+              
+              if (state.timerDuration > 0) {
+                  els.timerDisplay.classList.remove('hidden');
+                  els.timerDisplay.classList.add('flex');
+                  els.timerText.textContent = formatTime(state.timerDuration - state.timeElapsed);
+                  els.timerText.className = 'text-gray-300';
+                  clearInterval(state.timerInterval);
+                  state.timerInterval = setInterval(tickTimer, 1000);
+              } else {
+                  els.timerDisplay.classList.add('hidden');
+                  els.timerDisplay.classList.remove('flex');
+                  clearInterval(state.timerInterval);
+                  state.timerInterval = setInterval(() => { state.timeElapsed++; }, 1000);
+              }
+          }
+          showView('view-quiz');
+          renderQuestion();
+      } else {
+          renderDashboard();
+      }
+    };
+
+    const saveData = () => {
+      localStorage.setItem('qz_stats', JSON.stringify(state.stats));
+      const custom = state.quizzes.filter(q => !q.isDefault);
+      localStorage.setItem('qz_custom', JSON.stringify(custom));
+    };
+
+    const saveSession = () => {
+      if (!state.activeQuiz) return;
+      const sessionData = {
+        activeQuizId: state.activeQuiz.id,
+        activeQuestions: state.activeQuestions,
+        userAnswers: state.userAnswers,
+        currentIndex: state.currentIndex,
+        mode: state.mode,
+        timerDuration: state.timerDuration,
+        timeElapsed: state.timeElapsed,
+        isAnswered: state.isAnswered
+      };
+      localStorage.setItem('qz_active_session', JSON.stringify(sessionData));
+    };
+
+    const clearSession = () => {
+      localStorage.removeItem('qz_active_session');
+    };
+
+    const restoreSession = () => {
+      const stored = localStorage.getItem('qz_active_session');
+      if (!stored) return false;
+      try {
+        const parsed = JSON.parse(stored);
+        state.activeQuiz = state.quizzes.find(q => q.id === parsed.activeQuizId);
+        if (!state.activeQuiz) {
+          clearSession();
+          return false;
+        }
+        state.activeQuestions = parsed.activeQuestions;
+        state.userAnswers = parsed.userAnswers;
+        state.currentIndex = parsed.currentIndex;
+        state.mode = parsed.mode;
+        state.timerDuration = parsed.timerDuration;
+        state.timeElapsed = parsed.timeElapsed;
+        state.isAnswered = parsed.isAnswered;
+        return true;
+      } catch (e) {
+        clearSession();
+        return false;
+      }
+    };
+
+    /** --- DASHBOARD --- **/
+    const updateStatsUI = () => {
+      els.statTot.textContent = state.stats.totalSolved.toLocaleString();
+      const acc = state.stats.totalSolved ? Math.round((state.stats.totalCorrect / state.stats.totalSolved) * 100) : 0;
+      els.statAcc.textContent = acc;
+    };
+
+    const renderDashboard = (filterText = '') => {
+      updateStatsUI();
+      els.quizGrid.innerHTML = '';
+      
+      const filtered = state.quizzes.filter(q => 
+        (q.title || '').toLowerCase().includes(filterText.toLowerCase()) ||
+        (q.description || '').toLowerCase().includes(filterText.toLowerCase())
+      );
+
+      if(filtered.length === 0) {
+        els.quizGrid.classList.add('hidden');
+        els.emptyState.classList.remove('hidden');
+        els.emptyState.classList.add('flex');
+      } else {
+        els.quizGrid.classList.remove('hidden');
+        els.emptyState.classList.add('hidden');
+        els.emptyState.classList.remove('flex');
+        
+        filtered.forEach(q => {
+          const card = document.createElement('div');
+          card.className = 'bg-gray-800/40 border border-gray-700/50 rounded-2xl p-5 hover:border-brand-500/50 hover:bg-gray-800/80 transition-all flex flex-col group cursor-pointer shadow-sm relative overflow-hidden';
+          card.onclick = (e) => { if(!e.target.closest('button.del-btn')) openSetup(q.id); };
+          
+          card.innerHTML = `
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-brand-500/10 rounded-full blur-2xl group-hover:bg-brand-500/20 transition-all"></div>
+            <div class="flex justify-between items-start mb-4 relative z-10">
+              <div class="w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 flex items-center justify-center text-brand-400 shadow-inner group-hover:scale-110 transition-transform">
+                <i class="ph-bold ${q.isDefault ? 'ph-books' : 'ph-file-code'} text-xl"></i>
+              </div>
+              <span class="px-2 py-1 bg-gray-900/80 border border-gray-700 text-gray-400 text-[10px] font-bold tracking-widest uppercase rounded-lg">${q.questions.length} Qs</span>
+            </div>
+            <h3 class="text-white font-bold text-lg leading-tight mb-1 relative z-10 line-clamp-1">${q.title || 'Untitled'}</h3>
+            <p class="text-gray-400 text-xs line-clamp-2 leading-relaxed mb-4 relative z-10 flex-1">${q.description || 'No description available.'}</p>
+            
+            <div class="flex items-center justify-between border-t border-gray-700/50 pt-3 relative z-10">
+              <span class="text-[10px] font-bold ${q.isDefault ? 'text-indigo-400 bg-indigo-900/30' : 'text-emerald-400 bg-emerald-900/30'} px-2 py-0.5 rounded uppercase tracking-wider">
+                ${q.isDefault ? 'Official' : 'Custom'}
+              </span>
+              ${!q.isDefault ? `
+                <button class="del-btn text-gray-500 hover:text-red-400 transition-colors p-1" onclick="deleteQuiz('${q.id}')">
+                  <i class="ph-bold ph-trash"></i>
+                </button>
+              ` : ''}
+            </div>
+          `;
+          els.quizGrid.appendChild(card);
+        });
+      }
+      showView('view-dashboard');
+    };
+
+    window.deleteQuiz = (id) => {
+      customConfirm("Delete Quiz", "Are you sure you want to remove this quiz from your library?", () => {
+        state.quizzes = state.quizzes.filter(q => q.id !== id);
+        saveData();
+        renderDashboard();
+        showToast("Quiz deleted", "success");
+      });
+    };
+
+    els.searchInput.addEventListener('input', (e) => renderDashboard(e.target.value));
+
+    /** --- SETUP --- **/
+    const openSetup = (id) => {
+      state.activeQuiz = state.quizzes.find(q => q.id === id);
+      if(!state.activeQuiz) return;
+      
+      els.setupTitle.textContent = state.activeQuiz.title || 'Quiz Session';
+      els.setupDesc.textContent = state.activeQuiz.description || 'Select your configuration below.';
+      els.setupTag.textContent = `${state.activeQuiz.questions.length} Questions Available`;
+      
+      els.pracFrom.max = state.activeQuiz.questions.length;
+      els.pracTo.max = state.activeQuiz.questions.length;
+      els.pracFrom.value = 1;
+      els.pracTo.value = Math.min(10, state.activeQuiz.questions.length);
+      
+      showView('view-setup');
+    };
+
+    els.btnBackSetup.onclick = () => renderDashboard();
+
+    els.btnStartPrac.onclick = () => {
+      let from = parseInt(els.pracFrom.value) || 1;
+      let to = parseInt(els.pracTo.value) || state.activeQuiz.questions.length;
+      if(from < 1) from = 1;
+      if(to > state.activeQuiz.questions.length) to = state.activeQuiz.questions.length;
+      if(from > to) from = to;
+      
+      state.activeQuestions = state.activeQuiz.questions.slice(from - 1, to);
+      startSession('practice', 0);
+    };
+
+    els.btnStartExam.onclick = () => {
+      state.activeQuestions = [...state.activeQuiz.questions];
+      const mins = parseInt(els.examTimerSel.value);
+      startSession('exam', mins * 60);
+    };
+
+    /** --- QUIZ EXECUTION --- **/
+    const startSession = (mode, duration) => {
+      state.mode = mode;
+      state.timerDuration = duration;
+      state.timeElapsed = 0;
+      state.currentIndex = 0;
+      state.userAnswers = new Array(state.activeQuestions.length).fill(null);
+      state.isAnswered = false;
+      state.isReviewing = false;
+
+      // Setup UI Headers
+      els.qTotal.textContent = state.activeQuestions.length;
+      if(mode === 'practice') {
+        els.quizBadge.textContent = 'Practice Mode';
+        els.quizBadge.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5';
+        els.pracStats.classList.remove('hidden');
+        els.pracStats.classList.add('flex');
+        els.timerDisplay.classList.add('hidden');
+        els.timerDisplay.classList.remove('flex');
+        els.btnStar.classList.remove('hidden');
+        updatePracStats();
+      } else {
+        els.quizBadge.textContent = 'Exam Mode';
+        els.quizBadge.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-0.5';
+        els.pracStats.classList.add('hidden');
+        els.pracStats.classList.remove('flex');
+        els.btnStar.classList.add('hidden');
+        
+        if(duration > 0) {
+          els.timerDisplay.classList.remove('hidden');
+          els.timerDisplay.classList.add('flex');
+          els.timerText.textContent = formatTime(duration);
+          els.timerText.className = 'text-gray-300';
+          clearInterval(state.timerInterval);
+          state.timerInterval = setInterval(tickTimer, 1000);
+        } else {
+           els.timerDisplay.classList.add('hidden');
+           els.timerDisplay.classList.remove('flex');
+           clearInterval(state.timerInterval);
+           state.timerInterval = setInterval(() => { state.timeElapsed++; }, 1000); // just count up
+        }
+      }
+
+      saveSession();
+      showView('view-quiz');
+      renderQuestion();
+    };
+
+    const tickTimer = () => {
+      state.timeElapsed++;
+      const rem = state.timerDuration - state.timeElapsed;
+      els.timerText.textContent = formatTime(rem);
+      
+      if(rem <= 60) els.timerText.className = 'text-red-400 animate-pulse';
+      
+      if (state.timeElapsed % 5 === 0) saveSession(); // Periodic save
+      
+      if(rem <= 0) {
+        clearInterval(state.timerInterval);
+        showToast("Time's up! Auto-submitting.", "info");
+        finishSession();
+      }
+    };
+
+    const updatePracStats = () => {
+      let c = 0, w = 0;
+      state.userAnswers.forEach((ans, i) => {
+        if(ans !== null) {
+          if(checkAns(state.activeQuestions[i], ans)) c++; else w++;
+        }
+      });
+      els.liveCorrect.textContent = c;
+      els.liveWrong.textContent = w;
+    };
+
+    const renderQuestion = () => {
+      const q = state.activeQuestions[state.currentIndex];
+      const ans = state.userAnswers[state.currentIndex];
+      state.isAnswered = ans !== null;
+
+      // Update Header
+      els.qCurrent.textContent = state.currentIndex + 1;
+      els.progress.style.width = `${((state.currentIndex + 1) / state.activeQuestions.length) * 100}%`;
+      els.qTypeHint.textContent = isMulti(q) ? 'Select all that apply' : 'Select one answer';
+      
+      // Render Content (Markdown)
+      els.qContent.innerHTML = marked.parse(q.question);
+
+      // Star Logic
+      if(state.mode === 'practice') {
+        const stars = state.stats.starred[state.activeQuiz.id] || [];
+        if(stars.includes(q.id)) {
+          els.iconStar.classList.replace('ph-star', 'ph-star-fill');
+          els.btnStar.classList.add('text-amber-400');
+        } else {
+          els.iconStar.classList.replace('ph-star-fill', 'ph-star');
+          els.btnStar.classList.remove('text-amber-400');
+        }
+      }
+
+      // Prev Button
+      els.btnPrev.classList.toggle('invisible', state.currentIndex === 0);
+      
+      // Render Options
+      els.optionsContainer.innerHTML = '';
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        const letter = String.fromCharCode(65 + idx);
+        const multi = isMulti(q);
+        
+        let isSel = false;
+        if(ans !== null) {
+          isSel = multi ? Array.isArray(ans) && ans.includes(opt) : ans === opt;
+        }
+
+        // Base Classes
+        btn.className = `option-btn group w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all ${
+          !state.isAnswered || state.mode === 'exam' 
+          ? 'bg-gray-800/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50' 
+          : ''
+        }`;
+        
+        // Icon shape
+        const shapeClass = multi ? 'rounded-md' : 'rounded-full';
+        
+        btn.innerHTML = `
+          <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center border border-gray-600 ${shapeClass} mt-0.5 transition-colors bg-gray-900 group-hover:border-gray-400 indicator-box">
+             <span class="text-[9px] font-bold text-gray-400 indicator-text">${letter}</span>
+          </div>
+          <div class="flex-1 text-sm text-gray-200 opt-text">${opt}</div>
+          <div class="flex-shrink-0 w-4 h-4 ml-1 hidden feedback-icon flex items-center justify-center"></div>
+        `;
+
+        // Styling based on state
+        const indBox = btn.querySelector('.indicator-box');
+        const indTxt = btn.querySelector('.indicator-text');
+        const fIcon = btn.querySelector('.feedback-icon');
+        
+        if (state.mode === 'practice' && state.isAnswered) {
+            btn.disabled = true;
+            const isCorrect = multi ? q.answer.includes(opt) : q.answer === opt;
+            fIcon.classList.remove('hidden');
+
+            if (isCorrect) {
+                btn.className = `w-full text-left p-3 rounded-xl border flex items-start gap-3 bg-emerald-900/20 border-emerald-500/50 ring-1 ring-emerald-500/20`;
+                indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border-emerald-500 bg-emerald-500 ${shapeClass} mt-0.5 shadow-lg shadow-emerald-500/30`;
+                indTxt.innerHTML = `<i class="ph-bold ph-check text-white"></i>`;
+                fIcon.innerHTML = `<i class="ph-fill ph-check-circle text-emerald-500 text-lg"></i>`;
+                if(multi && !isSel) {
+                    btn.className = `w-full text-left p-3 rounded-xl border border-dashed flex items-start gap-3 bg-emerald-900/10 border-emerald-500/30 opacity-70`;
+                    indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border border-emerald-500/50 bg-gray-900 ${shapeClass} mt-0.5`;
+                    indTxt.innerHTML = `<i class="ph-bold ph-check text-emerald-500"></i>`;
+                    fIcon.innerHTML = `<span class="text-[9px] font-bold text-emerald-500 uppercase">Missed</span>`;
+                }
+            } else if (isSel) {
+                btn.className = `w-full text-left p-3 rounded-xl border flex items-start gap-3 bg-red-900/20 border-red-500/50 ring-1 ring-red-500/20`;
+                indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border-red-500 bg-red-500 ${shapeClass} mt-0.5 shadow-lg shadow-red-500/30`;
+                indTxt.innerHTML = `<i class="ph-bold ph-x text-white"></i>`;
+                fIcon.innerHTML = `<i class="ph-fill ph-x-circle text-red-500 text-lg"></i>`;
+            } else {
+                btn.classList.add('opacity-40');
+            }
+        } else if (isSel) {
+            btn.className = `option-btn group w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all bg-brand-900/30 border-brand-500/50 ring-1 ring-brand-500/30`;
+            indBox.className = `flex-shrink-0 w-5 h-5 flex items-center justify-center border-brand-500 bg-brand-500 ${shapeClass} mt-0.5 shadow-lg shadow-brand-500/30`;
+            indTxt.innerHTML = multi ? `<i class="ph-bold ph-check text-white"></i>` : `<div class="w-1.5 h-1.5 rounded-full bg-white"></div>`;
+        }
+        
+        if(!btn.disabled) btn.onclick = () => handleSelect(opt);
+        els.optionsContainer.appendChild(btn);
+      });
+
+      // Bottom Controls logic
+      els.btnNext.innerHTML = state.currentIndex === state.activeQuestions.length - 1 
+        ? `Finish <i class="ph-bold ph-flag-checkered"></i><kbd class="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono">Enter</kbd>` 
+        : `Next <i class="ph-bold ph-arrow-right"></i><kbd class="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono">Enter</kbd>`;
+
+      if (state.mode === 'practice') {
+          if (state.isAnswered) {
+              els.btnNext.classList.remove('hidden');
+              els.multiAction.classList.add('hidden');
+          } else {
+              els.btnNext.classList.add('hidden');
+              if(isMulti(q)) els.multiAction.classList.remove('hidden');
+              else els.multiAction.classList.add('hidden');
+          }
+      } else {
+          // Exam mode always shows next
+          els.btnNext.classList.remove('hidden');
+          els.multiAction.classList.add('hidden');
+      }
+    };
+
+    const handleSelect = (opt) => {
+      const q = state.activeQuestions[state.currentIndex];
+      if(state.mode === 'practice' && state.isAnswered) return;
+
+      if(isMulti(q)) {
+        if(!state.userAnswers[state.currentIndex]) state.userAnswers[state.currentIndex] = [];
+        const arr = state.userAnswers[state.currentIndex];
+        const idx = arr.indexOf(opt);
+        if(idx > -1) arr.splice(idx, 1); else arr.push(opt);
+        
+        if(state.mode === 'exam') state.isAnswered = true;
+      } else {
+        state.userAnswers[state.currentIndex] = opt;
+        state.isAnswered = true;
+      }
+      
+      if(state.mode === 'practice' && !isMulti(q)) {
+        updatePracStats();
+      }
+      saveSession();
+      renderQuestion();
+    };
+
+    els.btnCheck.onclick = () => {
+      if(!state.userAnswers[state.currentIndex]) state.userAnswers[state.currentIndex] = [];
+      state.isAnswered = true;
+      updatePracStats();
+      saveSession();
+      renderQuestion();
+    };
+
+    els.btnNext.onclick = () => {
+      if(state.currentIndex < state.activeQuestions.length - 1) {
+        state.currentIndex++;
+        saveSession();
+        renderQuestion();
+      } else {
+        if(state.mode === 'exam') {
+            const unanswered = state.userAnswers.filter(a => a === null || (Array.isArray(a) && a.length === 0)).length;
+            if(unanswered > 0) {
+                customConfirm("Finish Exam", `You have ${unanswered} unanswered questions. Submit anyway?`, finishSession);
+            } else {
+                finishSession();
+            }
+        } else {
+            finishSession();
+        }
+      }
+    };
+
+    els.btnPrev.onclick = () => {
+      if (state.currentIndex > 0) { 
+        state.currentIndex--; 
+        saveSession();
+        renderQuestion(); 
+      }
+    };
+
+    els.btnExitQuiz.onclick = () => {
+      customConfirm("Exit Quiz", "Are you sure? Your current progress will be lost.", () => {
+        clearInterval(state.timerInterval);
+        clearSession();
+        renderDashboard();
+      });
+    };
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if(els.views[3].classList.contains('active')) { // if in quiz view
+        const key = e.key.toLowerCase();
+        const q = state.activeQuestions[state.currentIndex];
+        if(!q) return;
+
+        // Number keys 1-9 or A-I map to options
+        const maxOpt = q.options.length;
+        let optIndex = -1;
+        
+        if(key >= '1' && key <= String(maxOpt)) {
+            optIndex = parseInt(key) - 1;
+        } else if (key >= 'a' && key <= String.fromCharCode(96 + maxOpt)) {
+            optIndex = key.charCodeAt(0) - 97;
+        }
+
+        if (optIndex >= 0 && optIndex < maxOpt) {
+            handleSelect(q.options[optIndex]);
+        }
+
+        if (key === 'enter') {
+            e.preventDefault();
+            if (state.mode === 'practice' && !state.isAnswered && isMulti(q)) {
+                els.btnCheck.click();
+            } else if (!els.btnNext.classList.contains('hidden')) {
+                els.btnNext.click();
+            }
+        }
+
+        if (key === 'arrowleft') {
+            els.btnPrev.click();
+        }
+      }
+    });
+
+    /** --- EXTRA QUIZ ACTIONS --- **/
+    els.btnCopy.onclick = () => {
+      const q = state.activeQuestions[state.currentIndex];
+      let txt = `Q: ${q.question}\n`;
+      q.options.forEach((o, i) => txt += `${String.fromCharCode(65+i)}) ${o}\n`);
+      navigator.clipboard.writeText(txt).then(() => showToast('Copied to clipboard'));
+    };
+
+    els.btnStar.onclick = () => {
+      const q = state.activeQuestions[state.currentIndex];
+      if(!state.stats.starred[state.activeQuiz.id]) state.stats.starred[state.activeQuiz.id] = [];
+      const arr = state.stats.starred[state.activeQuiz.id];
+      const idx = arr.indexOf(q.id);
+      
+      if(idx > -1) { arr.splice(idx, 1); showToast('Removed from starred', 'info'); }
+      else { arr.push(q.id); showToast('Added to starred'); }
+      
+      saveData();
+      renderQuestion(); // update icon
+    };
+
+
+    /** --- RESULTS & REVIEW --- **/
+    const finishSession = () => {
+      clearInterval(state.timerInterval);
+      let correct = 0;
+      
+      state.userAnswers.forEach((ans, i) => {
+        if(checkAns(state.activeQuestions[i], ans)) correct++;
+      });
+
+      const total = state.activeQuestions.length;
+      const pct = Math.round((correct / total) * 100);
+
+      // Record Stats
+      const attempted = state.userAnswers.filter(a => a !== null && (!Array.isArray(a) || a.length > 0)).length;
+      if (attempted > 0) {
+          state.stats.totalSolved += attempted;
+          state.stats.totalCorrect += correct;
+          saveData();
+      }
+      
+      // Clear the temporary active session upon valid completion
+      clearSession();
+
+      // Update UI
+      els.resPct.textContent = `${pct}%`;
+      els.resRaw.textContent = correct;
+      els.resTotal.textContent = total;
+      
+      let color = 'text-gray-400', bg = 'bg-gray-800', msg = 'Keep practicing!', icon = 'ph-brain';
+      let status = 'NEEDS WORK', statColor = 'text-gray-400 bg-gray-900 border-gray-700';
+
+      if(pct >= 80) { 
+        color = 'text-emerald-400'; bg = 'bg-emerald-500/20'; msg = 'Outstanding performance!'; icon = 'ph-trophy';
+        status = 'EXCELLENT'; statColor = 'text-emerald-400 bg-emerald-950 border-emerald-800';
+        setTimeout(() => confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#34d399', '#6366f1', '#a78bfa'] }), 300);
+      } else if (pct >= 50) {
+        color = 'text-brand-400'; bg = 'bg-brand-500/20'; msg = 'Good job! Almost there.'; icon = 'ph-thumbs-up';
+        status = 'PASSED'; statColor = 'text-brand-400 bg-brand-950 border-brand-800';
+      }
+
+      els.resPct.className = `text-7xl font-black tracking-tighter mb-1 drop-shadow-lg ${color}`;
+      els.resIcon.className = `ph-fill ${icon} text-4xl ${color}`;
+      els.resIconBg.className = `w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-2xl ${bg}`;
+      els.resGlow.className = `absolute inset-0 opacity-20 blur-3xl rounded-full mix-blend-screen ${bg.split('/')[0].replace('bg-', 'bg-')}`;
+      els.resMsg.textContent = msg;
+      
+      els.resTime.textContent = formatTime(state.timeElapsed);
+      els.resStatus.textContent = status;
+      els.resStatus.className = `text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mt-1 border ${statColor}`;
+
+      showView('view-results');
+    };
+
+    els.btnRetake.onclick = () => openSetup(state.activeQuiz.id);
+    els.btnHomeRes.onclick = () => renderDashboard();
+
+    // REVIEW MODE
+    els.btnReview.onclick = () => {
+        state.isReviewing = true;
+        els.reviewContainer.innerHTML = '';
+        
+        state.activeQuestions.forEach((q, idx) => {
+            const ans = state.userAnswers[idx];
+            const isCorrect = checkAns(q, ans);
+            
+            const card = document.createElement('div');
+            card.className = `p-6 rounded-2xl border ${isCorrect ? 'bg-emerald-900/10 border-emerald-500/20' : 'bg-red-900/10 border-red-500/20'} relative`;
+            
+            // Badge
+            const badge = document.createElement('div');
+            badge.className = `absolute top-4 right-4 flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border ${isCorrect ? 'text-emerald-400 bg-emerald-950 border-emerald-800' : 'text-red-400 bg-red-950 border-red-800'}`;
+            badge.innerHTML = isCorrect ? `<i class="ph-bold ph-check"></i> Correct` : `<i class="ph-bold ph-x"></i> Incorrect`;
+            card.appendChild(badge);
+
+            // Question Text
+            const qHeader = document.createElement('div');
+            qHeader.className = 'text-xs text-gray-500 font-mono mb-2';
+            qHeader.textContent = `Question ${idx + 1}`;
+            card.appendChild(qHeader);
+
+            const qText = document.createElement('div');
+            qText.className = 'prose prose-invert prose-sm max-w-none text-gray-200 mb-4';
+            qText.innerHTML = marked.parse(q.question);
+            card.appendChild(qText);
+
+            // Options Loop
+            const optGrid = document.createElement('div');
+            optGrid.className = 'grid grid-cols-1 gap-2';
+            const multi = isMulti(q);
+
+            q.options.forEach((opt) => {
+                const isTargetCorrect = multi ? q.answer.includes(opt) : q.answer === opt;
+                let isUserSel = false;
+                if(ans !== null) isUserSel = multi ? Array.isArray(ans) && ans.includes(opt) : ans === opt;
+
+                const row = document.createElement('div');
+                
+                if (isTargetCorrect) {
+                    row.className = `px-3 py-2 rounded-lg border flex items-center gap-3 text-sm ${isUserSel ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-100' : 'bg-emerald-500/10 border-dashed border-emerald-500/40 text-emerald-200'}`;
+                    row.innerHTML = `<i class="ph-bold ph-check text-emerald-400 text-lg"></i> <span class="flex-1">${opt}</span> ${!isUserSel ? '<span class="text-[10px] text-emerald-400 uppercase font-bold">Correct Answer</span>' : ''}`;
+                } else if (isUserSel && !isTargetCorrect) {
+                     row.className = `px-3 py-2 rounded-lg border bg-red-500/10 border-red-500/30 text-red-200 flex items-center gap-3 text-sm`;
+                     row.innerHTML = `<i class="ph-bold ph-x text-red-400 text-lg"></i> <span class="flex-1">${opt}</span> <span class="text-[10px] text-red-400 uppercase font-bold">Your Selection</span>`;
+                } else {
+                     row.className = `px-3 py-2 rounded-lg border bg-gray-800/30 border-gray-700/50 text-gray-400 flex items-center gap-3 text-sm opacity-60`;
+                     row.innerHTML = `<div class="w-4"></div> <span class="flex-1">${opt}</span>`;
+                }
+                optGrid.appendChild(row);
+            });
+            card.appendChild(optGrid);
+            els.reviewContainer.appendChild(card);
+        });
+
+        showView('view-review');
+    };
+
+    els.btnExitReview.onclick = () => showView('view-results');
+
+
+    /** --- NAVIGATION & SETTINGS --- **/
+    els.navHome.onclick = () => renderDashboard();
+    els.navSettings.onclick = () => showView('view-settings');
+    els.navUpload.onclick = () => showView('view-settings'); // Same view, draws attention to upload
+
+    // Upload Logic
+    els.fileInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const json = JSON.parse(ev.target.result);
+          if (!json.questions || !Array.isArray(json.questions)) throw new Error('Missing questions array.');
+          json.id = 'cus_' + Date.now().toString(36);
+          if (!json.title) json.title = file.name.replace('.json', '');
+          json.isDefault = false;
+          
+          state.quizzes.push(json);
+          saveData();
+          showToast(`Added ${json.questions.length} questions!`);
+          renderDashboard();
+        } catch (err) { showToast('Invalid JSON file.', 'error'); }
+        els.fileInput.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    // Backup & Reset
+    els.btnReset.onclick = () => {
+      customConfirm("Reset All Data", "This deletes all custom quizzes and statistics permanently.", () => {
+        localStorage.removeItem('qz_stats');
+        localStorage.removeItem('qz_custom');
+        state.stats = { totalSolved: 0, totalCorrect: 0, dailyActivity: {}, starred: {} };
+        state.quizzes = state.quizzes.filter(q => q.isDefault);
+        showToast('Data reset successfully');
+        renderDashboard();
+      });
+    };
+
+    els.btnExport.onclick = () => {
+      const data = { type: "quizpro-backup", stats: state.stats, customQuizzes: state.quizzes.filter(q => !q.isDefault) };
+      const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `quizpro_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    els.importFile.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const json = JSON.parse(ev.target.result);
+          if (json.type !== "quizpro-backup") throw new Error();
+          if (json.stats) state.stats = json.stats;
+          if (json.customQuizzes) {
+              const defs = state.quizzes.filter(q => q.isDefault);
+              state.quizzes = [...defs, ...json.customQuizzes];
+          }
+          saveData();
+          showToast('Backup restored successfully!');
+          renderDashboard();
+        } catch (err) { showToast('Invalid backup file.', 'error'); }
+        els.importFile.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    /** --- INIT --- **/
+    window.onload = loadData;
+
+  </script>
+</body>
 </html>
