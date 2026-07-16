@@ -267,14 +267,11 @@
             
             <div class="space-y-4">
               <div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-xl border border-white/5">
-                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Timer</label>
-                <select id="exam-timer" class="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-1 focus:border-brand-500 focus:outline-none cursor-pointer">
-                  <option value="0">None</option>
-                  <option value="5">5 Minutes</option>
-                  <option value="10">10 Minutes</option>
-                  <option value="30">30 Minutes</option>
-                  <option value="60">60 Minutes</option>
-                </select>
+                <div class="flex flex-col">
+                  <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Timer (Mins)</label>
+                  <span class="text-[10px] text-gray-500 font-medium">Set 0 for no timer</span>
+                </div>
+                <input type="number" id="exam-timer" min="0" value="0" placeholder="0" class="w-16 bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-white text-center text-sm focus:border-brand-500 focus:outline-none">
               </div>
               <button id="btn-start-exam" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-brand-900/30">Start Exam</button>
             </div>
@@ -819,7 +816,7 @@
 
     els.btnStartExam.onclick = () => {
       state.activeQuestions = [...state.activeQuiz.questions];
-      const mins = parseInt(els.examTimerSel.value);
+      const mins = Math.max(0, parseInt(els.examTimerSel.value) || 0);
       startSession('exam', mins * 60);
     };
 

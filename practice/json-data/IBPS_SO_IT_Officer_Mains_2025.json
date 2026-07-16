@@ -195,7 +195,7 @@
     {
       "id": 18,
       "type": "single",
-      "question": "What is the value of y after executing the following C code? #include <stdio.h> int main() { int x = 10; printf(\"%d %d\", x++, ++x); return 0; }",
+      "question": "What is the output of the following C code?\n\n```c\n#include <stdio.h>\n\nint main() {\n    int x = 10;\n    printf(\"%d %d\", x++, ++x);\n    return 0;\n}\n```\n",
       "options": ["10 12", "11 12", "10 11", "12 12", "Undefined behavior"],
       "answer": "Undefined behavior"
     },
