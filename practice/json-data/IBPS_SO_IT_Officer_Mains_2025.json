@@ -157,14 +157,15 @@
     {
       "id": 15,
       "type": "single",
-      "question": "Match the Access Control Models in Column A with their Features in Column B: Column A – Access Control Models Column B – Features A. Zero Trust 1. Based on roles in an organization B. DAC (Discretionary AC) 2. Based on security labels/classification 4 C. MAC (Mandatory AC) 3. Access decided by the data owner D. RBAC (Role-Based AC) 4. Never trust, always verify (assume breach) A. A–4, B–3, C–2, D–1 (b) A–1, B–2, C–3, D–4 (c) A–3, B–4, C–1, D–2 (d) A–2, B–1, C–4, D–3 (e) A–4, B–1, C–3, D–2",
+      "question": "Match the Access Control Models in **Column A** with their corresponding Features in **Column B**.\n\n| **Column A – Access Control Models** | **Column B – Features** |\n|--------------------------------------|--------------------------|\n| A. Zero Trust | 1. Based on roles in an organization |\n| B. DAC (Discretionary Access Control) | 2. Based on security labels/classification |\n| C. MAC (Mandatory Access Control) | 3. Access decided by the data owner |\n| D. RBAC (Role-Based Access Control) | 4. Never trust, always verify (assume breach) |\n",
       "options": [
+        "A–4, B–3, C–2, D–1",
         "A–1, B–2, C–3, D–4",
         "A–3, B–4, C–1, D–2",
         "A–2, B–1, C–4, D–3",
         "A–4, B–1, C–3, D–2"
       ],
-      "answer": ""
+      "answer": "A–4, B–3, C–2, D–1"
     },
     {
       "id": 16,
