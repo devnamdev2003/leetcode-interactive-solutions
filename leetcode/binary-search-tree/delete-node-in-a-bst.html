@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Viewer</title>
+
+    <!-- Prism Theme -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+
+    <style>
+      body {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: Consolas, Monaco, monospace;
+        padding: 20px;
+      }
+
+      .code-container {
+        position: relative;
+        max-width: 1200px;
+        margin: auto;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #0078d4;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+      }
+
+      .copy-btn:hover {
+        background: #106ebe;
+      }
+
+      pre {
+        border-radius: 10px;
+        padding: 20px;
+        overflow-x: auto;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode()">Copy</button>
+
+      <pre><code id="code-block" class="language-java">
+        <!-- paste your code here --> 
+        </code></pre>
+    </div>
+
+    <script>
+      const codeBlock = document.getElementById("code-block");
+      const copyBtn = document.querySelector(".copy-btn");
+
+      const hasCode = codeBlock.textContent.trim() !== "";
+
+      if (!hasCode) {
+        codeBlock.textContent = `
+╔══════════════════════════════╗
+║        🚧 COMING SOON 🚧      ║
+╚══════════════════════════════╝
+
+The code solution will be available soon.
+Stay tuned!
+`;
+
+        codeBlock.classList.remove("language-java");
+      }
+
+      copyBtn.style.display = hasCode ? "block" : "none";
+
+      function copyCode() {
+        navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => {
+            copyBtn.textContent = "Copy";
+          }, 2000);
+        });
+      }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  </body>
+</html>
