@@ -225,6 +225,10 @@
           </div>
           <p class="text-sm text-slate-500 font-mono mt-2">Total Available: <span id="practice-max-questions" class="text-slate-300 font-bold">10</span></p>
           <button id="btn-practice-all" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium py-1.5 px-3 rounded-lg hover:bg-emerald-500/10 mt-1 w-full border border-emerald-500/20 bg-emerald-500/5">Select All Questions</button>
+          <button id="btn-practice-starred" class="hidden text-xs text-yellow-400 hover:text-yellow-300 transition-colors font-medium py-1.5 px-3 rounded-lg hover:bg-yellow-500/10 mt-2 w-full border border-yellow-500/20 bg-yellow-500/5 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Practice Starred (<span id="starred-count">0</span>)
+          </button>
         </div>
         <div class="flex gap-3 w-full max-w-sm mt-2">
           <button id="btn-cancel-practice" class="flex-1 px-5 py-3 bg-slate-800 text-slate-300 border border-slate-700 rounded-xl hover:bg-slate-700 transition text-sm font-semibold">Cancel</button>
@@ -270,9 +274,14 @@
           </div>
 
           <div class="bg-slate-800/30 p-5 md:p-6 rounded-2xl border border-slate-700/50 min-h-[100px] flex items-center justify-center shadow-inner relative group">
-            <button id="btn-copy-question" class="absolute top-3 right-3 p-2 bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors border border-slate-700 shadow-sm" title="Copy Question & Options">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
+            <div class="absolute top-3 right-3 flex gap-2">
+              <button id="btn-star-question" class="hidden p-2 bg-slate-800 text-slate-400 hover:text-yellow-400 rounded-lg transition-colors border border-slate-700 shadow-sm" title="Star/Unstar Question">
+                <svg id="star-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              </button>
+              <button id="btn-copy-question" class="p-2 bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors border border-slate-700 shadow-sm" title="Copy Question & Options">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
             <div id="question-text" class="prose prose-invert max-w-none w-full pt-4"></div>
           </div>
         </div>
@@ -332,7 +341,8 @@
       let userStats = {
           totalAnswered: 0,
           totalCorrect: 0,
-          dailyActivity: {} // format: 'YYYY-MM-DD': count
+          dailyActivity: {}, // format: 'YYYY-MM-DD': count
+          starred: {} // format: { 'quizId': [questionId1, questionId2] }
       };
 
       // --- DOM Elements ---
@@ -384,6 +394,10 @@
       const btnCancelPractice = document.getElementById('btn-cancel-practice');
       const btnStartPractice = document.getElementById('btn-start-practice');
       const btnPracticeAll = document.getElementById('btn-practice-all');
+      const btnPracticeStarred = document.getElementById('btn-practice-starred');
+      const starredCountEl = document.getElementById('starred-count');
+      const btnStarQuestion = document.getElementById('btn-star-question');
+      const starIcon = document.getElementById('star-icon');
       const practiceStats = document.getElementById('practice-stats');
       const statCorrect = document.getElementById('stat-correct');
       const statWrong = document.getElementById('stat-wrong');
@@ -447,6 +461,7 @@
             try {
                 userStats = JSON.parse(storedStats);
                 if (!userStats.dailyActivity) userStats.dailyActivity = {};
+                if (!userStats.starred) userStats.starred = {};
             } catch (e) {}
         }
 
@@ -683,8 +698,8 @@
             clearActiveSession();
             
             // Re-initialize state
-            userStats = { totalAnswered: 0, totalCorrect: 0, dailyActivity: {} };
-            savedQuizzes = []; 
+            userStats = { totalAnswered: 0, totalCorrect: 0, dailyActivity: {}, starred: {} };
+            savedQuizzes = [];
             
             settingsModal.classList.add('hidden');
             renderDashboard();
@@ -800,6 +815,16 @@
               practiceFrom.value = "1";
               practiceTo.value = String(Math.min(10, quiz.questions.length));
               practiceMaxQuestions.textContent = String(quiz.questions.length);
+              
+              const starredList = userStats.starred[quiz.id] || [];
+              if (starredList.length > 0) {
+                  starredCountEl.textContent = starredList.length;
+                  btnPracticeStarred.classList.remove('hidden');
+                  btnPracticeStarred.classList.add('flex');
+              } else {
+                  btnPracticeStarred.classList.add('hidden');
+                  btnPracticeStarred.classList.remove('flex');
+              }
           } else {
             activeQuestions = [...quiz.questions];
             startQuizSession();
@@ -829,6 +854,16 @@
               practiceFrom.value = "1";
               practiceTo.value = String(quiz.questions.length);
           }
+      });
+
+      btnPracticeStarred.addEventListener('click', () => {
+          const quiz = getActiveQuiz();
+          if (!quiz) return;
+          const starredIds = userStats.starred[quiz.id] || [];
+          if (starredIds.length === 0) return;
+          
+          activeQuestions = quiz.questions.filter(q => starredIds.includes(q.id));
+          startQuizSession();
       });
 
       function startQuizSession() {
@@ -980,6 +1015,21 @@
         // Render Markdown content
         questionText.innerHTML = marked.parse(question.question);
 
+        // Star button logic
+        if (currentMode === 'practice') {
+            btnStarQuestion.classList.remove('hidden');
+            const starredIds = userStats.starred[activeQuizId] || [];
+            if (starredIds.includes(question.id)) {
+                starIcon.setAttribute('fill', 'currentColor');
+                starIcon.classList.add('text-yellow-400');
+            } else {
+                starIcon.setAttribute('fill', 'none');
+                starIcon.classList.remove('text-yellow-400');
+            }
+        } else {
+            btnStarQuestion.classList.add('hidden');
+        }
+
         // Previous button
         if (currentQuestionIndex > 0) btnPrevQuestion.classList.remove('hidden');
         else btnPrevQuestion.classList.add('hidden');
@@ -1082,6 +1132,29 @@
           if (confirm("Are you sure you want to finish the quiz early? Unanswered questions will be marked incorrect.")) {
               showResults();
           }
+      });
+
+      btnStarQuestion.addEventListener('click', () => {
+          const question = activeQuestions[currentQuestionIndex];
+          if (!question) return;
+          
+          if (!userStats.starred[activeQuizId]) {
+              userStats.starred[activeQuizId] = [];
+          }
+          
+          const starredIds = userStats.starred[activeQuizId];
+          const idx = starredIds.indexOf(question.id);
+          
+          if (idx > -1) {
+              starredIds.splice(idx, 1); // Unstar
+              starIcon.setAttribute('fill', 'none');
+              starIcon.classList.remove('text-yellow-400');
+          } else {
+              starredIds.push(question.id); // Star
+              starIcon.setAttribute('fill', 'currentColor');
+              starIcon.classList.add('text-yellow-400');
+          }
+          saveData(); // Persist the star status
       });
 
       btnCopyQuestion.addEventListener('click', () => {
