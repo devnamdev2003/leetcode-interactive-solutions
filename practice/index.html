@@ -211,11 +211,20 @@
           <p class="text-sm text-slate-400">How many questions would you like to practice today?</p>
         </div>
         <div class="flex flex-col items-center gap-3 bg-slate-800/40 p-6 rounded-3xl border border-slate-700/50 w-full max-w-sm">
-          <div class="flex items-end gap-3 text-2xl">
-            <input type="number" id="practice-num-questions" min="1" value="10" class="w-24 bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-xl" />
-            <span class="text-lg text-slate-500 font-mono mb-2" id="practice-max-questions">/ 10</span>
+          <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Select Range</p>
+          <div class="flex items-center gap-4 text-2xl w-full justify-center">
+            <div class="flex flex-col items-center gap-1">
+                <label for="practice-from" class="text-[10px] text-slate-500 font-bold uppercase">From</label>
+                <input type="number" id="practice-from" min="1" value="1" class="w-20 bg-slate-900 border border-slate-600 rounded-xl px-2 py-2 text-white text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-xl" />
+            </div>
+            <span class="text-slate-600 font-bold mt-4">-</span>
+            <div class="flex flex-col items-center gap-1">
+                <label for="practice-to" class="text-[10px] text-slate-500 font-bold uppercase">To</label>
+                <input type="number" id="practice-to" min="1" value="10" class="w-20 bg-slate-900 border border-slate-600 rounded-xl px-2 py-2 text-white text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-xl" />
+            </div>
           </div>
-          <button id="btn-practice-all" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium py-1.5 px-3 rounded-lg hover:bg-emerald-500/10">Select All Questions</button>
+          <p class="text-sm text-slate-500 font-mono mt-2">Total Available: <span id="practice-max-questions" class="text-slate-300 font-bold">10</span></p>
+          <button id="btn-practice-all" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium py-1.5 px-3 rounded-lg hover:bg-emerald-500/10 mt-1 w-full border border-emerald-500/20 bg-emerald-500/5">Select All Questions</button>
         </div>
         <div class="flex gap-3 w-full max-w-sm mt-2">
           <button id="btn-cancel-practice" class="flex-1 px-5 py-3 bg-slate-800 text-slate-300 border border-slate-700 rounded-xl hover:bg-slate-700 transition text-sm font-semibold">Cancel</button>
@@ -369,7 +378,8 @@
       const multiSubmitContainer = document.getElementById('multi-submit-container');
       const btnSubmitMulti = document.getElementById('btn-submit-multi');
 
-      const practiceNumQuestions = document.getElementById('practice-num-questions');
+      const practiceFrom = document.getElementById('practice-from');
+      const practiceTo = document.getElementById('practice-to');
       const practiceMaxQuestions = document.getElementById('practice-max-questions');
       const btnCancelPractice = document.getElementById('btn-cancel-practice');
       const btnStartPractice = document.getElementById('btn-start-practice');
@@ -777,23 +787,20 @@
       btnQuiz.addEventListener('click', () => startMode('quiz'));
       btnCancelPractice.addEventListener('click', () => window.selectQuiz(activeQuizId));
 
-      btnPracticeAll.addEventListener('click', () => {
-          const quiz = getActiveQuiz();
-          if (quiz) practiceNumQuestions.value = String(quiz.questions.length);
-      });
-
       function startMode(mode) {
         const quiz = getActiveQuiz();
         if (!quiz) return;
         currentMode = mode;
         
         if (mode === 'practice') {
-            hideAll();
-            practiceSetupSection.classList.remove('hidden');
-            practiceNumQuestions.max = String(quiz.questions.length);
-            practiceNumQuestions.value = String(Math.min(10, quiz.questions.length));
-            practiceMaxQuestions.textContent = `/ ${quiz.questions.length}`;
-        } else {
+              hideAll();
+              practiceSetupSection.classList.remove('hidden');
+              practiceFrom.max = String(quiz.questions.length);
+              practiceTo.max = String(quiz.questions.length);
+              practiceFrom.value = "1";
+              practiceTo.value = String(Math.min(10, quiz.questions.length));
+              practiceMaxQuestions.textContent = String(quiz.questions.length);
+          } else {
             activeQuestions = [...quiz.questions];
             startQuizSession();
         }
@@ -802,13 +809,26 @@
       btnStartPractice.addEventListener('click', () => {
           const quiz = getActiveQuiz();
           if (!quiz) return;
-          let num = parseInt(practiceNumQuestions.value, 10);
-          if (isNaN(num) || num < 1) num = 1;
-          if (num > quiz.questions.length) num = quiz.questions.length;
           
-          // Slice for practice mode (without shuffling)
-          activeQuestions = [...quiz.questions].slice(0, num);
+          let from = parseInt(practiceFrom.value, 10);
+          let to = parseInt(practiceTo.value, 10);
+          
+          // Validation to prevent errors
+          if (isNaN(from) || from < 1) from = 1;
+          if (isNaN(to) || to > quiz.questions.length) to = quiz.questions.length;
+          if (from > to) from = to; // Ensure 'from' is not greater than 'to'
+          
+          // Slice for practice mode based on range
+          activeQuestions = [...quiz.questions].slice(from - 1, to);
           startQuizSession();
+      });
+
+      btnPracticeAll.addEventListener('click', () => {
+          const quiz = getActiveQuiz();
+          if (quiz) {
+              practiceFrom.value = "1";
+              practiceTo.value = String(quiz.questions.length);
+          }
       });
 
       function startQuizSession() {
