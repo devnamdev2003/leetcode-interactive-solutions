@@ -246,7 +246,10 @@
             
             <div class="space-y-4">
               <div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-xl border border-white/5">
-                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Range</label>
+                <div class="flex flex-col gap-0.5">
+                  <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Range</label>
+                  <button id="btn-practice-all" onclick="document.getElementById('practice-from').value = 1; document.getElementById('practice-to').value = state.activeQuiz.questions.length;" class="text-[10px] text-emerald-400 hover:text-emerald-300 text-left font-bold uppercase tracking-wider transition-colors w-max">Select All</button>
+                </div>
                 <div class="flex items-center gap-2">
                   <input type="number" id="practice-from" min="1" class="w-16 bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-white text-center text-sm focus:border-emerald-500 focus:outline-none">
                   <span class="text-gray-500">-</span>
@@ -332,9 +335,6 @@
 
           <div class="text-[10px] text-gray-500 mb-2 ml-2 font-medium tracking-wide uppercase flex justify-between items-center">
             <span id="q-type-hint">Select one answer</span>
-            <span class="hidden sm:inline-flex gap-2">
-              <kbd class="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 text-[9px] text-gray-400 font-mono">1-4</kbd> to select
-            </span>
           </div>
           
           <!-- Options -->
@@ -356,7 +356,6 @@
             
             <button id="btn-next" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2 hidden">
               Next <i class="ph-bold ph-arrow-right"></i>
-              <kbd class="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono">Enter</kbd>
             </button>
           </div>
         </div>
@@ -994,8 +993,8 @@
 
       // Bottom Controls logic
       els.btnNext.innerHTML = state.currentIndex === state.activeQuestions.length - 1 
-        ? `Finish <i class="ph-bold ph-flag-checkered"></i><kbd class="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono">Enter</kbd>` 
-        : `Next <i class="ph-bold ph-arrow-right"></i><kbd class="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono">Enter</kbd>`;
+        ? `Finish <i class="ph-bold ph-flag-checkered"></i>` 
+        : `Next <i class="ph-bold ph-arrow-right"></i>`;
 
       if (state.mode === 'practice') {
           if (state.isAnswered) {
@@ -1078,42 +1077,6 @@
         renderDashboard();
       });
     };
-
-    // Keyboard Shortcuts
-    document.addEventListener('keydown', (e) => {
-      if(els.views[3].classList.contains('active')) { // if in quiz view
-        const key = e.key.toLowerCase();
-        const q = state.activeQuestions[state.currentIndex];
-        if(!q) return;
-
-        // Number keys 1-9 or A-I map to options
-        const maxOpt = q.options.length;
-        let optIndex = -1;
-        
-        if(key >= '1' && key <= String(maxOpt)) {
-            optIndex = parseInt(key) - 1;
-        } else if (key >= 'a' && key <= String.fromCharCode(96 + maxOpt)) {
-            optIndex = key.charCodeAt(0) - 97;
-        }
-
-        if (optIndex >= 0 && optIndex < maxOpt) {
-            handleSelect(q.options[optIndex]);
-        }
-
-        if (key === 'enter') {
-            e.preventDefault();
-            if (state.mode === 'practice' && !state.isAnswered && isMulti(q)) {
-                els.btnCheck.click();
-            } else if (!els.btnNext.classList.contains('hidden')) {
-                els.btnNext.click();
-            }
-        }
-
-        if (key === 'arrowleft') {
-            els.btnPrev.click();
-        }
-      }
-    });
 
     /** --- EXTRA QUIZ ACTIONS --- **/
     els.btnCopy.onclick = () => {
