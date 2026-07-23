@@ -42,57 +42,12 @@ public class Dev {
     public static void main(String[] args) {
         Solution o = new Solution();
         TreeNode root = TreeNode.buildTree(new Integer[] { 5, 3, 6, 2, 4, null, 7 });
-        System.out.println(o.deleteNode(root, 3));
+        System.out.println(o);
+        
     }
 
 }
 
 class Solution {
-    public TreeNode deleteNode(TreeNode root, int key) {
-        TreeNode keyNode = new TreeNode(key);
-        TreeNode keyNodeParent = new TreeNode(-1);
-        TreeNode temp = root;
-        while (root != null && root.val != keyNode.val) {
-            keyNodeParent = root;
-            root = root.val < keyNode.val ? root.right : root.left;
-        }
-        keyNode = root;
-        root = temp;
-        if (root == null)
-            return null;
-        TreeNode keyNode1 = keyNode.right;
-        TreeNode keyNodeParent1 = keyNode;
-        root = keyNode1;
-        while (root.left != null) {
-            keyNodeParent1 = root;
-            keyNode1 = root.left;
-            root = root.left;
-        }
-        if (keyNodeParent != null & keyNode != null) {
-            System.out.println(keyNode.val);
-            System.out.println(keyNodeParent.val);
-            System.out.println(keyNode1.val);
-            System.out.println(keyNodeParent1.val);
-        }
-        // if (find != null) {
-        // if (find.right != null) {
-        // TreeNode tempRoot = find.right;
-
-        // }
-        // if (find.left != null) {
-
-        // }
-        // }
-        return root;
-    }
-
-    public void findInorderLeafnode(TreeNode root, TreeNode keyNode, TreeNode keyNodeParent) {
-        if (root == null)
-            return;
-        while (root.left != null) {
-            keyNodeParent = root;
-            keyNode = root.left;
-            root = root.left;
-        }
-    }
+    
 }
