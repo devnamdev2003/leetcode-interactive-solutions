@@ -6,8 +6,8 @@
       "id": 1,
       "type": "single",
       "question": "A packet of size L bits is transmitted from a source to a destination through N intermediate routers using store-and-forward packet switching. Each link has a transmission rate of R bits per second. Ignoring propagation, processing, and queuing delays, what is the total transmission delay?",
-      "options": ["𝑅 𝐿", "𝑁𝐿 𝑅", "(𝑁+1)𝐿 𝑅", "(𝑁−1)𝐿 𝑅", "𝐿 𝑁𝑅"],
-      "answer": "(𝑁+1)𝐿 𝑅"
+      "options": ["L/R", "NL/R", "(N+1)L/R", "(N-1)L/R", "L/(NR)"],
+      "answer": "(N+1)L/R"
     },
     {
       "id": 2,
@@ -42,12 +42,12 @@
       "question": "In C++, which of the following correctly describes the purpose of endl and setw?",
       "options": [
         "endl formats output width, while setw inserts a new line",
-        "endl inserts a new line, while setw sets the output field width 2",
+        "endl inserts a new line, while setw sets the output field width",
         "endl reads input data, while setw displays output",
         "endl allocates memory, while setw controls loops",
         "endl performs type conversion, while setw handles exceptions"
       ],
-      "answer": "endl inserts a new line, while setw sets the output field width 2"
+      "answer": "endl inserts a new line, while setw sets the output field width"
     },
     {
       "id": 6,
@@ -89,7 +89,7 @@
       "question": "Which data warehouse schema is designed such that multiple fact tables share common dimension tables?",
       "options": [
         "Star Schema",
-        "Snowflake Schema 3",
+        "Snowflake Schema",
         "Hierarchical Schema",
         "Fact Constellation Schema",
         "Relational Schema"
@@ -112,7 +112,7 @@
     {
       "id": 12,
       "type": "single",
-      "question": "What will be the output of the following Python code? names = [\" Aman\", \"Rahul\", \"Peter\"] names.insert(1, \"John\") print(names[1])",
+      "question": "What will be the output of the following Python code? names = [\"Aman\", \"Rahul\", \"Peter\"] names.insert(1, \"John\") print(names[1])",
       "options": ["Aman", "Rahul", "Peter", "John", "Error"],
       "answer": "John"
     },
@@ -176,7 +176,7 @@
       "options": [
         "for(i=0; i<5; i++) { }",
         "for i in 1 2 3 4 5 do echo $i done",
-        "foreach i = 1 to 5 echo $i end 5",
+        "foreach i = 1 to 5 echo $i end",
         "loop i from 1 to 5 print $i",
         "for i = 1:5 echo $i endfor"
       ],
@@ -323,7 +323,7 @@
     {
       "id": 31,
       "type": "single",
-      "question": "Which of the following is commonly used to block or allow network ports such as HTTP and SSH? 8",
+      "question": "Which of the following is commonly used to block or allow network ports such as HTTP and SSH?",
       "options": [
         "Compiler",
         "Firewall",
@@ -371,7 +371,7 @@
       "type": "single",
       "question": "What is the name of the cyber attack in which an attacker overwhelms a web server by sending a very large number of HTTP requests?",
       "options": [
-        "Packet Sniffing 9",
+        "Packet Sniffing",
         "HTTP Flooding",
         "DNS Spoofing",
         "Session Hijacking",
@@ -437,7 +437,7 @@
       "question": "Which of the following sorting algorithms has the same time complexity in the best, average, and worst cases?",
       "options": [
         "Merge Sort",
-        "Quick Sort 10",
+        "Quick Sort",
         "Bubble Sort",
         "Insertion Sort",
         "None of the above"
@@ -499,7 +499,7 @@
     {
       "id": 45,
       "type": "single",
-      "question": "Among the following in -place comparison -based sorting algorithms, which algorithm generally performs the minimum number of swaps in the worst case? 11",
+      "question": "Among the following in -place comparison -based sorting algorithms, which algorithm generally performs the minimum number of swaps in the worst case?",
       "options": [
         "Bubble Sort",
         "Quick Sort",
@@ -562,7 +562,7 @@
       "options": [
         "To reduce memory allocation during execution",
         "To store intermediate results of repeated subproblems",
-        "To increase recursion depth in algorithms 12",
+        "To increase recursion depth in algorithms",
         "To execute multiple functions simultaneously",
         "To convert iterative solutions into recursive solutions"
       ],
@@ -636,7 +636,7 @@
     {
       "id": 56,
       "type": "single",
-      "question": "Consider the relation: R(Roll_No, Student_ID, Course_ID) with the following functional dependencies: · {Roll_No, Course_ID} → {Student_ID} · {Student_ID, Course_ID} → {Roll_No} · Student_ID → Roll_No The above dependencies completely describe all functional dependencies of the relation. Identify the highest normal form satisfied by the relation.",
+      "question": "Consider the relation R(Roll_No, Student_ID, Course_ID) with the following functional dependencies:\n(Roll_No, Course_ID) → Student_ID\n(Student_ID, Course_ID) → Roll_No\nStudent_ID → Roll_No\nThe above dependencies completely describe all functional dependencies of the relation. Identify the highest normal form satisfied by the relation.",
       "options": [
         "First Normal Form",
         "Second Normal Form",
@@ -649,7 +649,7 @@
     {
       "id": 57,
       "type": "single",
-      "question": "In TRC, which of the following mathematical notations is used as a quantifier to express that at least one tuple in the relation satisfies a specific condition? 14",
+      "question": "In TRC, which of the following mathematical notations is used as a quantifier to express that at least one tuple in the relation satisfies a specific condition?",
       "options": ["∀", "∃", "σ", "π", "∪"],
       "answer": "∃"
     },
@@ -676,7 +676,7 @@
     {
       "id": 60,
       "type": "single",
-      "question": "A rogue wireless access point that closely imitates a legitimate Wi -Fi network in order to trick users and capture their credentials is an example of which attack?",
+      "question": "A rogue wireless access point that closely imitates a legitimate Wi-Fi network in order to trick users and capture their credentials is an example of which attack?",
       "options": [
         "Man-in-the-middle attack",
         "Evil twin attack",

@@ -1,0 +1,648 @@
+{
+  "title": "IBPS SO IT Officer Mains 2022 Quiz",
+  "description": "Generated from uploaded PDF.",
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "question": "What is the total number of networks available in IPv4 Class C?",
+      "options": ["2^16", "2^21", "2^24", "2^15", "2^20"],
+      "answer": "2^21"
+    },
+    {
+      "id": 2,
+      "type": "single",
+      "question": "The attribute whose value is derived from another attribute is called?",
+      "options": [
+        "Primary Attribute",
+        "Composite Attribute",
+        "Derived Attribute",
+        "Foreign Attribute",
+        "Unique Attribute"
+      ],
+      "answer": "Derived Attribute"
+    },
+    {
+      "id": 3,
+      "type": "single",
+      "question": "Consider the following C++ code snippet:\n\n```cpp\n#include <iostream>\nusing namespace std;\n\nint main() {\n    bool a = true;\n    bool b = false;\n\n    bool c = (a || b) && !(a && b);\n    bool d = a && !b;\n\n    cout << \"Result: \" << (c == d) << endl;\n\n    return 0;\n}\n```\n\nWhat is the output of the above program?",
+      "options": [
+        "Result: 0",
+        "Result: 1",
+        "Result: true",
+        "Compilation Error",
+        "None of the above"
+      ],
+      "answer": "Result: 1"
+    },
+    {
+      "id": 4,
+      "type": "single",
+      "question": "Which Linux command is used to display the current version of the kernel?",
+      "options": ["lskernel", "kernel -v", "version", "uname -v", "kerninfo"],
+      "answer": "uname -v"
+    },
+    {
+      "id": 5,
+      "type": "single",
+      "question": "Consider the following NFA with ε-transition: \nState a b ε \n→q0 q0 q1 — \nq1 q2 — — \n*q2 q2 q0 q1 \nWhere: \n• → denotes the initial state \n• * denotes the final state \nUsing subset construction and considering only reachable DFA states, which of the following represents the \nset of states in the equivalent DFA?",
+      "options": [
+        "{{q0},{q1},{q1,q2}}",
+        "{{q0},{q1},{q0,q1},{q1,q2}}",
+        "{{q0},{q1},{q0,q2},{q1,q2}}",
+        "{{q0},{q1},{q0,q1,q2}}",
+        "None of the above"
+      ],
+      "answer": "{{q0},{q1},{q1,q2}}"
+    },
+    {
+      "id": 6,
+      "type": "single",
+      "question": "In the context of database transactions, a shared lock allows which of the following operations?",
+      "options": [
+        "Only read operations by multiple transactions simultaneously",
+        "Both read and write operations by multiple transactions simultaneously",
+        "Only write operations by a single transaction",
+        "Both read and write operations by a single transaction",
+        "None of these"
+      ],
+      "answer": "Only read operations by multiple transactions simultaneously"
+    },
+    {
+      "id": 7,
+      "type": "single",
+      "question": "A system has 4 processes and 3 resource types. The following matrices are given: \nAllocation Matrix \nProcess R1 R2 R3 \nP1 0 1 0 \nP2 2 0 0 \nP3 3 0 2 \nP4 2 1 1 \nMaximum Matrix \nProcess R1 R2 R3 \nP1 7 5 3 \nP2 3 2 2 \nP3 9 0 2 \nP4 2 2 2 \n \n3 \nAvailable Resources \nR1 R2 R3 \n3 2 1 \nUsing Banker’s Algorithm, determine the number of safe sequences possible.",
+      "options": ["0", "1", "2", "3", "4"],
+      "answer": "0"
+    },
+    {
+      "id": 8,
+      "type": "single",
+      "question": "According to the IEEE 802.3 standard, what is the maximum cable length of a single 100Base -TX \nEthernet segment?",
+      "options": [
+        "100 meters",
+        "200 meters",
+        "185 meters",
+        "500 meters",
+        "1000 meters"
+      ],
+      "answer": "100 meters"
+    },
+    {
+      "id": 9,
+      "type": "single",
+      "question": "Assume all transactions are attempting to access the same database resource. \nTransaction Operation Requested Lock Type Requested \nT1 Read Shared (S-lock) \nT2 Read Shared (S-lock) \nT3 Write Exclusive (X-lock) \nT4 Read Shared (S-lock) \nBased on standard DBMS lock compatibility rules, which of the following statements is correct?",
+      "options": [
+        "Transactions T1, T2, and T4 can simultaneously hold S-locks on the same resource.",
+        "Transaction T3 can obtain an X-lock while T1 holds an S-lock.",
+        "Transaction T4 can read the resource while T3 holds an X-lock.",
+        "An S-lock and an X-lock are compatible on the same resource.",
+        "Shared and exclusive locks are interchangeable."
+      ],
+      "answer": "Transactions T1, T2, and T4 can simultaneously hold S-locks on the same resource."
+    },
+    {
+      "id": 10,
+      "type": "single",
+      "question": "Which tag is used to create a table in the latest version of HTML?",
+      "options": ["<div>", "<table>", "<grid>", "<html-table>", "<section>"],
+      "answer": "<table>"
+    },
+    {
+      "id": 11,
+      "type": "single",
+      "question": "Which of the following scenarios can lead to starvation in process scheduling?",
+      "options": [
+        "A process is stuck in a circular wait due to resource allocation.",
+        "A high-priority process continuously preempts a lower-priority process.",
+        "All processes have equal priority and resources are allocated fairly. \n \n4",
+        "Processes are executed in the order of their arrival without preemption.",
+        "Processes communicate with each other to avoid mutual exclusion violations."
+      ],
+      "answer": "A high-priority process continuously preempts a lower-priority process."
+    },
+    {
+      "id": 12,
+      "type": "single",
+      "question": "Hyper-V is a product of which of the following?",
+      "options": ["VMware", "Oracle", "Microsoft", "Red Hat", "Google"],
+      "answer": "Microsoft"
+    },
+    {
+      "id": 13,
+      "type": "single",
+      "question": "Which of the following is a valid identifier in Python?",
+      "options": [
+        "1stVariable",
+        "variable-name",
+        "variable_name",
+        "for",
+        "variable@name"
+      ],
+      "answer": "variable_name"
+    },
+    {
+      "id": 14,
+      "type": "single",
+      "question": "What is the effective encryption key length used by the Data Encryption Standard (DES), excluding \nparity bits?",
+      "options": ["64 bits", "56 bits", "128 bits", "32 bits", "192 bits"],
+      "answer": "56 bits"
+    },
+    {
+      "id": 15,
+      "type": "single",
+      "question": "Which of the following is not a linear data structure?",
+      "options": ["Array", "Stack", "Queue", "Tree", "Linked List"],
+      "answer": "Tree"
+    },
+    {
+      "id": 16,
+      "type": "single",
+      "question": "A Class B network with default mask 255.255.0.0 must be subnetted into at least 1024 subnets. Which \nsubnet mask should be used under modern subnetting rules?",
+      "options": [
+        "255.255.224.0",
+        "255.255.240.0",
+        "255.255.248.0",
+        "255.255.255.192",
+        "255.255.255.0"
+      ],
+      "answer": "255.255.255.192"
+    },
+    {
+      "id": 17,
+      "type": "single",
+      "question": "In object -oriented programming, what is the method called where one type is defined based on \nanother type?",
+      "options": [
+        "Inheritance",
+        "Class",
+        "Object",
+        "Polymorphism",
+        "Encapsulation"
+      ],
+      "answer": "Inheritance"
+    },
+    {
+      "id": 18,
+      "type": "single",
+      "question": "Which of the following web application attacks involves injecting malicious scripts into trusted \nwebsites to target users?",
+      "options": [
+        "Cross-Site Request Forgery (CSRF)",
+        "Injection Attacks",
+        "Cross-Site Scripting (XSS)",
+        "Distributed Denial-of-Service (DDoS)",
+        "Brute Force Attack"
+      ],
+      "answer": "Cross-Site Scripting (XSS)"
+    },
+    {
+      "id": 19,
+      "type": "single",
+      "question": "What is the number of pins in the Intel 8089 I/O processor?",
+      "options": ["20", "40", "64", "24", "80"],
+      "answer": "40"
+    },
+    {
+      "id": 20,
+      "type": "single",
+      "question": "Which of the following protocols is not part of the HTTP/HTTPS web communication protocol family?",
+      "options": ["HTTPS", "FTP", "HTTP", "WebDAV", "None of the above"],
+      "answer": "FTP"
+    },
+    {
+      "id": 21,
+      "type": "single",
+      "question": "Which of the following statements about Third Normal Form (3NF) is true?",
+      "options": [
+        "A table is in 3NF if it is in 2NF and every non-prime attribute is non-transitively dependent on every key \nof the table.",
+        "A table is in 3NF if it is in 2NF and every non -prime attribute is dependent on every non-key attribute \nof the table.",
+        "A table is in 3NF if it has no transitive dependencies and every non -prime attribute is partially \ndependent on a candidate key.",
+        "A table is in 3NF if it has no repeating groups and all attributes are atomic.",
+        "A table is in 3NF if it is in 1NF and has only one candidate key."
+      ],
+      "answer": "A table is in 3NF if it is in 2NF and every non-prime attribute is non-transitively dependent on every key \nof the table."
+    },
+    {
+      "id": 22,
+      "type": "single",
+      "question": "Which of the following is an example of a bit-oriented protocol? \n \n6",
+      "options": [
+        "HDLC (High-Level Data Link Control)",
+        "SMTP (Simple Mail Transfer Protocol)",
+        "FTP (File Transfer Protocol)",
+        "HTTP (Hypertext Transfer Protocol)",
+        "None of the above"
+      ],
+      "answer": "HDLC (High-Level Data Link Control)"
+    },
+    {
+      "id": 23,
+      "type": "single",
+      "question": "In IPv4 Class C, what is the range of the first octet?",
+      "options": ["1–126", "128–191", "192–223", "224–239", "240–255"],
+      "answer": "192–223"
+    },
+    {
+      "id": 24,
+      "type": "single",
+      "question": "Which of the following PDU units corresponds to the Transport and Network Layers in the OSI model?",
+      "options": [
+        "Packet (Transport Layer), Datagram (Network Layer)",
+        "Segment (Transport Layer), Packet (Network Layer)",
+        "Datagram (Transport Layer), Frame (Network Layer)",
+        "Packet (Transport Layer), Frame (Network Layer)",
+        "None of the above"
+      ],
+      "answer": "Segment (Transport Layer), Packet (Network Layer)"
+    },
+    {
+      "id": 25,
+      "type": "single",
+      "question": "What will be the output of the following C program?\n\n```c\n#include <stdio.h>\n\nint main() {\n    int a = 5, b = 10, c = 15;\n\n    int result = (a > b) ? ((b > c) ? b : c) : ((a > c) ? a : c);\n\n    printf(\"%d\", result);\n\n    return 0;\n}\n```\n\nWhat will be the output of the above program?",
+      "options": ["5", "10", "15", "0", "Compilation Error"],
+      "answer": "15"
+    },
+    {
+      "id": 26,
+      "type": "single",
+      "question": "What is BitLocker?",
+      "options": [
+        "A disk encryption feature in Windows",
+        "A malware protection software",
+        "A network firewall tool",
+        "A file compression utility",
+        "A backup management tool"
+      ],
+      "answer": "A disk encryption feature in Windows"
+    },
+    {
+      "id": 27,
+      "type": "single",
+      "question": "Which CPU register stores the address of the next instruction before it is fetched from memory?",
+      "options": [
+        "Instruction Register (IR)",
+        "Memory Address Register (MAR)",
+        "Program Counter (PC)",
+        "Accumulator (AC)",
+        "Stack Pointer (SP)"
+      ],
+      "answer": "Program Counter (PC)"
+    },
+    {
+      "id": 28,
+      "type": "single",
+      "question": "In C Programming, the ternary operator is also called as:",
+      "options": [
+        "Conditional Operator",
+        "Logical Operator",
+        "Bitwise Operator",
+        "Relational Operator",
+        "Arithmetic Operator"
+      ],
+      "answer": "Conditional Operator"
+    },
+    {
+      "id": 29,
+      "type": "single",
+      "question": "Which of the following is a form of a snooping attack that involves unauthorized monitoring of \nnetwork communications to capture sensitive information?",
+      "options": [
+        "Spoofing",
+        "SQL Injection",
+        "Eavesdropping",
+        "Denial of Service (DoS)",
+        "Phishing"
+      ],
+      "answer": "Eavesdropping"
+    },
+    {
+      "id": 30,
+      "type": "single",
+      "question": "Which of the following statements about offsite recovery strategies is correct?",
+      "options": [
+        "A hot site  provides fully operational systems with real -time data mirroring and requires minimal \ndowntime during recovery.",
+        "A cold site has all the necessary equipment pre-installed and ready to use in case of a disaster.",
+        "A warm site is identical to a hot site but does not provide real-time data synchronization.",
+        "A backup site is typically a secondary facility that is fully equipped and ready for immediate switchover.",
+        "None of the above statements are correct."
+      ],
+      "answer": "A hot site  provides fully operational systems with real -time data mirroring and requires minimal \ndowntime during recovery."
+    },
+    {
+      "id": 31,
+      "type": "single",
+      "question": "Which of the following is a general-purpose processing register?",
+      "options": ["PC", "DR", "IR", "AR", "None of the above"],
+      "answer": "None of the above"
+    },
+    {
+      "id": 32,
+      "type": "single",
+      "question": "The reserved words in C programming are called?",
+      "options": [
+        "Constants",
+        "Identifiers \n \n8",
+        "Keywords",
+        "Operators",
+        "Functions"
+      ],
+      "answer": "Keywords"
+    },
+    {
+      "id": 33,
+      "type": "single",
+      "question": "Which of the following testing types focuses on verifying individual components or modules of a \nsoftware application?",
+      "options": [
+        "Integration Testing",
+        "Unit Testing",
+        "System Testing",
+        "Acceptance Testing",
+        "Regression Testing"
+      ],
+      "answer": "Unit Testing"
+    },
+    {
+      "id": 34,
+      "type": "single",
+      "question": "Consider the following C code snippet:\n\n```c\n#include <stdio.h>\n\nint main() {\n    char ch = 'F';\n\n    printf(\"%c\", ch + 4);\n\n    return 0;\n}\n```\n\nWhat is the output of the above program?",
+      "options": ["F", "G", "H", "J", "K"],
+      "answer": "J"
+    },
+    {
+      "id": 35,
+      "type": "single",
+      "question": "Consider the following C program:\n\n```c\n#include <stdio.h>\n\nvoid exampleFunction(int x, int y) {\n    printf(\"x = %d, y = %d\\n\", x, y);\n}\n\nint main() {\n    int a = 10;\n    int b;\n\n    exampleFunction(a, b);\n\n    return 0;\n}\n```\n\nWhat is the output of the above program?",
+      "options": [
+        "x = 0, y = 10",
+        "x = 10, y = 10",
+        "x = 10, y = some garbage value",
+        "x = 0, y = some garbage value",
+        "Compilation Error"
+      ],
+      "answer": "x = 10, y = some garbage value"
+    },
+    {
+      "id": 36,
+      "type": "single",
+      "question": "Consider the following processes with their respective burst times and arrival times: \n \nUsing the First -Come, First-Served (FCFS) scheduling algorithm, calculate the average waiting time and \naverage turnaround time for the processes.",
+      "options": [
+        "Average Waiting Time: 4.2, Average Turnaround Time: 8.2",
+        "Average Waiting Time: 6.0, Average Turnaround Time: 11.0",
+        "Average Waiting Time: 4.6, Average Turnaround Time: 8.6",
+        "Average Waiting Time: 3.8, Average Turnaround Time: 8.4",
+        "Average Waiting Time: 3.6, Average Turnaround Time: 7.6"
+      ],
+      "answer": "Average Waiting Time: 3.8, Average Turnaround Time: 8.4"
+    },
+    {
+      "id": 37,
+      "type": "single",
+      "question": "Which communication mode allows data transmission in both directions simultaneously?",
+      "options": [
+        "Simplex",
+        "Half Duplex",
+        "Full Duplex",
+        "Asynchronous",
+        "Synchronous \n\n \n10"
+      ],
+      "answer": "Full Duplex"
+    },
+    {
+      "id": 38,
+      "type": "single",
+      "question": "Consider the following disk request sequence for I/O operations in a disk queue: 95, 180, 34, 119, 11, \n123, 62, 64. \nThe disk head is initially positioned at cylinder 50. Calculate the total head movement to satisfy all the \nrequests using FCFS disk scheduling.",
+      "options": ["440", "620", "560", "735", "644"],
+      "answer": "644"
+    },
+    {
+      "id": 39,
+      "type": "single",
+      "question": "Which of the following is a NoSQL database?",
+      "options": ["MariaDB", "MySQL", "Cassandra", "Informix", "DB2"],
+      "answer": "Cassandra"
+    },
+    {
+      "id": 40,
+      "type": "single",
+      "question": "What is the height of an AVL tree with 12 nodes, assuming the degree of the root node is 0?",
+      "options": ["3", "4", "5", "6", "None of the above"],
+      "answer": "4"
+    },
+    {
+      "id": 41,
+      "type": "single",
+      "question": "What is the purpose of the -n option in the Linux traceroute command?",
+      "options": [
+        "Displays the output in numeric IP format without resolving hostnames",
+        "Traces routes to the local network only",
+        "Resolves hostnames to domain names",
+        "Specifies the maximum number of hops",
+        "Displays additional debugging information"
+      ],
+      "answer": "Displays the output in numeric IP format without resolving hostnames"
+    },
+    {
+      "id": 42,
+      "type": "single",
+      "question": "What type of VLAN is used to carry traffic from multiple VLANs across a single link?",
+      "options": ["Access", "Native", "Trunk", "Management", "Voice"],
+      "answer": "Trunk"
+    },
+    {
+      "id": 43,
+      "type": "single",
+      "question": "Consider a network where a packet is sent from Host A to Host B. The packet has an initial hop limit \nof 10. The packet passes through 3 routers before reaching Host B. Each router decrements the hop limit \nby 1. What is the remaining hop limit of the packet when it reaches Host B?",
+      "options": ["7", "8", "9", "10", "6"],
+      "answer": "7"
+    },
+    {
+      "id": 44,
+      "type": "single",
+      "question": "What are the partitioning styles available in Windows operating systems?",
+      "options": [
+        "NTFS and FAT32",
+        "Primary and Extended",
+        "Logical and Physical",
+        "MBR and GPT",
+        "BIOS and UEFI"
+      ],
+      "answer": "MBR and GPT"
+    },
+    {
+      "id": 45,
+      "type": "single",
+      "question": "Which transport layer protocol is used by SMTP?",
+      "options": ["TCP", "UDP", "ICMP", "SCTP", "ARP"],
+      "answer": "TCP"
+    },
+    {
+      "id": 46,
+      "type": "single",
+      "question": "Match the following OSI layers with their corresponding functionalities: \n \nChoose the correct matching:",
+      "options": [
+        "1-c, 2-d, 3-a, 4-b",
+        "1-d, 2-a, 3-b, 4-c",
+        "1-a, 2-c, 3-d, 4-b",
+        "1-c, 2-b, 3-d, 4-a",
+        "1-d, 2-c, 3-a, 4-b"
+      ],
+      "answer": "1-c, 2-d, 3-a, 4-b"
+    },
+    {
+      "id": 47,
+      "type": "single",
+      "question": "What is the binary equivalent of 726?",
+      "options": [
+        "1011010110",
+        "1101101010 \n\n \n12",
+        "1110010110",
+        "1010110110",
+        "1110101010"
+      ],
+      "answer": "1011010110"
+    },
+    {
+      "id": 48,
+      "type": "single",
+      "question": "In the context of server security, which of the following real-world practices is NOT desirable?",
+      "options": [
+        "Using a reverse proxy to hide server IP addresses",
+        "Deploying servers in a DMZ (Demilitarized Zone) for public-facing services",
+        "Disabling unnecessary services and ports on the server",
+        "Allowing unrestricted root login via SSH for faster access",
+        "Enforcing regular vulnerability assessments on the server"
+      ],
+      "answer": "Allowing unrestricted root login via SSH for faster access"
+    },
+    {
+      "id": 49,
+      "type": "single",
+      "question": "In the context of Java, which of the following keywords is used to declare class -level variables and \nmethods, ensuring that they can be accessed without creating an instance of the class?",
+      "options": ["final", "static", "transient", "volatile", "synchronized"],
+      "answer": "static"
+    },
+    {
+      "id": 50,
+      "type": "single",
+      "question": "Consider the following statements about CISC (Complex Instruction Set Computing): \n1. CISC instructions are more complex and can execute multiple tasks in a single instruction. \n2. CISC processors require fewer instructions to complete a task, resulting in simpler control units. \n3. CISC architecture prioritizes hardware over software complexity. \nWhich of the following options correctly classifies the statements as true or false?",
+      "options": [
+        "1: True, 2: True, 3: False",
+        "1: True, 2: False, 3: True",
+        "1: False, 2: True, 3: True",
+        "1: False, 2: False, 3: True",
+        "1: True, 2: False, 3: False"
+      ],
+      "answer": "1: True, 2: False, 3: True"
+    },
+    {
+      "id": 51,
+      "type": "single",
+      "question": "Which UNIX command is used to display the kernel name?",
+      "options": ["whoami", "kernel", "uname", "hostname", "sysinfo"],
+      "answer": "uname"
+    },
+    {
+      "id": 52,
+      "type": "single",
+      "question": "Which of the following is a private IP address?",
+      "options": [
+        "192.168.1.1",
+        "172.32.0.1",
+        "10.0.0.1 \n \n13",
+        "8.8.8.8",
+        "172.15.0.1"
+      ],
+      "answer": "192.168.1.1"
+    },
+    {
+      "id": 53,
+      "type": "single",
+      "question": "Consider the following statements about namespaces in programming: \n(i) Namespaces provide a way to group identifiers and avoid naming conflicts in large projects. (ii) Using \nthe using directive in C++ eliminates the need to qualify names explicitly within the namespace. (iii) In C++, \ntwo namespaces cannot have the same identifier within them. \nWhich of the following options correctly classifies the statements as true or false?",
+      "options": [
+        "(i): True, (ii): True, (iii): False",
+        "(i): True, (ii): False, (iii): False",
+        "(i): False, (ii): True, (iii): True",
+        "(i): True, (ii): True, (iii): True",
+        "(i): False, (ii): False, (iii): True"
+      ],
+      "answer": "(i): True, (ii): True, (iii): False"
+    },
+    {
+      "id": 54,
+      "type": "single",
+      "question": "Dirty bit is used to identify which of the following?",
+      "options": [
+        "Pages that are modified in memory but not written to disk",
+        "Pages that are currently in use in memory",
+        "Pages that are swapped out to disk",
+        "Pages that are read-only in memory",
+        "Pages that are not loaded in memory"
+      ],
+      "answer": "Pages that are modified in memory but not written to disk"
+    },
+    {
+      "id": 55,
+      "type": "single",
+      "question": "What is the final value of a after the loops are executed in the following Java program?\n\n```java\npublic class Main {\n\n    public static void main(String[] args) {\n        int a = 0;\n\n        for (int i = 0; i < 5; i++) {\n            a++;\n        }\n\n        for (int j = 0; j < 5; j++) {\n            a--;\n        }\n\n        System.out.println(\"Final value of a: \" + a);\n    }\n}\n```\n\nWhat is the final value of `a` after the loops are executed?",
+      "options": ["-5", "0", "5", "10", "None of the above"],
+      "answer": "0"
+    },
+    {
+      "id": 56,
+      "type": "single",
+      "question": "Which of the following is NOT a feature of Extreme Programming (XP)?",
+      "options": [
+        "Pair programming",
+        "Continuous feedback from the customer",
+        "Fixed project requirements before development",
+        "Test-driven development (TDD)",
+        "Continuous integration"
+      ],
+      "answer": "Fixed project requirements before development"
+    },
+    {
+      "id": 57,
+      "type": "single",
+      "question": "Which of the following is a type of Intrusion Detection System that analyzes network traffic in real -\ntime?",
+      "options": [
+        "Host-Based IDS (HIDS)",
+        "Network-Based IDS (NIDS)",
+        "Signature-Based IDS",
+        "Anomaly-Based IDS",
+        "Behavior-Based IDS"
+      ],
+      "answer": "Network-Based IDS (NIDS)"
+    },
+    {
+      "id": 58,
+      "type": "single",
+      "question": "A subset of a Data Warehouse designed for a specific department is called:",
+      "options": [
+        "Data Mart",
+        "ODS",
+        "Cloud Warehouse",
+        "Metadata store",
+        "None of the above"
+      ],
+      "answer": "Data Mart"
+    },
+    {
+      "id": 59,
+      "type": "single",
+      "question": "Which cloud model allows end -users to access software applications via a web browser without \nneeding local installation?",
+      "options": ["IaaS", "PaaS", "SaaS", "FaaS", "DaaS"],
+      "answer": "SaaS"
+    },
+    {
+      "id": 60,
+      "type": "single",
+      "question": "Which of the following exemplifies Divide and Conquer?",
+      "options": [
+        "Heapsorts",
+        "Insertion sort",
+        "Bubble sort",
+        "Merge sort",
+        "None of the above"
+      ],
+      "answer": "Merge sort"
+    }
+  ]
+}

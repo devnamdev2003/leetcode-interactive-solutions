@@ -109,7 +109,7 @@
     {
       "id": 9,
       "type": "single",
-      "question": "Assuming each arithmetic and output operation takes constant time, what is the overall time complexity of the following code?    4",
+      "question": "Assuming each arithmetic and output operation takes constant time, what is the overall time complexity of the following code?",
       "options": ["O(n)", "O(n²)", "O(n³)", "O(n log n)", "O(log n)"],
       "answer": "O(n³)"
     },
@@ -157,7 +157,7 @@
       "id": 14,
       "type": "single",
       "question": "Which command in Linux is used to estimate and display the disk space usage of files and directories?",
-      "options": ["ls  5", "df", "du", "top", "mkdir"],
+      "options": ["ls", "df", "du", "top", "mkdir"],
       "answer": "du"
     },
     {
@@ -197,13 +197,13 @@
     {
       "id": 19,
       "type": "single",
-      "question": "What will be the output of the following C++ program?  6 #include <iostream> #include <stack> using namespace std; void insertBottom(stack<int>& s, int x) { if (s.empty()) { s.push(x); return; } int t = s.top(); s.pop(); insertBottom(s, x); s.push(t); } void reverseStack(stack<int>& s) { if (s.empty()) return; int t = s.top(); s.pop(); reverseStack(s); insertBottom(s, t); } void printStack(stack<int> s) { while (!s.empty()) { cout << s.top() << \" \"; s.pop(); } } int main() { stack<int> s; s.push(34); s.push(25); s.push(58); s.push(96); s.push(12); reverseStack(s); cout << \"Reversed Stack: \"; printStack(s); return 0; }",
+      "question": "What will be the output of the following C++ program?\n\n```cpp\n#include <iostream>\n#include <stack>\nusing namespace std;\n\nvoid insertBottom(stack<int>& s, int x) {\n    if (s.empty()) {\n        s.push(x);\n        return;\n    }\n\n    int t = s.top();\n    s.pop();\n    insertBottom(s, x);\n    s.push(t);\n}\n\nvoid reverseStack(stack<int>& s) {\n    if (s.empty())\n        return;\n\n    int t = s.top();\n    s.pop();\n    reverseStack(s);\n    insertBottom(s, t);\n}\n\nvoid printStack(stack<int> s) {\n    while (!s.empty()) {\n        cout << s.top() << \" \";\n        s.pop();\n    }\n}\n\nint main() {\n    stack<int> s;\n\n    s.push(34);\n    s.push(25);\n    s.push(58);\n    s.push(96);\n    s.push(12);\n\n    reverseStack(s);\n\n    cout << \"Reversed Stack: \";\n    printStack(s);\n\n    return 0;\n}\n```\n\nWhat will be the output of the above program?",
       "options": [
         "Reversed Stack: 12 96 58 25 34",
         "Reversed Stack: 34 25 58 96 12",
         "Reversed Stack: 25 34 58 96 12",
         "Reversed Stack: 96 58 25 34 12",
-        "Compilation Error  7"
+        "Compilation Error"
       ],
       "answer": "Reversed Stack: 34 25 58 96 12"
     },
@@ -256,7 +256,7 @@
     {
       "id": 24,
       "type": "single",
-      "question": "Which SQL operator is used to filter rows by checking whether a value matches any value in a specified list?  8",
+      "question": "Which SQL operator is used to filter rows by checking whether a value matches any value in a specified list?",
       "options": ["BETWEEN", "IN", "LIKE", "EXISTS", "DISTINCT"],
       "answer": "IN"
     },
@@ -316,8 +316,8 @@
       "id": 29,
       "type": "single",
       "question": "Which of the following is an aggregate function in SQL?",
-      "options": ["CONCAT()", "AVG()  9", "SUBSTRING()", "LENGTH()", "NOW()"],
-      "answer": "AVG()  9"
+      "options": ["CONCAT()", "AVG()", "SUBSTRING()", "LENGTH()", "NOW()"],
+      "answer": "AVG()"
     },
     {
       "id": 30,
@@ -364,7 +364,7 @@
       "question": "Which type of DDoS attack uses spoofed ICMP echo requests sent to broadcast addresses, causing multiple systems to flood the victim with ICMP reply packets?",
       "options": [
         "SYN Flood",
-        "Ping of Death   10",
+        "Ping of Death",
         "Smurf Attack",
         "DNS Amplification",
         "UDP Flood"
@@ -421,8 +421,8 @@
       "id": 38,
       "type": "single",
       "question": "If set A has 4 elements and set B has 5 elements, then find the total number of elements in the Cartesian product A×B:",
-      "options": ["9", "45", "20  11", "54", "None of the above"],
-      "answer": "20  11"
+      "options": ["9", "45", "20", "54", "None of the above"],
+      "answer": "20"
     },
     {
       "id": 39,
@@ -485,7 +485,7 @@
         "=IF(CELL(\"format\",A1)=\"v\",A1*2,0)",
         "=IF(CELL(\"type\",A1)=\"v\",A1*2,0)",
         "=IF(CELL(\"address\",A1)=\"v\",A1*2,0)",
-        "=IF(CELL(\"col\",A1)=\"v\",A1*2,0)  12"
+        "=IF(CELL(\"col\",A1)=\"v\",A1*2,0)"
       ],
       "answer": "=IF(CELL(\"type\",A1)=\"v\",A1*2,0)"
     },
@@ -538,7 +538,7 @@
     {
       "id": 48,
       "type": "single",
-      "question": "Consider the following C code snippet:  13  What is the purpose of the feof(file) function call in this program?",
+      "question": "Consider the following C code snippet:\n\n```c\n#include <stdio.h>\n\nint main() {\n    FILE *file = fopen(\"example.txt\", \"r\");\n\n    if (file == NULL) {\n        printf(\"Error opening file.\\n\");\n        return 1;\n    }\n\n    int ch;\n\n    while ((ch = fgetc(file)) != EOF) {\n        putchar(ch);\n    }\n\n    if (feof(file)) {\n        printf(\"\\nEnd of file reached.\\n\");\n    }\n\n    fclose(file);\n\n    return 0;\n}\n```\n\nWhat is the purpose of the `feof(file)` function call in this program?",
       "options": [
         "To read the next character from the file stream",
         "To determine whether the end-of-file indicator for the file stream has been set",
@@ -613,7 +613,7 @@
       "type": "single",
       "question": "Which sorting algorithm has a worst-case time complexity of O(n2)?",
       "options": [
-        "Merge Sort  15",
+        "Merge Sort",
         "Radix Sort",
         "Bubble Sort",
         "Heap Sort",
@@ -670,7 +670,7 @@
     {
       "id": 60,
       "type": "single",
-      "question": "Which authorization framework is commonly used in modern web applications to enable token-based access and is often integrated into Single Sign-On (SSO) systems?   16",
+      "question": "Which authorization framework is commonly used in modern web applications to enable token-based access and is often integrated into Single Sign-On (SSO) systems?",
       "options": [
         "Secure Sockets Layer",
         "Kerberos",
