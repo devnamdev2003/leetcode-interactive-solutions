@@ -106,7 +106,7 @@
       "type": "single",
       "question": "Which tag is used to create a table in the latest version of HTML?",
       "options": ["div", "table", "grid", "html-table", "section"],
-      "answer": "<table>"
+      "answer": "table"
     },
     {
       "id": 11,
