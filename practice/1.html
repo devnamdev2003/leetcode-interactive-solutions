@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Dive: OSI Model Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                            950: '#0b1120',
+                        },
+                        brand: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        },
+                        accent: {
+                            400: '#f472b6',
+                            500: '#ec4899',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'data-flow': 'flow 20s linear infinite',
+                    },
+                    keyframes: {
+                        flow: {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '100%': { backgroundPosition: '100% 50%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for the moving packet to make it look like a data block */
+        #data-packet {
+            transition: top 0.8s ease-in-out, left 0.8s ease-in-out, transform 0.3s;
+            pointer-events: none;
+        }
+        
+        .layer-box {
+            transition: all 0.3s ease;
+        }
+        
+        .layer-box.active {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            transform: scale(1.03) translateX(5px);
+            z-index: 10;
+        }
+        
+        /* Receiver needs to translate left instead of right */
+        #receiver-stack .layer-box.active {
+            transform: scale(1.03) translateX(-5px);
+        }
+
+        /* Animated physical medium line */
+        .cable-line {
+            background: repeating-linear-gradient(
+                90deg,
+                #334155,
+                #334155 10px,
+                #475569 10px,
+                #475569 20px
+            );
+            background-size: 200% 100%;
+        }
+        
+        .cable-line.active {
+            animation: flow 1s linear infinite;
+            background: repeating-linear-gradient(
+                90deg,
+                #10b981,
+                #10b981 10px,
+                #059669 10px,
+                #059669 20px
+            );
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* Payload formatting */
+        .payload-block {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 0 2px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-300 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">OSI Deep Dive</h1>
+                    <p class="text-xs text-brand-400 font-mono">Real-world Packet Anatomy</p>
+                </div>
+            </div>
+            
+            <nav class="flex p-1 bg-slate-950 rounded-xl border border-slate-800 w-full md:w-auto shadow-inner">
+                <button id="tab-btn-animation" onclick="switchTab('animation')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-800 text-white shadow">
+                    Live Data Flow
+                </button>
+                <button id="tab-btn-theory" onclick="switchTab('theory')" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-500 hover:text-slate-300 hover:bg-slate-800/50">
+                    Layer Theory Reference
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
+        
+        <section id="tab-animation" class="animate-fade-in flex-grow flex flex-col space-y-6">
+            
+            <!-- Controls -->
+            <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-slate-800 rounded-lg text-brand-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <div>
+                        <h2 id="scenario-title" class="text-white font-bold">Scenario: Sending an HTTP Request</h2>
+                        <p id="scenario-subtitle" class="text-xs text-slate-400 font-mono">GET /index.html from 192.168.1.10 to 203.0.113.5</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2 items-center flex-wrap justify-end">
+                    <select id="scenario-selector" onchange="changeScenario(this.value)" class="px-3 py-2 bg-slate-950 text-slate-300 rounded-lg text-sm font-medium border border-slate-700 outline-none focus:border-brand-500 cursor-pointer shadow-inner">
+                        <option value="web">Web Browsing (HTTPS/TCP)</option>
+                        <option value="video">Live Video Stream (UDP)</option>
+                        <option value="iot">IoT Temp Sensor (MQTT)</option>
+                    </select>
+                    <button onclick="resetAnimation()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 border border-slate-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Reset
+                    </button>
+                    <button id="play-btn" onclick="startAnimation()" class="px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                        Start Simulation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visualization Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
+                
+                <!-- Graphic Container (Left 2 columns on desktop) -->
+                <div class="lg:col-span-2 relative bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-stretch min-h-[550px] overflow-hidden">
+                    
+                    <!-- Floating Data Packet Box -->
+                    <div id="data-packet" class="absolute hidden opacity-0 flex flex-col items-center justify-center z-50 transform -translate-x-1/2 -translate-y-1/2">
+                        <div class="text-xs text-brand-400 font-bold mb-1 tracking-wider uppercase" id="packet-type-label">Payload</div>
+                        <div id="packet-content" class="bg-slate-800 text-white font-mono flex flex-wrap max-w-[280px] justify-center p-2 rounded-lg border border-slate-600 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)]">
+                            <!-- Payload chunks injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Sender Device -->
+                    <div class="flex-1 flex flex-col items-center z-10 w-full mb-12 md:mb-0">
+                        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 w-full max-w-[220px] mb-4 text-center">
+                            <div class="text-brand-400 font-bold text-sm">Client PC</div>
+                            <div class="text-[10px] text-slate-400 font-mono">IP: 192.168.1.10</div>
+                        </div>
+                        <div class="flex flex-col w-full max-w-[220px] gap-2 flex-grow justify-around" id="sender-stack">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Physical Medium (Middle) -->
+                    <div class="w-full md:w-24 flex flex-col justify-center md:justify-end items-center relative z-0 py-8 md:py-0">
+                        <!-- Vertical line for mobile -->
+                        <div id="cable-v" class="absolute top-0 bottom-0 w-1 cable-line md:hidden rounded-full transition-all duration-300"></div>
+                        <!-- Horizontal line for desktop -->
+                        <div id="cable-h" class="hidden md:block absolute bottom-[8%] left-[-20%] right-[-20%] h-1.5 cable-line rounded-full transition-all duration-300"></div>
+                        
+                        <div id="physical-medium-label" class="opacity-40 absolute md:bottom-[12%] bg-slate-900 px-2 py-1 rounded text-[10px] font-mono text-slate-400 border border-slate-800 transition-all duration-300 whitespace-nowrap">
+                            CAT6 ETHERNET CABLE
+                        </div>
+                    </div>
+
+                    <!-- Receiver Device -->
+                    <div class="flex-1 flex flex-col items-center z-10 w-full mt-4 md:mt-0">
+                        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 w-full max-w-[220px] mb-4 text-center">
+                            <div class="text-emerald-400 font-bold text-sm">Web Server</div>
+                            <div class="text-[10px] text-slate-400 font-mono">IP: 203.0.113.5</div>
+                        </div>
+                        <div class="flex flex-col w-full max-w-[220px] gap-2 flex-grow justify-around" id="receiver-stack">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Information Panel (Right column) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl h-full">
+                    <div class="bg-slate-800/50 p-4 border-b border-slate-700/50 flex items-center justify-between">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            Packet Inspector
+                        </h3>
+                        <span id="current-layer-badge" class="px-2 py-1 rounded bg-slate-800 text-slate-400 text-xs font-mono font-bold border border-slate-700">L0: IDLE</span>
+                    </div>
+                    
+                    <div class="p-5 flex-grow flex flex-col overflow-y-auto">
+                        <h4 id="inspector-title" class="text-xl font-bold text-white mb-2">Awaiting Transmission</h4>
+                        <p id="inspector-action" class="text-sm text-brand-400 font-medium mb-4 pb-4 border-b border-slate-800">
+                            Click Start to observe data encapsulation.
+                        </p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h5 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Internal Process</h5>
+                                <p id="inspector-desc" class="text-sm text-slate-300 leading-relaxed">
+                                    The OSI model defines how systems communicate. We will trace data down the stack.
+                                </p>
+                            </div>
+                            
+                            <div id="why-container" class="hidden mt-4 bg-brand-900/10 border border-brand-500/30 p-3 rounded-lg relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+                                <h5 class="text-[10px] uppercase tracking-widest text-brand-400 font-bold mb-1 flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Why it matters
+                                </h5>
+                                <p id="inspector-why" class="text-sm text-slate-300 leading-relaxed italic">
+                                    <!-- Detailed reasoning injected here -->
+                                </p>
+                            </div>
+
+                            <div id="headers-breakdown-container" class="hidden">
+                                <h5 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Current PDU Breakdown</h5>
+                                <div id="headers-breakdown" class="space-y-2 font-mono text-xs">
+                                    <!-- Header details populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-950 p-3 border-t border-slate-800 flex justify-between items-center text-xs font-mono text-slate-500">
+                        <span id="step-counter">Step 0 / 15</span>
+                        <span id="current-action-type">Encapsulation</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-theory" class="hidden space-y-6">
+             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl text-slate-300">
+                <h2 class="text-2xl font-bold text-white mb-2">The OSI Reference Model</h2>
+                <p class="leading-relaxed text-sm">
+                    The Open Systems Interconnection model is a conceptual framework describing the functions of a networking system. It groups communication functions into seven logical layers. Data moving downwards from L7 to L1 is <strong>Encapsulated</strong> (headers added). Data moving upwards from L1 to L7 is <strong>Decapsulated</strong> (headers stripped).
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4" id="theory-layers">
+                <!-- Content populated by JS -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- DATA & THEORY DEFINITIONS ---
+        const layerTheoryData = [
+            { id: 7, name: "Application", color: "pink", role: "Network process to application.", unit: "Data", protocols: "HTTP, FTP, SMTP" },
+            { id: 6, name: "Presentation", color: "purple", role: "Data representation and encryption.", unit: "Data", protocols: "SSL/TLS, JPEG, ASCII" },
+            { id: 5, name: "Session", color: "indigo", role: "Interhost communication.", unit: "Data", protocols: "NetBIOS, RPC" },
+            { id: 4, name: "Transport", color: "blue", role: "End-to-end connections and reliability.", unit: "Segments", protocols: "TCP, UDP" },
+            { id: 3, name: "Network", color: "cyan", role: "Path determination and logical addressing.", unit: "Packets", protocols: "IPv4, IPv6, ICMP" },
+            { id: 2, name: "Data Link", color: "teal", role: "Physical addressing and MAC.", unit: "Frames", protocols: "Ethernet, 802.11" },
+            { id: 1, name: "Physical", color: "emerald", role: "Media, signal, and binary transmission.", unit: "Bits", protocols: "1000BASE-T, Cables" }
+        ];
+
+        // Populate Theory tab programmatically
+        const theoryContainer = document.getElementById('theory-layers');
+        layerTheoryData.forEach(l => {
+            theoryContainer.innerHTML += `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row items-center gap-4 hover:border-${l.color}-500/50 transition-colors border-l-4 border-l-${l.color}-500">
+                    <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0 border border-slate-700">
+                        <span class="text-2xl font-black text-${l.color}-400">L${l.id}</span>
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            ${l.name} Layer
+                            <span class="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">PDU: ${l.unit}</span>
+                        </h3>
+                        <p class="text-sm text-slate-300 mt-1">${l.role}</p>
+                        <p class="text-xs text-slate-500 font-mono mt-2">Protocols: ${l.protocols}</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            const animTab = document.getElementById('tab-animation');
+            const theoryTab = document.getElementById('tab-theory');
+            const animBtn = document.getElementById('tab-btn-animation');
+            const theoryBtn = document.getElementById('tab-btn-theory');
+
+            if (tabName === 'animation') {
+                animTab.classList.remove('hidden');
+                theoryTab.classList.add('hidden');
+                
+                animBtn.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-800 text-white shadow";
+                theoryBtn.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-500 hover:text-slate-300 hover:bg-slate-800/50";
+                
+                if(isAnimating) setTimeout(() => updateVisuals(currentStepIndex), 50);
+            } else {
+                animTab.classList.add('hidden');
+                theoryTab.classList.remove('hidden');
+
+                theoryBtn.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-800 text-white shadow";
+                animBtn.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-500 hover:text-slate-300 hover:bg-slate-800/50";
+            }
+        }
+
+        // --- SIMULATION DATA STRUCTURES ---
+        
+        // Helper to format payload blocks
+        const blk = (type, text, color) => `<span class="payload-block bg-${color}-900/50 text-${color}-300 border-${color}-500/30 font-semibold" title="${type}">${text}</span>`;
+        
+        // --- MOCK DATA COMPONENTS FOR VARIOUS SCENARIOS ---
+        
+        // 1. Web Data (TCP/HTTPS)
+        const d_http = blk("Application", "GET / HTTP/1.1", "pink");
+        const d_tls  = blk("Presentation (TLS)", "0x8A7B9...", "purple");
+        const d_sess = blk("Session", "S:938A", "indigo");
+        const d_tcp  = blk("Transport (TCP)", "Src:543 Dst:443", "blue");
+        
+        // 2. Video Data (UDP/RTP)
+        const d_vid = blk("Application (Video)", "Raw Pixels #142", "pink");
+        const d_h264 = blk("Presentation (H.264)", "Comp: 45%", "purple");
+        const d_rtsp = blk("Session (RTSP)", "Play State", "indigo");
+        const d_udp = blk("Transport (UDP)", "Src:90 Dst:5004", "blue");
+        
+        // 3. IoT Sensor Data (MQTT)
+        const d_mqtt = blk("Application (MQTT)", "Temp=22.5C", "pink");
+        const d_json = blk("Presentation (JSON)", "{t:22.5}", "purple");
+        const d_ping = blk("Session", "Keep-Alive", "indigo");
+        const d_tcp_iot = blk("Transport (TCP)", "Src:12 Dst:1883", "blue");
+
+        // Shared Lower Layers
+        const d_ip   = blk("Network (IPv4)", "Src:192.168.x Dst:203.x", "cyan");
+        const d_ipv6 = blk("Network (IPv6)", "2001:db8::1", "cyan");
+        const d_mac  = blk("Data Link (MAC)", "Src:00:1A... Dst:B4:72...", "teal");
+        const d_wifi = blk("Data Link (802.11)", "Wi-Fi MAC", "teal");
+        const d_fcs  = blk("Trailer", "FCS:0x9C", "teal");
+        
+        const d_bin1 = blk("Physical", "1010101110001...", "emerald");
+        const d_rf   = blk("Physical (RF)", "~~~ 5GHz Waves ~~~", "emerald");
+
+        const scenariosData = {
+            web: {
+                title: "Web Browsing (HTTPS)",
+                subtitle: "GET Request via highly reliable TCP connection.",
+                introText: "We will trace an HTTP GET request (like opening a webpage) down the stack. Notice how security (TLS) and reliability (TCP) are prioritized.",
+                completionText: "The Web Server received the request, processed it, and will send the HTML file back through the exact same layers in reverse.",
+                steps: [
+                    // --- SENDER ENCAPSULATION ---
+                    { layer: 7, target: 's-layer-7', phase: 'Sender', pdu: 'Data', title: "Generating Request", action: "App Layer creates HTTP Request.",
+                      desc: "The browser formats a request to ask the server for a specific webpage.",
+                      why: "Standardization. The server wouldn't understand a raw click; it needs a structured HTTP command like 'GET /index.html'.",
+                      visualPayload: `${d_http}`, headers: [{ name: "Payload", val: "GET /index.html HTTP/1.1", color: "pink" }] },
+                    { layer: 6, target: 's-layer-6', phase: 'Sender', pdu: 'Data', title: "Encryption (TLS)", action: "Presentation Layer encrypts text.",
+                      desc: "The readable HTTP text is encrypted into a scrambled cipher.",
+                      why: "Security. Without this layer, anyone intercepting the physical cables could read passwords and private data in plain text.",
+                      visualPayload: `${d_tls}`, headers: [{ name: "Encrypted", val: "8A 7B 9F 2C...", color: "purple" }] },
+                    { layer: 5, target: 's-layer-5', phase: 'Sender', pdu: 'Data', title: "Session Tracking", action: "Session Layer assigns an ID.",
+                      desc: "A specific session tracker is linked to this request.",
+                      why: "Context. If you have 10 tabs open, the OS needs to know exactly which browser tab should receive the reply from the server.",
+                      visualPayload: `${d_sess} ${d_tls}`, headers: [{ name: "Session Info", val: "ID: 938A-X9", color: "indigo" }] },
+                    { layer: 4, target: 's-layer-4', phase: 'Sender', pdu: 'Segment', title: "Adding TCP Header", action: "Transport Layer adds Ports & Sequence.",
+                      desc: "TCP adds Source/Dest ports and a Sequence Number.",
+                      why: "Reliability. Web data MUST be perfect. TCP guarantees delivery by forcing the receiver to acknowledge the Sequence Number. If a piece goes missing, TCP resends it automatically.",
+                      visualPayload: `${d_tcp} ${d_sess} ${d_tls}`, headers: [{ name: "TCP Header", val: "Dst Port: 443 (HTTPS)\\nSeq: 100", color: "blue" }] },
+                    { layer: 3, target: 's-layer-3', phase: 'Sender', pdu: 'Packet', title: "Logical Addressing", action: "Network Layer adds IP addresses.",
+                      desc: "The segment gets wrapped with Source and Destination IPs.",
+                      why: "Global Routing. MAC addresses only work locally. IP addresses act like zip codes, allowing routers across the globe to navigate the packet to the correct country/server.",
+                      visualPayload: `${d_ip} <br/> ${d_tcp} ${d_sess} ${d_tls}`, headers: [{ name: "IPv4 Header", val: "Dst IP: 203.0.113.5", color: "cyan" }] },
+                    { layer: 2, target: 's-layer-2', phase: 'Sender', pdu: 'Frame', title: "Physical Addressing", action: "Data Link Layer adds MAC & FCS.",
+                      desc: "Adds the next-hop MAC address and a checksum (FCS).",
+                      why: "Local Delivery & Integrity. Switches use MACs to move the frame over the physical wire. The FCS ensures the frame wasn't corrupted by electrical noise.",
+                      visualPayload: `${d_mac} <br/> ${d_ip} ${d_tcp} <br/> ${d_fcs}`, headers: [{ name: "Ethernet", val: "Dst MAC: B4:72:C1...", color: "teal" }] },
+                    { layer: 1, target: 's-layer-1', phase: 'Sender', pdu: 'Bits', title: "Binary Serialization", action: "Physical Layer converts to bits.",
+                      desc: "The Frame is broken down into a 1s and 0s.",
+                      why: "Physics. Computers deal in logic, but wires only understand electricity or light. We must serialize the data to push it across a medium.",
+                      visualPayload: `${d_bin1}`, headers: [{ name: "Raw Bits", val: "101010111000...", color: "emerald" }] },
+                    // --- TRANSIT ---
+                    { layer: 0, target: 'medium', phase: 'Transit', pdu: 'Signals', title: "Copper Transmission", action: "Bits travel as voltage.",
+                      desc: "Electrical pulses travel across CAT6 cables and internet backbones.",
+                      why: "This is the physical manifestation of our data moving at near the speed of light.",
+                      visualPayload: `${d_bin1}`, headers: [{ name: "Voltage", val: "+5v 0v +5v +5v...", color: "emerald" }] },
+                    // --- RECEIVER ---
+                    { layer: 1, target: 'r-layer-1', phase: 'Receiver', pdu: 'Bits', title: "Signal Reception", action: "Physical layer reads voltage.",
+                      desc: "The server's network card reads the electrical pulses.",
+                      why: "The hardware must re-assemble the continuous electrical wave back into distinct digital bits (1s and 0s) for software to read.",
+                      visualPayload: `${d_bin1}`, headers: [{ name: "Raw Bits", val: "101010111000...", color: "emerald" }] },
+                    { layer: 2, target: 'r-layer-2', phase: 'Receiver', pdu: 'Frame', title: "MAC Verification", action: "Data Link verifies & decapsulates.",
+                      desc: "Server checks if Dst MAC matches its own, and checks FCS for errors.",
+                      why: "Filtering. If the MAC didn't match, the NIC would silently drop it to save CPU power. If FCS fails, it drops it as 'corrupted'.",
+                      visualPayload: `${d_mac} <br/> ${d_ip} ${d_tcp} <br/> ${d_fcs}`, headers: [{ name: "Action", val: "Stripping Ethernet Header...", color: "slate" }] },
+                    { layer: 3, target: 'r-layer-3', phase: 'Receiver', pdu: 'Packet', title: "IP Routing Check", action: "Network Layer verifies IP.",
+                      desc: "Checks Destination IP. Since it matches, it strips the IP header.",
+                      why: "Confirmation. The server confirms it is the final intended destination globally, not just a middle-man router.",
+                      visualPayload: `${d_ip} <br/> ${d_tcp} ${d_sess} ${d_tls}`, headers: [{ name: "Action", val: "Stripping IP Header...", color: "slate" }] },
+                    { layer: 4, target: 'r-layer-4', phase: 'Receiver', pdu: 'Segment', title: "Port Dispatch", action: "Transport Layer reads Dst Port.",
+                      desc: "Reads Port 443, strips TCP header, and acknowledges receipt.",
+                      why: "Routing to App. Port 443 tells the Operating System to send this specific data to the Web Server software (e.g., Nginx), not the Email software.",
+                      visualPayload: `${d_tcp} ${d_sess} ${d_tls}`, headers: [{ name: "Action", val: "Stripping TCP Header...", color: "slate" }] },
+                    { layer: 5, target: 'r-layer-5', phase: 'Receiver', pdu: 'Data', title: "Session Sync", action: "Session mapped to thread.",
+                      desc: "Maps payload to the active connection thread.",
+                      why: "State management. Allows the server software to handle thousands of concurrent users simultaneously without mixing up their requests.",
+                      visualPayload: `${d_sess} ${d_tls}`, headers: [{ name: "Action", val: "Thread #42 Activated", color: "indigo" }] },
+                    { layer: 6, target: 'r-layer-6', phase: 'Receiver', pdu: 'Data', title: "Decryption", action: "Presentation Layer decrypts TLS.",
+                      desc: "Uses server's private key to turn cipher text back to readable text.",
+                      why: "Data usability. The application layer cannot process scrambled data; it needs the raw text command.",
+                      visualPayload: `${d_tls}`, headers: [{ name: "Decryption", val: "Decrypting AES-GCM...", color: "purple" }] },
+                    { layer: 7, target: 'r-layer-7', phase: 'Receiver', pdu: 'Data', title: "Request Received", action: "Application Layer processes GET.",
+                      desc: "The Web Server reads the clean HTTP GET request.",
+                      why: "Mission accomplished. The application now understands the user wants 'index.html' and will initiate a file read from the hard drive.",
+                      visualPayload: `${d_http}`, headers: [{ name: "Application Data", val: "GET /index.html", color: "pink" }] }
+                ]
+            },
+            video: {
+                title: "Live Video Stream (UDP)",
+                subtitle: "Fast, connectionless UDP transmission over Wi-Fi.",
+                introText: "Watch how a live video stream prioritizes speed over perfection. UDP is used instead of TCP, meaning if a packet drops, it is skipped rather than delaying the stream.",
+                completionText: "The video frame reached the media player. Even if a few pixels were corrupted, the user just sees a tiny visual glitch instead of the video stopping to buffer.",
+                steps: [
+                    { layer: 7, target: 's-layer-7', phase: 'Sender', pdu: 'Data', title: "Capturing Video", action: "Camera app grabs frame.",
+                      desc: "The camera captures a raw, uncompressed 4K video frame.",
+                      why: "The application's job is purely to generate the source material.",
+                      visualPayload: `${d_vid}`, headers: [{ name: "Payload", val: "Raw Image Pixels", color: "pink" }] },
+                    { layer: 6, target: 's-layer-6', phase: 'Sender', pdu: 'Data', title: "Compression (H.264)", action: "Presentation Layer encodes.",
+                      desc: "Compresses massive raw pixel data into a highly efficient H.264 stream.",
+                      why: "Bandwidth limits. Raw video would choke almost any network. Compression reduces file size by 90%+ by only sending pixels that change.",
+                      visualPayload: `${d_h264}`, headers: [{ name: "Codec", val: "H.264 / MP4", color: "purple" }] },
+                    { layer: 5, target: 's-layer-5', phase: 'Sender', pdu: 'Data', title: "Stream Control", action: "RTSP synchronizes.",
+                      desc: "Adds timestamps and play/pause markers.",
+                      why: "Synchronization. Ensures the audio track matches perfectly with the video track when played back on the receiver.",
+                      visualPayload: `${d_rtsp} ${d_h264}`, headers: [{ name: "Session Info", val: "Timestamp: 00:01:23", color: "indigo" }] },
+                    { layer: 4, target: 's-layer-4', phase: 'Sender', pdu: 'Datagram', title: "Adding UDP Header", action: "Transport Layer uses UDP.",
+                      desc: "Wraps data in a lightweight UDP header without Sequence tracking.",
+                      why: "Speed > Reliability. TCP takes time to acknowledge every packet. In live video, a late packet is useless. UDP just 'fires and forgets'.",
+                      visualPayload: `${d_udp} ${d_rtsp} ${d_h264}`, headers: [{ name: "UDP Header", val: "Dst Port: 5004\\n(No Acknowledgement Req.)", color: "blue" }] },
+                    { layer: 3, target: 's-layer-3', phase: 'Sender', pdu: 'Packet', title: "Modern Routing", action: "Network Layer adds IPv6.",
+                      desc: "Uses the newer, larger IPv6 address format.",
+                      why: "Future-proofing. IPv6 avoids NAT issues, allowing direct peer-to-peer connections often preferred for live communications (like Zoom/WebRTC).",
+                      visualPayload: `${d_ipv6} <br/> ${d_udp} ${d_h264}`, headers: [{ name: "IPv6", val: "Dst: 2001:db8::1", color: "cyan" }] },
+                    { layer: 2, target: 's-layer-2', phase: 'Sender', pdu: 'Frame', title: "Wireless Addressing", action: "Data Link adds 802.11 MAC.",
+                      desc: "Prepares for Wi-Fi transmission with wireless MAC formatting.",
+                      why: "Airwaves are shared. The 802.11 standard prevents multiple laptops from transmitting at the exact same millisecond and corrupting each other.",
+                      visualPayload: `${d_wifi} <br/> ${d_ipv6} ${d_udp} <br/> ${d_fcs}`, headers: [{ name: "Wi-Fi Header", val: "SSID: HomeNetwork", color: "teal" }] },
+                    { layer: 1, target: 's-layer-1', phase: 'Sender', pdu: 'Bits', title: "Radio Modulation", action: "Physical layer creates waves.",
+                      desc: "The Wi-Fi antenna modulates the binary into electromagnetic waves.",
+                      why: "Wireless Freedom. We use Radio Frequencies (RF) to represent 1s and 0s by slightly altering the phase/amplitude of the wave.",
+                      visualPayload: `${d_rf}`, headers: [{ name: "Signal", val: "5GHz Radio Wave", color: "emerald" }] },
+                    { layer: 0, target: 'medium', phase: 'Transit', pdu: 'Waves', title: "Airspace Transmission", action: "Waves travel through air.",
+                      desc: "The RF signal travels through the room to the wireless router.",
+                      why: "Unlike cables, this medium is susceptible to interference (walls, microwaves), which is exactly why video apps use UDP (expecting drops).",
+                      visualPayload: `${d_rf}`, headers: [{ name: "Medium", val: "Open Air", color: "emerald" }] },
+                    { layer: 1, target: 'r-layer-1', phase: 'Receiver', pdu: 'Bits', title: "Antenna Reception", action: "Physical layer catches waves.",
+                      desc: "The receiver's antenna picks up the faint radio waves and converts them back to bits.",
+                      why: "Translating physical reality back into logical computer data.",
+                      visualPayload: `${d_rf}`, headers: [{ name: "Action", val: "Demodulating RF...", color: "emerald" }] },
+                    { layer: 2, target: 'r-layer-2', phase: 'Receiver', pdu: 'Frame', title: "Wi-Fi Decapsulation", action: "Data Link strips 802.11.",
+                      desc: "Verifies the MAC address and strips the wireless headers.",
+                      why: "The OS doesn't care *how* it arrived (Wi-Fi vs Copper), it only cares about the IP packet inside.",
+                      visualPayload: `${d_wifi} <br/> ${d_ipv6} ${d_udp}`, headers: [{ name: "Action", val: "Stripping 802.11 Header...", color: "slate" }] },
+                    { layer: 3, target: 'r-layer-3', phase: 'Receiver', pdu: 'Packet', title: "IP Routing Check", action: "Network Layer verifies IPv6.",
+                      desc: "Confirms destination IPv6.",
+                      why: "Final check to ensure the packet wasn't misrouted on the local network.",
+                      visualPayload: `${d_ipv6} <br/> ${d_udp} ${d_h264}`, headers: [{ name: "Action", val: "Stripping IPv6 Header...", color: "slate" }] },
+                    { layer: 4, target: 'r-layer-4', phase: 'Receiver', pdu: 'Datagram', title: "Fast Dispatch", action: "Transport Layer fires to App.",
+                      desc: "Sees UDP Port 5004, instantly passes it up.",
+                      why: "No delays. Unlike TCP, UDP doesn't send an 'ACK' back to the sender. It just throws the payload up the stack instantly.",
+                      visualPayload: `${d_udp} ${d_rtsp} ${d_h264}`, headers: [{ name: "Action", val: "Stripping UDP Header...", color: "slate" }] },
+                    { layer: 5, target: 'r-layer-5', phase: 'Receiver', pdu: 'Data', title: "Sync Check", action: "Session reads timestamp.",
+                      desc: "Checks the timestamp to see where this frame belongs in the timeline.",
+                      why: "If this frame arrived too late (e.g., delayed by network congestion), the session layer might actually drop it intentionally so the video doesn't lag.",
+                      visualPayload: `${d_rtsp} ${d_h264}`, headers: [{ name: "Timing", val: "On Time - Processing", color: "indigo" }] },
+                    { layer: 6, target: 'r-layer-6', phase: 'Receiver', pdu: 'Data', title: "Decompression", action: "Presentation decodes H.264.",
+                      desc: "The codec reverses the math to recreate the full image pixels.",
+                      why: "The media player application needs raw colors/pixels to physically render on the monitor.",
+                      visualPayload: `${d_h264}`, headers: [{ name: "Action", val: "Decoding to RGB...", color: "purple" }] },
+                    { layer: 7, target: 'r-layer-7', phase: 'Receiver', pdu: 'Data', title: "Rendering Frame", action: "App Layer displays video.",
+                      desc: "VLC/YouTube paints the pixels to the user's screen.",
+                      why: "Mission accomplished. Fast, continuous visual delivery.",
+                      visualPayload: `${d_vid}`, headers: [{ name: "App", val: "Rendering Pixel Data", color: "pink" }] }
+                ]
+            },
+            iot: {
+                title: "IoT Sensor (MQTT)",
+                subtitle: "Tiny, lightweight telemetry data over TCP.",
+                introText: "Watch a Smart Thermostat send a tiny temperature update to a central hub. It uses MQTT, designed for extremely low bandwidth and power usage.",
+                completionText: "The smart hub recorded the temperature. The lightweight nature of this stack allows the sensor to run on a battery for years.",
+                steps: [
+                    { layer: 7, target: 's-layer-7', phase: 'Sender', pdu: 'Data', title: "Telemetry Reading", action: "App Layer creates MQTT payload.", desc: "The sensor records 22.5°C and creates a 'Publish' message.", why: "MQTT is vastly lighter than HTTP. A web request might take 500 bytes; an MQTT publish can be just 2 bytes.", visualPayload: `${d_mqtt}`, headers: [{ name: "Payload", val: "Topic: /home/temp", color: "pink" }] },
+                    { layer: 6, target: 's-layer-6', phase: 'Sender', pdu: 'Data', title: "Data Formatting", action: "Presentation Layer uses JSON.", desc: "Formats the data as `{t:22.5}`.", why: "JSON is universal. The sensor might run C++, while the server runs Python. JSON ensures they both understand the number.", visualPayload: `${d_json}`, headers: [{ name: "Format", val: "JSON String", color: "purple" }] },
+                    { layer: 5, target: 's-layer-5', phase: 'Sender', pdu: 'Data', title: "Connection State", action: "Session Layer marks Keep-Alive.", desc: "Confirms the long-lived connection is active.", why: "IoT devices don't want to do a heavy TCP handshake every 5 minutes. They keep a lightweight session open constantly.", visualPayload: `${d_ping} ${d_json}`, headers: [{ name: "Session", val: "State: Active", color: "indigo" }] },
+                    { layer: 4, target: 's-layer-4', phase: 'Sender', pdu: 'Segment', title: "Reliable Transport", action: "Transport Layer adds TCP.", desc: "Uses TCP Port 1883.", why: "Even though it's tiny, we CANNOT lose this data (unlike video). TCP ensures the server definitely receives the temperature.", visualPayload: `${d_tcp_iot} ${d_json}`, headers: [{ name: "TCP", val: "Dst Port: 1883", color: "blue" }] },
+                    { layer: 3, target: 's-layer-3', phase: 'Sender', pdu: 'Packet', title: "Local Routing", action: "Network Layer adds IP.", desc: "Adds the local IP of the Smart Hub.", why: "To navigate the home Wi-Fi network logically.", visualPayload: `${d_ip} <br/> ${d_tcp_iot} ${d_json}`, headers: [{ name: "IP", val: "Dst: 192.168.1.50", color: "cyan" }] },
+                    { layer: 2, target: 's-layer-2', phase: 'Sender', pdu: 'Frame', title: "Physical Addressing", action: "Data Link Layer adds MAC.", desc: "Adds router MAC.", why: "Hop-by-hop delivery.", visualPayload: `${d_mac} <br/> ${d_ip} <br/> ${d_fcs}`, headers: [{ name: "MAC", val: "Standard Ethernet", color: "teal" }] },
+                    { layer: 1, target: 's-layer-1', phase: 'Sender', pdu: 'Bits', title: "Bitstream", action: "Physical Layer converts.", desc: "Serialized for transmission.", why: "Required for physical medium.", visualPayload: `${d_bin1}`, headers: [{ name: "Bits", val: "010101...", color: "emerald" }] },
+                    { layer: 0, target: 'medium', phase: 'Transit', pdu: 'Signals', title: "Transmission", action: "Sending over medium.", desc: "Fast transit across home network.", why: "Moving data physically.", visualPayload: `${d_bin1}`, headers: [{ name: "Transit", val: "Copper/Wi-Fi", color: "emerald" }] },
+                    { layer: 1, target: 'r-layer-1', phase: 'Receiver', pdu: 'Bits', title: "Reception", action: "Physical reception.", desc: "Hub receives bits.", why: "Translating to digital.", visualPayload: `${d_bin1}`, headers: [{ name: "Rx", val: "Receiving...", color: "emerald" }] },
+                    { layer: 2, target: 'r-layer-2', phase: 'Receiver', pdu: 'Frame', title: "MAC Check", action: "Data Link strips MAC.", desc: "FCS verified.", why: "Ensuring no corruption.", visualPayload: `${d_mac} <br/> ${d_ip}`, headers: [{ name: "Action", val: "Stripping MAC", color: "slate" }] },
+                    { layer: 3, target: 'r-layer-3', phase: 'Receiver', pdu: 'Packet', title: "IP Check", action: "Network Layer strips IP.", desc: "IP matched to Hub.", why: "Confirming destination.", visualPayload: `${d_ip} <br/> ${d_tcp_iot}`, headers: [{ name: "Action", val: "Stripping IP", color: "slate" }] },
+                    { layer: 4, target: 'r-layer-4', phase: 'Receiver', pdu: 'Segment', title: "Port Dispatch", action: "Transport reads Port 1883.", desc: "Sends to MQTT broker.", why: "Routing to specific software.", visualPayload: `${d_tcp_iot} ${d_json}`, headers: [{ name: "Action", val: "Routing to Port 1883", color: "slate" }] },
+                    { layer: 5, target: 'r-layer-5', phase: 'Receiver', pdu: 'Data', title: "Session Maintain", action: "Session updates Keep-Alive.", desc: "Notes the sensor is online.", why: "Dashboard knows sensor is alive.", visualPayload: `${d_ping} ${d_json}`, headers: [{ name: "Status", val: "Online", color: "indigo" }] },
+                    { layer: 6, target: 'r-layer-6', phase: 'Receiver', pdu: 'Data', title: "JSON Parse", action: "Presentation parses text.", desc: "Converts text to float.", why: "App needs numbers, not strings.", visualPayload: `${d_json}`, headers: [{ name: "Parse", val: "Value = 22.5", color: "purple" }] },
+                    { layer: 7, target: 'r-layer-7', phase: 'Receiver', pdu: 'Data', title: "Data Recorded", action: "App Layer logs Temp.", desc: "Smart Hub saves 22.5°C to database.", why: "User can now see it on their phone.", visualPayload: `${d_mqtt}`, headers: [{ name: "App", val: "Database Insert", color: "pink" }] }
+                ]
+            }
+        };
+
+        let currentScenarioId = 'web';
+        let simulationSteps = scenariosData[currentScenarioId].steps;
+
+        const sStack = document.getElementById('sender-stack');
+        const rStack = document.getElementById('receiver-stack');
+        
+        // Build the physical layer boxes dynamically based on theory data (reversed for UI order)
+        [...layerTheoryData].reverse().forEach(l => {
+            // Sender
+            const sd = document.createElement('div');
+            sd.id = `s-layer-${l.id}`;
+            sd.className = `layer-box w-full py-1.5 px-3 rounded border border-slate-700 bg-slate-800/80 text-sm flex justify-between items-center opacity-80`;
+            sd.innerHTML = `<span class="text-slate-500 font-mono text-xs w-6">L${l.id}</span> <span class="font-medium text-slate-300">${l.name}</span> <span class="w-6"></span>`;
+            sStack.appendChild(sd);
+
+            // Receiver
+            const rd = document.createElement('div');
+            rd.id = `r-layer-${l.id}`;
+            rd.className = `layer-box w-full py-1.5 px-3 rounded border border-slate-700 bg-slate-800/80 text-sm flex justify-between items-center opacity-80`;
+            rd.innerHTML = `<span class="text-slate-500 font-mono text-xs w-6">L${l.id}</span> <span class="font-medium text-slate-300">${l.name}</span> <span class="w-6"></span>`;
+            rStack.appendChild(rd);
+        });
+
+        // --- ANIMATION ENGINE ---
+        let currentStepIndex = 0;
+        let animationInterval = null;
+        let isAnimating = false;
+        
+        const container = document.querySelector('.lg\\:col-span-2'); // Graphic container
+        const packetEl = document.getElementById('data-packet');
+        const packetContent = document.getElementById('packet-content');
+        const packetLabel = document.getElementById('packet-type-label');
+        
+        // Inspector elements
+        const iTitle = document.getElementById('inspector-title');
+        const iAction = document.getElementById('inspector-action');
+        const iDesc = document.getElementById('inspector-desc');
+        const iHeadersCont = document.getElementById('headers-breakdown-container');
+        const iHeaders = document.getElementById('headers-breakdown');
+        const stepCounter = document.getElementById('step-counter');
+        const actionType = document.getElementById('current-action-type');
+        const layerBadge = document.getElementById('current-layer-badge');
+        const iWhyContainer = document.getElementById('why-container');
+        const iWhy = document.getElementById('inspector-why');
+        
+        const playBtn = document.getElementById('play-btn');
+        const cableH = document.getElementById('cable-h');
+        const cableV = document.getElementById('cable-v');
+
+        function changeScenario(newId) {
+            currentScenarioId = newId;
+            simulationSteps = scenariosData[currentScenarioId].steps;
+            
+            // Update Headers
+            document.getElementById('scenario-title').textContent = "Scenario: " + scenariosData[currentScenarioId].title;
+            document.getElementById('scenario-subtitle').textContent = scenariosData[currentScenarioId].subtitle;
+            
+            resetAnimation();
+        }
+
+        function updateVisuals(index) {
+            if (index >= simulationSteps.length) {
+                finishSimulation();
+                return;
+            }
+
+            const step = simulationSteps[index];
+            
+            // 1. Reset Highlights
+            document.querySelectorAll('.layer-box').forEach(el => {
+                el.classList.remove('active');
+                el.style.borderColor = '#334155'; // slate-700
+                el.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+                el.querySelector('span:nth-child(2)').style.color = '#cbd5e1';
+            });
+            cableH.classList.remove('active');
+            cableV.classList.remove('active');
+
+            // 2. Position the Packet
+            packetEl.classList.remove('hidden', 'opacity-0');
+            packetEl.classList.add('opacity-100');
+            
+            if (step.target === 'medium') {
+                // Center bottom
+                const contRect = container.getBoundingClientRect();
+                packetEl.style.top = `${contRect.height * 0.88}px`; // Align with horizontal cable
+                packetEl.style.left = `50%`;
+                cableH.classList.add('active');
+                cableV.classList.add('active');
+                
+                // Get layer color
+                const layerData = layerTheoryData.find(l => l.id === 1);
+                layerBadge.className = `px-2 py-1 rounded bg-${layerData.color}-900/40 text-${layerData.color}-400 text-xs font-mono font-bold border border-${layerData.color}-700/50`;
+                layerBadge.textContent = `Physical Medium`;
+
+            } else {
+                const targetEl = document.getElementById(step.target);
+                const layerId = step.layer;
+                const layerData = layerTheoryData.find(l => l.id === layerId);
+                
+                // Highlight box
+                targetEl.classList.add('active');
+                
+                // Fallback color mapping for custom inline styles
+                const colorMap = {
+                    pink: { border: '#ec4899', bg: 'rgba(236, 72, 153, 0.2)', text: '#f472b6' },
+                    purple: { border: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)', text: '#c084fc' },
+                    indigo: { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.2)', text: '#818cf8' },
+                    blue: { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)', text: '#60a5fa' },
+                    cyan: { border: '#06b6d4', bg: 'rgba(6, 182, 212, 0.2)', text: '#22d3ee' },
+                    teal: { border: '#14b8a6', bg: 'rgba(20, 184, 166, 0.2)', text: '#2dd4bf' },
+                    emerald: { border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', text: '#34d399' }
+                };
+                
+                const c = colorMap[layerData.color];
+                targetEl.style.borderColor = c.border;
+                targetEl.style.backgroundColor = c.bg;
+                targetEl.querySelector('span:nth-child(2)').style.color = c.text;
+
+                // Calculate Position
+                const targetRect = targetEl.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                
+                // Align relative to container to avoid jumping
+                const topOffset = targetRect.top - containerRect.top + (targetRect.height / 2);
+                
+                // Offset left/right based on sender/receiver to sit next to the boxes
+                let leftOffset;
+                if (step.phase === 'Sender') {
+                    leftOffset = targetRect.right - containerRect.left + 160; // Right of sender box
+                    if(window.innerWidth < 768) leftOffset = containerRect.width / 2; // Center on mobile
+                } else {
+                    leftOffset = targetRect.left - containerRect.left - 160; // Left of receiver box
+                    if(window.innerWidth < 768) leftOffset = containerRect.width / 2; // Center on mobile
+                }
+
+                packetEl.style.top = `${topOffset}px`;
+                packetEl.style.left = `${leftOffset}px`;
+                
+                // Update badge
+                layerBadge.className = `px-2 py-1 rounded bg-${layerData.color}-900/40 text-${layerData.color}-400 text-xs font-mono font-bold border border-${layerData.color}-700/50`;
+                layerBadge.textContent = `L${layerData.id}: ${layerData.name}`;
+            }
+
+            // 3. Update Payload Visualization
+            packetLabel.textContent = `PDU: ${step.pdu}`;
+            packetContent.innerHTML = step.visualPayload;
+            
+            // Adjust packet styling slightly based on phase
+            if (step.pdu === 'Bits' || step.pdu === 'Signals') {
+                packetContent.className = "bg-slate-950 text-emerald-400 font-mono text-xs flex flex-wrap max-w-[280px] justify-center p-3 rounded border border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)] break-all tracking-widest";
+            } else {
+                packetContent.className = "bg-slate-800 text-white font-mono flex flex-wrap max-w-[280px] justify-center p-2 rounded-lg border border-slate-600 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)]";
+            }
+
+            // 4. Update Inspector Data
+            iTitle.textContent = step.title;
+            iAction.textContent = step.action;
+            iDesc.textContent = step.desc;
+            
+            if(step.why) {
+                iWhyContainer.classList.remove('hidden');
+                iWhy.textContent = step.why;
+            } else {
+                iWhyContainer.classList.add('hidden');
+            }
+            
+            stepCounter.textContent = `Step ${index + 1} / ${simulationSteps.length}`;
+            
+            let phaseColor = 'text-slate-400';
+            if(step.phase === 'Sender') phaseColor = 'text-brand-400';
+            if(step.phase === 'Receiver') phaseColor = 'text-emerald-400';
+            if(step.phase === 'Transit') phaseColor = 'text-amber-400';
+            
+            actionType.className = `font-bold uppercase ${phaseColor}`;
+            actionType.textContent = step.phase === 'Transit' ? 'Transmission' : 
+                                     (step.phase === 'Sender' ? 'Encapsulation (Down)' : 'Decapsulation (Up)');
+
+            // Build Headers Breakdown
+            iHeadersCont.classList.remove('hidden');
+            iHeaders.innerHTML = '';
+            if (step.headers && step.headers.length > 0) {
+                step.headers.forEach(h => {
+                    // Convert line breaks
+                    const formattedVal = h.val.replace(/\\n/g, '<br/>');
+                    iHeaders.innerHTML += `
+                        <div class="bg-slate-950 p-2 rounded border-l-2 border-${h.color}-500">
+                            <span class="text-${h.color}-400 font-bold block mb-1 text-[10px] uppercase">${h.name}</span>
+                            <span class="text-slate-300 break-all leading-tight">${formattedVal}</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function playNextStep() {
+            updateVisuals(currentStepIndex);
+            currentStepIndex++;
+        }
+
+        const iconPlay = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
+        const iconPause = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>`;
+        const iconRestart = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg>`;
+
+        function setBtnState(state) {
+            if (state === 'playing') {
+                playBtn.innerHTML = `${iconPause} Pause Simulation`;
+                playBtn.className = "px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2";
+            } else if (state === 'paused') {
+                playBtn.innerHTML = `${iconPlay} Resume`;
+                playBtn.className = "px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2";
+            } else if (state === 'finished') {
+                playBtn.innerHTML = `${iconRestart} Restart`;
+                playBtn.className = "px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2";
+            }
+        }
+
+        function startAnimation() {
+            if (isAnimating) {
+                // Pause
+                clearInterval(animationInterval);
+                isAnimating = false;
+                setBtnState('paused');
+            } else {
+                // Play
+                if (currentStepIndex >= simulationSteps.length) currentStepIndex = 0;
+                
+                isAnimating = true;
+                setBtnState('playing');
+                
+                playNextStep(); // Execute immediately
+                animationInterval = setInterval(playNextStep, 2800); // Slower interval for readability
+            }
+        }
+
+        function finishSimulation() {
+            clearInterval(animationInterval);
+            isAnimating = false;
+            
+            iTitle.textContent = "Transmission Complete!";
+            iAction.textContent = "Data successfully reached the application.";
+            iDesc.innerHTML = scenariosData[currentScenarioId].completionText;
+            iHeadersCont.classList.add('hidden');
+            iWhyContainer.classList.add('hidden');
+            
+            layerBadge.textContent = "COMPLETE";
+            layerBadge.className = "px-2 py-1 rounded bg-emerald-900/40 text-emerald-400 text-xs font-mono font-bold border border-emerald-700/50";
+            
+            setBtnState('finished');
+        }
+
+        function resetAnimation() {
+            clearInterval(animationInterval);
+            isAnimating = false;
+            currentStepIndex = 0;
+            
+            packetEl.classList.add('hidden', 'opacity-0');
+            
+            document.querySelectorAll('.layer-box').forEach(el => {
+                el.classList.remove('active');
+                el.style.borderColor = '#334155';
+                el.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+                el.querySelector('span:nth-child(2)').style.color = '#cbd5e1';
+            });
+            cableH.classList.remove('active');
+            cableV.classList.remove('active');
+            
+            const meta = scenariosData[currentScenarioId];
+            iTitle.textContent = "Awaiting Transmission";
+            iAction.textContent = "Click Start to observe data encapsulation.";
+            iDesc.textContent = meta.introText;
+            
+            iHeadersCont.classList.add('hidden');
+            iWhyContainer.classList.add('hidden');
+            
+            stepCounter.textContent = `Step 0 / ${simulationSteps.length}`;
+            actionType.textContent = "Ready";
+            actionType.className = "font-bold uppercase text-slate-500";
+            
+            layerBadge.textContent = "L0: IDLE";
+            layerBadge.className = "px-2 py-1 rounded bg-slate-800 text-slate-400 text-xs font-mono font-bold border border-slate-700";
+            
+            setBtnState('paused');
+            playBtn.innerHTML = `${iconPlay} Start Simulation`;
+        }
+
+        // Keep packet aligned on resize
+        window.addEventListener('resize', () => {
+            if (currentStepIndex > 0 && currentStepIndex <= simulationSteps.length) {
+                // Remove transition temporarily to prevent flying across screen on resize
+                packetEl.style.transition = 'none';
+                updateVisuals(currentStepIndex - 1);
+                setTimeout(() => { packetEl.style.transition = 'top 0.8s ease-in-out, left 0.8s ease-in-out, transform 0.3s'; }, 50);
+            }
+        });
+
+    </script>
+</body>
+</html>

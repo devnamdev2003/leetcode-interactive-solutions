@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevTask Tracker Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gray: {
+                            750: '#2d3748',
+                            850: '#1a202c',
+                            950: '#0d1117'
+                        },
+                        primary: '#6366f1', // Indigo 500
+                        primaryHover: '#4f46e5', // Indigo 600
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for a modern look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        
+        /* Smooth transitions */
+        .transition-width {
+            transition-property: width, max-width, padding, margin, opacity;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+        
+        /* Custom animations */
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up {
+            animation: slideInUp 0.3s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-slate-200 font-sans h-screen overflow-hidden flex antialiased">
+
+    <aside id="sidebar" class="bg-gray-900 border-r border-gray-800 flex flex-col transition-width w-64 h-full relative z-20 shadow-xl shrink-0">
+        <!-- Logo Area -->
+        <div class="h-16 flex items-center px-6 border-b border-gray-800 shrink-0">
+            <div class="flex items-center gap-3 text-white overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-code-branch text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-wide sidebar-text">DevTracker</span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1 custom-scrollbar">
+            <a href="#" onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gray-800 text-white transition-colors group">
+                <i class="fa-solid fa-layer-group w-5 text-center text-primary"></i>
+                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Dashboard</span>
+            </a>
+            <a href="#" onclick="switchView('tasklist')" id="nav-tasklist" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 transition-colors group">
+                <i class="fa-solid fa-list-check w-5 text-center"></i>
+                <span class="sidebar-text font-medium text-sm whitespace-nowrap">All Tasks & Filters</span>
+            </a>
+            <a href="#" onclick="switchView('calendar')" id="nav-calendar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 transition-colors group">
+                <i class="fa-regular fa-calendar-days w-5 text-center"></i>
+                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Calendar View</span>
+            </a>
+            <div class="mt-6 mb-2 px-3">
+                <span class="sidebar-text text-xs font-semibold text-gray-500 uppercase tracking-wider">Data Management</span>
+            </div>
+            <button onclick="exportData()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 transition-colors w-full text-left">
+                <i class="fa-solid fa-download w-5 text-center"></i>
+                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Export Data</span>
+            </button>
+            <button onclick="document.getElementById('importFile').click()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 transition-colors w-full text-left">
+                <i class="fa-solid fa-upload w-5 text-center"></i>
+                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Import Data</span>
+                <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+            </button>
+            <div class="mt-auto pt-4 border-t border-gray-800">
+                <button onclick="confirmClearData()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 transition-colors w-full text-left">
+                    <i class="fa-solid fa-trash-can w-5 text-center"></i>
+                    <span class="sidebar-text font-medium text-sm whitespace-nowrap">Erase All Data</span>
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 h-full relative z-10">
+        <!-- Header -->
+        <header class="h-16 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 sm:px-6 shrink-0 sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <button id="sidebarToggle" class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 transition-colors focus:outline-none">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="hidden sm:flex items-center bg-gray-800 rounded-lg px-3 py-1.5 border border-gray-700 focus-within:border-primary transition-colors">
+                    <i class="fa-solid fa-search text-gray-500 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Quick search..." class="bg-transparent border-none text-sm text-white placeholder-gray-500 ml-2 focus:outline-none w-64">
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button onclick="openTaskModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden sm:inline">New Task</span>
+                </button>
+                <div class="w-8 h-8 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center cursor-pointer">
+                    <i class="fa-regular fa-user text-sm text-gray-300"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar relative">
+            
+            <div id="view-dashboard" class="view-section">
+                <!-- Dashboard Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div onclick="setStatFilter('all')" id="statCard-all" class="stat-card cursor-pointer bg-gray-800 border-primary border ring-1 ring-primary/50 rounded-xl p-5 shadow-sm transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm font-medium">Total Tasks</p>
+                                <p id="statTotal" class="text-2xl font-bold text-white mt-1">0</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="setStatFilter('in-progress')" id="statCard-in-progress" class="stat-card cursor-pointer bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm transition-all opacity-70">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm font-medium">In Progress</p>
+                                <p id="statProgress" class="text-2xl font-bold text-white mt-1">0</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                                <i class="fa-solid fa-spinner"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="setStatFilter('completed')" id="statCard-completed" class="stat-card cursor-pointer bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm transition-all opacity-70">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm font-medium">Completed</p>
+                                <p id="statCompleted" class="text-2xl font-bold text-white mt-1">0</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                                <i class="fa-solid fa-check-double"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="setStatFilter('blocked')" id="statCard-blocked" class="stat-card cursor-pointer bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm transition-all opacity-70">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm font-medium">Issues Blocked</p>
+                                <p id="statBlocked" class="text-2xl font-bold text-white mt-1">0</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task List Section -->
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-white" id="listTitle">Recent Worklogs</h2>
+                </div>
+
+                <div id="emptyState" class="hidden flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-900 border border-gray-800 rounded-xl border-dashed">
+                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-gray-500 text-2xl mb-4">
+                        <i class="fa-solid fa-inbox"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-white mb-2">No tasks found</h3>
+                    <p class="text-gray-400 text-sm max-w-md mx-auto mb-6">No tasks match your current filter or you haven't created any yet.</p>
+                    <button onclick="openTaskModal()" class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20">
+                        Create New Task
+                    </button>
+                </div>
+
+                <div id="taskList" class="flex flex-col gap-3">
+                    <!-- Task List Items will be rendered here -->
+                </div>
+            </div>
+
+            <div id="view-tasklist" class="view-section hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="fa-solid fa-list-check text-primary"></i> All Tasks & Filters
+                    </h2>
+                </div>
+
+                <!-- Advanced Filters -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-6 shadow-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Search</label>
+                            <input type="text" id="advSearch" placeholder="Keywords..." class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Status</label>
+                            <select id="advStatus" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors">
+                                <option value="all">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Project</label>
+                            <input type="text" id="advProject" placeholder="Project name..." class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Date From</label>
+                            <input type="date" id="advDateFrom" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Date To</label>
+                                <input type="date" id="advDateTo" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
+                            </div>
+                            <button onclick="clearAdvFilters()" class="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 border border-gray-700 text-sm font-medium transition-colors h-[38px]" title="Clear Filters">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="advEmptyState" class="hidden flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-900 border border-gray-800 rounded-xl border-dashed">
+                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-gray-500 text-2xl mb-4">
+                        <i class="fa-solid fa-filter-circle-xmark"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-white mb-2">No matching tasks</h3>
+                    <p class="text-gray-400 text-sm max-w-md mx-auto">Try adjusting your filters to find what you're looking for.</p>
+                    <button onclick="clearAdvFilters()" class="mt-4 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm transition-colors border border-gray-700">
+                        Clear Filters
+                    </button>
+                </div>
+
+                <div id="advTaskList" class="flex flex-col gap-3">
+                    <!-- Advanced Filtered Task List Items -->
+                </div>
+            </div>
+
+            <div id="view-calendar" class="view-section hidden">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="fa-regular fa-calendar text-primary"></i> Work Calendar
+                    </h2>
+                    
+                    <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap justify-end">
+                        <!-- Direct Date Jump -->
+                        <div class="flex items-center gap-2 bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
+                            <i class="fa-solid fa-magnifying-glass-calendar text-gray-500 text-sm"></i>
+                            <input type="date" id="calendarJumpDate" class="bg-transparent border-none text-sm text-gray-300 focus:outline-none w-32" style="color-scheme: dark;" onchange="handleCalendarJump(this.value)" title="Jump directly to a date">
+                        </div>
+
+                        <!-- Month Navigation -->
+                        <div class="flex items-center gap-2 bg-gray-900 rounded-lg p-1 border border-gray-800 shadow-sm shrink-0">
+                            <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded text-gray-400 transition-colors">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span id="calendarMonthYear" class="text-white font-medium min-w-[120px] text-center text-sm">Month Year</span>
+                            <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded text-gray-400 transition-colors">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-sm">
+                    <!-- Days Header -->
+                    <div class="grid grid-cols-7 border-b border-gray-800 bg-gray-850">
+                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Sun</div>
+                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Mon</div>
+                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Tue</div>
+                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Wed</div>
+                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Thu</div>
+                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Fri</div>
+                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Sat</div>
+                    </div>
+                    <!-- Calendar Grid (Height reduced) -->
+                    <div id="calendarGrid" class="grid grid-cols-7 auto-rows-[60px] sm:auto-rows-[80px]">
+                        <!-- Cells generated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Legend -->
+                <div class="mt-4 flex items-center justify-end gap-3 text-xs text-gray-400">
+                    <span>Task Activity:</span>
+                    <div class="flex items-center gap-1">
+                        <span class="w-3 h-3 rounded-sm bg-gray-800 border border-gray-700"></span> Less
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="w-3 h-3 rounded-sm bg-indigo-500/30 border border-indigo-500/50"></span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="w-3 h-3 rounded-sm bg-indigo-500/60 border border-indigo-500/80"></span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="w-3 h-3 rounded-sm bg-indigo-500 border border-indigo-400"></span> More
+                    </div>
+                </div>
+            </div>
+            
+            <div class="h-8"></div> <!-- Bottom padding -->
+        </div>
+    </main>
+
+    <!-- Task Entry/Edit Modal -->
+    <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-5 border-b border-gray-800 shrink-0">
+                <h3 id="modalTitle" class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-primary"></i> Add New Task
+                </h3>
+                <button onclick="closeTaskModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
+                <form id="taskForm" onsubmit="event.preventDefault(); saveTask();" class="space-y-5">
+                    <input type="hidden" id="taskId">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Task Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="taskName" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., Implement authentication API">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Project Name</label>
+                            <input type="text" id="projectName" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., DevTracker V2">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Status <span class="text-red-500">*</span></label>
+                            <select id="taskStatus" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors">
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">From Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="fromDate" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">To Date</label>
+                            <input type="date" id="toDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Task Description</label>
+                            <textarea id="taskDescription" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors custom-scrollbar" placeholder="Detailed description of the task..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Files Changed / Involved <span class="text-[10px] text-gray-500 font-normal ml-1">(Comma separated)</span></label>
+                            <input type="text" id="fileNames" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., index.js, style.css">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">APIs / Services Used <span class="text-[10px] text-gray-500 font-normal ml-1">(Comma separated)</span></label>
+                            <input type="text" id="apiNames" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., /api/login, Stripe">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Code Changes / Notes</label>
+                            <textarea id="codeChanges" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors custom-scrollbar" placeholder="Brief summary of code modifications..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Issues Section -->
+                    <div class="mt-6 pt-5 border-t border-gray-800">
+                        <label class="flex items-center gap-3 cursor-pointer mb-4">
+                            <div class="relative">
+                                <input type="checkbox" id="hasIssueToggle" class="sr-only" onchange="toggleIssueField()">
+                                <div class="w-10 h-6 bg-gray-700 rounded-full shadow-inner toggle-bg transition-colors"></div>
+                                <div class="toggle-dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-1 left-1 transition-transform"></div>
+                            </div>
+                            <span class="text-sm font-medium text-rose-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Did you encounter any issues?</span>
+                        </label>
+
+                        <div id="issueDescriptionContainer" class="hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">What is the issue you found?</label>
+                            <textarea id="issueDescription" rows="3" class="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors custom-scrollbar" placeholder="Describe the roadblock or error..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="p-5 border-t border-gray-800 shrink-0 flex justify-end gap-3 bg-gray-900/50 rounded-b-2xl">
+                <button type="button" onclick="closeTaskModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-300 transition-colors">Cancel</button>
+                <button type="button" onclick="saveTask()" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-check"></i> Save Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Day Tasks Modal (Triggered from Calendar) -->
+    <div id="dayTasksModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl shadow-2xl animate-slide-up flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center p-5 border-b border-gray-800 shrink-0">
+                <h3 id="dayModalTitle" class="text-lg font-semibold text-white flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-check text-primary"></i> Tasks for <span id="dayModalDateStr"></span>
+                </h3>
+                <button onclick="closeDayModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1">
+                <div id="dayTasksList" class="flex flex-col gap-3">
+                    <!-- Tasks will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-sm shadow-2xl animate-slide-up text-center p-6">
+            <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 text-2xl mx-auto mb-4">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="confirmTitle" class="text-lg font-bold text-white mb-2">Confirm Action</h3>
+            <p id="confirmMessage" class="text-gray-400 text-sm mb-6">Are you sure you want to proceed? This action cannot be undone.</p>
+            <div class="flex justify-center gap-3">
+                <button onclick="closeConfirmModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-300 transition-colors">Cancel</button>
+                <button id="confirmBtn" class="bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-red-500/20">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-[80] flex flex-col gap-2"></div>
+
+    <style>
+        /* Checkbox Toggle Styles */
+        input:checked ~ .toggle-bg { background-color: #6366f1; }
+        input:checked ~ .toggle-dot { transform: translateX(100%); }
+    </style>
+
+    <script>
+        // --- State Management ---
+        let tasks = [];
+        let editingTaskId = null;
+        let actionToConfirm = null;
+        let currentFilter = 'all'; // Default stat filter for dashboard
+        
+        // Calendar State
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks();
+            setupEventListeners();
+            updateDashboard();
+            renderTasks();
+        });
+
+        function loadTasks() {
+            try {
+                const stored = localStorage.getItem('devtracker_tasks');
+                if (stored) {
+                    tasks = JSON.parse(stored);
+                }
+            } catch (e) {
+                showToast('Error loading data from local storage.', 'error');
+                tasks = [];
+            }
+        }
+
+        function saveTasksToStorage() {
+            try {
+                localStorage.setItem('devtracker_tasks', JSON.stringify(tasks));
+                updateDashboard();
+                renderTasks();
+                
+                // If in advanced list view, re-render it too
+                if (!document.getElementById('view-tasklist').classList.contains('hidden')) {
+                    renderAdvancedTasks();
+                }
+            } catch (e) {
+                showToast('Storage limit exceeded or error saving data.', 'error');
+            }
+        }
+
+        // --- UI Interactions ---
+        function setupEventListeners() {
+            // Sidebar Toggle
+            const sidebar = document.getElementById('sidebar');
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+            
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                const isCollapsed = sidebar.classList.contains('w-20');
+                if (isCollapsed) {
+                    sidebar.classList.remove('w-20');
+                    sidebar.classList.add('w-64');
+                    sidebarTexts.forEach(el => el.classList.remove('hidden'));
+                } else {
+                    sidebar.classList.remove('w-64');
+                    sidebar.classList.add('w-20');
+                    sidebarTexts.forEach(el => el.classList.add('hidden'));
+                }
+            });
+
+            // Quick Search functionality (Dashboard)
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const isDashboard = !document.getElementById('view-dashboard').classList.contains('hidden');
+                if(isDashboard) {
+                    renderTasks(e.target.value);
+                } else {
+                    // Switch to dashboard to search globally easily if they aren't there
+                    switchView('dashboard');
+                    document.getElementById('searchInput').value = e.target.value;
+                    renderTasks(e.target.value);
+                }
+            });
+            
+            // Advanced Filters Listeners
+            ['advSearch', 'advStatus', 'advProject', 'advDateFrom', 'advDateTo'].forEach(id => {
+                document.getElementById(id).addEventListener('input', renderAdvancedTasks);
+                document.getElementById(id).addEventListener('change', renderAdvancedTasks);
+            });
+        }
+        
+        // --- Navigation Logic ---
+        function switchView(viewName) {
+            // Update nav styles
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-gray-800', 'text-white');
+                item.classList.add('text-slate-400');
+            });
+            
+            const activeNav = document.getElementById(`nav-${viewName}`);
+            if(activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('bg-gray-800', 'text-white');
+            }
+
+            // Toggle view sections
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+            // View specific logic
+            if (viewName === 'calendar') {
+                // Feature: Reset to current date when opening calendar
+                const today = new Date();
+                currentMonth = today.getMonth();
+                currentYear = today.getFullYear();
+                document.getElementById('calendarJumpDate').value = ''; // Reset jumper
+                renderCalendar();
+            } else if (viewName === 'tasklist') {
+                renderAdvancedTasks();
+            } else if (viewName === 'dashboard') {
+                renderTasks();
+            }
+        }
+
+        // --- Dashboard Stat Filter Logic ---
+        function setStatFilter(filter) {
+            currentFilter = filter;
+            
+            // Update stat card UI
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('bg-gray-800', 'border-primary', 'ring-1', 'ring-primary/50', 'opacity-100');
+                card.classList.add('bg-gray-900', 'border-gray-800', 'opacity-70');
+            });
+
+            const activeCard = document.getElementById(`statCard-${filter}`);
+            if (activeCard) {
+                activeCard.classList.remove('bg-gray-900', 'border-gray-800', 'opacity-70');
+                activeCard.classList.add('bg-gray-800', 'border-primary', 'ring-1', 'ring-primary/50', 'opacity-100');
+            }
+
+            // Update title
+            const titles = {
+                'all': 'All Recent Worklogs',
+                'in-progress': 'In Progress Tasks',
+                'completed': 'Completed Tasks',
+                'blocked': 'Blocked Issues'
+            };
+            document.getElementById('listTitle').innerText = titles[filter] || 'Recent Worklogs';
+
+            // Trigger re-render
+            renderTasks(document.getElementById('searchInput').value);
+        }
+
+        // --- Task Modal Logic ---
+        function toggleIssueField() {
+            const hasIssue = document.getElementById('hasIssueToggle').checked;
+            const container = document.getElementById('issueDescriptionContainer');
+            if (hasIssue) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                document.getElementById('issueDescription').value = '';
+            }
+        }
+
+        function openTaskModal(taskId = null) {
+            editingTaskId = taskId;
+            const form = document.getElementById('taskForm');
+            form.reset();
+            
+            document.getElementById('modalTitle').innerHTML = taskId ? 
+                '<i class="fa-solid fa-pen text-primary"></i> Edit Task' : 
+                '<i class="fa-solid fa-plus text-primary"></i> Add New Task';
+            
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    document.getElementById('taskId').value = task.id;
+                    document.getElementById('taskName').value = task.name || '';
+                    document.getElementById('fromDate').value = task.fromDate || '';
+                    document.getElementById('toDate').value = task.toDate || '';
+                    document.getElementById('taskStatus').value = task.status || 'pending';
+                    document.getElementById('projectName').value = task.projectName || '';
+                    document.getElementById('taskDescription').value = task.description || '';
+                    
+                    document.getElementById('fileNames').value = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
+                    document.getElementById('apiNames').value = Array.isArray(task.apiNames) ? task.apiNames.join(', ') : (task.apiNames || '');
+                    
+                    document.getElementById('codeChanges').value = task.codeChanges || '';
+                    
+                    document.getElementById('hasIssueToggle').checked = task.hasIssue || false;
+                    toggleIssueField();
+                    if(task.hasIssue) {
+                        document.getElementById('issueDescription').value = task.issueDescription || '';
+                    }
+                }
+            } else {
+                // Set default date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fromDate').value = today;
+                document.getElementById('hasIssueToggle').checked = false;
+                toggleIssueField();
+            }
+
+            const modal = document.getElementById('taskModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeTaskModal() {
+            const modal = document.getElementById('taskModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            editingTaskId = null;
+        }
+
+        function saveTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const fromDate = document.getElementById('fromDate').value;
+            
+            if (!name || !fromDate) {
+                showToast('Task Name and From Date are required!', 'error');
+                return;
+            }
+
+            // Parse comma-separated strings into arrays
+            const fileNamesRaw = document.getElementById('fileNames').value;
+            const apiNamesRaw = document.getElementById('apiNames').value;
+            const filesArray = fileNamesRaw ? fileNamesRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+            const apisArray = apiNamesRaw ? apiNamesRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+            const taskData = {
+                id: editingTaskId || crypto.randomUUID(),
+                name: name,
+                fromDate: fromDate,
+                toDate: document.getElementById('toDate').value,
+                status: document.getElementById('taskStatus').value,
+                projectName: document.getElementById('projectName').value,
+                description: document.getElementById('taskDescription').value,
+                fileNames: filesArray,
+                apiNames: apisArray,
+                codeChanges: document.getElementById('codeChanges').value,
+                hasIssue: document.getElementById('hasIssueToggle').checked,
+                issueDescription: document.getElementById('issueDescription').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (editingTaskId) {
+                const index = tasks.findIndex(t => t.id === editingTaskId);
+                if (index !== -1) tasks[index] = taskData;
+                showToast('Task updated successfully!', 'success');
+            } else {
+                taskData.createdAt = new Date().toISOString();
+                tasks.unshift(taskData); // Add to top
+                showToast('New task added!', 'success');
+            }
+
+            saveTasksToStorage();
+            closeTaskModal();
+        }
+
+        function confirmDelete(taskId) {
+            actionToConfirm = () => {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveTasksToStorage();
+                showToast('Task deleted.', 'success');
+                closeConfirmModal();
+            };
+            openConfirmModal('Delete Task', 'Are you sure you want to delete this task? All associated data will be removed.');
+        }
+
+        function confirmClearData() {
+            actionToConfirm = () => {
+                tasks = [];
+                saveTasksToStorage();
+                showToast('All data erased.', 'success');
+                closeConfirmModal();
+            };
+            openConfirmModal('Erase All Data', 'Warning: This will permanently delete all tasks stored in this browser. Are you absolutely sure?');
+        }
+
+        function openConfirmModal(title, message) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            
+            const btn = document.getElementById('confirmBtn');
+            btn.onclick = actionToConfirm;
+            
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            actionToConfirm = null;
+        }
+
+        // --- Data Management ---
+        function exportData() {
+            if (tasks.length === 0) {
+                showToast('No data to export.', 'error');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(tasks, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `devtracker_export_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Data exported successfully!', 'success');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedTasks = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedTasks)) throw new Error("Invalid format");
+                    
+                    // Simple merge: add unique imported tasks
+                    const currentIds = new Set(tasks.map(t => t.id));
+                    let addedCount = 0;
+                    
+                    importedTasks.forEach(task => {
+                        if (task.id && task.name && !currentIds.has(task.id)) {
+                            tasks.push(task);
+                            addedCount++;
+                        }
+                    });
+                    
+                    // Sort by newest first
+                    tasks.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                    
+                    saveTasksToStorage();
+                    showToast(`Successfully imported ${addedCount} tasks.`, 'success');
+                } catch (err) {
+                    showToast('Failed to parse JSON file.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+
+        // --- Rendering Logic ---
+        function updateDashboard() {
+            document.getElementById('statTotal').innerText = tasks.length;
+            document.getElementById('statProgress').innerText = tasks.filter(t => t.status === 'in-progress').length;
+            document.getElementById('statCompleted').innerText = tasks.filter(t => t.status === 'completed').length;
+            document.getElementById('statBlocked').innerText = tasks.filter(t => t.status === 'blocked' || t.hasIssue).length;
+            
+            // Re-render calendar if visible
+            if (!document.getElementById('view-calendar').classList.contains('hidden')) {
+                renderCalendar();
+            }
+        }
+        
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'completed': return '<i class="fa-solid fa-check mr-1"></i>';
+                case 'in-progress': return '<i class="fa-solid fa-spinner fa-spin-pulse mr-1"></i>';
+                case 'blocked': return '<i class="fa-solid fa-ban mr-1"></i>';
+                default: return '<i class="fa-regular fa-clock mr-1"></i>';
+            }
+        }
+
+        function getStatusStyles(status) {
+            switch(status) {
+                case 'completed': return 'bg-emerald-950/50 text-emerald-400 border-emerald-900/50';
+                case 'in-progress': return 'bg-amber-950/50 text-amber-400 border-amber-900/50';
+                case 'blocked': return 'bg-rose-950/50 text-rose-400 border-rose-900/50';
+                default: return 'bg-gray-800 text-gray-300 border-gray-700';
+            }
+        }
+
+        function generateTaskHTML(task) {
+            const statusStyle = getStatusStyles(task.status);
+            const statusIcon = getStatusIcon(task.status);
+            
+            // Format arrays back to strings for display if they are arrays
+            const filesStr = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
+            const apisStr = Array.isArray(task.apiNames) ? task.apiNames.join(', ') : (task.apiNames || '');
+            
+            return `
+                <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 shadow-sm transition-colors flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                            ${task.projectName ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-800 text-primary border border-gray-700 uppercase tracking-wide">${task.projectName}</span>` : ''}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${statusStyle}">
+                                ${statusIcon} <span class="ml-1">${task.status.replace('-', ' ').toUpperCase()}</span>
+                            </span>
+                            ${task.hasIssue ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950/50 text-rose-400 border border-rose-900/50" title="${task.issueDescription}"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ISSUES</span>` : ''}
+                        </div>
+                        
+                        <h3 class="text-base font-bold text-white truncate pr-4" title="${task.name}">${task.name}</h3>
+                        
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-gray-500">
+                            <span class="flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-regular fa-calendar text-gray-600"></i>
+                                ${task.fromDate} ${task.toDate ? `&rarr; ${task.toDate}` : ''}
+                            </span>
+                            ${filesStr ? `
+                                <span class="flex items-center gap-1.5 truncate max-w-[200px]" title="${filesStr}">
+                                    <i class="fa-regular fa-file-code text-gray-600"></i> <span class="truncate">${filesStr}</span>
+                                </span>
+                            ` : ''}
+                            ${apisStr ? `
+                                <span class="flex items-center gap-1.5 truncate max-w-[200px]" title="${apisStr}">
+                                    <i class="fa-solid fa-server text-gray-600"></i> <span class="truncate">${apisStr}</span>
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-end gap-2 shrink-0 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-800">
+                        <button onclick="openTaskModal('${task.id}')" class="px-3 py-1.5 rounded bg-gray-800 text-gray-300 text-xs font-medium transition-colors" title="Edit">
+                            <i class="fa-solid fa-pen mr-1.5"></i> Edit
+                        </button>
+                        <button onclick="confirmDelete('${task.id}')" class="w-8 h-8 rounded bg-rose-950/30 text-rose-500 flex items-center justify-center transition-colors" title="Delete">
+                            <i class="fa-solid fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Dashboard Tasks (Simple filter)
+        function renderTasks(searchQuery = '') {
+            const listContainer = document.getElementById('taskList');
+            const emptyState = document.getElementById('emptyState');
+            
+            listContainer.innerHTML = '';
+            
+            let filteredTasks = tasks.filter(task => {
+                const filesStr = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
+                const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      (task.projectName && task.projectName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                                      (filesStr.toLowerCase().includes(searchQuery.toLowerCase()));
+                
+                let matchesStatus = true;
+                if (currentFilter === 'in-progress') matchesStatus = task.status === 'in-progress';
+                if (currentFilter === 'completed') matchesStatus = task.status === 'completed';
+                if (currentFilter === 'blocked') matchesStatus = task.status === 'blocked' || task.hasIssue;
+                
+                return matchesSearch && matchesStatus;
+            });
+
+            if (filteredTasks.length === 0) {
+                listContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            listContainer.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            filteredTasks.forEach(task => {
+                const item = document.createElement('div');
+                item.innerHTML = generateTaskHTML(task);
+                listContainer.appendChild(item.firstElementChild);
+            });
+        }
+
+        // Render Advanced List Tasks (Complex filters)
+        function clearAdvFilters() {
+            document.getElementById('advSearch').value = '';
+            document.getElementById('advStatus').value = 'all';
+            document.getElementById('advProject').value = '';
+            document.getElementById('advDateFrom').value = '';
+            document.getElementById('advDateTo').value = '';
+            renderAdvancedTasks();
+        }
+
+        function renderAdvancedTasks() {
+            const search = document.getElementById('advSearch').value.toLowerCase();
+            const status = document.getElementById('advStatus').value;
+            const project = document.getElementById('advProject').value.toLowerCase();
+            const dateFrom = document.getElementById('advDateFrom').value;
+            const dateTo = document.getElementById('advDateTo').value;
+
+            const listContainer = document.getElementById('advTaskList');
+            const emptyState = document.getElementById('advEmptyState');
+            listContainer.innerHTML = '';
+
+            const filteredTasks = tasks.filter(task => {
+                let match = true;
+                const filesStr = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
+                const descStr = task.description || '';
+                
+                if (search && !task.name.toLowerCase().includes(search) && !descStr.toLowerCase().includes(search) && !filesStr.toLowerCase().includes(search)) match = false;
+                if (status !== 'all' && task.status !== status) match = false;
+                if (project && !(task.projectName||'').toLowerCase().includes(project)) match = false;
+                if (dateFrom && task.fromDate < dateFrom) match = false;
+                if (dateTo && task.fromDate > dateTo) match = false; 
+                return match;
+            });
+
+            if (filteredTasks.length === 0) {
+                listContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            listContainer.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            filteredTasks.forEach(task => {
+                const item = document.createElement('div');
+                item.innerHTML = generateTaskHTML(task);
+                listContainer.appendChild(item.firstElementChild);
+            });
+        }
+        
+        // --- Calendar Logic ---
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        // Feature: Jump to specific date from Calendar header
+        function handleCalendarJump(dateString) {
+            if(!dateString) return;
+            const dateObj = new Date(dateString);
+            
+            // Adjust to proper year/month
+            currentYear = dateObj.getFullYear();
+            currentMonth = dateObj.getMonth();
+            renderCalendar();
+
+            // Automatically open that specific day's tasks to make navigation seamless
+            const dayTasks = tasks.filter(task => task.fromDate === dateString);
+            openDayTasks(dateString, dayTasks);
+        }
+
+        function renderCalendar() {
+            const monthYearStr = `${monthNames[currentMonth]} ${currentYear}`;
+            document.getElementById('calendarMonthYear').innerText = monthYearStr;
+
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Map tasks by date for heatmap
+            const tasksByDate = {};
+            tasks.forEach(task => {
+                if (task.fromDate) {
+                    if (!tasksByDate[task.fromDate]) {
+                        tasksByDate[task.fromDate] = [];
+                    }
+                    tasksByDate[task.fromDate].push(task);
+                }
+            });
+
+            // Empty cells for previous month
+            for (let i = 0; i < firstDay; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'border-b border-r border-gray-800/50 bg-gray-900/50 p-1 sm:p-2 opacity-50';
+                grid.appendChild(cell);
+            }
+
+            // Days of current month
+            const today = new Date();
+            const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                // Ensure date format is YYYY-MM-DD for consistency
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dayTasks = tasksByDate[dateStr] || [];
+                const taskCount = dayTasks.length;
+                
+                const isToday = isCurrentMonth && today.getDate() === i;
+                
+                const cell = document.createElement('div');
+                cell.className = `border-b border-r border-gray-800 p-1 sm:p-2 relative flex flex-col transition-colors cursor-pointer ${isToday ? 'bg-primary/10 border-primary/30' : ''}`;
+                cell.onclick = () => openDayTasks(dateStr, dayTasks);
+
+                // Date Number
+                const dateNum = document.createElement('span');
+                dateNum.className = `text-xs sm:text-sm font-medium ${isToday ? 'text-primary font-bold' : 'text-gray-400'}`;
+                dateNum.innerText = i;
+                
+                // Today indicator
+                if(isToday) {
+                    const todayDot = document.createElement('span');
+                    todayDot.className = "w-1.5 h-1.5 rounded-full bg-primary inline-block ml-1 mb-0.5";
+                    dateNum.appendChild(todayDot);
+                }
+                
+                cell.appendChild(dateNum);
+
+                // Heatmap Indicator
+                if (taskCount > 0) {
+                    let intensityClass = 'bg-indigo-500/30 border-indigo-500/50'; // 1-2 tasks
+                    if (taskCount >= 3 && taskCount <= 5) {
+                        intensityClass = 'bg-indigo-500/60 border-indigo-500/80'; // 3-5 tasks
+                    } else if (taskCount > 5) {
+                        intensityClass = 'bg-indigo-500 border-indigo-400'; // >5 tasks
+                    }
+                    
+                    const indicator = document.createElement('div');
+                    indicator.className = `absolute bottom-1.5 right-1.5 w-2 h-2 sm:w-3 sm:h-3 rounded-[2px] border ${intensityClass}`;
+                    cell.appendChild(indicator);
+                    
+                    // Task list preview in cell (desktop only)
+                    const preview = document.createElement('div');
+                    preview.className = 'hidden sm:flex flex-col gap-[2px] mt-1 overflow-hidden';
+                    dayTasks.slice(0, 2).forEach(t => {
+                        const dot = document.createElement('div');
+                        dot.className = `text-[9px] truncate px-1 rounded bg-gray-800 text-gray-400 border border-gray-700/50`;
+                        dot.innerText = t.name;
+                        preview.appendChild(dot);
+                    });
+                    if (taskCount > 2) {
+                        const more = document.createElement('div');
+                        more.className = 'text-[9px] text-gray-500 px-1 font-medium';
+                        more.innerText = `+${taskCount - 2} more`;
+                        preview.appendChild(more);
+                    }
+                    cell.appendChild(preview);
+                }
+
+                grid.appendChild(cell);
+            }
+        }
+        
+        // --- Day Tasks Modal ---
+        function openDayTasks(dateStr, dayTasks) {
+            document.getElementById('dayModalDateStr').innerText = dateStr;
+            const listContainer = document.getElementById('dayTasksList');
+            listContainer.innerHTML = '';
+            
+            if (dayTasks.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fa-regular fa-calendar-xmark text-4xl text-gray-700 mb-3"></i>
+                        <p class="text-gray-400 text-sm">No tasks recorded for this date.</p>
+                        <button onclick="closeDayModal(); openTaskModal(); document.getElementById('fromDate').value = '${dateStr}'" class="mt-4 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm transition-colors shadow-sm">
+                            Add Task Here
+                        </button>
+                    </div>
+                `;
+            } else {
+                dayTasks.forEach(task => {
+                    const statusStyle = getStatusStyles(task.status);
+                    const item = document.createElement('div');
+                    item.className = 'bg-gray-800 border border-gray-700 rounded-lg p-3 flex justify-between items-center gap-3 transition-colors cursor-pointer';
+                    item.onclick = () => { closeDayModal(); openTaskModal(task.id); };
+                    
+                    item.innerHTML = `
+                        <div class="min-w-0 flex-1">
+                            <h4 class="text-sm font-semibold text-white truncate">${task.name}</h4>
+                            ${task.projectName ? `<span class="text-[10px] font-bold text-primary uppercase tracking-wide mt-0.5 block">${task.projectName}</span>` : ''}
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border shrink-0 ${statusStyle}">
+                            ${task.status.toUpperCase()}
+                        </span>
+                    `;
+                    listContainer.appendChild(item);
+                });
+                
+                // Add Quick button to end of list
+                const quickAdd = document.createElement('button');
+                quickAdd.className = 'w-full py-2 mt-2 border border-dashed border-gray-600 rounded-lg text-sm text-gray-400 transition-colors';
+                quickAdd.innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Add Another Task';
+                quickAdd.onclick = () => { closeDayModal(); openTaskModal(); document.getElementById('fromDate').value = dateStr; };
+                listContainer.appendChild(quickAdd);
+            }
+            
+            const modal = document.getElementById('dayTasksModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDayModal() {
+            const modal = document.getElementById('dayTasksModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- Utils ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-gray-800 border-gray-700';
+            let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+            
+            if (type === 'success') {
+                bgClass = 'bg-gray-800 border-emerald-900';
+                icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+            } else if (type === 'error') {
+                bgClass = 'bg-gray-800 border-rose-900';
+                icon = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+            }
+
+            toast.className = `flex items-center gap-3 min-w-[250px] px-4 py-3 rounded-xl border shadow-lg animate-slide-up ${bgClass} text-white text-sm font-medium z-50`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.replace('animate-slide-up', 'opacity-0');
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
