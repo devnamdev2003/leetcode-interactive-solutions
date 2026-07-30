@@ -1580,36 +1580,36 @@
 
             filteredCreds.forEach(cred => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-800/30 transition-colors";
+                tr.className = "border-b border-gray-800/50";
                 
                 const swaggerHTML = cred.swaggerLink 
-                    ? `<a href="${cred.swaggerLink}" target="_blank" class="text-primary hover:text-indigo-400 text-xs flex items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>` 
+                    ? `<a href="${cred.swaggerLink}" target="_blank" class="text-primary hover:text-indigo-400 text-xs flex items-center gap-1 transition-colors"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>` 
                     : '<span class="text-gray-600 text-xs">-</span>';
 
                 tr.innerHTML = `
-                    <td class="p-4 align-top">
+                    <td class="p-4 align-top w-24">
                         <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider bg-gray-800 border border-gray-700 text-white">${cred.envName}</span>
                     </td>
-                    <td class="p-4 align-top">
-                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap truncate max-w-[200px]" title="${cred.server}">${cred.server || '-'}</div>
+                    <td class="p-4 align-top w-1/4">
+                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap line-clamp-3" title="Click View for full details">${cred.server || '-'}</div>
                     </td>
-                    <td class="p-4 align-top">${swaggerHTML}</td>
-                    <td class="p-4 align-top">
-                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap truncate max-w-[200px]" title="${cred.db}">${cred.db || '-'}</div>
+                    <td class="p-4 align-top w-24">${swaggerHTML}</td>
+                    <td class="p-4 align-top w-1/4">
+                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap line-clamp-3" title="Click View for full details">${cred.db || '-'}</div>
                     </td>
-                    <td class="p-4 align-top">
-                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap truncate max-w-[200px]" title="${cred.ui}">${cred.ui || '-'}</div>
+                    <td class="p-4 align-top w-1/4">
+                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap line-clamp-3" title="Click View for full details">${cred.ui || '-'}</div>
                     </td>
-                    <td class="p-4 align-top text-right whitespace-nowrap">
+                    <td class="p-4 align-top text-right whitespace-nowrap w-32">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="openCredPreviewModal('${cred.id}')" class="p-1.5 text-gray-400 bg-gray-800 rounded border border-gray-700 text-xs" title="View Full Details">
-                                <i class="fa-solid fa-eye"></i> View
+                            <button onclick="openCredPreviewModal('${cred.id}')" class="w-7 h-7 flex items-center justify-center bg-gray-800 text-gray-400 rounded-md transition-colors border border-gray-700" title="View Full Details">
+                                <i class="fa-solid fa-eye text-xs"></i>
                             </button>
-                            <button onclick="openCredModal('${cred.id}')" class="p-1.5 text-gray-400 bg-gray-800 rounded border border-gray-700 text-xs">
-                                <i class="fa-solid fa-pen"></i>
+                            <button onclick="openCredModal('${cred.id}')" class="w-7 h-7 flex items-center justify-center bg-gray-800 text-gray-400 rounded-md transition-colors border border-gray-700" title="Edit Environment">
+                                <i class="fa-solid fa-pen text-xs"></i>
                             </button>
-                            <button onclick="confirmDeleteCred('${cred.id}')" class="p-1.5 text-rose-400 bg-rose-500/10 rounded border border-rose-500/20 text-xs">
-                                <i class="fa-solid fa-trash"></i>
+                            <button onclick="confirmDeleteCred('${cred.id}')" class="w-7 h-7 flex items-center justify-center bg-rose-500/10 text-rose-400 rounded-md transition-colors border border-rose-500/20" title="Delete Environment">
+                                <i class="fa-solid fa-trash text-xs"></i>
                             </button>
                         </div>
                     </td>
