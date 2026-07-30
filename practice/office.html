@@ -496,6 +496,91 @@
         </div>
     </div>
 
+    <!-- Task Preview Modal -->
+    <div id="taskPreviewModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl shadow-2xl animate-slide-up flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between p-5 border-b border-gray-800 shrink-0 bg-gray-900/95 sticky top-0 rounded-t-2xl z-10">
+                <div class="flex items-center gap-3">
+                    <span id="previewTaskStatusIcon" class="w-8 h-8 rounded-full flex items-center justify-center text-sm border"></span>
+                    <h3 class="text-xl font-bold text-white tracking-tight" id="previewTaskName">Task Name</h3>
+                </div>
+                <button onclick="closeTaskPreviewModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center bg-gray-800 border border-gray-700">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-gray-950/50 space-y-6 text-sm">
+                <!-- Grid info -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-900 p-4 rounded-xl border border-gray-800">
+                    <div>
+                        <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Project</span>
+                        <span id="previewTaskProject" class="text-gray-300 font-medium">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Date</span>
+                        <span id="previewTaskDate" class="text-gray-300 font-medium">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Assigned By</span>
+                        <span id="previewTaskAssignee" class="text-gray-300 font-medium">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Status</span>
+                        <span id="previewTaskStatusText" class="text-gray-300 font-medium">-</span>
+                    </div>
+                </div>
+
+                <!-- Textareas/Content (with copy buttons) -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Description</h4>
+                        <button onclick="copyContent('previewTaskDesc')" class="text-gray-500 hover:text-white bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs transition-colors" title="Copy Description"><i class="fa-regular fa-copy mr-1"></i> Copy</button>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-300 whitespace-pre-wrap min-h-[3rem]" id="previewTaskDesc"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Files Changed</h4>
+                            <button onclick="copyContent('previewTaskFiles')" class="text-gray-500 hover:text-white bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs transition-colors" title="Copy Files"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap min-h-[3rem]" id="previewTaskFiles"></div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">APIs Used</h4>
+                            <button onclick="copyContent('previewTaskApis')" class="text-gray-500 hover:text-white bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs transition-colors" title="Copy APIs"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap min-h-[3rem]" id="previewTaskApis"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Code Changes / Links</h4>
+                        <button onclick="copyContent('previewTaskCode')" class="text-gray-500 hover:text-white bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs transition-colors" title="Copy Code/Links"><i class="fa-regular fa-copy mr-1"></i> Copy</button>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap min-h-[3rem]" id="previewTaskCode"></div>
+                </div>
+
+                <div id="previewTaskIssueContainer" class="hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-rose-500 uppercase tracking-wider">Issue / Blocker Details</h4>
+                        <button onclick="copyContent('previewTaskIssue')" class="text-rose-500 hover:text-rose-400 bg-rose-500/10 px-2 py-1 rounded border border-rose-500/20 text-xs transition-colors" title="Copy Issue Details"><i class="fa-regular fa-copy mr-1"></i> Copy</button>
+                    </div>
+                    <div class="bg-rose-500/5 border border-rose-500/20 rounded-lg p-4 text-rose-300 whitespace-pre-wrap min-h-[3rem]" id="previewTaskIssue"></div>
+                </div>
+            </div>
+            
+            <div class="p-5 border-t border-gray-800 shrink-0 flex justify-end gap-3 bg-gray-900 rounded-b-2xl">
+                <button type="button" onclick="closeTaskPreviewModal()" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20">
+                    Close Preview
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Confirm Modal -->
     <div id="confirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-md shadow-2xl animate-slide-up overflow-hidden">
@@ -599,24 +684,38 @@
                 
                 <div id="previewSwaggerContainer" class="hidden">
                     <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Swagger / API Docs</h4>
-                    <a id="previewSwagger" href="#" target="_blank" class="inline-flex items-center gap-2 text-primary bg-primary/10 px-3 py-1.5 rounded border border-primary/20">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Documentation
-                    </a>
+                    <div class="flex items-center gap-3">
+                        <a id="previewSwagger" href="#" target="_blank" class="inline-flex items-center gap-2 text-primary bg-primary/10 px-3 py-1.5 rounded border border-primary/20">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Documentation
+                        </a>
+                        <button onclick="copyContent('previewSwagger', true)" class="text-gray-400 hover:text-white bg-gray-800 px-2.5 py-1.5 rounded border border-gray-700 transition-colors" title="Copy URL">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div>
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Server Details</h4>
-                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap" id="previewServer"></div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Server Details</h4>
+                        <button onclick="copyContent('previewServer')" class="text-gray-500 hover:text-white bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs transition-colors" title="Copy Server Details"><i class="fa-regular fa-copy mr-1"></i> Copy</button>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap min-h-[3rem]" id="previewServer"></div>
                 </div>
 
                 <div>
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Database Details</h4>
-                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap" id="previewDB"></div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Database Details</h4>
+                        <button onclick="copyContent('previewDB')" class="text-gray-500 hover:text-white bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs transition-colors" title="Copy DB Details"><i class="fa-regular fa-copy mr-1"></i> Copy</button>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap min-h-[3rem]" id="previewDB"></div>
                 </div>
 
                 <div>
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">UI Credentials</h4>
-                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap" id="previewUI"></div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">UI Credentials</h4>
+                        <button onclick="copyContent('previewUI')" class="text-gray-500 hover:text-white bg-gray-800 px-2 py-1 rounded border border-gray-700 text-xs transition-colors" title="Copy UI Credentials"><i class="fa-regular fa-copy mr-1"></i> Copy</button>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap min-h-[3rem]" id="previewUI"></div>
                 </div>
             </div>
             
@@ -783,7 +882,7 @@
             let icon = 'fa-info-circle text-blue-400';
             let bg = 'bg-gray-800 border-gray-700';
             
-            if (type === 'success') { icon = 'fa-check-circle text-emerald-400'; border = 'border-emerald-500/30'; bg='bg-emerald-500/10 border-emerald-500/20 text-emerald-100'; }
+            if (type === 'success') { icon = 'fa-check-circle text-emerald-400'; bg='bg-emerald-500/10 border-emerald-500/20 text-emerald-100'; }
             if (type === 'error') { icon = 'fa-triangle-exclamation text-rose-400'; bg='bg-rose-500/10 border-rose-500/20 text-rose-100'; }
 
             toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transform transition-all duration-300 translate-y-10 opacity-0 ${bg}`;
@@ -801,6 +900,36 @@
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        function copyContent(elementId, isLink = false) {
+            const el = document.getElementById(elementId);
+            let text = isLink ? el.href : el.innerText;
+            if (!text || text === '-') {
+                showToast('Nothing to copy.', 'error');
+                return;
+            }
+            
+            // Cross-browser copy logic using textarea fallback
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; // Prevent scrolling to bottom
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Copied to clipboard!', 'success');
+                } else {
+                    showToast('Failed to copy text.', 'error');
+                }
+            } catch (err) {
+                showToast('Error copying text.', 'error');
+            }
+
+            document.body.removeChild(textArea);
         }
 
         function getStatusStyles(status) {
@@ -876,6 +1005,7 @@
             // Close modals on outside click
             window.onclick = function(event) {
                 const taskModal = document.getElementById('taskModal');
+                const taskPreviewModal = document.getElementById('taskPreviewModal');
                 const confirmModal = document.getElementById('confirmModal');
                 const dayTasksModal = document.getElementById('dayTasksModal');
                 const credModal = document.getElementById('credModal');
@@ -883,6 +1013,7 @@
                 const noteModal = document.getElementById('noteModal');
                 
                 if (event.target === taskModal) closeTaskModal();
+                if (event.target === taskPreviewModal) closeTaskPreviewModal();
                 if (event.target === confirmModal) closeConfirmModal();
                 if (event.target === dayTasksModal) closeDayTasksModal();
                 if (event.target === credModal) closeCredModal();
@@ -1041,6 +1172,47 @@
             editingTaskId = null;
         }
 
+        function openTaskPreviewModal(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            document.getElementById('previewTaskName').innerText = task.name || 'Untitled Task';
+            document.getElementById('previewTaskProject').innerText = task.projectName || '-';
+            document.getElementById('previewTaskDate').innerText = `${task.fromDate || '-'} ${task.toDate ? `to ${task.toDate}` : ''}`;
+            document.getElementById('previewTaskAssignee').innerText = task.assignedBy || '-';
+            
+            document.getElementById('previewTaskDesc').innerText = task.description || '-';
+            document.getElementById('previewTaskFiles').innerText = (task.fileNames || []).join(', ') || '-';
+            document.getElementById('previewTaskApis').innerText = (task.apiNames || []).join(', ') || '-';
+            document.getElementById('previewTaskCode').innerText = task.codeChanges || '-';
+
+            // Status indicator
+            const styles = getStatusStyles(task.status);
+            const statusIcon = document.getElementById('previewTaskStatusIcon');
+            statusIcon.className = `w-8 h-8 rounded-full flex items-center justify-center text-sm border ${styles.bg} ${styles.color} ${styles.border}`;
+            statusIcon.innerHTML = `<i class="fa-solid ${styles.icon}"></i>`;
+            document.getElementById('previewTaskStatusText').innerText = styles.text;
+
+            // Issue Section
+            const issueContainer = document.getElementById('previewTaskIssueContainer');
+            if (task.hasIssue) {
+                issueContainer.classList.remove('hidden');
+                document.getElementById('previewTaskIssue').innerText = task.issueDescription || 'No issue description provided.';
+            } else {
+                issueContainer.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('taskPreviewModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeTaskPreviewModal() {
+            const modal = document.getElementById('taskPreviewModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         function saveTask(e) {
             e.preventDefault();
             
@@ -1185,11 +1357,14 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto w-full sm:w-auto justify-end mt-2 sm:mt-0">
-                        <button onclick="openTaskModal('${task.id}')" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-md text-sm transition-colors border border-gray-600 flex items-center gap-2">
-                            <i class="fa-solid fa-pen text-xs"></i> Edit
+                        <button onclick="openTaskPreviewModal('${task.id}')" class="w-8 h-8 flex items-center justify-center bg-gray-800 text-gray-400 rounded-md transition-colors border border-gray-700" title="View Details">
+                            <i class="fa-solid fa-eye text-sm"></i>
                         </button>
-                        <button onclick="confirmDelete('${task.id}')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-md text-sm transition-colors border border-rose-500/20 flex items-center gap-2">
-                            <i class="fa-solid fa-trash text-xs"></i> Delete
+                        <button onclick="openTaskModal('${task.id}')" class="w-8 h-8 flex items-center justify-center bg-gray-800 text-gray-400 rounded-md transition-colors border border-gray-700" title="Edit Task">
+                            <i class="fa-solid fa-pen text-sm"></i>
+                        </button>
+                        <button onclick="confirmDelete('${task.id}')" class="w-8 h-8 flex items-center justify-center bg-rose-500/10 text-rose-400 rounded-md transition-colors border border-rose-500/20" title="Delete Task">
+                            <i class="fa-solid fa-trash text-sm"></i>
                         </button>
                     </div>
                 `;
@@ -1239,8 +1414,9 @@
                         </div>
                     </div>
                     <div class="flex gap-2 shrink-0 w-full md:w-auto justify-end">
-                        <button onclick="openTaskModal('${task.id}')" class="px-3 py-1.5 bg-gray-700 rounded text-xs text-white border border-gray-600 font-medium">Edit</button>
-                        <button onclick="confirmDelete('${task.id}')" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded text-xs border border-rose-500/20 font-medium">Delete</button>
+                        <button onclick="openTaskPreviewModal('${task.id}')" class="w-8 h-8 flex items-center justify-center bg-gray-800 text-gray-400 rounded-md border border-gray-700" title="View Details"><i class="fa-solid fa-eye text-sm"></i></button>
+                        <button onclick="openTaskModal('${task.id}')" class="w-8 h-8 flex items-center justify-center bg-gray-800 text-gray-400 rounded-md border border-gray-700" title="Edit Task"><i class="fa-solid fa-pen text-sm"></i></button>
+                        <button onclick="confirmDelete('${task.id}')" class="w-8 h-8 flex items-center justify-center bg-rose-500/10 text-rose-400 rounded-md border border-rose-500/20" title="Delete Task"><i class="fa-solid fa-trash text-sm"></i></button>
                     </div>
                 `;
                 container.appendChild(el);
@@ -1353,7 +1529,10 @@
                             </div>
                             ${task.projectName ? `<span class="text-[10px] text-gray-400 bg-gray-900 px-1.5 py-0.5 rounded">${task.projectName}</span>` : ''}
                         </div>
-                        <button onclick="closeDayTasksModal(); openTaskModal('${task.id}')" class="text-xs bg-gray-700 px-2 py-1 rounded text-white border border-gray-600">Edit</button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="closeDayTasksModal(); openTaskPreviewModal('${task.id}')" class="w-7 h-7 flex items-center justify-center bg-gray-700 text-gray-300 rounded border border-gray-600" title="View Details"><i class="fa-solid fa-eye text-xs"></i></button>
+                            <button onclick="closeDayTasksModal(); openTaskModal('${task.id}')" class="w-7 h-7 flex items-center justify-center bg-gray-700 text-gray-300 rounded border border-gray-600" title="Edit Task"><i class="fa-solid fa-pen text-xs"></i></button>
+                        </div>
                     `;
                     container.appendChild(el);
                 });
