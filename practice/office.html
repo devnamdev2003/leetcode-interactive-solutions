@@ -14,8 +14,19 @@
                     colors: {
                         primary: '#6366f1',
                         secondary: '#4f46e5',
-                        darkBg: '#0f172a',
-                        cardBg: '#1e293b',
+                        gray: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
+                            950: '#0a0a0a',
+                        }
                     }
                 }
             }
@@ -31,8 +42,8 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #0a0a0a;
+            color: #f5f5f5;
         }
 
         /* Custom Scrollbar */
@@ -41,11 +52,11 @@
             height: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #1e293b;
+            background: #171717;
             border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #475569;
+            background: #404040;
             border-radius: 4px;
         }
         
@@ -73,15 +84,15 @@
 
         /* Markdown Preview Styling Adjustments */
         .prose-invert pre {
-            background-color: #0f172a !important;
-            border: 1px solid #334155;
+            background-color: #0a0a0a !important;
+            border: 1px solid #262626;
         }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden selection:bg-primary selection:text-white">
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-[#111827] border-r border-gray-800 flex flex-col transition-all duration-300 z-20 h-full flex-shrink-0 absolute md:relative -left-64 md:left-0 shadow-xl md:shadow-none">
+    <aside id="sidebar" class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col transition-all duration-300 z-20 h-full flex-shrink-0 absolute md:relative -left-64 md:left-0 shadow-xl md:shadow-none">
         <div class="p-5 flex items-center justify-between border-b border-gray-800">
             <div class="flex items-center gap-3">
                 <div class="bg-primary p-2 rounded-lg text-white shadow-lg shadow-indigo-500/20">
@@ -151,9 +162,9 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-full bg-[#0f172a] overflow-hidden relative w-full">
+    <main class="flex-1 flex flex-col h-full bg-gray-950 overflow-hidden relative w-full">
         <!-- Header -->
-        <header class="h-16 bg-[#111827]/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 sm:px-6 z-10 shrink-0">
+        <header class="h-16 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 sm:px-6 z-10 shrink-0">
             <div class="flex items-center gap-4">
                 <button onclick="toggleSidebarMobile()" class="md:hidden text-gray-400 hover:text-white">
                     <i class="fa-solid fa-bars text-xl"></i>
@@ -401,14 +412,14 @@
             <form id="taskForm" class="p-6 space-y-6" onsubmit="saveTask(event)">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Basic Info -->
-                    <div class="md:col-span-2">
+                    <div class="md:col-span-2 relative">
                         <label class="block text-sm font-medium text-gray-300 mb-1.5">Task Name *</label>
-                        <input type="text" id="taskName" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="e.g., Implement OAuth2 Login">
+                        <input type="text" id="taskName" autocomplete="off" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="e.g., Implement OAuth2 Login">
                     </div>
 
-                    <div>
+                    <div class="relative">
                         <label class="block text-sm font-medium text-gray-300 mb-1.5">Project Name</label>
-                        <input type="text" id="projectName" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="Project or Module name">
+                        <input type="text" id="projectName" autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="Project or Module name">
                     </div>
 
                     <div>
@@ -430,9 +441,9 @@
                         <input type="date" id="toDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
                     </div>
 
-                    <div>
+                    <div class="relative">
                         <label class="block text-sm font-medium text-gray-300 mb-1.5">Assigned By / Related Person</label>
-                        <input type="text" id="assignedBy" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., John Doe, Manager">
+                        <input type="text" id="assignedBy" autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., John Doe, Manager">
                     </div>
 
                     <div class="md:col-span-2">
@@ -538,9 +549,9 @@
             </div>
             
             <form id="credForm" class="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1" onsubmit="saveCredential(event)">
-                <div>
+                <div class="relative">
                     <label class="block text-sm font-medium text-gray-300 mb-1.5">Environment Name *</label>
-                    <input type="text" id="credEnvName" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary font-mono text-sm" placeholder="e.g., DEV, QA, PROD">
+                    <input type="text" id="credEnvName" autocomplete="off" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary font-mono text-sm" placeholder="e.g., DEV, QA, PROD">
                 </div>
 
                 <div>
@@ -688,6 +699,12 @@
             renderTasks();
             renderCredentials();
             renderNotes();
+            
+            // Setup Custom Autocomplete Fields
+            setupAutocomplete('taskName', 'name', 'tasks');
+            setupAutocomplete('projectName', 'projectName', 'tasks');
+            setupAutocomplete('assignedBy', 'assignedBy', 'tasks');
+            setupAutocomplete('credEnvName', 'envName', 'credentials');
         });
 
         function loadTasks() {
@@ -792,6 +809,67 @@
                 case 'blocked': return { icon: 'fa-circle-xmark', color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-500/20', text: 'Blocked' };
                 default: return { icon: 'fa-clock', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-500/20', text: 'Pending' };
             }
+        }
+
+        function setupAutocomplete(inputId, fieldName, dataSource) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            const parent = input.parentElement;
+            
+            // Create the custom dropdown container
+            const dropdown = document.createElement('ul');
+            dropdown.className = 'absolute z-[100] w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto custom-scrollbar hidden shadow-2xl overflow-hidden';
+            parent.appendChild(dropdown);
+
+            // Fetch and filter historical unique values
+            const getSuggestions = (query) => {
+                let data = dataSource === 'tasks' ? tasks : credentials;
+                let allValues = data.map(item => item[fieldName]).filter(val => val && val.trim() !== '');
+                let uniqueValues = [...new Set(allValues)]; // Remove duplicates
+                
+                query = query.toLowerCase();
+                // Filter matches but don't show suggestion if it exactly matches what's typed
+                return uniqueValues.filter(v => v.toLowerCase().includes(query) && v.toLowerCase() !== query);
+            };
+
+            // Listen to typing
+            input.addEventListener('input', function() {
+                const val = this.value.trim();
+                if (!val) {
+                    dropdown.classList.add('hidden');
+                    return;
+                }
+
+                const suggestions = getSuggestions(val);
+                if (suggestions.length === 0) {
+                    dropdown.classList.add('hidden');
+                    return;
+                }
+
+                // Render the suggestions list
+                dropdown.innerHTML = '';
+                suggestions.forEach(s => {
+                    const li = document.createElement('li');
+                    li.className = 'px-4 py-2.5 text-sm text-gray-300 hover:bg-primary hover:text-white cursor-pointer transition-colors border-b border-gray-700/50 last:border-0';
+                    li.innerText = s;
+                    
+                    // Use mousedown instead of click to prevent input blur event from firing and hiding dropdown first
+                    li.addEventListener('mousedown', function(e) {
+                        e.preventDefault(); 
+                        input.value = s;
+                        dropdown.classList.add('hidden');
+                    });
+                    dropdown.appendChild(li);
+                });
+                dropdown.classList.remove('hidden');
+            });
+
+            // Hide when clicking outside
+            input.addEventListener('blur', () => dropdown.classList.add('hidden'));
+            
+            // Show suggestions immediately if focused and has existing text
+            input.addEventListener('focus', () => input.dispatchEvent(new Event('input')));
         }
 
         function setupEventListeners() {
