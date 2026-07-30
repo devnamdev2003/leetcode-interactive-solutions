@@ -4,375 +4,342 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevTask Tracker Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <!-- Tailwind CSS with Typography Plugin for Markdown -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
                     colors: {
-                        gray: {
-                            750: '#2d3748',
-                            850: '#1a202c',
-                            950: '#0d1117'
-                        },
-                        primary: '#6366f1', // Indigo 500
-                        primaryHover: '#4f46e5', // Indigo 600
+                        primary: '#6366f1',
+                        secondary: '#4f46e5',
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
                     }
                 }
             }
         }
     </script>
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
     <style>
-        /* Custom scrollbar for a modern look */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
         }
-        ::-webkit-scrollbar-track {
-            background: #0d1117; 
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
             border-radius: 4px;
         }
         
-        /* Smooth transitions */
-        .transition-width {
-            transition-property: width, max-width, padding, margin, opacity;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 300ms;
-        }
-        
-        /* Custom animations */
-        @keyframes slideInUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        /* Modal Animation */
         .animate-slide-up {
-            animation: slideInUp 0.3s ease-out forwards;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Line clamp for description */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* Markdown Editor text area styling */
+        #noteMarkdown {
+            white-space: pre-wrap;
         }
-        .animate-fade-in {
-            animation: fadeIn 0.2s ease-out forwards;
+
+        /* Markdown Preview Styling Adjustments */
+        .prose-invert pre {
+            background-color: #0f172a !important;
+            border: 1px solid #334155;
         }
     </style>
 </head>
-<body class="bg-gray-950 text-slate-200 font-sans h-screen overflow-hidden flex antialiased">
+<body class="h-screen flex overflow-hidden selection:bg-primary selection:text-white">
 
-    <aside id="sidebar" class="bg-gray-900 border-r border-gray-800 flex flex-col transition-width w-64 h-full relative z-20 shadow-xl shrink-0">
-        <!-- Logo Area -->
-        <div class="h-16 flex items-center px-6 border-b border-gray-800 shrink-0">
-            <div class="flex items-center gap-3 text-white overflow-hidden whitespace-nowrap">
-                <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/30">
-                    <i class="fa-solid fa-code-branch text-sm"></i>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-[#111827] border-r border-gray-800 flex flex-col transition-all duration-300 z-20 h-full flex-shrink-0 absolute md:relative -left-64 md:left-0 shadow-xl md:shadow-none">
+        <div class="p-5 flex items-center justify-between border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary p-2 rounded-lg text-white shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-code-merge"></i>
                 </div>
-                <span class="font-bold text-lg tracking-wide sidebar-text">DevTracker</span>
+                <h1 class="font-bold text-xl tracking-tight sidebar-text">DevTracker</h1>
             </div>
+            <button onclick="toggleSidebarMobile()" class="md:hidden text-gray-400">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
         </div>
 
-        <!-- Navigation -->
-        <nav class="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1 custom-scrollbar">
-            <a href="#" onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gray-800 text-white transition-colors group">
+        <nav class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 mt-2 px-3 sidebar-text">Views</div>
+            
+            <a href="#" onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-gray-800/80">
                 <i class="fa-solid fa-layer-group w-5 text-center text-primary"></i>
                 <span class="sidebar-text font-medium text-sm whitespace-nowrap">Dashboard</span>
             </a>
-            <a href="#" onclick="switchView('calendar')" id="nav-calendar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 group">
-                <i class="fa-regular fa-calendar-days w-5 text-center"></i>
+            
+            <a href="#" onclick="switchView('tasklist')" id="nav-tasklist" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400">
+                <i class="fa-solid fa-list-check w-5 text-center"></i>
+                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Advanced List</span>
+            </a>
+
+            <a href="#" onclick="switchView('calendar')" id="nav-calendar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400">
+                <i class="fa-solid fa-calendar-days w-5 text-center"></i>
                 <span class="sidebar-text font-medium text-sm whitespace-nowrap">Calendar View</span>
             </a>
-            <a href="#" onclick="switchView('credentials')" id="nav-credentials" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 group">
+
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 mt-6 px-3 sidebar-text">Knowledge Base</div>
+
+            <a href="#" onclick="switchView('credentials')" id="nav-credentials" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400">
                 <i class="fa-solid fa-server w-5 text-center"></i>
                 <span class="sidebar-text font-medium text-sm whitespace-nowrap">Env Credentials</span>
             </a>
-            <div class="mt-6 mb-2 px-3">
-                <span class="sidebar-text text-xs font-semibold text-gray-500 uppercase tracking-wider">Data Management</span>
-            </div>
-            <button onclick="exportData()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 transition-colors w-full text-left">
-                <i class="fa-solid fa-file-code w-5 text-center"></i>
-                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Export JSON</span>
-            </button>
-            <button onclick="exportToCSV()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 transition-colors w-full text-left">
-                <i class="fa-solid fa-file-excel w-5 text-center text-green-500"></i>
-                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Export Excel (CSV)</span>
-            </button>
-            <button onclick="document.getElementById('importFile').click()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 transition-colors w-full text-left">
-                <i class="fa-solid fa-upload w-5 text-center"></i>
-                <span class="sidebar-text font-medium text-sm whitespace-nowrap">Import Data</span>
-                <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
-            </button>
-            <div class="mt-auto pt-4 border-t border-gray-800">
-                <button onclick="confirmClearData()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 transition-colors w-full text-left">
-                    <i class="fa-solid fa-trash-can w-5 text-center"></i>
-                    <span class="sidebar-text font-medium text-sm whitespace-nowrap">Erase All Data</span>
+
+            <a href="#" onclick="switchView('notes')" id="nav-notes" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400">
+                <i class="fa-solid fa-note-sticky w-5 text-center"></i>
+                <span class="sidebar-text font-medium text-sm whitespace-nowrap">My Notes</span>
+            </a>
+
+            <div class="mt-8 mb-2 px-3">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 sidebar-text">Data Management</div>
+                <button onclick="exportData()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 text-sm mb-1">
+                    <i class="fa-solid fa-download w-5 text-center"></i>
+                    <span class="sidebar-text whitespace-nowrap">Export JSON</span>
                 </button>
+                <button onclick="exportToCSV()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 text-sm mb-1">
+                    <i class="fa-solid fa-file-excel w-5 text-center text-green-500"></i>
+                    <span class="sidebar-text whitespace-nowrap">Export CSV</span>
+                </button>
+                <label class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 text-sm cursor-pointer">
+                    <i class="fa-solid fa-upload w-5 text-center"></i>
+                    <span class="sidebar-text whitespace-nowrap">Import Data</span>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                </label>
             </div>
         </nav>
+
+        <div class="p-4 border-t border-gray-800">
+            <button onclick="confirmEraseData()" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-rose-400 bg-rose-500/10 text-sm font-medium">
+                <i class="fa-solid fa-trash"></i>
+                <span class="sidebar-text whitespace-nowrap">Erase All Data</span>
+            </button>
+        </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 h-full relative z-10">
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full bg-[#0f172a] overflow-hidden relative w-full">
         <!-- Header -->
-        <header class="h-16 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 sm:px-6 shrink-0 sticky top-0 z-10">
+        <header class="h-16 bg-[#111827]/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 sm:px-6 z-10 shrink-0">
             <div class="flex items-center gap-4">
-                <button id="sidebarToggle" class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 transition-colors focus:outline-none">
-                    <i class="fa-solid fa-bars"></i>
+                <button onclick="toggleSidebarMobile()" class="md:hidden text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-bars text-xl"></i>
                 </button>
-                <div class="hidden sm:flex items-center bg-gray-800 rounded-lg px-3 py-1.5 border border-gray-700 focus-within:border-primary transition-colors">
+                <div class="bg-gray-800 border border-gray-700 rounded-lg flex items-center px-3 py-1.5 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all hidden sm:flex">
                     <i class="fa-solid fa-search text-gray-500 text-sm"></i>
-                    <input type="text" id="searchInput" placeholder="Quick search..." class="bg-transparent border-none text-sm text-white placeholder-gray-500 ml-2 focus:outline-none w-64">
+                    <input type="text" id="globalSearch" placeholder="Search tasks, files, APIs..." class="bg-transparent border-none text-sm text-white placeholder-gray-500 ml-2 w-64 focus:outline-none" oninput="handleGlobalSearch()">
                 </div>
             </div>
             
-            <div class="flex items-center gap-3 sm:gap-4">
-                <button onclick="openTaskModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i>
-                    <span class="hidden sm:inline">New Task</span>
+            <div class="flex items-center gap-4">
+                <button onclick="openTaskModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-plus"></i> New Task
                 </button>
-                <div class="w-8 h-8 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center cursor-pointer">
-                    <i class="fa-regular fa-user text-sm text-gray-300"></i>
-                </div>
             </div>
         </header>
 
-        <!-- Content Area -->
-        <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar relative">
+        <!-- Scrollable Content Area -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8">
             
+            <!-- VIEW: Dashboard -->
             <div id="view-dashboard" class="view-section">
-                <!-- Dashboard Stats -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div onclick="setStatFilter('all')" id="statCard-all" class="stat-card cursor-pointer bg-gray-800 border-primary border ring-1 ring-primary/50 rounded-xl p-5 shadow-sm transition-all">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm font-medium">Total Tasks</p>
-                                <p id="statTotal" class="text-2xl font-bold text-white mt-1">0</p>
-                            </div>
-                            <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
-                                <i class="fa-solid fa-list-check"></i>
-                            </div>
+                <!-- Stats Row (Filters) -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <button onclick="setDashboardFilter('all')" id="stat-all" class="bg-gray-800 border-2 border-primary rounded-xl p-5 shadow-sm text-left relative overflow-hidden transition-all">
+                        <div class="text-gray-400 text-sm font-medium mb-1 relative z-10">Total Tasks</div>
+                        <div class="text-3xl font-bold text-white relative z-10" id="statTotal">0</div>
+                        <i class="fa-solid fa-list-ul absolute -bottom-4 -right-4 text-5xl text-gray-700/30"></i>
+                    </button>
+                    
+                    <button onclick="setDashboardFilter('pending')" id="stat-pending" class="bg-gray-800 border-2 border-transparent rounded-xl p-5 shadow-sm text-left relative overflow-hidden transition-all">
+                        <div class="text-gray-400 text-sm font-medium mb-1 relative z-10">In Progress</div>
+                        <div class="text-3xl font-bold text-white relative z-10" id="statPending">0</div>
+                        <div class="absolute top-5 right-5 w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500">
+                            <i class="fa-solid fa-spinner"></i>
                         </div>
-                    </div>
-                    <div onclick="setStatFilter('in-progress')" id="statCard-in-progress" class="stat-card cursor-pointer bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm transition-all opacity-70">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm font-medium">In Progress</p>
-                                <p id="statProgress" class="text-2xl font-bold text-white mt-1">0</p>
-                            </div>
-                            <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
-                                <i class="fa-solid fa-spinner"></i>
-                            </div>
+                    </button>
+                    
+                    <button onclick="setDashboardFilter('completed')" id="stat-completed" class="bg-gray-800 border-2 border-transparent rounded-xl p-5 shadow-sm text-left relative overflow-hidden transition-all">
+                        <div class="text-gray-400 text-sm font-medium mb-1 relative z-10">Completed</div>
+                        <div class="text-3xl font-bold text-white relative z-10" id="statCompleted">0</div>
+                        <div class="absolute top-5 right-5 w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                            <i class="fa-solid fa-check"></i>
                         </div>
-                    </div>
-                    <div onclick="setStatFilter('completed')" id="statCard-completed" class="stat-card cursor-pointer bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm transition-all opacity-70">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm font-medium">Completed</p>
-                                <p id="statCompleted" class="text-2xl font-bold text-white mt-1">0</p>
-                            </div>
-                            <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                                <i class="fa-solid fa-check-double"></i>
-                            </div>
+                    </button>
+
+                    <button onclick="setDashboardFilter('blocked')" id="stat-blocked" class="bg-gray-800 border-2 border-transparent rounded-xl p-5 shadow-sm text-left relative overflow-hidden transition-all">
+                        <div class="text-gray-400 text-sm font-medium mb-1 relative z-10">Issues Blocked</div>
+                        <div class="text-3xl font-bold text-white relative z-10" id="statBlocked">0</div>
+                        <div class="absolute top-5 right-5 w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-500">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                    </div>
-                    <div onclick="setStatFilter('blocked')" id="statCard-blocked" class="stat-card cursor-pointer bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm transition-all opacity-70">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm font-medium">Issues Blocked</p>
-                                <p id="statBlocked" class="text-2xl font-bold text-white mt-1">0</p>
-                            </div>
-                            <div class="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                            </div>
-                        </div>
-                    </div>
+                    </button>
                 </div>
 
-                <!-- Task List Section -->
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-white" id="listTitle">Recent Worklogs</h2>
+                    <h2 class="text-lg font-bold text-white" id="dashboardListTitle">Recent Worklogs (All)</h2>
                 </div>
 
-                <div id="emptyState" class="hidden flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-900 border border-gray-800 rounded-xl border-dashed">
-                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-gray-500 text-2xl mb-4">
-                        <i class="fa-solid fa-inbox"></i>
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden flex-col items-center justify-center py-16 px-4 text-center">
+                    <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center text-gray-500 text-3xl mb-4">
+                        <i class="fa-solid fa-clipboard-list"></i>
                     </div>
                     <h3 class="text-lg font-medium text-white mb-2">No tasks found</h3>
-                    <p class="text-gray-400 text-sm max-w-md mx-auto mb-6">No tasks match your current filter or you haven't created any yet.</p>
-                    <button onclick="openTaskModal()" class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20">
-                        Create New Task
-                    </button>
+                    <p class="text-gray-400 text-sm max-w-md mx-auto">You haven't tracked any tasks yet. Click "New Task" to start managing your work.</p>
                 </div>
 
-                <div id="taskList" class="flex flex-col gap-3">
-                    <!-- Task List Items will be rendered here -->
+                <!-- Task List (Compact Horizontal) -->
+                <div id="taskGrid" class="flex flex-col gap-3">
+                    <!-- Tasks generated by JS -->
                 </div>
             </div>
 
+            <!-- VIEW: Advanced Task List -->
             <div id="view-tasklist" class="view-section hidden">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-white">All Tasks</h2>
+                    
+                    <!-- Advanced Filters -->
+                    <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                        <input type="text" id="advSearchInput" placeholder="Search names..." class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary">
+                        
+                        <select id="advStatusFilter" class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                            <option value="all">All Statuses</option>
+                            <option value="pending">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="blocked">Blocked</option>
+                        </select>
+                        
+                        <input type="date" id="advDateFilter" class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none" style="color-scheme: dark;">
+                        
+                        <button onclick="renderAdvancedTasks()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm border border-gray-700">Filter</button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800/50 border border-gray-800 rounded-xl overflow-hidden">
+                    <div id="advTaskListContainer" class="flex flex-col">
+                        <!-- List generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: Calendar View -->
+            <div id="view-calendar" class="view-section hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                        <i class="fa-solid fa-list-check text-primary"></i> All Tasks & Filters
-                    </h2>
-                </div>
-
-                <!-- Advanced Filters -->
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-6 shadow-sm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1">Search</label>
-                            <input type="text" id="advSearch" placeholder="Keywords..." class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1">Status</label>
-                            <select id="advStatus" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors">
-                                <option value="all">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="in-progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="blocked">Blocked</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1">Project</label>
-                            <input type="text" id="advProject" placeholder="Project name..." class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1">Date From</label>
-                            <input type="date" id="advDateFrom" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
-                        </div>
-                        <div class="flex items-end gap-2">
-                            <div class="flex-1">
-                                <label class="block text-xs font-medium text-gray-400 mb-1">Date To</label>
-                                <input type="date" id="advDateTo" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
-                            </div>
-                            <button onclick="clearAdvFilters()" class="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 border border-gray-700 text-sm font-medium transition-colors h-[38px]" title="Clear Filters">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="advEmptyState" class="hidden flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-900 border border-gray-800 rounded-xl border-dashed">
-                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-gray-500 text-2xl mb-4">
-                        <i class="fa-solid fa-filter-circle-xmark"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-white mb-2">No matching tasks</h3>
-                    <p class="text-gray-400 text-sm max-w-md mx-auto">Try adjusting your filters to find what you're looking for.</p>
-                    <button onclick="clearAdvFilters()" class="mt-4 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm transition-colors border border-gray-700">
-                        Clear Filters
-                    </button>
-                </div>
-
-                <div id="advTaskList" class="flex flex-col gap-3">
-                    <!-- Advanced Filtered Task List Items -->
-                </div>
-            </div>
-
-            <div id="view-calendar" class="view-section hidden">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                        <i class="fa-regular fa-calendar text-primary"></i> Work Calendar
+                        <i class="fa-regular fa-calendar-alt text-primary"></i> Calendar
                     </h2>
                     
-                    <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap justify-end">
-                        <!-- Direct Date Jump -->
-                        <div class="flex items-center gap-2 bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
-                            <i class="fa-solid fa-magnifying-glass-calendar text-gray-500 text-sm"></i>
-                            <input type="date" id="calendarJumpDate" class="bg-transparent border-none text-sm text-gray-300 focus:outline-none w-32" style="color-scheme: dark;" onchange="handleCalendarJump(this.value)" title="Jump directly to a date">
+                    <div class="flex items-center gap-4">
+                        <!-- Jump to Date -->
+                        <div class="flex items-center bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+                            <span class="pl-3 text-xs text-gray-500 uppercase font-semibold">Jump to:</span>
+                            <input type="date" id="calendarJumpDate" onchange="jumpToDate(this.value)" class="bg-transparent border-none px-3 py-1.5 text-sm text-white focus:outline-none" style="color-scheme: dark;">
                         </div>
 
-                        <!-- Month Navigation -->
-                        <div class="flex items-center gap-2 bg-gray-900 rounded-lg p-1 border border-gray-800 shadow-sm shrink-0">
-                            <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded text-gray-400">
-                                <i class="fa-solid fa-chevron-left"></i>
-                            </button>
-                            <span id="calendarMonthYear" class="text-white font-medium min-w-[120px] text-center text-sm">Month Year</span>
-                            <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded text-gray-400">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </button>
+                        <div class="flex bg-gray-800 rounded-lg p-1 border border-gray-700">
+                            <button onclick="changeMonth(-1)" class="px-3 py-1 rounded text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="calendarMonthDisplay" class="px-4 py-1 font-medium text-sm text-white w-40 text-center">Month Year</span>
+                            <button onclick="changeMonth(1)" class="px-3 py-1 rounded text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl max-w-5xl mx-auto">
                     <!-- Days Header -->
-                    <div class="grid grid-cols-7 border-b border-gray-800 bg-gray-850">
-                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Sun</div>
-                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Mon</div>
-                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Tue</div>
-                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Wed</div>
-                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Thu</div>
-                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Fri</div>
-                        <div class="py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Sat</div>
+                    <div class="grid grid-cols-7 bg-gray-800/50 border-b border-gray-800">
+                        <div class="py-2 text-center text-xs font-semibold text-gray-400 uppercase">Sun</div>
+                        <div class="py-2 text-center text-xs font-semibold text-gray-400 uppercase">Mon</div>
+                        <div class="py-2 text-center text-xs font-semibold text-gray-400 uppercase">Tue</div>
+                        <div class="py-2 text-center text-xs font-semibold text-gray-400 uppercase">Wed</div>
+                        <div class="py-2 text-center text-xs font-semibold text-gray-400 uppercase">Thu</div>
+                        <div class="py-2 text-center text-xs font-semibold text-gray-400 uppercase">Fri</div>
+                        <div class="py-2 text-center text-xs font-semibold text-gray-400 uppercase">Sat</div>
                     </div>
-                    <!-- Calendar Grid (Height reduced) -->
-                    <div id="calendarGrid" class="grid grid-cols-7 auto-rows-[60px] sm:auto-rows-[80px]">
+                    <!-- Grid Body -->
+                    <div id="calendarGrid" class="grid grid-cols-7 auto-rows-[80px] bg-gray-900 gap-[1px]">
                         <!-- Cells generated by JS -->
                     </div>
                 </div>
                 
-                <!-- Legend -->
-                <div class="mt-4 flex items-center justify-end gap-3 text-xs text-gray-400">
-                    <span>Task Activity:</span>
-                    <div class="flex items-center gap-1">
-                        <span class="w-3 h-3 rounded-sm bg-gray-800 border border-gray-700"></span> Less
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <span class="w-3 h-3 rounded-sm bg-indigo-500/30 border border-indigo-500/50"></span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <span class="w-3 h-3 rounded-sm bg-indigo-500/60 border border-indigo-500/80"></span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <span class="w-3 h-3 rounded-sm bg-indigo-500 border border-indigo-400"></span> More
-                    </div>
+                <div class="mt-4 flex justify-center gap-6 text-xs text-gray-500">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm border border-primary bg-primary/10"></div> 1 Task</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm border border-primary bg-primary/40"></div> 2-3 Tasks</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm border border-primary bg-primary/80"></div> 4+ Tasks</div>
                 </div>
             </div>
 
+            <!-- VIEW: Credentials -->
             <div id="view-credentials" class="view-section hidden">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                     <h2 class="text-2xl font-bold text-white flex items-center gap-3">
                         <i class="fa-solid fa-server text-primary"></i> Env Credentials
                     </h2>
+                    
                     <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <!-- Search Input for Credentials -->
                         <div class="flex-1 sm:flex-none flex items-center bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 focus-within:border-primary transition-colors">
                             <i class="fa-solid fa-search text-gray-500 text-sm"></i>
-                            <input type="text" id="credSearchInput" placeholder="Search envs..." class="bg-transparent border-none text-sm text-white placeholder-gray-500 ml-2 focus:outline-none w-full sm:w-40">
+                            <input type="text" id="credSearchInput" placeholder="Search env, db, server..." class="bg-transparent border-none text-sm text-white placeholder-gray-500 ml-2 focus:outline-none w-full sm:w-48" oninput="renderCredentials()">
                         </div>
-                        <button onclick="openCredentialModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 flex items-center gap-2 whitespace-nowrap">
-                            <i class="fa-solid fa-plus"></i>
-                            <span class="hidden sm:inline">Add Environment</span>
+                        <button onclick="openCredModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 whitespace-nowrap">
+                            <i class="fa-solid fa-plus"></i> Add Env
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-sm overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[800px]">
-                        <thead>
-                            <tr class="bg-gray-850 border-b border-gray-800 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                <th class="px-4 py-3 w-[15%]">Environment</th>
-                                <th class="px-4 py-3 w-[20%]">Server Details</th>
-                                <th class="px-4 py-3 w-[20%]">Swagger Link</th>
-                                <th class="px-4 py-3 w-[20%]">Database Details</th>
-                                <th class="px-4 py-3 w-[15%]">UI Credentials</th>
-                                <th class="px-4 py-3 w-[10%] text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="credentialsList" class="divide-y divide-gray-800">
-                            <!-- Rows generated by JS -->
-                        </tbody>
-                    </table>
-                    
+                <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-800/80 text-xs uppercase tracking-wider text-gray-400 border-b border-gray-700">
+                                    <th class="p-4 font-semibold">Environment</th>
+                                    <th class="p-4 font-semibold">Server Details</th>
+                                    <th class="p-4 font-semibold">Swagger</th>
+                                    <th class="p-4 font-semibold">Database Details</th>
+                                    <th class="p-4 font-semibold">UI Credentials</th>
+                                    <th class="p-4 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="credentialsList" class="divide-y divide-gray-800/50">
+                                <!-- generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
                     <div id="emptyCredentialsState" class="hidden flex-col items-center justify-center py-16 px-4 text-center">
                         <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-gray-500 text-2xl mb-4">
                             <i class="fa-solid fa-key"></i>
@@ -382,234 +349,267 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- VIEW: Notes -->
+            <div id="view-notes" class="view-section hidden">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="fa-solid fa-note-sticky text-primary"></i> My Notes
+                    </h2>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="flex-1 sm:flex-none flex items-center bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 focus-within:border-primary transition-colors">
+                            <i class="fa-solid fa-search text-gray-500 text-sm"></i>
+                            <input type="text" id="noteSearchInput" placeholder="Search notes..." class="bg-transparent border-none text-sm text-white placeholder-gray-500 ml-2 focus:outline-none w-full sm:w-40" oninput="renderNotes(this.value)">
+                        </div>
+                        <button onclick="openNoteModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 flex items-center gap-2 whitespace-nowrap">
+                            <i class="fa-solid fa-plus"></i>
+                            <span class="hidden sm:inline">New Note</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="emptyNotesState" class="hidden flex-col items-center justify-center py-16 px-4 text-center bg-gray-900 border border-gray-800 rounded-xl border-dashed">
+                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-gray-500 text-2xl mb-4">
+                        <i class="fa-regular fa-file-lines"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-white mb-2">No notes found</h3>
+                    <p class="text-gray-400 text-sm max-w-md mx-auto mb-6">Create markdown notes to document processes, ideas, or meeting summaries.</p>
+                    <button onclick="openNoteModal()" class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20">
+                        Create New Note
+                    </button>
+                </div>
+
+                <div id="notesList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- Notes generated by JS -->
+                </div>
+            </div>
+
             <div class="h-8"></div> <!-- Bottom padding -->
         </div>
     </main>
 
-    <!-- Task Entry/Edit Modal -->
-    <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center p-5 border-b border-gray-800 shrink-0">
-                <h3 id="modalTitle" class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square text-primary"></i> Add New Task
-                </h3>
-                <button onclick="closeTaskModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
+    <!-- Task Editor Modal -->
+    <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl animate-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-gray-800 sticky top-0 bg-gray-900/95 backdrop-blur z-10">
+                <h2 class="text-xl font-bold text-white" id="modalTitle">Create New Task</h2>
+                <button onclick="closeTaskModal()" class="text-gray-400 hover:text-white w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-800">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
             
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
-                <form id="taskForm" onsubmit="event.preventDefault(); saveTask();" class="space-y-5">
-                    <input type="hidden" id="taskId">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Task Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="taskName" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., Implement authentication API">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Project Name</label>
-                            <input type="text" id="projectName" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., DevTracker V2">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Status <span class="text-red-500">*</span></label>
-                            <select id="taskStatus" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors">
-                                <option value="pending">Pending</option>
-                                <option value="in-progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="blocked">Blocked</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">From Date <span class="text-red-500">*</span></label>
-                            <input type="date" id="fromDate" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">To Date</label>
-                            <input type="date" id="toDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Task Description</label>
-                            <textarea id="taskDescription" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors custom-scrollbar" placeholder="Detailed description of the task..."></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Files Changed / Involved <span class="text-[10px] text-gray-500 font-normal ml-1">(Comma separated)</span></label>
-                            <input type="text" id="fileNames" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., index.js, style.css">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">APIs / Services Used <span class="text-[10px] text-gray-500 font-normal ml-1">(Comma separated)</span></label>
-                            <input type="text" id="apiNames" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., /api/login, Stripe">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Code Changes / Notes</label>
-                            <textarea id="codeChanges" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors custom-scrollbar" placeholder="Brief summary of code modifications..."></textarea>
-                        </div>
+            <form id="taskForm" class="p-6 space-y-6" onsubmit="saveTask(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Basic Info -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Task Name *</label>
+                        <input type="text" id="taskName" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="e.g., Implement OAuth2 Login">
                     </div>
 
-                    <!-- Issues Section -->
-                    <div class="mt-6 pt-5 border-t border-gray-800">
-                        <label class="flex items-center gap-3 cursor-pointer mb-4">
-                            <div class="relative">
-                                <input type="checkbox" id="hasIssueToggle" class="sr-only" onchange="toggleIssueField()">
-                                <div class="w-10 h-6 bg-gray-700 rounded-full shadow-inner toggle-bg transition-colors"></div>
-                                <div class="toggle-dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-1 left-1 transition-transform"></div>
-                            </div>
-                            <span class="text-sm font-medium text-rose-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Did you encounter any issues?</span>
-                        </label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Project Name</label>
+                        <input type="text" id="projectName" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="Project or Module name">
+                    </div>
 
-                        <div id="issueDescriptionContainer" class="hidden">
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">What is the issue you found?</label>
-                            <textarea id="issueDescription" rows="3" class="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors custom-scrollbar" placeholder="Describe the roadblock or error..."></textarea>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Status *</label>
+                        <select id="taskStatus" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors appearance-none">
+                            <option value="pending">In Progress (Pending)</option>
+                            <option value="completed">Completed</option>
+                            <option value="blocked">Issue Blocked</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">From Date *</label>
+                        <input type="date" id="fromDate" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">To Date</label>
+                        <input type="date" id="toDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" style="color-scheme: dark;">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Assigned By / Related Person</label>
+                        <input type="text" id="assignedBy" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors" placeholder="E.g., John Doe, Manager">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Task Description</label>
+                        <textarea id="taskDescription" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors custom-scrollbar" placeholder="Describe the work done..."></textarea>
+                    </div>
+
+                    <!-- Technical Details -->
+                    <div class="md:col-span-2 pt-4 border-t border-gray-800">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Technical Details</h3>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Files Changed / Involved <span class="text-gray-500 text-xs font-normal ml-1">(Comma separated)</span></label>
+                        <input type="text" id="fileNames" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors font-mono text-sm" placeholder="index.js, style.css, utils.py">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">APIs / Services Used <span class="text-gray-500 text-xs font-normal ml-1">(Comma separated)</span></label>
+                        <input type="text" id="apiNames" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors font-mono text-sm" placeholder="/api/users, GET /posts">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Code Changes / PR Links (Optional)</label>
+                        <textarea id="codeChanges" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors custom-scrollbar font-mono text-sm" placeholder="Snippet or PR link..."></textarea>
+                    </div>
+
+                    <!-- Issues -->
+                    <div class="md:col-span-2 pt-4 border-t border-gray-800">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Issues & Blockers</h3>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="hasIssue" class="w-4 h-4 rounded bg-gray-800 border-gray-700 text-primary focus:ring-primary focus:ring-offset-gray-900" onchange="toggleIssueSection()">
+                                <span class="text-sm text-gray-300">Encountered an Issue?</span>
+                            </label>
+                        </div>
+                        
+                        <div id="issueSection" class="hidden bg-rose-500/5 border border-rose-500/20 rounded-xl p-4">
+                            <label class="block text-sm font-medium text-rose-300 mb-1.5">What is the issue you found?</label>
+                            <textarea id="issueDescription" rows="3" class="w-full bg-gray-800/80 border border-rose-500/30 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors custom-scrollbar" placeholder="Describe the bug, blocker, or error message..."></textarea>
                         </div>
                     </div>
-                </form>
+                </div>
+
+                <div class="pt-6 border-t border-gray-800 flex justify-end gap-3 sticky bottom-0 bg-gray-900 pb-2">
+                    <button type="button" onclick="closeTaskModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-400 border border-gray-700">Cancel</button>
+                    <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-md shadow-2xl animate-slide-up overflow-hidden">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-500 text-xl mb-4">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2" id="confirmTitle">Confirm Action</h3>
+                <p class="text-gray-400 text-sm" id="confirmMessage">Are you sure you want to proceed?</p>
             </div>
-            
-            <div class="p-5 border-t border-gray-800 shrink-0 flex justify-end gap-3 bg-gray-900/50 rounded-b-2xl">
-                <button type="button" onclick="closeTaskModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-300 transition-colors">Cancel</button>
-                <button type="button" onclick="saveTask()" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2">
-                    <i class="fa-solid fa-check"></i> Save Task
-                </button>
+            <div class="px-6 py-4 bg-gray-800/50 flex justify-end gap-3 border-t border-gray-800">
+                <button onclick="closeConfirmModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400">Cancel</button>
+                <button id="confirmBtn" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-rose-500/20">Yes, Proceed</button>
             </div>
         </div>
     </div>
 
-    <!-- Day Tasks Modal (Triggered from Calendar) -->
-    <div id="dayTasksModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] hidden items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl shadow-2xl animate-slide-up flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center p-5 border-b border-gray-800 shrink-0">
-                <h3 id="dayModalTitle" class="text-lg font-semibold text-white flex items-center gap-2">
-                    <i class="fa-regular fa-calendar-check text-primary"></i> Tasks for <span id="dayModalDateStr"></span>
+    <!-- Day Tasks Modal (Calendar) -->
+    <div id="dayTasksModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-lg shadow-2xl animate-slide-up flex flex-col max-h-[80vh]">
+            <div class="p-5 border-b border-gray-800 flex justify-between items-center bg-gray-900/95 sticky top-0 rounded-t-xl shrink-0">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-check text-primary"></i>
+                    Tasks for <span id="dayTasksTitleDate" class="text-primary"></span>
                 </h3>
-                <button onclick="closeDayModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
+                <button onclick="closeDayTasksModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center bg-gray-800 border border-gray-700">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1">
-                <div id="dayTasksList" class="flex flex-col gap-3">
-                    <!-- Tasks will be injected here -->
+            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-gray-950/50">
+                <div id="dayTasksContainer" class="flex flex-col gap-3">
+                    <!-- populated by js -->
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Confirmation Dialog -->
-    <div id="confirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-sm shadow-2xl animate-slide-up text-center p-6">
-            <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 text-2xl mx-auto mb-4">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 id="confirmTitle" class="text-lg font-bold text-white mb-2">Confirm Action</h3>
-            <p id="confirmMessage" class="text-gray-400 text-sm mb-6">Are you sure you want to proceed? This action cannot be undone.</p>
-            <div class="flex justify-center gap-3">
-                <button onclick="closeConfirmModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-300">Cancel</button>
-                <button id="confirmBtn" class="bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-lg shadow-red-500/20">Confirm</button>
+            <div class="p-4 border-t border-gray-800 shrink-0 bg-gray-900 rounded-b-xl">
+                <button onclick="closeDayTasksModal(); openTaskModal()" class="w-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Add New Task for this Day
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Credential Modal -->
-    <div id="credentialModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+    <!-- Env Credential Form Modal -->
+    <div id="credModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center p-5 border-b border-gray-800 shrink-0">
-                <h3 id="credModalTitle" class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-server text-primary"></i> Add Environment Credentials
-                </h3>
-                <button onclick="closeCredentialModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center">
+            <div class="flex items-center justify-between p-5 border-b border-gray-800 shrink-0">
+                <h2 class="text-lg font-bold text-white" id="credModalTitle">Add Environment</h2>
+                <button onclick="closeCredModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center bg-gray-800 border border-gray-700">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
-                <form id="credentialForm" onsubmit="event.preventDefault(); saveCredential();" class="space-y-4">
-                    <input type="hidden" id="credId">
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Environment Name <span class="text-red-500">*</span></label>
-                        <input type="text" id="credEnvName" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary" placeholder="E.g., DEV, QA, UAT, PROD">
-                    </div>
+            <form id="credForm" class="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1" onsubmit="saveCredential(event)">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Environment Name *</label>
+                    <input type="text" id="credEnvName" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary font-mono text-sm" placeholder="e.g., DEV, QA, PROD">
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Server Details / URL</label>
-                        <textarea id="credServer" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary custom-scrollbar" placeholder="IP addresses, domains, server access info..."></textarea>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Server Details</label>
+                    <textarea id="credServer" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary custom-scrollbar font-mono text-sm" placeholder="IP, SSH keys, paths..."></textarea>
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Swagger / API Documentation Link</label>
-                        <input type="url" id="credSwagger" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary" placeholder="https://api.env.example.com/swagger">
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Swagger / API Doc Link</label>
+                    <input type="url" id="credSwagger" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary text-sm text-blue-400" placeholder="https://api.dev.example.com/docs">
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Database Details</label>
-                        <textarea id="credDB" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary custom-scrollbar" placeholder="Connection string, DB name, credentials..."></textarea>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Database Details</label>
+                    <textarea id="credDB" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary custom-scrollbar font-mono text-sm" placeholder="Host, Port, User, Pass..."></textarea>
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1.5">UI Access Credentials</label>
-                        <textarea id="credUI" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary custom-scrollbar" placeholder="Admin username, test accounts, passwords..."></textarea>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="p-5 border-t border-gray-800 shrink-0 flex justify-end gap-3 bg-gray-900/50 rounded-b-2xl">
-                <button type="button" onclick="closeCredentialModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-300">Cancel</button>
-                <button type="button" onclick="saveCredential()" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 flex items-center gap-2">
-                    <i class="fa-solid fa-check"></i> Save Credentials
-                </button>
-            </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">UI Credentials / Test Accounts</label>
+                    <textarea id="credUI" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary custom-scrollbar font-mono text-sm" placeholder="Admin: admin@test.com / pass123"></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3 sticky bottom-0 bg-gray-900">
+                    <button type="button" onclick="closeCredModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-400 border border-gray-700">Cancel</button>
+                    <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20">Save Details</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Credential Preview Modal -->
-    <div id="credPreviewModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[75] hidden items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center p-5 border-b border-gray-800 shrink-0">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-server text-primary"></i> Environment Details: <span id="previewEnvName" class="text-primary ml-1"></span>
-                </h3>
-                <button onclick="closeCredPreviewModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center">
+    <div id="credPreviewModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl shadow-2xl animate-slide-up flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between p-5 border-b border-gray-800 shrink-0 bg-gray-900/95 sticky top-0 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-server text-primary"></i>
+                    <h3 class="text-xl font-bold text-white tracking-tight" id="previewCredEnv">ENV Name</h3>
+                </div>
+                <button onclick="closeCredPreviewModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center bg-gray-800 border border-gray-700">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
-                <!-- Server Details -->
-                <div>
-                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Server Details</h4>
-                    <div id="previewServer" class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-sm text-gray-300 whitespace-pre-wrap font-mono"></div>
-                </div>
-
-                <!-- Database Details -->
-                <div>
-                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Database Details</h4>
-                    <div id="previewDB" class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-sm text-gray-300 whitespace-pre-wrap font-mono"></div>
-                </div>
-
-                <!-- UI Credentials -->
-                <div>
-                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">UI Access Credentials</h4>
-                    <div id="previewUI" class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-sm text-gray-300 whitespace-pre-wrap font-mono"></div>
-                </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-gray-950/50 space-y-6 text-sm">
                 
-                <!-- Swagger Link -->
-                <div id="previewSwaggerContainer">
-                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Swagger / API Link</h4>
-                    <a id="previewSwagger" href="#" target="_blank" class="inline-flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-primary hover:text-indigo-400 transition-colors">
+                <div id="previewSwaggerContainer" class="hidden">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Swagger / API Docs</h4>
+                    <a id="previewSwagger" href="#" target="_blank" class="inline-flex items-center gap-2 text-primary bg-primary/10 px-3 py-1.5 rounded border border-primary/20">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Documentation
                     </a>
                 </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Server Details</h4>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap" id="previewServer"></div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Database Details</h4>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap" id="previewDB"></div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">UI Credentials</h4>
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-gray-300 whitespace-pre-wrap" id="previewUI"></div>
+                </div>
             </div>
             
-            <div class="p-5 border-t border-gray-800 shrink-0 flex justify-end gap-3 bg-gray-900/50 rounded-b-2xl">
+            <div class="p-5 border-t border-gray-800 shrink-0 flex justify-end gap-3 bg-gray-900 rounded-b-2xl">
                 <button type="button" onclick="closeCredPreviewModal()" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20">
                     Close Preview
                 </button>
@@ -617,37 +617,77 @@
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-[80] flex flex-col gap-2"></div>
+    <!-- Note Editor/Preview Modal -->
+    <div id="noteModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-4xl shadow-2xl animate-slide-up flex flex-col h-[90vh]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-gray-800 shrink-0 gap-3">
+                <input type="text" id="noteTitle" placeholder="Note Title..." class="bg-transparent text-xl font-bold text-white focus:outline-none placeholder-gray-600 w-full sm:w-1/2">
+                
+                <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+                    <!-- Tabs -->
+                    <div class="flex bg-gray-800 rounded-lg p-1 border border-gray-700">
+                        <button id="tabWrite" onclick="setNoteTab('write')" class="px-4 py-1.5 rounded-md text-sm font-medium text-white bg-gray-700 shadow-sm transition-colors">Write</button>
+                        <button id="tabPreview" onclick="setNoteTab('preview')" class="px-4 py-1.5 rounded-md text-sm font-medium text-gray-400 transition-colors">Preview</button>
+                    </div>
+                    
+                    <button onclick="closeNoteModal()" class="text-gray-400 w-8 h-8 rounded-lg flex items-center justify-center bg-gray-800 border border-gray-700">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-0 overflow-hidden flex-1 relative bg-gray-950/50 rounded-b-2xl flex flex-col">
+                <input type="hidden" id="noteId">
+                
+                <!-- Write Area -->
+                <div id="noteWriteArea" class="flex-1 p-4 h-full flex flex-col">
+                    <textarea id="noteMarkdown" class="w-full h-full bg-transparent text-gray-300 focus:outline-none resize-none custom-scrollbar font-mono text-sm leading-relaxed" placeholder="Write your notes here using Markdown formatting...&#10;&#10;# Heading 1&#10;## Heading 2&#10;&#10;* Bullet point&#10;* Another point&#10;&#10;```javascript&#10;const test = 'code snippet';&#10;```"></textarea>
+                </div>
 
-    <style>
-        /* Checkbox Toggle Styles */
-        input:checked ~ .toggle-bg { background-color: #6366f1; }
-        input:checked ~ .toggle-dot { transform: translateX(100%); }
-    </style>
+                <!-- Preview Area -->
+                <div id="notePreviewArea" class="hidden flex-1 p-6 h-full overflow-y-auto custom-scrollbar bg-gray-900 rounded-b-2xl">
+                    <article id="noteHtmlContent" class="prose prose-invert prose-indigo max-w-none prose-sm sm:prose-base"></article>
+                </div>
+            </div>
+            
+            <!-- Note Actions Footer -->
+            <div class="p-4 border-t border-gray-800 shrink-0 flex justify-between items-center bg-gray-900 rounded-b-2xl">
+                <span id="noteLastUpdated" class="text-xs text-gray-500"></span>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeNoteModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-gray-300">Close</button>
+                    <button type="button" onclick="saveNote()" class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Save Note
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2"></div>
 
     <script>
         // --- State Management ---
         let tasks = [];
         let credentials = [];
+        let notes = [];
         let editingTaskId = null;
         let editingCredId = null;
+        let editingNoteId = null;
         let actionToConfirm = null;
         let currentFilter = 'all'; // Default stat filter for dashboard
-        
-        // Calendar State
-        let currentDate = new Date();
-        let currentMonth = currentDate.getMonth();
-        let currentYear = currentDate.getFullYear();
+        let currentDate = new Date(); // For calendar
 
-        // Initialize App
+        // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
             loadCredentials();
+            loadNotes();
             setupEventListeners();
             updateDashboard();
             renderTasks();
             renderCredentials();
+            renderNotes();
         });
 
         function loadTasks() {
@@ -657,11 +697,11 @@
                     tasks = JSON.parse(stored);
                 }
             } catch (e) {
-                showToast('Error loading data from local storage.', 'error');
+                console.error('Error loading tasks from local storage');
                 tasks = [];
             }
         }
-        
+
         function loadCredentials() {
             try {
                 const stored = localStorage.getItem('devtracker_credentials');
@@ -674,15 +714,28 @@
             }
         }
 
+        function loadNotes() {
+            try {
+                const stored = localStorage.getItem('devtracker_notes');
+                if (stored) {
+                    notes = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error('Error loading notes');
+                notes = [];
+            }
+        }
+
         function saveTasksToStorage() {
             try {
                 localStorage.setItem('devtracker_tasks', JSON.stringify(tasks));
                 updateDashboard();
                 renderTasks();
-                
-                // If in advanced list view, re-render it too
-                if (!document.getElementById('view-tasklist').classList.contains('hidden')) {
+                if(!document.getElementById('view-tasklist').classList.contains('hidden')) {
                     renderAdvancedTasks();
+                }
+                if(!document.getElementById('view-calendar').classList.contains('hidden')){
+                    renderCalendar();
                 }
             } catch (e) {
                 showToast('Storage limit exceeded or error saving data.', 'error');
@@ -698,62 +751,99 @@
             }
         }
 
-        // --- UI Interactions ---
-        function setupEventListeners() {
-            // Sidebar Toggle
-            const sidebar = document.getElementById('sidebar');
-            const sidebarTexts = document.querySelectorAll('.sidebar-text');
-            
-            document.getElementById('sidebarToggle').addEventListener('click', () => {
-                const isCollapsed = sidebar.classList.contains('w-20');
-                if (isCollapsed) {
-                    sidebar.classList.remove('w-20');
-                    sidebar.classList.add('w-64');
-                    sidebarTexts.forEach(el => el.classList.remove('hidden'));
-                } else {
-                    sidebar.classList.remove('w-64');
-                    sidebar.classList.add('w-20');
-                    sidebarTexts.forEach(el => el.classList.add('hidden'));
-                }
-            });
-
-            // Quick Search functionality (Dashboard)
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                const isDashboard = !document.getElementById('view-dashboard').classList.contains('hidden');
-                if(isDashboard) {
-                    renderTasks(e.target.value);
-                } else {
-                    // Switch to dashboard to search globally easily if they aren't there
-                    switchView('dashboard');
-                    document.getElementById('searchInput').value = e.target.value;
-                    renderTasks(e.target.value);
-                }
-            });
-            
-            // Advanced Filters Listeners
-            ['advSearch', 'advStatus', 'advProject', 'advDateFrom', 'advDateTo'].forEach(id => {
-                document.getElementById(id).addEventListener('input', renderAdvancedTasks);
-                document.getElementById(id).addEventListener('change', renderAdvancedTasks);
-            });
-
-            // Credential Search Listener
-            document.getElementById('credSearchInput').addEventListener('input', (e) => {
-                renderCredentials(e.target.value);
-            });
+        function saveNotesToStorage() {
+            try {
+                localStorage.setItem('devtracker_notes', JSON.stringify(notes));
+                renderNotes(document.getElementById('noteSearchInput').value);
+            } catch (e) {
+                showToast('Storage limit exceeded or error saving data.', 'error');
+            }
         }
-        
-        // --- Navigation Logic ---
-        function switchView(viewName) {
-            // Update nav styles
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('bg-gray-800', 'text-white');
-                item.classList.add('text-slate-400');
-            });
+
+        // --- Utils & Helpers ---
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            let icon = 'fa-info-circle text-blue-400';
+            let bg = 'bg-gray-800 border-gray-700';
             
+            if (type === 'success') { icon = 'fa-check-circle text-emerald-400'; border = 'border-emerald-500/30'; bg='bg-emerald-500/10 border-emerald-500/20 text-emerald-100'; }
+            if (type === 'error') { icon = 'fa-triangle-exclamation text-rose-400'; bg='bg-rose-500/10 border-rose-500/20 text-rose-100'; }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transform transition-all duration-300 translate-y-10 opacity-0 ${bg}`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="text-sm font-medium">${message}</span>`;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+
+            // Remove after 3s
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function getStatusStyles(status) {
+            switch(status) {
+                case 'completed': return { icon: 'fa-check-circle', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-500/20', text: 'Completed' };
+                case 'blocked': return { icon: 'fa-circle-xmark', color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-500/20', text: 'Blocked' };
+                default: return { icon: 'fa-clock', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-500/20', text: 'Pending' };
+            }
+        }
+
+        function setupEventListeners() {
+            // Close modals on outside click
+            window.onclick = function(event) {
+                const taskModal = document.getElementById('taskModal');
+                const confirmModal = document.getElementById('confirmModal');
+                const dayTasksModal = document.getElementById('dayTasksModal');
+                const credModal = document.getElementById('credModal');
+                const credPreviewModal = document.getElementById('credPreviewModal');
+                const noteModal = document.getElementById('noteModal');
+                
+                if (event.target === taskModal) closeTaskModal();
+                if (event.target === confirmModal) closeConfirmModal();
+                if (event.target === dayTasksModal) closeDayTasksModal();
+                if (event.target === credModal) closeCredModal();
+                if (event.target === credPreviewModal) closeCredPreviewModal();
+                if (event.target === noteModal) closeNoteModal();
+            }
+
+            // Advanced list filters
+            document.getElementById('advSearchInput').addEventListener('input', renderAdvancedTasks);
+            document.getElementById('advStatusFilter').addEventListener('change', renderAdvancedTasks);
+            document.getElementById('advDateFilter').addEventListener('change', renderAdvancedTasks);
+        }
+
+        // --- UI Interactions ---
+        function toggleSidebarMobile() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('-left-64')) {
+                sidebar.classList.remove('-left-64');
+                sidebar.classList.add('left-0');
+            } else {
+                sidebar.classList.add('-left-64');
+                sidebar.classList.remove('left-0');
+            }
+        }
+
+        function switchView(viewName) {
+            // Update active nav state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-gray-800/80', 'text-white');
+                item.classList.add('text-slate-400');
+                const icon = item.querySelector('i');
+                if(icon) icon.classList.remove('text-primary');
+            });
             const activeNav = document.getElementById(`nav-${viewName}`);
-            if(activeNav) {
+            if (activeNav) {
                 activeNav.classList.remove('text-slate-400');
-                activeNav.classList.add('bg-gray-800', 'text-white');
+                activeNav.classList.add('bg-gray-800/80', 'text-white');
+                const icon = activeNav.querySelector('i');
+                if(icon) icon.classList.add('text-primary');
             }
 
             // Toggle view sections
@@ -764,9 +854,8 @@
 
             // View specific logic
             if (viewName === 'calendar') {
-                // Feature: Reset to current date when opening calendar
-            } else if (viewName === 'calendar') {
                 document.getElementById('calendarJumpDate').value = ''; // Reset jumper
+                currentDate = new Date(); // Reset to current month on open
                 renderCalendar();
             } else if (viewName === 'tasklist') {
                 renderAdvancedTasks();
@@ -774,87 +863,92 @@
                 renderTasks();
             } else if (viewName === 'credentials') {
                 renderCredentials();
+            } else if (viewName === 'notes') {
+                renderNotes();
+            }
+
+            // Close mobile sidebar if open
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-left-64');
+                document.getElementById('sidebar').classList.remove('left-0');
             }
         }
 
         // --- Dashboard Stat Filter Logic ---
-        function setStatFilter(filter) {
-            currentFilter = filter;
+        function setDashboardFilter(status) {
+            currentFilter = status;
             
-            // Update stat card UI
-            document.querySelectorAll('.stat-card').forEach(card => {
-                card.classList.remove('bg-gray-800', 'border-primary', 'ring-1', 'ring-primary/50', 'opacity-100');
-                card.classList.add('bg-gray-900', 'border-gray-800', 'opacity-70');
+            // Reset styles for all stat blocks
+            const statIds = ['all', 'pending', 'completed', 'blocked'];
+            statIds.forEach(id => {
+                const el = document.getElementById(`stat-${id}`);
+                el.classList.remove('border-primary');
+                el.classList.add('border-transparent');
             });
 
-            const activeCard = document.getElementById(`statCard-${filter}`);
-            if (activeCard) {
-                activeCard.classList.remove('bg-gray-900', 'border-gray-800', 'opacity-70');
-                activeCard.classList.add('bg-gray-800', 'border-primary', 'ring-1', 'ring-primary/50', 'opacity-100');
-            }
+            // Highlight active stat block
+            const activeEl = document.getElementById(`stat-${status}`);
+            activeEl.classList.remove('border-transparent');
+            activeEl.classList.add('border-primary');
 
             // Update title
             const titles = {
-                'all': 'All Recent Worklogs',
-                'in-progress': 'In Progress Tasks',
-                'completed': 'Completed Tasks',
-                'blocked': 'Blocked Issues'
+                'all': 'Recent Worklogs (All)',
+                'pending': 'Worklogs (In Progress)',
+                'completed': 'Worklogs (Completed)',
+                'blocked': 'Worklogs (Issues Blocked)'
             };
-            document.getElementById('listTitle').innerText = titles[filter] || 'Recent Worklogs';
+            document.getElementById('dashboardListTitle').innerText = titles[status];
 
-            // Trigger re-render
-            renderTasks(document.getElementById('searchInput').value);
+            renderTasks();
         }
 
-        // --- Task Modal Logic ---
-        function toggleIssueField() {
-            const hasIssue = document.getElementById('hasIssueToggle').checked;
-            const container = document.getElementById('issueDescriptionContainer');
+        // --- Task Logic ---
+        function toggleIssueSection() {
+            const hasIssue = document.getElementById('hasIssue').checked;
+            const section = document.getElementById('issueSection');
             if (hasIssue) {
-                container.classList.remove('hidden');
+                section.classList.remove('hidden');
             } else {
-                container.classList.add('hidden');
-                document.getElementById('issueDescription').value = '';
+                section.classList.add('hidden');
+                document.getElementById('issueDescription').value = ''; // clear on hide
             }
         }
 
-        function openTaskModal(taskId = null) {
-            editingTaskId = taskId;
-            const form = document.getElementById('taskForm');
-            form.reset();
+        function openTaskModal(id = null) {
+            editingTaskId = id;
+            document.getElementById('taskForm').reset();
+            document.getElementById('issueSection').classList.add('hidden');
+            document.getElementById('modalTitle').innerText = id ? 'Edit Task' : 'Create New Task';
             
-            document.getElementById('modalTitle').innerHTML = taskId ? 
-                '<i class="fa-solid fa-pen text-primary"></i> Edit Task' : 
-                '<i class="fa-solid fa-plus text-primary"></i> Add New Task';
-            
-            if (taskId) {
-                const task = tasks.find(t => t.id === taskId);
+            // Set default from date to today if new
+            if (!id) {
+                document.getElementById('fromDate').valueAsDate = new Date();
+            }
+
+            if (id) {
+                const task = tasks.find(t => t.id === id);
                 if (task) {
-                    document.getElementById('taskId').value = task.id;
                     document.getElementById('taskName').value = task.name || '';
                     document.getElementById('fromDate').value = task.fromDate || '';
                     document.getElementById('toDate').value = task.toDate || '';
+                    document.getElementById('assignedBy').value = task.assignedBy || '';
                     document.getElementById('taskStatus').value = task.status || 'pending';
                     document.getElementById('projectName').value = task.projectName || '';
                     document.getElementById('taskDescription').value = task.description || '';
                     
-                    document.getElementById('fileNames').value = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
-                    document.getElementById('apiNames').value = Array.isArray(task.apiNames) ? task.apiNames.join(', ') : (task.apiNames || '');
+                    // Arrays to Comma separated strings for editing
+                    document.getElementById('fileNames').value = (task.fileNames || []).join(', ');
+                    document.getElementById('apiNames').value = (task.apiNames || []).join(', ');
                     
                     document.getElementById('codeChanges').value = task.codeChanges || '';
                     
-                    document.getElementById('hasIssueToggle').checked = task.hasIssue || false;
-                    toggleIssueField();
-                    if(task.hasIssue) {
+                    if (task.hasIssue) {
+                        document.getElementById('hasIssue').checked = true;
+                        document.getElementById('issueSection').classList.remove('hidden');
                         document.getElementById('issueDescription').value = task.issueDescription || '';
                     }
                 }
-            } else {
-                // Set default date to today
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('fromDate').value = today;
-                document.getElementById('hasIssueToggle').checked = false;
-                toggleIssueField();
             }
 
             const modal = document.getElementById('taskModal');
@@ -869,34 +963,38 @@
             editingTaskId = null;
         }
 
-        function saveTask() {
+        function saveTask(e) {
+            e.preventDefault();
+            
             const name = document.getElementById('taskName').value.trim();
             const fromDate = document.getElementById('fromDate').value;
             
             if (!name || !fromDate) {
-                showToast('Task Name and From Date are required!', 'error');
+                showToast('Task Name and From Date are required.', 'error');
                 return;
             }
 
-            // Parse comma-separated strings into arrays
-            const fileNamesRaw = document.getElementById('fileNames').value;
-            const apiNamesRaw = document.getElementById('apiNames').value;
-            const filesArray = fileNamesRaw ? fileNamesRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
-            const apisArray = apiNamesRaw ? apiNamesRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+            // Convert comma separated strings to arrays
+            const fileString = document.getElementById('fileNames').value;
+            const apiString = document.getElementById('apiNames').value;
+            
+            const fileArray = fileString ? fileString.split(',').map(item => item.trim()).filter(Boolean) : [];
+            const apiArray = apiString ? apiString.split(',').map(item => item.trim()).filter(Boolean) : [];
 
             const taskData = {
                 id: editingTaskId || crypto.randomUUID(),
                 name: name,
                 fromDate: fromDate,
                 toDate: document.getElementById('toDate').value,
+                assignedBy: document.getElementById('assignedBy').value.trim(),
                 status: document.getElementById('taskStatus').value,
                 projectName: document.getElementById('projectName').value,
                 description: document.getElementById('taskDescription').value,
-                fileNames: filesArray,
-                apiNames: apisArray,
+                fileNames: fileArray,
+                apiNames: apiArray,
                 codeChanges: document.getElementById('codeChanges').value,
-                hasIssue: document.getElementById('hasIssueToggle').checked,
-                issueDescription: document.getElementById('issueDescription').value,
+                hasIssue: document.getElementById('hasIssue').checked,
+                issueDescription: document.getElementById('issueDescription').checked ? '' : document.getElementById('issueDescription').value,
                 updatedAt: new Date().toISOString()
             };
 
@@ -912,634 +1010,418 @@
 
             saveTasksToStorage();
             closeTaskModal();
+            closeDayTasksModal(); // if open
         }
 
-        function confirmDelete(taskId) {
-            actionToConfirm = () => {
-                tasks = tasks.filter(t => t.id !== taskId);
-                saveTasksToStorage();
-                showToast('Task deleted.', 'success');
-                closeConfirmModal();
-            };
-            openConfirmModal('Delete Task', 'Are you sure you want to delete this task? All associated data will be removed.');
-        }
-
-        function confirmClearData() {
-            actionToConfirm = () => {
-                tasks = [];
-                credentials = [];
-                saveTasksToStorage();
-                saveCredentialsToStorage();
-                showToast('All data erased.', 'success');
-                closeConfirmModal();
-            };
-            openConfirmModal('Erase All Data', 'Warning: This will permanently delete all tasks and credentials stored in this browser. Are you absolutely sure?');
-        }
-
-        function openConfirmModal(title, message) {
-            document.getElementById('confirmTitle').innerText = title;
-            document.getElementById('confirmMessage').innerText = message;
-            
-            const btn = document.getElementById('confirmBtn');
-            btn.onclick = actionToConfirm;
-            
-            const modal = document.getElementById('confirmModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeConfirmModal() {
-            const modal = document.getElementById('confirmModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            actionToConfirm = null;
-        }
-
-        // --- Data Management ---
-        function exportData() {
-            if (tasks.length === 0) {
-                showToast('No data to export.', 'error');
-                return;
-            }
-            
-            const dataStr = JSON.stringify(tasks, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `devtracker_export_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('Data exported successfully!', 'success');
-        }
-
-        function exportToCSV() {
-            if (tasks.length === 0) {
-                showToast('No data to export.', 'error');
-                return;
-            }
-
-            // Define CSV headers
-            const headers = ['Task Name', 'Project Name', 'Status', 'From Date', 'To Date', 'Description', 'Files Changed', 'APIs Used', 'Code Changes', 'Has Issue', 'Issue Description'];
-            
-            // Helper to escape values for CSV (handles commas, quotes, and newlines in text)
-            const escapeCSV = (value) => {
-                if (value === null || value === undefined) return '""';
-                // For arrays (like files and APIs), join with a semicolon instead of a comma so it stays in one cell
-                const str = Array.isArray(value) ? value.join('; ') : String(value); 
-                return `"${str.replace(/"/g, '""')}"`;
-            };
-
-            const csvRows = [];
-            csvRows.push(headers.join(',')); // Add Header Row
-
-            // Add Data Rows
-            tasks.forEach(task => {
-                const row = [
-                    escapeCSV(task.name),
-                    escapeCSV(task.projectName),
-                    escapeCSV(task.status),
-                    escapeCSV(task.fromDate),
-                    escapeCSV(task.toDate),
-                    escapeCSV(task.description),
-                    escapeCSV(task.fileNames),
-                    escapeCSV(task.apiNames),
-                    escapeCSV(task.codeChanges),
-                    escapeCSV(task.hasIssue ? 'Yes' : 'No'),
-                    escapeCSV(task.issueDescription)
-                ];
-                csvRows.push(row.join(','));
-            });
-
-            const csvString = csvRows.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `devtracker_export_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('Excel (CSV) exported successfully!', 'success');
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedTasks = JSON.parse(e.target.result);
-                    if (!Array.isArray(importedTasks)) throw new Error("Invalid format");
-                    
-                    // Simple merge: add unique imported tasks
-                    const currentIds = new Set(tasks.map(t => t.id));
-                    let addedCount = 0;
-                    
-                    importedTasks.forEach(task => {
-                        if (task.id && task.name && !currentIds.has(task.id)) {
-                            tasks.push(task);
-                            addedCount++;
-                        }
-                    });
-                    
-                    // Sort by newest first
-                    tasks.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-                    
-                    saveTasksToStorage();
-                    showToast(`Successfully imported ${addedCount} tasks.`, 'success');
-                } catch (err) {
-                    showToast('Failed to parse JSON file.', 'error');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Reset input
-        }
-
-        // --- Rendering Logic ---
         function updateDashboard() {
             document.getElementById('statTotal').innerText = tasks.length;
-            document.getElementById('statProgress').innerText = tasks.filter(t => t.status === 'in-progress').length;
+            document.getElementById('statPending').innerText = tasks.filter(t => t.status === 'pending').length;
             document.getElementById('statCompleted').innerText = tasks.filter(t => t.status === 'completed').length;
-            document.getElementById('statBlocked').innerText = tasks.filter(t => t.status === 'blocked' || t.hasIssue).length;
-            
-            // Re-render calendar if visible
-            if (!document.getElementById('view-calendar').classList.contains('hidden')) {
-                renderCalendar();
+            document.getElementById('statBlocked').innerText = tasks.filter(t => t.status === 'blocked').length;
+        }
+
+        function handleGlobalSearch() {
+            // For simplicity, switch to advanced list view if searching globally
+            const query = document.getElementById('globalSearch').value;
+            if (query.length > 0 && document.getElementById('view-tasklist').classList.contains('hidden')) {
+                switchView('tasklist');
+                document.getElementById('advSearchInput').value = query;
+            } else if (query.length === 0 && !document.getElementById('view-tasklist').classList.contains('hidden')) {
+                document.getElementById('advSearchInput').value = '';
+            }
+            if(!document.getElementById('view-tasklist').classList.contains('hidden')){
+                renderAdvancedTasks();
+            } else {
+                renderTasks(query); // filter dashboard list
             }
         }
+
+        // --- View Renders ---
         
-        function getStatusIcon(status) {
-            switch(status) {
-                case 'completed': return '<i class="fa-solid fa-check mr-1"></i>';
-                case 'in-progress': return '<i class="fa-solid fa-spinner fa-spin-pulse mr-1"></i>';
-                case 'blocked': return '<i class="fa-solid fa-ban mr-1"></i>';
-                default: return '<i class="fa-regular fa-clock mr-1"></i>';
-            }
-        }
+        // Compact Dashboard List Render
+        function renderTasks(searchQuery = '') {
+            const grid = document.getElementById('taskGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
 
-        function getStatusStyles(status) {
-            switch(status) {
-                case 'completed': return 'bg-emerald-950/50 text-emerald-400 border-emerald-900/50';
-                case 'in-progress': return 'bg-amber-950/50 text-amber-400 border-amber-900/50';
-                case 'blocked': return 'bg-rose-950/50 text-rose-400 border-rose-900/50';
-                default: return 'bg-gray-800 text-gray-300 border-gray-700';
+            let filtered = tasks;
+            
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(t => t.status === currentFilter);
             }
-        }
 
-        function generateTaskHTML(task) {
-            const statusStyle = getStatusStyles(task.status);
-            const statusIcon = getStatusIcon(task.status);
-            
-            // Format arrays back to strings for display if they are arrays
-            const filesStr = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
-            const apisStr = Array.isArray(task.apiNames) ? task.apiNames.join(', ') : (task.apiNames || '');
-            
-            return `
-                <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 shadow-sm transition-colors flex flex-col sm:flex-row sm:items-center gap-4">
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(t => 
+                    (t.name && t.name.toLowerCase().includes(q)) ||
+                    (t.projectName && t.projectName.toLowerCase().includes(q)) ||
+                    (t.fileNames && t.fileNames.some(f => f.toLowerCase().includes(q))) ||
+                    (t.apiNames && t.apiNames.some(a => a.toLowerCase().includes(q)))
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            filtered.forEach(task => {
+                const styles = getStatusStyles(task.status);
+                
+                // Format arrays back to strings for display
+                const filesStr = (task.fileNames || []).join(', ');
+                const apisStr = (task.apiNames || []).join(', ');
+
+                const el = document.createElement('div');
+                el.className = "bg-gray-800/80 border border-gray-700/50 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between";
+                el.innerHTML = `
                     <div class="flex-1 min-w-0">
-                        <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                            ${task.projectName ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-800 text-primary border border-gray-700 uppercase tracking-wide">${task.projectName}</span>` : ''}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${statusStyle}">
-                                ${statusIcon} <span class="ml-1">${task.status.replace('-', ' ').toUpperCase()}</span>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${styles.bg} ${styles.color} border ${styles.border}">
+                                ${styles.text}
                             </span>
-                            ${task.hasIssue ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950/50 text-rose-400 border border-rose-900/50" title="${task.issueDescription}"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ISSUES</span>` : ''}
+                            ${task.projectName ? `<span class="text-xs font-semibold text-primary uppercase tracking-wider">${task.projectName}</span>` : ''}
                         </div>
-                        
-                        <h3 class="text-base font-bold text-white truncate pr-4" title="${task.name}">${task.name}</h3>
-                        
-                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-gray-500">
+                        <h3 class="text-base font-bold text-white truncate" title="${task.name}">${task.name}</h3>
+                        <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
                             <span class="flex items-center gap-1.5 whitespace-nowrap">
                                 <i class="fa-regular fa-calendar text-gray-600"></i>
                                 ${task.fromDate} ${task.toDate ? `&rarr; ${task.toDate}` : ''}
                             </span>
-                            ${filesStr ? `
-                                <span class="flex items-center gap-1.5 truncate max-w-[200px]" title="${filesStr}">
-                                    <i class="fa-regular fa-file-code text-gray-600"></i> <span class="truncate">${filesStr}</span>
+                            ${task.assignedBy ? `
+                                <span class="flex items-center gap-1.5 truncate max-w-[150px]" title="Assigned by: ${task.assignedBy}">
+                                    <i class="fa-solid fa-user-tie text-gray-600"></i> <span class="truncate">${task.assignedBy}</span>
                                 </span>
                             ` : ''}
-                            ${apisStr ? `
-                                <span class="flex items-center gap-1.5 truncate max-w-[200px]" title="${apisStr}">
-                                    <i class="fa-solid fa-server text-gray-600"></i> <span class="truncate">${apisStr}</span>
+                            ${filesStr ? `
+                                <span class="flex items-center gap-1.5 truncate max-w-[200px]" title="${filesStr}">
+                                    <i class="fa-solid fa-file-code text-gray-600"></i> <span class="truncate">${filesStr}</span>
                                 </span>
                             ` : ''}
                         </div>
                     </div>
-                    
-                    <div class="flex items-center justify-end gap-2 shrink-0 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-800">
-                        <button onclick="openTaskModal('${task.id}')" class="px-3 py-1.5 rounded bg-gray-800 text-gray-300 text-xs font-medium transition-colors" title="Edit">
-                            <i class="fa-solid fa-pen mr-1.5"></i> Edit
+                    <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto w-full sm:w-auto justify-end mt-2 sm:mt-0">
+                        <button onclick="openTaskModal('${task.id}')" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-md text-sm transition-colors border border-gray-600 flex items-center gap-2">
+                            <i class="fa-solid fa-pen text-xs"></i> Edit
                         </button>
-                        <button onclick="confirmDelete('${task.id}')" class="w-8 h-8 rounded bg-rose-950/30 text-rose-500 flex items-center justify-center transition-colors" title="Delete">
-                            <i class="fa-solid fa-trash text-sm"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Render Dashboard Tasks (Simple filter)
-        function renderTasks(searchQuery = '') {
-            const listContainer = document.getElementById('taskList');
-            const emptyState = document.getElementById('emptyState');
-            
-            listContainer.innerHTML = '';
-            
-            let filteredTasks = tasks.filter(task => {
-                const filesStr = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
-                const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                      (task.projectName && task.projectName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                                      (filesStr.toLowerCase().includes(searchQuery.toLowerCase()));
-                
-                let matchesStatus = true;
-                if (currentFilter === 'in-progress') matchesStatus = task.status === 'in-progress';
-                if (currentFilter === 'completed') matchesStatus = task.status === 'completed';
-                if (currentFilter === 'blocked') matchesStatus = task.status === 'blocked' || task.hasIssue;
-                
-                return matchesSearch && matchesStatus;
-            });
-
-            if (filteredTasks.length === 0) {
-                listContainer.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            listContainer.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-
-            filteredTasks.forEach(task => {
-                const item = document.createElement('div');
-                item.innerHTML = generateTaskHTML(task);
-                listContainer.appendChild(item.firstElementChild);
-            });
-        }
-
-        // Render Advanced List Tasks (Complex filters)
-        function clearAdvFilters() {
-            document.getElementById('advSearch').value = '';
-            document.getElementById('advStatus').value = 'all';
-            document.getElementById('advProject').value = '';
-            document.getElementById('advDateFrom').value = '';
-            document.getElementById('advDateTo').value = '';
-            renderAdvancedTasks();
-        }
-
-        function renderAdvancedTasks() {
-            const search = document.getElementById('advSearch').value.toLowerCase();
-            const status = document.getElementById('advStatus').value;
-            const project = document.getElementById('advProject').value.toLowerCase();
-            const dateFrom = document.getElementById('advDateFrom').value;
-            const dateTo = document.getElementById('advDateTo').value;
-
-            const listContainer = document.getElementById('advTaskList');
-            const emptyState = document.getElementById('advEmptyState');
-            listContainer.innerHTML = '';
-
-            const filteredTasks = tasks.filter(task => {
-                let match = true;
-                const filesStr = Array.isArray(task.fileNames) ? task.fileNames.join(', ') : (task.fileNames || '');
-                const descStr = task.description || '';
-                
-                if (search && !task.name.toLowerCase().includes(search) && !descStr.toLowerCase().includes(search) && !filesStr.toLowerCase().includes(search)) match = false;
-                if (status !== 'all' && task.status !== status) match = false;
-                if (project && !(task.projectName||'').toLowerCase().includes(project)) match = false;
-                if (dateFrom && task.fromDate < dateFrom) match = false;
-                if (dateTo && task.fromDate > dateTo) match = false; 
-                return match;
-            });
-
-            if (filteredTasks.length === 0) {
-                listContainer.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            listContainer.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-
-            filteredTasks.forEach(task => {
-                const item = document.createElement('div');
-                item.innerHTML = generateTaskHTML(task);
-                listContainer.appendChild(item.firstElementChild);
-            });
-        }
-        
-        // --- Calendar Logic ---
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ];
-
-        function changeMonth(direction) {
-            currentMonth += direction;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            renderCalendar();
-        }
-
-        // Feature: Jump to specific date from Calendar header
-        function handleCalendarJump(dateString) {
-            if(!dateString) return;
-            const dateObj = new Date(dateString);
-            
-            // Adjust to proper year/month
-            currentYear = dateObj.getFullYear();
-            currentMonth = dateObj.getMonth();
-            renderCalendar();
-
-            // Automatically open that specific day's tasks to make navigation seamless
-            const dayTasks = tasks.filter(task => task.fromDate === dateString);
-            openDayTasks(dateString, dayTasks);
-        }
-
-        function renderCalendar() {
-            const monthYearStr = `${monthNames[currentMonth]} ${currentYear}`;
-            document.getElementById('calendarMonthYear').innerText = monthYearStr;
-
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            
-            // Map tasks by date for heatmap
-            const tasksByDate = {};
-            tasks.forEach(task => {
-                if (task.fromDate) {
-                    if (!tasksByDate[task.fromDate]) {
-                        tasksByDate[task.fromDate] = [];
-                    }
-                    tasksByDate[task.fromDate].push(task);
-                }
-            });
-
-            // Empty cells for previous month
-            for (let i = 0; i < firstDay; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'border-b border-r border-gray-800/50 bg-gray-900/50 p-1 sm:p-2 opacity-50';
-                grid.appendChild(cell);
-            }
-
-            // Days of current month
-            const today = new Date();
-            const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
-
-            for (let i = 1; i <= daysInMonth; i++) {
-                // Ensure date format is YYYY-MM-DD for consistency
-                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                const dayTasks = tasksByDate[dateStr] || [];
-                const taskCount = dayTasks.length;
-                
-                const isToday = isCurrentMonth && today.getDate() === i;
-                
-                const cell = document.createElement('div');
-                cell.className = `border-b border-r border-gray-800 p-1 sm:p-2 relative flex flex-col transition-colors cursor-pointer ${isToday ? 'bg-primary/10 border-primary/30' : ''}`;
-                cell.onclick = () => openDayTasks(dateStr, dayTasks);
-
-                // Date Number
-                const dateNum = document.createElement('span');
-                dateNum.className = `text-xs sm:text-sm font-medium ${isToday ? 'text-primary font-bold' : 'text-gray-400'}`;
-                dateNum.innerText = i;
-                
-                // Today indicator
-                if(isToday) {
-                    const todayDot = document.createElement('span');
-                    todayDot.className = "w-1.5 h-1.5 rounded-full bg-primary inline-block ml-1 mb-0.5";
-                    dateNum.appendChild(todayDot);
-                }
-                
-                cell.appendChild(dateNum);
-
-                // Heatmap Indicator
-                if (taskCount > 0) {
-                    let intensityClass = 'bg-indigo-500/30 border-indigo-500/50'; // 1-2 tasks
-                    if (taskCount >= 3 && taskCount <= 5) {
-                        intensityClass = 'bg-indigo-500/60 border-indigo-500/80'; // 3-5 tasks
-                    } else if (taskCount > 5) {
-                        intensityClass = 'bg-indigo-500 border-indigo-400'; // >5 tasks
-                    }
-                    
-                    const indicator = document.createElement('div');
-                    indicator.className = `absolute bottom-1.5 right-1.5 w-2 h-2 sm:w-3 sm:h-3 rounded-[2px] border ${intensityClass}`;
-                    cell.appendChild(indicator);
-                    
-                    // Task list preview in cell (desktop only)
-                    const preview = document.createElement('div');
-                    preview.className = 'hidden sm:flex flex-col gap-[2px] mt-1 overflow-hidden';
-                    dayTasks.slice(0, 2).forEach(t => {
-                        const dot = document.createElement('div');
-                        dot.className = `text-[9px] truncate px-1 rounded bg-gray-800 text-gray-400 border border-gray-700/50`;
-                        dot.innerText = t.name;
-                        preview.appendChild(dot);
-                    });
-                    if (taskCount > 2) {
-                        const more = document.createElement('div');
-                        more.className = 'text-[9px] text-gray-500 px-1 font-medium';
-                        more.innerText = `+${taskCount - 2} more`;
-                        preview.appendChild(more);
-                    }
-                    cell.appendChild(preview);
-                }
-
-                grid.appendChild(cell);
-            }
-        }
-        
-        // --- Day Tasks Modal ---
-        function openDayTasks(dateStr, dayTasks) {
-            document.getElementById('dayModalDateStr').innerText = dateStr;
-            const listContainer = document.getElementById('dayTasksList');
-            listContainer.innerHTML = '';
-            
-            if (dayTasks.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class="fa-regular fa-calendar-xmark text-4xl text-gray-700 mb-3"></i>
-                        <p class="text-gray-400 text-sm">No tasks recorded for this date.</p>
-                        <button onclick="closeDayModal(); openTaskModal(); document.getElementById('fromDate').value = '${dateStr}'" class="mt-4 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm transition-colors shadow-sm">
-                            Add Task Here
+                        <button onclick="confirmDelete('${task.id}')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-md text-sm transition-colors border border-rose-500/20 flex items-center gap-2">
+                            <i class="fa-solid fa-trash text-xs"></i> Delete
                         </button>
                     </div>
                 `;
+                grid.appendChild(el);
+            });
+        }
+
+        // Advanced List Render
+        function renderAdvancedTasks() {
+            const container = document.getElementById('advTaskListContainer');
+            const searchQ = document.getElementById('advSearchInput').value.toLowerCase();
+            const statusQ = document.getElementById('advStatusFilter').value;
+            const dateQ = document.getElementById('advDateFilter').value;
+
+            container.innerHTML = '';
+
+            let filtered = tasks.filter(t => {
+                const matchSearch = (t.name && t.name.toLowerCase().includes(searchQ)) || (t.projectName && t.projectName.toLowerCase().includes(searchQ));
+                const matchStatus = statusQ === 'all' || t.status === statusQ;
+                const matchDate = !dateQ || t.fromDate === dateQ || t.toDate === dateQ;
+                return matchSearch && matchStatus && matchDate;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-gray-500">No tasks match your filters.</div>`;
+                return;
+            }
+
+            filtered.forEach(task => {
+                const styles = getStatusStyles(task.status);
+                const filesStr = (task.fileNames || []).join(', ');
+                const apisStr = (task.apiNames || []).join(', ');
+                
+                const el = document.createElement('div');
+                el.className = "p-4 border-b border-gray-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4";
+                el.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2.5 h-2.5 rounded-full ${styles.bg.replace('/10','')}"></span>
+                            <h4 class="font-bold text-white text-sm sm:text-base">${task.name}</h4>
+                            ${task.projectName ? `<span class="bg-gray-800 px-2 py-0.5 rounded text-[10px] text-gray-400">${task.projectName}</span>` : ''}
+                        </div>
+                        <div class="text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                            <span><i class="fa-regular fa-calendar mr-1"></i> ${task.fromDate} ${task.toDate ? `to ${task.toDate}` : ''}</span>
+                            ${filesStr ? `<span class="truncate max-w-[200px]" title="${filesStr}"><i class="fa-solid fa-file-code mr-1"></i> ${filesStr}</span>` : ''}
+                            ${apisStr ? `<span class="truncate max-w-[200px]" title="${apisStr}"><i class="fa-solid fa-network-wired mr-1"></i> ${apisStr}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex gap-2 shrink-0 w-full md:w-auto justify-end">
+                        <button onclick="openTaskModal('${task.id}')" class="px-3 py-1.5 bg-gray-700 rounded text-xs text-white border border-gray-600 font-medium">Edit</button>
+                        <button onclick="confirmDelete('${task.id}')" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded text-xs border border-rose-500/20 font-medium">Delete</button>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        // --- Calendar Logic ---
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
+        
+        function jumpToDate(dateStr) {
+            if(!dateStr) return;
+            const parts = dateStr.split('-'); // YYYY-MM-DD
+            if(parts.length === 3) {
+                currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                renderCalendar();
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const display = document.getElementById('calendarMonthDisplay');
+            grid.innerHTML = '';
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            display.innerText = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            const firstDay = new Date(year, month, 1).getDay(); // 0 (Sun) to 6 (Sat)
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Previous month padding
+            for (let i = 0; i < firstDay; i++) {
+                const cell = document.createElement('div');
+                cell.className = "bg-gray-800/20 opacity-50";
+                grid.appendChild(cell);
+            }
+
+            // Current month days
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                const isToday = isCurrentMonth && today.getDate() === day;
+                
+                // Format date string to match YYYY-MM-DD for comparison
+                const m = String(month + 1).padStart(2, '0');
+                const d = String(day).padStart(2, '0');
+                const dateString = `${year}-${m}-${d}`;
+
+                // Find tasks for this day (by fromDate)
+                const dayTasks = tasks.filter(t => t.fromDate === dateString);
+                const taskCount = dayTasks.length;
+
+                let heatClass = "";
+                if (taskCount === 1) heatClass = "bg-primary/10 border border-primary/30";
+                else if (taskCount >= 2 && taskCount <= 3) heatClass = "bg-primary/40 border border-primary/50";
+                else if (taskCount >= 4) heatClass = "bg-primary/80 border border-primary";
+
+                cell.className = `p-1 sm:p-2 bg-gray-800/50 relative cursor-pointer flex flex-col justify-between transition-colors`;
+                
+                // Keep background color distinct for today
+                if (isToday) {
+                    cell.classList.remove('bg-gray-800/50');
+                    cell.classList.add('bg-primary/20', 'border', 'border-primary');
+                }
+
+                cell.innerHTML = `
+                    <span class="text-xs sm:text-sm font-medium ${isToday ? 'text-white' : 'text-gray-300'}">${day}</span>
+                    <div class="flex justify-end h-full items-end pb-1 pr-1">
+                        ${taskCount > 0 ? `<div class="w-3 h-3 sm:w-4 sm:h-4 rounded-sm ${heatClass}" title="${taskCount} task(s)"></div>` : ''}
+                    </div>
+                `;
+
+                cell.onclick = () => openDayTasksModal(dateString, dayTasks);
+                grid.appendChild(cell);
+            }
+
+            // Next month padding
+            const totalCells = firstDay + daysInMonth;
+            const remainingCells = (7 - (totalCells % 7)) % 7;
+            for (let i = 0; i < remainingCells; i++) {
+                const cell = document.createElement('div');
+                cell.className = "bg-gray-800/20 opacity-50";
+                grid.appendChild(cell);
+            }
+        }
+
+        function openDayTasksModal(dateString, dayTasks) {
+            document.getElementById('dayTasksTitleDate').innerText = dateString;
+            const container = document.getElementById('dayTasksContainer');
+            container.innerHTML = '';
+
+            if (dayTasks.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">No tasks scheduled for this day.</p>`;
             } else {
                 dayTasks.forEach(task => {
-                    const statusStyle = getStatusStyles(task.status);
-                    const item = document.createElement('div');
-                    item.className = 'bg-gray-800 border border-gray-700 rounded-lg p-3 flex justify-between items-center gap-3 transition-colors cursor-pointer';
-                    item.onclick = () => { closeDayModal(); openTaskModal(task.id); };
-                    
-                    item.innerHTML = `
-                        <div class="min-w-0 flex-1">
-                            <h4 class="text-sm font-semibold text-white truncate">${task.name}</h4>
-                            ${task.projectName ? `<span class="text-[10px] font-bold text-primary uppercase tracking-wide mt-0.5 block">${task.projectName}</span>` : ''}
+                    const styles = getStatusStyles(task.status);
+                    const el = document.createElement('div');
+                    el.className = "bg-gray-800 border border-gray-700 rounded-lg p-3 flex justify-between items-center";
+                    el.innerHTML = `
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2 h-2 rounded-full ${styles.bg.replace('/10','')}"></span>
+                                <h4 class="text-sm font-bold text-white">${task.name}</h4>
+                            </div>
+                            ${task.projectName ? `<span class="text-[10px] text-gray-400 bg-gray-900 px-1.5 py-0.5 rounded">${task.projectName}</span>` : ''}
                         </div>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border shrink-0 ${statusStyle}">
-                            ${task.status.toUpperCase()}
-                        </span>
+                        <button onclick="closeDayTasksModal(); openTaskModal('${task.id}')" class="text-xs bg-gray-700 px-2 py-1 rounded text-white border border-gray-600">Edit</button>
                     `;
-                    listContainer.appendChild(item);
+                    container.appendChild(el);
                 });
-                
-                // Add Quick button to end of list
-                const quickAdd = document.createElement('button');
-                quickAdd.className = 'w-full py-2 mt-2 border border-dashed border-gray-600 rounded-lg text-sm text-gray-400 transition-colors';
-                quickAdd.innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Add Another Task';
-                quickAdd.onclick = () => { closeDayModal(); openTaskModal(); document.getElementById('fromDate').value = dateStr; };
-                listContainer.appendChild(quickAdd);
             }
-            
+
             const modal = document.getElementById('dayTasksModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
-        function closeDayModal() {
+        function closeDayTasksModal() {
             const modal = document.getElementById('dayTasksModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
 
+
         // --- Credentials Logic ---
-        function renderCredentials(searchQuery = '') {
-            const listContainer = document.getElementById('credentialsList');
+        function renderCredentials() {
+            const list = document.getElementById('credentialsList');
             const emptyState = document.getElementById('emptyCredentialsState');
-            const tableElement = listContainer.closest('table');
+            const searchInput = document.getElementById('credSearchInput');
+            const query = (searchInput ? searchInput.value.toLowerCase() : '');
             
-            listContainer.innerHTML = '';
-            
-            const filteredCreds = credentials.filter(cred => {
-                if (!searchQuery) return true;
-                const query = searchQuery.toLowerCase();
-                return (cred.envName && cred.envName.toLowerCase().includes(query)) ||
-                       (cred.serverDetails && cred.serverDetails.toLowerCase().includes(query)) ||
-                       (cred.dbDetails && cred.dbDetails.toLowerCase().includes(query)) ||
-                       (cred.uiCredentials && cred.uiCredentials.toLowerCase().includes(query));
+            list.innerHTML = '';
+
+            const filteredCreds = credentials.filter(c => {
+                if (!query) return true;
+                return (c.envName && c.envName.toLowerCase().includes(query)) ||
+                       (c.server && c.server.toLowerCase().includes(query)) ||
+                       (c.db && c.db.toLowerCase().includes(query)) ||
+                       (c.ui && c.ui.toLowerCase().includes(query));
             });
 
             if (filteredCreds.length === 0) {
-                tableElement.classList.add('hidden');
+                list.parentElement.parentElement.classList.add('hidden'); // hide table container
                 emptyState.classList.remove('hidden');
                 emptyState.classList.add('flex');
-                
-                const emptyMsg = emptyState.querySelector('p');
-                const emptyTitle = emptyState.querySelector('h3');
-                if (searchQuery) {
-                    emptyTitle.innerText = 'No matching credentials found';
-                    emptyMsg.innerText = `No environments match your search for "${searchQuery}".`;
-                } else {
-                    emptyTitle.innerText = 'No credentials found';
-                    emptyMsg.innerText = 'Store your server, database, and UI access details securely in one place.';
-                }
                 return;
             }
 
-            tableElement.classList.remove('hidden');
+            list.parentElement.parentElement.classList.remove('hidden');
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
 
             filteredCreds.forEach(cred => {
                 const tr = document.createElement('tr');
-                tr.className = "bg-gray-900";
+                tr.className = "hover:bg-gray-800/30 transition-colors";
                 
                 const swaggerHTML = cred.swaggerLink 
-                    ? `<a href="${cred.swaggerLink}" target="_blank" class="text-primary underline flex items-center gap-1"><i class="fa-solid fa-up-right-from-square text-xs"></i> Open</a>`
-                    : '<span class="text-gray-500">-</span>';
-
-                // Truncate text logic
-                const truncate = (text, maxLength = 50) => {
-                    if (!text) return '<span class="text-gray-600">-</span>';
-                    if (text.length <= maxLength) return text;
-                    return text.substring(0, maxLength) + '...';
-                };
+                    ? `<a href="${cred.swaggerLink}" target="_blank" class="text-primary hover:text-indigo-400 text-xs flex items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>` 
+                    : '<span class="text-gray-600 text-xs">-</span>';
 
                 tr.innerHTML = `
-                    <td class="px-4 py-3 align-top whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 bg-gray-800 text-white text-xs font-bold rounded border border-gray-700 tracking-wider">
-                            ${cred.envName}
-                        </span>
+                    <td class="p-4 align-top">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider bg-gray-800 border border-gray-700 text-white">${cred.envName}</span>
                     </td>
-                    <td class="px-4 py-3 align-top text-sm text-gray-300">
-                        <div class="line-clamp-2 max-w-[200px]" title="${cred.serverDetails || ''}">${truncate(cred.serverDetails)}</div>
+                    <td class="p-4 align-top">
+                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap truncate max-w-[200px]" title="${cred.server}">${cred.server || '-'}</div>
                     </td>
-                    <td class="px-4 py-3 align-top text-sm text-gray-300 break-all">${swaggerHTML}</td>
-                    <td class="px-4 py-3 align-top text-sm text-gray-300">
-                        <div class="line-clamp-2 max-w-[200px]" title="${cred.dbDetails || ''}">${truncate(cred.dbDetails)}</div>
+                    <td class="p-4 align-top">${swaggerHTML}</td>
+                    <td class="p-4 align-top">
+                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap truncate max-w-[200px]" title="${cred.db}">${cred.db || '-'}</div>
                     </td>
-                    <td class="px-4 py-3 align-top text-sm text-gray-300">
-                        <div class="line-clamp-2 max-w-[200px]" title="${cred.uiCredentials || ''}">${truncate(cred.uiCredentials)}</div>
+                    <td class="p-4 align-top">
+                        <div class="text-sm text-gray-300 font-mono whitespace-pre-wrap truncate max-w-[200px]" title="${cred.ui}">${cred.ui || '-'}</div>
                     </td>
-                    <td class="px-4 py-3 align-top whitespace-nowrap text-right">
-                        <button onclick="openCredPreviewModal('${cred.id}')" class="w-8 h-8 rounded bg-indigo-900/30 text-indigo-400 inline-flex items-center justify-center mr-1" title="View Details">
-                            <i class="fa-regular fa-eye text-xs"></i>
-                        </button>
-                        <button onclick="openCredentialModal('${cred.id}')" class="w-8 h-8 rounded bg-gray-800 text-gray-300 inline-flex items-center justify-center mr-1" title="Edit">
-                            <i class="fa-solid fa-pen text-xs"></i>
-                        </button>
-                        <button onclick="confirmDeleteCredential('${cred.id}')" class="w-8 h-8 rounded bg-rose-950/30 text-rose-500 inline-flex items-center justify-center" title="Delete">
-                            <i class="fa-solid fa-trash text-xs"></i>
-                        </button>
+                    <td class="p-4 align-top text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="openCredPreviewModal('${cred.id}')" class="p-1.5 text-gray-400 bg-gray-800 rounded border border-gray-700 text-xs" title="View Full Details">
+                                <i class="fa-solid fa-eye"></i> View
+                            </button>
+                            <button onclick="openCredModal('${cred.id}')" class="p-1.5 text-gray-400 bg-gray-800 rounded border border-gray-700 text-xs">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="confirmDeleteCred('${cred.id}')" class="p-1.5 text-rose-400 bg-rose-500/10 rounded border border-rose-500/20 text-xs">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
-                listContainer.appendChild(tr);
+                list.appendChild(tr);
             });
         }
 
-        function openCredentialModal(id = null) {
+        function openCredModal(id = null) {
             editingCredId = id;
-            const form = document.getElementById('credentialForm');
-            form.reset();
-            
-            document.getElementById('credModalTitle').innerHTML = id ? 
-                '<i class="fa-solid fa-pen text-primary"></i> Edit Environment' : 
-                '<i class="fa-solid fa-plus text-primary"></i> Add Environment';
+            document.getElementById('credForm').reset();
+            document.getElementById('credModalTitle').innerText = id ? 'Edit Environment' : 'Add Environment';
             
             if (id) {
                 const cred = credentials.find(c => c.id === id);
                 if (cred) {
-                    document.getElementById('credId').value = cred.id;
                     document.getElementById('credEnvName').value = cred.envName || '';
-                    document.getElementById('credServer').value = cred.serverDetails || '';
+                    document.getElementById('credServer').value = cred.server || '';
                     document.getElementById('credSwagger').value = cred.swaggerLink || '';
-                    document.getElementById('credDB').value = cred.dbDetails || '';
-                    document.getElementById('credUI').value = cred.uiCredentials || '';
+                    document.getElementById('credDB').value = cred.db || '';
+                    document.getElementById('credUI').value = cred.ui || '';
                 }
             }
 
-            const modal = document.getElementById('credentialModal');
+            const modal = document.getElementById('credModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
-        function closeCredentialModal() {
-            const modal = document.getElementById('credentialModal');
+        function closeCredModal() {
+            const modal = document.getElementById('credModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             editingCredId = null;
         }
 
-        // --- Credential Preview Logic ---
+        function saveCredential(e) {
+            e.preventDefault();
+            const name = document.getElementById('credEnvName').value.trim();
+            if(!name) return;
+
+            const credData = {
+                id: editingCredId || crypto.randomUUID(),
+                envName: name.toUpperCase(),
+                server: document.getElementById('credServer').value,
+                swaggerLink: document.getElementById('credSwagger').value,
+                db: document.getElementById('credDB').value,
+                ui: document.getElementById('credUI').value,
+            };
+
+            if (editingCredId) {
+                const index = credentials.findIndex(c => c.id === editingCredId);
+                if (index !== -1) credentials[index] = credData;
+                showToast('Credentials updated.', 'success');
+            } else {
+                credentials.push(credData);
+                showToast('New environment added.', 'success');
+            }
+
+            saveCredentialsToStorage();
+            closeCredModal();
+        }
+
         function openCredPreviewModal(id) {
             const cred = credentials.find(c => c.id === id);
-            if (!cred) return;
+            if(!cred) return;
 
-            document.getElementById('previewEnvName').innerText = cred.envName || 'Unknown';
-            document.getElementById('previewServer').innerText = cred.serverDetails || 'No server details provided.';
-            document.getElementById('previewDB').innerText = cred.dbDetails || 'No database details provided.';
-            document.getElementById('previewUI').innerText = cred.uiCredentials || 'No UI credentials provided.';
-
+            document.getElementById('previewCredEnv').innerText = cred.envName;
+            
             const swaggerContainer = document.getElementById('previewSwaggerContainer');
             const swaggerLink = document.getElementById('previewSwagger');
             
@@ -1549,6 +1431,10 @@
             } else {
                 swaggerContainer.classList.add('hidden');
             }
+
+            document.getElementById('previewServer').innerText = cred.server || 'No server details provided.';
+            document.getElementById('previewDB').innerText = cred.db || 'No database details provided.';
+            document.getElementById('previewUI').innerText = cred.ui || 'No UI credentials provided.';
 
             const modal = document.getElementById('credPreviewModal');
             modal.classList.remove('hidden');
@@ -1561,39 +1447,7 @@
             modal.classList.remove('flex');
         }
 
-        function saveCredential() {
-            const envName = document.getElementById('credEnvName').value.trim();
-            
-            if (!envName) {
-                showToast('Environment Name is required!', 'error');
-                return;
-            }
-
-            const credData = {
-                id: editingCredId || crypto.randomUUID(),
-                envName: envName.toUpperCase(),
-                serverDetails: document.getElementById('credServer').value,
-                swaggerLink: document.getElementById('credSwagger').value,
-                dbDetails: document.getElementById('credDB').value,
-                uiCredentials: document.getElementById('credUI').value,
-                updatedAt: new Date().toISOString()
-            };
-
-            if (editingCredId) {
-                const index = credentials.findIndex(c => c.id === editingCredId);
-                if (index !== -1) credentials[index] = credData;
-                showToast('Credentials updated!', 'success');
-            } else {
-                credData.createdAt = new Date().toISOString();
-                credentials.push(credData); 
-                showToast('New environment added!', 'success');
-            }
-
-            saveCredentialsToStorage();
-            closeCredentialModal();
-        }
-
-        function confirmDeleteCredential(id) {
+        function confirmDeleteCred(id) {
             actionToConfirm = () => {
                 credentials = credentials.filter(c => c.id !== id);
                 saveCredentialsToStorage();
@@ -1603,33 +1457,316 @@
             openConfirmModal('Delete Environment', 'Are you sure you want to delete these environment credentials?');
         }
 
-        // --- Utils ---
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
+        // --- Notes Logic ---
+        function renderNotes(searchQuery = '') {
+            const listContainer = document.getElementById('notesList');
+            const emptyState = document.getElementById('emptyNotesState');
             
-            let bgClass = 'bg-gray-800 border-gray-700';
-            let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+            listContainer.innerHTML = '';
             
-            if (type === 'success') {
-                bgClass = 'bg-gray-800 border-emerald-900';
-                icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
-            } else if (type === 'error') {
-                bgClass = 'bg-gray-800 border-rose-900';
-                icon = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+            const filteredNotes = notes.filter(note => {
+                if (!searchQuery) return true;
+                const query = searchQuery.toLowerCase();
+                return (note.title && note.title.toLowerCase().includes(query)) ||
+                       (note.content && note.content.toLowerCase().includes(query));
+            });
+
+            if (filteredNotes.length === 0) {
+                listContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
             }
 
-            toast.className = `flex items-center gap-3 min-w-[250px] px-4 py-3 rounded-xl border shadow-lg animate-slide-up ${bgClass} text-white text-sm font-medium z-50`;
-            toast.innerHTML = `${icon} <span>${message}</span>`;
-            
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.replace('animate-slide-up', 'opacity-0');
-                toast.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            listContainer.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            filteredNotes.forEach(note => {
+                // Strip markdown for preview text
+                const strippedContent = note.content ? note.content.replace(/[#*`_\[\]()]/g, '') : '';
+                const previewText = strippedContent.length > 100 ? strippedContent.substring(0, 100) + '...' : strippedContent;
+                
+                const dateStr = new Date(note.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+                const div = document.createElement('div');
+                div.className = "bg-gray-800 border border-gray-700 rounded-xl p-5 shadow-sm flex flex-col h-48 cursor-pointer";
+                // Open straight to preview mode for existing notes
+                div.onclick = (e) => {
+                    // prevent opening if clicking delete button
+                    if(e.target.closest('button')) return; 
+                    openNoteModal(note.id, 'preview');
+                };
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-2 gap-2">
+                        <h3 class="text-base font-bold text-white truncate flex-1">${note.title || 'Untitled Note'}</h3>
+                        <button onclick="confirmDeleteNote('${note.id}')" class="text-gray-500 hover:text-rose-400 p-1 shrink-0 bg-gray-900 rounded border border-gray-700">
+                            <i class="fa-solid fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-400 flex-1 overflow-hidden line-clamp-4 leading-relaxed">${previewText}</p>
+                    <div class="mt-3 pt-3 border-t border-gray-700/50 flex justify-between items-center text-xs text-gray-500">
+                        <span><i class="fa-regular fa-clock mr-1"></i> ${dateStr}</span>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
         }
+
+        function openNoteModal(id = null, defaultTab = 'write') {
+            editingNoteId = id;
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteMarkdown').value = '';
+            document.getElementById('noteLastUpdated').innerText = '';
+            
+            if (id) {
+                const note = notes.find(n => n.id === id);
+                if (note) {
+                    document.getElementById('noteTitle').value = note.title || '';
+                    document.getElementById('noteMarkdown').value = note.content || '';
+                    const date = new Date(note.updatedAt);
+                    document.getElementById('noteLastUpdated').innerText = `Last updated: ${date.toLocaleString()}`;
+                }
+            }
+
+            setNoteTab(defaultTab); // Use provided tab or default to 'write'
+
+            const modal = document.getElementById('noteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeNoteModal() {
+            const modal = document.getElementById('noteModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            editingNoteId = null;
+        }
+
+        function setNoteTab(tab) {
+            const btnWrite = document.getElementById('tabWrite');
+            const btnPreview = document.getElementById('tabPreview');
+            const areaWrite = document.getElementById('noteWriteArea');
+            const areaPreview = document.getElementById('notePreviewArea');
+            
+            if (tab === 'write') {
+                btnWrite.className = "px-4 py-1.5 rounded-md text-sm font-medium text-white bg-gray-700 shadow-sm transition-colors border border-gray-600";
+                btnPreview.className = "px-4 py-1.5 rounded-md text-sm font-medium text-gray-400 transition-colors border border-transparent";
+                areaWrite.classList.remove('hidden');
+                areaPreview.classList.add('hidden');
+                
+                // Focus textarea
+                setTimeout(() => document.getElementById('noteMarkdown').focus(), 50);
+            } else {
+                btnWrite.className = "px-4 py-1.5 rounded-md text-sm font-medium text-gray-400 transition-colors border border-transparent";
+                btnPreview.className = "px-4 py-1.5 rounded-md text-sm font-medium text-white bg-gray-700 shadow-sm transition-colors border border-gray-600";
+                areaWrite.classList.add('hidden');
+                areaPreview.classList.remove('hidden');
+                
+                // Parse markdown and render
+                const markdown = document.getElementById('noteMarkdown').value;
+                document.getElementById('noteHtmlContent').innerHTML = marked.parse(markdown || '*No content to preview.*');
+            }
+        }
+
+        function saveNote() {
+            const title = document.getElementById('noteTitle').value.trim() || 'Untitled Note';
+            const content = document.getElementById('noteMarkdown').value;
+            
+            const noteData = {
+                id: editingNoteId || crypto.randomUUID(),
+                title: title,
+                content: content,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (editingNoteId) {
+                const index = notes.findIndex(n => n.id === editingNoteId);
+                if (index !== -1) notes[index] = noteData;
+                showToast('Note updated!', 'success');
+            } else {
+                noteData.createdAt = new Date().toISOString();
+                notes.unshift(noteData); // Add to top
+                showToast('Note saved!', 'success');
+            }
+
+            saveNotesToStorage();
+            closeNoteModal(); 
+        }
+
+        function confirmDeleteNote(id) {
+            actionToConfirm = () => {
+                notes = notes.filter(n => n.id !== id);
+                saveNotesToStorage();
+                showToast('Note deleted.', 'success');
+                closeConfirmModal();
+            };
+            openConfirmModal('Delete Note', 'Are you sure you want to delete this note? This action cannot be undone.');
+        }
+
+        // --- Common Confirm Modal ---
+        function confirmDelete(id) {
+            actionToConfirm = () => {
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasksToStorage();
+                showToast('Task deleted successfully.', 'success');
+                closeConfirmModal();
+            };
+            openConfirmModal('Delete Task', 'Are you sure you want to delete this task? This action cannot be undone.');
+        }
+
+        function openConfirmModal(title, message) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            document.getElementById('confirmBtn').onclick = actionToConfirm;
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            actionToConfirm = null;
+        }
+
+        // --- Data Management (Export/Import/Erase) ---
+        function exportData() {
+            if (tasks.length === 0 && credentials.length === 0 && notes.length === 0) {
+                showToast('No data to export.', 'error');
+                return;
+            }
+            
+            const dataToExport = {
+                tasks: tasks,
+                credentials: credentials,
+                notes: notes,
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href",     dataStr);
+            downloadAnchorNode.setAttribute("download", "devtracker_backup_" + new Date().getTime() + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('JSON Export successful!', 'success');
+        }
+
+        function exportToCSV() {
+            if (tasks.length === 0) {
+                showToast('No task data to export.', 'error');
+                return;
+            }
+
+            // Define CSV headers
+            const headers = ['Task Name', 'Project Name', 'Status', 'From Date', 'To Date', 'Assigned By', 'Description', 'Files Changed', 'APIs Used', 'Code Changes', 'Has Issue', 'Issue Description'];
+            
+            // Helper to escape values for CSV
+            const escapeCSV = (value) => {
+                if (value === null || value === undefined) return '""';
+                let stringValue = String(value);
+                // Replace double quotes with two double quotes, and wrap in double quotes
+                if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                    stringValue = '"' + stringValue.replace(/"/g, '""') + '"';
+                }
+                return stringValue;
+            };
+
+            // Create CSV content
+            let csvContent = headers.join(',') + '\n';
+            
+            tasks.forEach(task => {
+                // Join arrays back to strings for the CSV
+                const filesStr = (task.fileNames || []).join(', ');
+                const apisStr = (task.apiNames || []).join(', ');
+
+                const row = [
+                    escapeCSV(task.name),
+                    escapeCSV(task.projectName),
+                    escapeCSV(task.status),
+                    escapeCSV(task.fromDate),
+                    escapeCSV(task.toDate),
+                    escapeCSV(task.assignedBy),
+                    escapeCSV(task.description),
+                    escapeCSV(filesStr),
+                    escapeCSV(apisStr),
+                    escapeCSV(task.codeChanges),
+                    escapeCSV(task.hasIssue ? 'Yes' : 'No'),
+                    escapeCSV(task.issueDescription)
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+
+            // Trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", url);
+            downloadAnchorNode.setAttribute("download", "devtracker_tasks_" + new Date().getTime() + ".csv");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            document.body.removeChild(downloadAnchorNode);
+            URL.revokeObjectURL(url);
+
+            showToast('CSV Export successful!', 'success');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (importedData.tasks || Array.isArray(importedData)) {
+                        actionToConfirm = () => {
+                            // Support old array format or new object format
+                            tasks = importedData.tasks ? importedData.tasks : importedData;
+                            credentials = importedData.credentials || [];
+                            notes = importedData.notes || [];
+                            
+                            saveTasksToStorage();
+                            saveCredentialsToStorage();
+                            saveNotesToStorage();
+                            
+                            showToast('Data imported successfully!', 'success');
+                            closeConfirmModal();
+                            document.getElementById('importFile').value = ''; // Reset input
+                        };
+                        openConfirmModal('Import Data', 'This will replace your current data with the imported file. Proceed?');
+                    } else {
+                        showToast('Invalid backup file format.', 'error');
+                    }
+                } catch (err) {
+                    showToast('Error parsing file.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmEraseData() {
+            actionToConfirm = () => {
+                tasks = [];
+                credentials = [];
+                notes = [];
+                saveTasksToStorage();
+                saveCredentialsToStorage();
+                saveNotesToStorage();
+                showToast('All data erased.', 'success');
+                closeConfirmModal();
+                switchView('dashboard'); // reset view
+            };
+            openConfirmModal('Erase All Data', 'Are you absolutely sure you want to delete ALL tasks, credentials, and notes? This CANNOT be undone.');
+        }
+
     </script>
 </body>
 </html>
