@@ -1,0 +1,649 @@
+{
+  "title": "Networking subnetting Quiz ",
+  "description": "Networking subnetting",
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.1.25\nSubnet Mask: 255.255.255.0 (/24)\n```\n\nWhat is the **Network ID**?",
+      "options": [
+        "192.168.1.0",
+        "192.168.1.25",
+        "192.168.0.0",
+        "192.168.1.255",
+        "192.168.255.0"
+      ],
+      "answer": "192.168.1.0"
+    },
+    {
+      "id": 2,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 10.20.30.45\nSubnet Mask: 255.255.255.0 (/24)\n```\n\nWhat is the **Network ID**?",
+      "options": [
+        "10.20.30.0",
+        "10.20.0.0",
+        "10.20.30.45",
+        "10.20.30.255",
+        "10.0.0.0"
+      ],
+      "answer": "10.20.30.0"
+    },
+    {
+      "id": 3,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 172.16.25.99\nSubnet Mask: 255.255.255.0 (/24)\n```\n\nWhat is the **Network ID**?",
+      "options": [
+        "172.16.25.99",
+        "172.16.25.0",
+        "172.16.0.0",
+        "172.16.25.255",
+        "172.16.255.0"
+      ],
+      "answer": "172.16.25.0"
+    },
+    {
+      "id": 4,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.100.200\nSubnet Mask: 255.255.255.0 (/24)\n```\n\nWhat is the **Host ID**?",
+      "options": ["100", "192", "200", "255", "0"],
+      "answer": "200"
+    },
+    {
+      "id": 5,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.5.150\nSubnet Mask: 255.255.255.0 (/24)\n```\n\nWhat is the **Broadcast Address**?",
+      "options": [
+        "192.168.5.0",
+        "192.168.5.150",
+        "192.168.5.254",
+        "192.168.5.255",
+        "192.168.0.255"
+      ],
+      "answer": "192.168.5.255"
+    },
+    {
+      "id": 6,
+      "type": "single",
+      "question": "A network uses the subnet mask **255.255.255.0 (/24)**. How many **usable host addresses** are available in the subnet?",
+      "options": ["252", "254", "255", "256", "510"],
+      "answer": "254"
+    },
+    {
+      "id": 7,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.20.40\nSubnet Mask: 255.255.255.128 (/25)\n```\n\nWhat is the **Network ID**?",
+      "options": [
+        "192.168.20.0",
+        "192.168.20.40",
+        "192.168.20.128",
+        "192.168.20.255",
+        "192.168.20.64"
+      ],
+      "answer": "192.168.20.0"
+    },
+    {
+      "id": 8,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.20.150\nSubnet Mask: 255.255.255.128 (/25)\n```\n\nWhat is the **Network ID**?",
+      "options": [
+        "192.168.20.0",
+        "192.168.20.64",
+        "192.168.20.128",
+        "192.168.20.255",
+        "192.168.20.192"
+      ],
+      "answer": "192.168.20.128"
+    },
+    {
+      "id": 9,
+      "type": "single",
+      "question": "For the subnet mask below:\n\n```text\n255.255.255.128 (/25)\n```\n\nWhat is the **block size**?",
+      "options": ["32", "64", "128", "256", "16"],
+      "answer": "128"
+    },
+    {
+      "id": 10,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.20.150\nSubnet Mask: 255.255.255.128 (/25)\n```\n\nWhat is the **Broadcast Address**?",
+      "options": [
+        "192.168.20.127",
+        "192.168.20.128",
+        "192.168.20.255",
+        "192.168.20.254",
+        "192.168.20.192"
+      ],
+      "answer": "192.168.20.255"
+    },
+
+    {
+      "id": 11,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.10.70\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nWhat is the **Network ID**?",
+      "options": [
+        "192.168.10.0",
+        "192.168.10.64",
+        "192.168.10.128",
+        "192.168.10.192",
+        "192.168.10.255"
+      ],
+      "answer": "192.168.10.64"
+    },
+    {
+      "id": 12,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.10.70\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nWhat is the **Broadcast Address**?",
+      "options": [
+        "192.168.10.63",
+        "192.168.10.95",
+        "192.168.10.127",
+        "192.168.10.191",
+        "192.168.10.255"
+      ],
+      "answer": "192.168.10.127"
+    },
+    {
+      "id": 13,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.10.70\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nWhat is the **First Usable IP Address**?",
+      "options": [
+        "192.168.10.64",
+        "192.168.10.65",
+        "192.168.10.66",
+        "192.168.10.70",
+        "192.168.10.127"
+      ],
+      "answer": "192.168.10.65"
+    },
+    {
+      "id": 14,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.10.70\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nWhat is the **Last Usable IP Address**?",
+      "options": [
+        "192.168.10.126",
+        "192.168.10.127",
+        "192.168.10.125",
+        "192.168.10.128",
+        "192.168.10.255"
+      ],
+      "answer": "192.168.10.126"
+    },
+    {
+      "id": 15,
+      "type": "single",
+      "question": "For the subnet mask below:\n\n```text\n255.255.255.192 (/26)\n```\n\nWhat is the **Block Size**?",
+      "options": ["16", "32", "64", "128", "256"],
+      "answer": "64"
+    },
+    {
+      "id": 16,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.50.190\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nWhat is the **Network ID**?",
+      "options": [
+        "192.168.50.160",
+        "192.168.50.192",
+        "192.168.50.128",
+        "192.168.50.224",
+        "192.168.50.0"
+      ],
+      "answer": "192.168.50.160"
+    },
+    {
+      "id": 17,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.50.190\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nWhat is the **Broadcast Address**?",
+      "options": [
+        "192.168.50.191",
+        "192.168.50.223",
+        "192.168.50.255",
+        "192.168.50.192",
+        "192.168.50.159"
+      ],
+      "answer": "192.168.50.191"
+    },
+    {
+      "id": 18,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.50.190\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nWhich of the following is the **First Usable IP Address** of the subnet?",
+      "options": [
+        "192.168.50.160",
+        "192.168.50.161",
+        "192.168.50.162",
+        "192.168.50.191",
+        "192.168.50.192"
+      ],
+      "answer": "192.168.50.161"
+    },
+    {
+      "id": 19,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.50.190\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nWhich of the following is the **Last Usable IP Address** of the subnet?",
+      "options": [
+        "192.168.50.189",
+        "192.168.50.190",
+        "192.168.50.191",
+        "192.168.50.159",
+        "192.168.50.223"
+      ],
+      "answer": "192.168.50.190"
+    },
+    {
+      "id": 20,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.50.190\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nThe valid host range of this subnet is:",
+      "options": [
+        "192.168.50.161 - 192.168.50.190",
+        "192.168.50.160 - 192.168.50.191",
+        "192.168.50.129 - 192.168.50.158",
+        "192.168.50.193 - 192.168.50.222",
+        "192.168.50.1 - 192.168.50.30"
+      ],
+      "answer": "192.168.50.161 - 192.168.50.190"
+    },
+    {
+      "id": 21,
+      "type": "single",
+      "question": "A network administrator changes the subnet mask of the network below:\n\n```text\nOriginal Network : 192.168.1.0/24\nNew Prefix       : /26\n```\n\nHow many **subnets** are created?",
+      "options": ["2", "4", "8", "16", "32"],
+      "answer": "4"
+    },
+    {
+      "id": 22,
+      "type": "single",
+      "question": "A network administrator changes the subnet mask of the network below:\n\n```text\nOriginal Network : 192.168.1.0/24\nNew Prefix       : /26\n```\n\nHow many **usable host addresses** are available in each subnet?",
+      "options": ["30", "62", "64", "126", "254"],
+      "answer": "62"
+    },
+    {
+      "id": 23,
+      "type": "single",
+      "question": "The subnet mask is:\n\n```text\n255.255.255.224\n```\n\nWhich CIDR notation represents this subnet mask?",
+      "options": ["/25", "/26", "/27", "/28", "/29"],
+      "answer": "/27"
+    },
+    {
+      "id": 24,
+      "type": "single",
+      "question": "The subnet mask is:\n\n```text\n255.255.255.240\n```\n\nWhich CIDR notation represents this subnet mask?",
+      "options": ["/26", "/27", "/28", "/29", "/30"],
+      "answer": "/28"
+    },
+    {
+      "id": 25,
+      "type": "single",
+      "question": "Which subnet mask corresponds to the CIDR notation below?\n\n```text\n/29\n```",
+      "options": [
+        "255.255.255.192",
+        "255.255.255.224",
+        "255.255.255.240",
+        "255.255.255.248",
+        "255.255.255.252"
+      ],
+      "answer": "255.255.255.248"
+    },
+    {
+      "id": 26,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.10.99\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nWhich subnet does this IP address belong to?",
+      "options": [
+        "192.168.10.32 - 63",
+        "192.168.10.64 - 95",
+        "192.168.10.96 - 127",
+        "192.168.10.128 - 159",
+        "192.168.10.160 - 191"
+      ],
+      "answer": "192.168.10.96 - 127"
+    },
+    {
+      "id": 27,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 172.16.5.140\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nWhich subnet does this IP address belong to?",
+      "options": [
+        "172.16.5.0 - 63",
+        "172.16.5.64 - 127",
+        "172.16.5.128 - 191",
+        "172.16.5.192 - 255",
+        "172.16.5.32 - 95"
+      ],
+      "answer": "172.16.5.128 - 191"
+    },
+    {
+      "id": 28,
+      "type": "single",
+      "question": "A network uses the subnet mask below:\n\n```text\n255.255.255.248 (/29)\n```\n\nHow many **usable host addresses** are available in each subnet?",
+      "options": ["2", "4", "6", "8", "14"],
+      "answer": "6"
+    },
+    {
+      "id": 29,
+      "type": "single",
+      "question": "A network uses the subnet mask below:\n\n```text\n255.255.255.240 (/28)\n```\n\nWhat is the **block size**?",
+      "options": ["8", "16", "32", "64", "128"],
+      "answer": "16"
+    },
+    {
+      "id": 30,
+      "type": "single",
+      "question": "A network administrator changes the subnet mask of the network below:\n\n```text\nOriginal Network : 10.0.0.0/8\nNew Prefix       : /12\n```\n\nHow many **subnets** are created?",
+      "options": ["4", "8", "16", "32", "64"],
+      "answer": "16"
+    },
+    {
+      "id": 31,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 192.168.1.20\nSubnet Mask: 255.255.255.192 (/26)\n\nPC-2\nIP Address : 192.168.1.50\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nDo both computers belong to the **same subnet**?",
+      "options": ["Yes", "No"],
+      "answer": "Yes"
+    },
+    {
+      "id": 32,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 192.168.1.20\nSubnet Mask: 255.255.255.192 (/26)\n\nPC-2\nIP Address : 192.168.1.90\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nCan the two computers communicate **directly without a router**?",
+      "options": ["Yes", "No"],
+      "answer": "No"
+    },
+    {
+      "id": 33,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 10.10.10.70\nSubnet Mask: 255.255.255.224 (/27)\n\nPC-2\nIP Address : 10.10.10.94\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nDo both computers belong to the **same subnet**?",
+      "options": ["Yes", "No"],
+      "answer": "Yes"
+    },
+    {
+      "id": 34,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 10.10.10.70\nSubnet Mask: 255.255.255.224 (/27)\n\nPC-2\nIP Address : 10.10.10.97\nSubnet Mask: 255.255.255.224 (/27)\n```\n\nIs a **router required** for communication?",
+      "options": ["Yes", "No"],
+      "answer": "Yes"
+    },
+    {
+      "id": 35,
+      "type": "single",
+      "question": "Which of the following is a **valid host address** in the subnet below?\n\n```text\nNetwork : 192.168.10.64/26\n```\n",
+      "options": [
+        "192.168.10.64",
+        "192.168.10.65",
+        "192.168.10.127",
+        "192.168.10.128",
+        "192.168.10.192"
+      ],
+      "answer": "192.168.10.65"
+    },
+    {
+      "id": 36,
+      "type": "single",
+      "question": "Which of the following is the **Broadcast Address** of the subnet below?\n\n```text\nNetwork : 192.168.10.64/26\n```\n",
+      "options": [
+        "192.168.10.63",
+        "192.168.10.64",
+        "192.168.10.126",
+        "192.168.10.127",
+        "192.168.10.128"
+      ],
+      "answer": "192.168.10.127"
+    },
+    {
+      "id": 37,
+      "type": "single",
+      "question": "Which of the following is the **Network Address** of the subnet below?\n\n```text\nHost IP : 192.168.100.180\nSubnet Mask : 255.255.255.240 (/28)\n```\n",
+      "options": [
+        "192.168.100.160",
+        "192.168.100.176",
+        "192.168.100.180",
+        "192.168.100.191",
+        "192.168.100.192"
+      ],
+      "answer": "192.168.100.176"
+    },
+    {
+      "id": 38,
+      "type": "single",
+      "question": "Which of the following is the **Broadcast Address**?\n\n```text\nHost IP : 192.168.100.180\nSubnet Mask : 255.255.255.240 (/28)\n```\n",
+      "options": [
+        "192.168.100.176",
+        "192.168.100.190",
+        "192.168.100.191",
+        "192.168.100.192",
+        "192.168.100.255"
+      ],
+      "answer": "192.168.100.191"
+    },
+    {
+      "id": 39,
+      "type": "single",
+      "question": "Which of the following is **NOT** a valid host address in the subnet below?\n\n```text\nNetwork : 192.168.100.176/28\n```\n",
+      "options": [
+        "192.168.100.177",
+        "192.168.100.180",
+        "192.168.100.189",
+        "192.168.100.191",
+        "192.168.100.190"
+      ],
+      "answer": "192.168.100.191"
+    },
+    {
+      "id": 40,
+      "type": "single",
+      "question": "A subnet is configured as:\n\n```text\n192.168.100.176/28\n```\n\nWhich of the following represents the **valid host range**?",
+      "options": [
+        "176 - 191",
+        "177 - 190",
+        "176 - 190",
+        "177 - 191",
+        "178 - 189"
+      ],
+      "answer": "177 - 190"
+    },
+    {
+      "id": 41,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 192.168.10.130\nSubnet Mask: 255.255.255.192 (/26)\n\nPC-2\nIP Address : 192.168.10.190\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nCan the two computers communicate directly without a router?",
+      "options": ["Yes", "No"],
+      "answer": "Yes"
+    },
+    {
+      "id": 42,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 192.168.10.130\nSubnet Mask: 255.255.255.192 (/26)\n\nPC-2\nIP Address : 192.168.10.193\nSubnet Mask: 255.255.255.192 (/26)\n```\n\nCan the two computers communicate directly without a router?",
+      "options": ["Yes", "No"],
+      "answer": "No"
+    },
+    {
+      "id": 43,
+      "type": "single",
+      "question": "Which of the following is the **Network Address** of the host below?\n\n```text\nIP Address : 172.16.5.77\nSubnet Mask: 255.255.255.240 (/28)\n```",
+      "options": [
+        "172.16.5.64",
+        "172.16.5.72",
+        "172.16.5.76",
+        "172.16.5.80",
+        "172.16.5.96"
+      ],
+      "answer": "172.16.5.64"
+    },
+    {
+      "id": 44,
+      "type": "single",
+      "question": "Which of the following is the **Broadcast Address** of the subnet below?\n\n```text\nIP Address : 172.16.5.77\nSubnet Mask: 255.255.255.240 (/28)\n```",
+      "options": [
+        "172.16.5.75",
+        "172.16.5.79",
+        "172.16.5.80",
+        "172.16.5.95",
+        "172.16.5.255"
+      ],
+      "answer": "172.16.5.79"
+    },
+    {
+      "id": 45,
+      "type": "single",
+      "question": "Which of the following is a **valid host address** in the subnet below?\n\n```text\nSubnet : 172.16.5.64/28\n```",
+      "options": [
+        "172.16.5.64",
+        "172.16.5.79",
+        "172.16.5.65",
+        "172.16.5.80",
+        "172.16.5.96"
+      ],
+      "answer": "172.16.5.65"
+    },
+    {
+      "id": 46,
+      "type": "single",
+      "question": "A network uses the following subnet mask:\n\n```text\n255.255.255.252 (/30)\n```\n\nHow many **usable host addresses** are available in each subnet?",
+      "options": ["1", "2", "4", "6", "14"],
+      "answer": "2"
+    },
+    {
+      "id": 47,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.1.10\nSubnet Mask: 255.255.255.252 (/30)\n```\n\nWhat is the **Network Address**?",
+      "options": [
+        "192.168.1.8",
+        "192.168.1.9",
+        "192.168.1.10",
+        "192.168.1.11",
+        "192.168.1.12"
+      ],
+      "answer": "192.168.1.8"
+    },
+    {
+      "id": 48,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.1.10\nSubnet Mask: 255.255.255.252 (/30)\n```\n\nWhat is the **Broadcast Address**?",
+      "options": [
+        "192.168.1.9",
+        "192.168.1.10",
+        "192.168.1.11",
+        "192.168.1.12",
+        "192.168.1.15"
+      ],
+      "answer": "192.168.1.11"
+    },
+    {
+      "id": 49,
+      "type": "single",
+      "question": "Which of the following subnet masks provides the **maximum number of usable host addresses** per subnet?",
+      "options": [
+        "255.255.255.248 (/29)",
+        "255.255.255.240 (/28)",
+        "255.255.255.224 (/27)",
+        "255.255.255.192 (/26)",
+        "255.255.255.128 (/25)"
+      ],
+      "answer": "255.255.255.128 (/25)"
+    },
+    {
+      "id": 50,
+      "type": "single",
+      "question": "Which one of the following statements is **correct**?",
+      "options": [
+        "Every subnet has only one usable IP address.",
+        "The Network Address and Broadcast Address cannot be assigned to hosts.",
+        "The Broadcast Address is always the first IP address of a subnet.",
+        "The Network Address is always the last IP address of a subnet.",
+        "A router is required even when two hosts are in the same subnet."
+      ],
+      "answer": "The Network Address and Broadcast Address cannot be assigned to hosts."
+    },
+    {
+      "id": 51,
+      "type": "single",
+      "question": "A network administrator changes the subnet mask of the network below:\n\n```text\nOriginal Network : 192.168.100.0/24\nNew Prefix       : /28\n```\n\nHow many **subnets** are created?",
+      "options": ["8", "16", "32", "64", "128"],
+      "answer": "16"
+    },
+    {
+      "id": 52,
+      "type": "single",
+      "question": "A network administrator changes the subnet mask of the network below:\n\n```text\nOriginal Network : 192.168.100.0/24\nNew Prefix       : /28\n```\n\nHow many **usable host addresses** are available in each subnet?",
+      "options": ["6", "14", "16", "30", "62"],
+      "answer": "14"
+    },
+    {
+      "id": 53,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 192.168.100.142\nSubnet Mask: 255.255.255.240 (/28)\n```\n\nWhich subnet does this IP address belong to?",
+      "options": [
+        "192.168.100.112 - 127",
+        "192.168.100.128 - 143",
+        "192.168.100.144 - 159",
+        "192.168.100.160 - 175",
+        "192.168.100.176 - 191"
+      ],
+      "answer": "192.168.100.128 - 143"
+    },
+    {
+      "id": 54,
+      "type": "single",
+      "question": "Which of the following is a **valid host address** in the subnet below?\n\n```text\nSubnet : 192.168.100.128/28\n```",
+      "options": [
+        "192.168.100.128",
+        "192.168.100.129",
+        "192.168.100.143",
+        "192.168.100.144",
+        "192.168.100.160"
+      ],
+      "answer": "192.168.100.129"
+    },
+    {
+      "id": 55,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 192.168.100.130\nSubnet Mask: 255.255.255.240 (/28)\n\nPC-2\nIP Address : 192.168.100.140\nSubnet Mask: 255.255.255.240 (/28)\n```\n\nCan they communicate directly without a router?",
+      "options": ["Yes", "No"],
+      "answer": "Yes"
+    },
+    {
+      "id": 56,
+      "type": "single",
+      "question": "Two computers have the following configuration:\n\n```text\nPC-1\nIP Address : 192.168.100.130\nSubnet Mask: 255.255.255.240 (/28)\n\nPC-2\nIP Address : 192.168.100.145\nSubnet Mask: 255.255.255.240 (/28)\n```\n\nIs a **router required** for communication?",
+      "options": ["Yes", "No"],
+      "answer": "Yes"
+    },
+    {
+      "id": 57,
+      "type": "single",
+      "question": "Which one of the following subnet masks provides **62 usable host addresses** per subnet?",
+      "options": [
+        "255.255.255.224 (/27)",
+        "255.255.255.240 (/28)",
+        "255.255.255.248 (/29)",
+        "255.255.255.192 (/26)",
+        "255.255.255.252 (/30)"
+      ],
+      "answer": "255.255.255.192 (/26)"
+    },
+    {
+      "id": 58,
+      "type": "single",
+      "question": "Which one of the following CIDR notations corresponds to the subnet mask below?\n\n```text\n255.255.255.252\n```",
+      "options": ["/29", "/30", "/31", "/28", "/27"],
+      "answer": "/30"
+    },
+    {
+      "id": 59,
+      "type": "single",
+      "question": "A computer has the following configuration:\n\n```text\nIP Address : 10.0.5.250\nSubnet Mask: 255.255.255.0 (/24)\n```\n\nWhich of the following is the **Broadcast Address** of the subnet?",
+      "options": [
+        "10.0.5.250",
+        "10.0.5.254",
+        "10.0.5.255",
+        "10.0.0.255",
+        "10.0.255.255"
+      ],
+      "answer": "10.0.5.255"
+    },
+    {
+      "id": 60,
+      "type": "single",
+      "question": "A company has divided its network into multiple smaller subnets. What is the **primary purpose** of subnetting?",
+      "options": [
+        "To increase the speed of the CPU",
+        "To increase the size of the MAC address",
+        "To divide a large network into smaller, manageable networks",
+        "To replace IPv4 with IPv6",
+        "To eliminate the need for routers"
+      ],
+      "answer": "To divide a large network into smaller, manageable networks"
+    }
+  ]
+}
