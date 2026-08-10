@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBPS SO Prelims Mock Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .radio-custom:checked + label {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .radio-custom:checked + label .radio-circle {
+            border-color: #3b82f6;
+            background-color: #3b82f6;
+        }
+        
+        /* Question Palette Status Colors */
+        .status-not-visited { background-color: #e5e7eb; color: #374151; border: 1px solid #d1d5db; }
+        .status-not-answered { background-color: #ef4444; color: white; border: 1px solid #dc2626; }
+        .status-answered { background-color: #10b981; color: white; border: 1px solid #059669; }
+        .status-marked { background-color: #8b5cf6; color: white; border: 1px solid #7c3aed; }
+        .status-answered-marked { background-color: #8b5cf6; color: white; border: 1px solid #7c3aed; position: relative;}
+        .status-answered-marked::after {
+            content: '✓';
+            position: absolute;
+            bottom: -4px;
+            right: -2px;
+            color: #10b981;
+            font-size: 10px;
+            font-weight: bold;
+            background: white;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden text-gray-800">
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="absolute inset-0 z-50 bg-white flex items-center justify-center p-4 overflow-y-auto">
+        <div class="max-w-3xl w-full bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+            <div class="bg-blue-600 text-white p-6 text-center">
+                <h1 class="text-3xl font-bold mb-2">IBPS SO Prelims Mock Test</h1>
+                <p class="text-blue-100">Based on Previous Year Paper (2023)</p>
+            </div>
+            <div class="p-6 md:p-8">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">General Instructions:</h2>
+                <ul class="list-decimal list-inside space-y-3 text-gray-600 mb-8">
+                    <li>The clock will be set at the server. The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination.</li>
+                    <li>The Question Palette displayed on the right side of screen will show the status of each question using the following symbols:
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded flex items-center justify-center status-not-visited text-sm font-medium">1</div> You have not visited the question yet.</div>
+                            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded flex items-center justify-center status-not-answered text-sm font-medium">2</div> You have not answered the question.</div>
+                            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded flex items-center justify-center status-answered text-sm font-medium">3</div> You have answered the question.</div>
+                            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded flex items-center justify-center status-marked text-sm font-medium">4</div> You have NOT answered the question, but have marked the question for review.</div>
+                        </div>
+                    </li>
+                    <li>Click on <strong>Save & Next</strong> to save your answer for the current question and then go to the next question.</li>
+                    <li>There is a penalty for wrong answers (0.25 marks deducted).</li>
+                </ul>
+                <div class="flex justify-end border-t pt-6">
+                    <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:-translate-y-0.5">
+                        I am ready to begin <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Exam UI -->
+    <div id="exam-screen" class="hidden flex flex-col h-screen w-full overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b px-4 py-3 flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-gray-800 text-lg leading-tight">IBPS SO Prelims</h1>
+                    <p class="text-xs text-gray-500">Mock Test 2023</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 sm:gap-6">
+                <div class="bg-red-50 border border-red-100 px-4 py-1.5 rounded-full flex items-center gap-2">
+                    <i class="far fa-clock text-red-500"></i>
+                    <span id="timer" class="font-bold text-red-600 tracking-wider">00:00</span>
+                </div>
+                <button id="header-submit-btn" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-1.5 px-4 rounded-md transition duration-150">
+                    Submit Section
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="flex flex-1 overflow-hidden min-h-0">
+            <!-- Left: Question Area -->
+            <div class="flex-1 flex flex-col bg-white overflow-hidden relative border-r min-w-0">
+                <!-- Section Tabs -->
+                <div class="bg-gray-50 border-b flex overflow-x-auto shrink-0" id="section-tabs">
+                    <!-- Section tabs will be injected here dynamically -->
+                </div>
+                
+                <!-- Question Content Scrollable -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6" id="question-container">
+                    <!-- Question will be injected here -->
+                </div>
+
+                <!-- Bottom Action Bar -->
+                <div class="bg-white border-t p-3 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button id="clear-btn" class="flex-1 sm:flex-none px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50 transition">
+                            Clear Response
+                        </button>
+                        <button id="review-btn" class="flex-1 sm:flex-none px-3 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 rounded text-sm font-medium hover:bg-purple-100 transition">
+                            Mark for Review & Next
+                        </button>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                        <button id="prev-btn" class="flex-1 sm:flex-none px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-sm font-medium hover:bg-gray-200 transition">
+                            <i class="fas fa-chevron-left mr-1"></i> Prev
+                        </button>
+                        <button id="next-btn" class="flex-1 sm:flex-none px-5 py-1.5 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition">
+                            Save & Next <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                        <button id="bottom-submit-btn" class="flex-1 sm:flex-none px-5 py-1.5 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 transition">
+                            Submit Section
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Question Palette -->
+            <div class="w-64 bg-gray-50 flex flex-col shrink-0 hidden md:flex overflow-hidden">
+                <div class="p-3 bg-white border-b flex items-center gap-2 shrink-0">
+                    <img src="https://ui-avatars.com/api/?name=Candidate&background=0D8ABC&color=fff" alt="User" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p class="text-sm font-bold text-gray-800">Candidate Name</p>
+                        <p class="text-xs text-gray-500">IBPS SO Aspirant</p>
+                    </div>
+                </div>
+                
+                <div class="p-3 grid grid-cols-2 gap-x-2 gap-y-3 text-xs border-b bg-white shrink-0">
+                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded status-answered flex items-center justify-center" id="count-answered">0</div> Answered</div>
+                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded status-not-answered flex items-center justify-center" id="count-not-answered">0</div> Not Answered</div>
+                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded status-not-visited flex items-center justify-center" id="count-not-visited">0</div> Not Visited</div>
+                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded status-marked flex items-center justify-center" id="count-marked">0</div> Marked</div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-3">
+                    <h3 class="text-xs font-semibold text-gray-700 mb-3 bg-blue-100 p-2 rounded text-center uppercase tracking-wider">Question Palette</h3>
+                    <div id="palette-grid" class="grid grid-cols-5 gap-2">
+                        <!-- Palette buttons injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="hidden absolute inset-0 z-50 bg-gray-100 overflow-y-auto p-4 sm:p-8">
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white text-center">
+                <div class="inline-block p-4 rounded-full bg-white/20 mb-4">
+                    <i class="fas fa-trophy text-4xl text-yellow-300"></i>
+                </div>
+                <h1 class="text-3xl font-bold mb-2">Test Submitted Successfully!</h1>
+                <p class="text-blue-100">Here is your performance summary.</p>
+            </div>
+            
+            <div class="p-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 shadow-sm">
+                        <p class="text-gray-500 text-sm mb-1">Total Score</p>
+                        <p class="text-3xl font-bold text-blue-600" id="res-score">0</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 shadow-sm">
+                        <p class="text-gray-500 text-sm mb-1">Attempted</p>
+                        <p class="text-3xl font-bold text-gray-800" id="res-attempted">0</p>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-4 text-center border border-green-100 shadow-sm">
+                        <p class="text-green-600 text-sm mb-1">Correct</p>
+                        <p class="text-3xl font-bold text-green-700" id="res-correct">0</p>
+                    </div>
+                    <div class="bg-red-50 rounded-xl p-4 text-center border border-red-100 shadow-sm">
+                        <p class="text-red-600 text-sm mb-1">Incorrect</p>
+                        <p class="text-3xl font-bold text-red-700" id="res-incorrect">0</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Detailed Analysis</h3>
+                <div id="solution-container" class="space-y-6">
+                    <!-- Solutions injected here -->
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="location.reload()" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-8 rounded-lg transition shadow-md">
+                        Take Another Test
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="custom-modal" class="hidden fixed inset-0 z-[100] bg-gray-900/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-500 text-2xl">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2" id="modal-title">Submit Test?</h3>
+            <p class="text-gray-500 mb-6" id="modal-desc">Are you sure you want to submit the test? You cannot change your answers after submission.</p>
+            <div class="flex gap-3 justify-center">
+                <button id="modal-cancel" class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">Cancel</button>
+                <button id="modal-confirm" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">Yes, Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let examData = null;
+        
+        // --- Data: Grouped by Section with individual time limits ---
+        const defaultExamData = {
+            title: "IBPS SO Prelims Mock Test",
+            sections: [
+                {
+                    name: "English Language",
+                    timeInSeconds: 300, // 5 minutes for this section
+                    questions: [
+                        {
+                            id: 1,
+                            direction: "Read the passage carefully and answer the question.",
+                            passage: `The sum and variation of our biological wealth, known as biodiversity, is essential to the future of this planet. The importance of our planet's biodiversity was strongly emphasized at the United Nations Biodiversity Conference in Montreal, Canada. 188 country representatives adopted an agreement to "halt and reverse" biodiversity loss by conserving 30% of the world's land and 30% of the world's oceans, known as the 30x30 pledge.`,
+                            text: "According to the passage, the 30x30 pledge taken in the United Nations Biodiversity Conference emphasizes on which of the following agenda?",
+                            options: [
+                                "Curbing and restoring the loss of our biological wealth.",
+                                "Effective conservation of at least 30% of the world's lands and oceans.",
+                                "Explore advanced and innovative technologies to nurture agriculture.",
+                                "All members of the group will come together to take effective measures.",
+                                "Only (a) and (b)"
+                            ],
+                            correctAnswer: 4, 
+                            explanation: "The passage clearly mentions conserving 30% of the world's land and oceans, and the overarching goal is halting/reversing biodiversity loss. Hence, both A and B are correct."
+                        },
+                        {
+                            id: 2,
+                            direction: "Read each sentence to find out whether there is any grammatical or idiomatic error in it. The error, if any, will be in one part of the sentence.",
+                            text: "I am looking forward (A)/ to receive back (B)/the cash from (C)/ the company today (D)/ No error (E).",
+                            options: [
+                                "A",
+                                "B",
+                                "C",
+                                "D",
+                                "No error"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "The correct phrase is 'looking forward to receiving'. 'To' here is a preposition, so it should be followed by a gerund (v+ing)."
+                        }
+                    ]
+                },
+                {
+                    name: "Reasoning",
+                    timeInSeconds: 180, // 3 minutes for this section
+                    questions: [
+                        {
+                            id: 3,
+                            direction: "Read the statements and conclusions carefully. Decide which of the conclusions logically follows.",
+                            text: "<strong>Statements:</strong><br>All Cloud is May<br>Each May is Lotion<br>No Lotion is Motion<br><br><strong>Conclusions:</strong><br>I. No Cloud is Motion<br>II. Some May can be Motion",
+                            options: [
+                                "If only conclusion I follows",
+                                "If only conclusion II follows",
+                                "If either conclusion I or II follows",
+                                "If neither conclusion I nor II follows",
+                                "If both conclusions I and II follow"
+                            ],
+                            correctAnswer: 0,
+                            explanation: "Since All Cloud is May and All May is Lotion, Cloud is inside Lotion. No Lotion is Motion, so No Cloud can be Motion (Conclusion I is True). Since No Lotion is Motion, May (which is inside Lotion) can never be Motion (Conclusion II is False)."
+                        }
+                    ]
+                },
+                {
+                    name: "Quantitative Aptitude",
+                    timeInSeconds: 240, // 4 minutes for this section
+                    questions: [
+                        {
+                            id: 4,
+                            direction: "Study the following number series carefully and answer the question.",
+                            text: "<strong>259 &nbsp;&nbsp; 674 &nbsp;&nbsp; 359 &nbsp;&nbsp; 427 &nbsp;&nbsp; 783 &nbsp;&nbsp; 921</strong><br><br>If all the digits in each number are written in descending order from left to right within the number, then which of the given numbers will become the third smallest?",
+                            options: [
+                                "359",
+                                "259",
+                                "921",
+                                "783",
+                                "None of these"
+                            ],
+                            correctAnswer: 3,
+                            explanation: "Descending order of digits:<br>259 -> 952<br>674 -> 764<br>359 -> 953<br>427 -> 742<br>783 -> 873<br>921 -> 921<br>Arranging them: 742, 764, 873, 921, 952, 953. The third smallest is 873, which comes from 783."
+                        },
+                        {
+                            id: 5,
+                            direction: "Solve the arithmetic problem.",
+                            text: "X starts to travel from point P to point Q at a speed of 7 km/hr at 3 AM and Y starts from point Q to point P at a speed of 4 km/hr at 5 AM. If they meet at 10 AM, then find the distance between P and Q.",
+                            options: [
+                                "69 km",
+                                "96 km",
+                                "36 km",
+                                "63 km",
+                                "75 km"
+                            ],
+                            correctAnswer: 0,
+                            explanation: "X travels from 3 AM to 10 AM (7 hours) at 7 km/hr. Distance = 7 * 7 = 49 km.<br>Y travels from 5 AM to 10 AM (5 hours) at 4 km/hr. Distance = 4 * 5 = 20 km.<br>Total distance P to Q = 49 + 20 = 69 km."
+                        }
+                    ]
+                }
+            ]
+        };
+
+        let currentSectionIndex = 0;
+        let currentQuestionIndex = 0;
+        let userResponses = []; // Will be a 2D array [sectionIndex][questionIndex]
+        
+        let timerInterval;
+        let timeRemaining = 0; 
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const examScreen = document.getElementById('exam-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionContainer = document.getElementById('question-container');
+        const paletteGrid = document.getElementById('palette-grid');
+        const sectionTabs = document.getElementById('section-tabs');
+        const customModal = document.getElementById('custom-modal');
+        const headerSubmitBtn = document.getElementById('header-submit-btn');
+        const bottomSubmitBtn = document.getElementById('bottom-submit-btn');
+
+        function initExam() {
+            // Initialize user responses structure matching the sections and questions
+            userResponses = examData.sections.map(sec => 
+                new Array(sec.questions.length).fill(null).map(() => ({
+                    selectedOption: null,
+                    status: 'not-visited'
+                }))
+            );
+
+            startScreen.classList.add('hidden');
+            examScreen.classList.remove('hidden');
+            examScreen.classList.add('flex');
+            
+            loadSection(0);
+        }
+
+        function loadSection(secIdx) {
+            currentSectionIndex = secIdx;
+            currentQuestionIndex = 0;
+            
+            // Mark first question as not-answered instead of not-visited
+            userResponses[currentSectionIndex][0].status = 'not-answered';
+            
+            renderSectionTabs();
+            renderPalette();
+            renderQuestion(0);
+            
+            // Setup Section Timer
+            clearInterval(timerInterval);
+            timeRemaining = examData.sections[currentSectionIndex].timeInSeconds;
+            startTimer();
+            updateStats();
+
+            // Update Header Submit Button Text
+            if (currentSectionIndex === examData.sections.length - 1) {
+                headerSubmitBtn.innerText = "Submit Test";
+                bottomSubmitBtn.innerText = "Submit Test";
+            } else {
+                headerSubmitBtn.innerText = "Submit Section";
+                bottomSubmitBtn.innerText = "Submit Section";
+            }
+        }
+
+        function renderSectionTabs() {
+            sectionTabs.innerHTML = '';
+            examData.sections.forEach((sec, idx) => {
+                const isActive = idx === currentSectionIndex;
+                const btn = document.createElement('button');
+                
+                if (isActive) {
+                    btn.className = "px-6 py-2.5 text-sm font-medium border-b-2 border-blue-600 text-blue-600 bg-white whitespace-nowrap";
+                } else {
+                    // Disabled style for non-active tabs (strict CBT flow)
+                    btn.className = "px-6 py-2.5 text-sm font-medium text-gray-500 bg-gray-50 whitespace-nowrap opacity-60 cursor-not-allowed";
+                }
+                
+                btn.innerText = sec.name;
+                sectionTabs.appendChild(btn);
+            });
+        }
+
+        function renderQuestion(index) {
+            currentQuestionIndex = index;
+            const currentSection = examData.sections[currentSectionIndex];
+            const q = currentSection.questions[index];
+            const response = userResponses[currentSectionIndex][index];
+
+            if(response.status === 'not-visited') {
+                response.status = 'not-answered';
+                renderPalette();
+                updateStats();
+            }
+
+            let html = `
+                <div class="mb-4">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-1 rounded">Question ${index + 1} of ${currentSection.questions.length}</span>
+                </div>
+                ${q.direction ? `<p class="text-sm italic text-gray-600 mb-4 bg-yellow-50 p-2 border-l-4 border-yellow-400">${q.direction}</p>` : ''}
+                ${q.passage ? `<div class="text-sm text-gray-700 bg-gray-50 p-4 rounded border mb-4 leading-relaxed">${q.passage}</div>` : ''}
+                <div class="text-base font-medium text-gray-900 mb-6 leading-relaxed">
+                    ${q.text}
+                </div>
+                <div class="space-y-3">
+            `;
+
+            q.options.forEach((opt, i) => {
+                const isChecked = response.selectedOption === i ? 'checked' : '';
+                html += `
+                    <div class="relative flex items-start">
+                        <input type="radio" name="q${index}" id="opt${index}_${i}" value="${i}" class="sr-only radio-custom" onchange="selectOption(${i})" ${isChecked}>
+                        <label for="opt${index}_${i}" class="flex items-center w-full p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                            <div class="radio-circle w-5 h-5 flex-shrink-0 border border-gray-300 rounded-full mr-3 flex items-center justify-center transition-colors">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white"></div>
+                            </div>
+                            <span class="text-sm text-gray-700">${opt}</span>
+                        </label>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            questionContainer.innerHTML = html;
+        }
+
+        function selectOption(optIndex) {
+            userResponses[currentSectionIndex][currentQuestionIndex].selectedOption = optIndex;
+        }
+
+        function renderPalette() {
+            paletteGrid.innerHTML = '';
+            const currentSectionQuestions = examData.sections[currentSectionIndex].questions;
+            
+            currentSectionQuestions.forEach((_, i) => {
+                const status = userResponses[currentSectionIndex][i].status;
+                const btn = document.createElement('button');
+                btn.className = `w-10 h-10 flex items-center justify-center rounded text-sm font-medium shadow-sm transition-transform hover:scale-105 status-${status}`;
+                if(i === currentQuestionIndex) {
+                    btn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+                }
+                btn.innerText = i + 1;
+                btn.onclick = () => {
+                    renderQuestion(i);
+                    renderPalette(); 
+                };
+                paletteGrid.appendChild(btn);
+            });
+        }
+
+        function updateStats() {
+            let ans = 0, notAns = 0, notVis = 0, mark = 0;
+            userResponses[currentSectionIndex].forEach(r => {
+                if (r.status === 'answered' || r.status === 'answered-marked') ans++;
+                else if (r.status === 'not-answered') notAns++;
+                else if (r.status === 'not-visited') notVis++;
+                else if (r.status === 'marked') mark++;
+            });
+            document.getElementById('count-answered').innerText = ans;
+            document.getElementById('count-not-answered').innerText = notAns;
+            document.getElementById('count-not-visited').innerText = notVis;
+            document.getElementById('count-marked').innerText = mark;
+        }
+
+        // Button Actions
+        document.getElementById('next-btn').onclick = () => {
+            const currentRes = userResponses[currentSectionIndex][currentQuestionIndex];
+            if (currentRes.selectedOption !== null) {
+                currentRes.status = 'answered';
+            } else {
+                currentRes.status = 'not-answered';
+            }
+            goToNext();
+        };
+
+        document.getElementById('review-btn').onclick = () => {
+            const currentRes = userResponses[currentSectionIndex][currentQuestionIndex];
+            if (currentRes.selectedOption !== null) {
+                currentRes.status = 'answered-marked';
+            } else {
+                currentRes.status = 'marked';
+            }
+            goToNext();
+        };
+
+        document.getElementById('clear-btn').onclick = () => {
+            userResponses[currentSectionIndex][currentQuestionIndex].selectedOption = null;
+            userResponses[currentSectionIndex][currentQuestionIndex].status = 'not-answered';
+            renderQuestion(currentQuestionIndex);
+            renderPalette();
+            updateStats();
+        };
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestionIndex > 0) {
+                renderQuestion(currentQuestionIndex - 1);
+                renderPalette();
+            }
+        };
+
+        function goToNext() {
+            const sectionLength = examData.sections[currentSectionIndex].questions.length;
+            if (currentQuestionIndex < sectionLength - 1) {
+                renderQuestion(currentQuestionIndex + 1);
+            } else {
+                // If we are on the last question and user clicks next, prompt to submit
+                handleSubmitAction();
+            }
+            renderPalette();
+            updateStats();
+        }
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            timerEl.classList.remove('animate-pulse');
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                let m = Math.floor(timeRemaining / 60);
+                let s = timeRemaining % 60;
+                timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                
+                if(timeRemaining <= 60 && timeRemaining > 0) {
+                    timerEl.classList.add('animate-pulse');
+                }
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    autoSubmitSection();
+                }
+            }, 1000);
+        }
+
+        // Modal Logic
+        const showModal = (title, desc, confirmCallback) => {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            customModal.classList.remove('hidden');
+            
+            const confirmBtn = document.getElementById('modal-confirm');
+            confirmBtn.onclick = () => {
+                customModal.classList.add('hidden');
+                confirmCallback();
+            };
+            
+            document.getElementById('modal-cancel').onclick = () => {
+                customModal.classList.add('hidden');
+            };
+        };
+
+        const handleSubmitAction = () => {
+            const currentSecResponses = userResponses[currentSectionIndex];
+            const unattempted = currentSecResponses.filter(r => r.selectedOption === null).length;
+            const isLastSection = currentSectionIndex === examData.sections.length - 1;
+            
+            const title = isLastSection ? "Submit Test?" : "Submit Section?";
+            let msg = `Are you sure you want to submit the ${examData.sections[currentSectionIndex].name} section? You cannot return to this section later.`;
+            
+            if (isLastSection) {
+                msg = "Are you sure you want to submit the final test?";
+            }
+            
+            if (unattempted > 0) {
+                msg = `You have ${unattempted} unattempted questions. ` + msg;
+            }
+            
+            showModal(title, msg, () => {
+                if (isLastSection) {
+                    calculateResults();
+                } else {
+                    loadSection(currentSectionIndex + 1);
+                }
+            });
+        };
+
+        headerSubmitBtn.onclick = handleSubmitAction;
+        bottomSubmitBtn.onclick = handleSubmitAction;
+
+        function autoSubmitSection() {
+            customModal.classList.add('hidden'); // hide if open
+            if (currentSectionIndex === examData.sections.length - 1) {
+                calculateResults();
+            } else {
+                loadSection(currentSectionIndex + 1);
+            }
+        }
+
+        function calculateResults() {
+            clearInterval(timerInterval);
+            examScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            let score = 0;
+            let correct = 0;
+            let incorrect = 0;
+            let attempted = 0;
+
+            const solutionContainer = document.getElementById('solution-container');
+            let solutionsHTML = '';
+
+            examData.sections.forEach((sec, secIdx) => {
+                solutionsHTML += `<h3 class="text-xl font-bold mt-8 mb-4 text-gray-800 bg-gray-200 p-3 rounded shadow-sm">${sec.name}</h3>`;
+                
+                sec.questions.forEach((q, qIdx) => {
+                    const res = userResponses[secIdx][qIdx];
+                    let statusBadge = '<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded font-bold">UNATTEMPTED</span>';
+                    let isCorrect = false;
+
+                    if (res.selectedOption !== null) {
+                        attempted++;
+                        if (res.selectedOption === q.correctAnswer) {
+                            correct++;
+                            score += 1; // +1 for correct
+                            isCorrect = true;
+                            statusBadge = '<span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded font-bold">CORRECT (+1)</span>';
+                        } else {
+                            incorrect++;
+                            score -= 0.25; // -0.25 penalty
+                            statusBadge = '<span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded font-bold">INCORRECT (-0.25)</span>';
+                        }
+                    }
+
+                    solutionsHTML += `
+                        <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-gray-800">Question ${qIdx + 1}</h4>
+                                ${statusBadge}
+                            </div>
+                            <p class="text-sm text-gray-700 mb-4">${q.text}</p>
+                            
+                            <div class="space-y-2 mb-4">
+                    `;
+
+                    q.options.forEach((opt, optIdx) => {
+                        let optClass = "p-2 rounded text-sm border ";
+                        let icon = "";
+                        
+                        if (optIdx === q.correctAnswer) {
+                            optClass += "bg-green-50 border-green-200 text-green-800 font-medium";
+                            icon = '<i class="fas fa-check-circle text-green-500 mr-2"></i>';
+                        } else if (optIdx === res.selectedOption && !isCorrect) {
+                            optClass += "bg-red-50 border-red-200 text-red-800";
+                            icon = '<i class="fas fa-times-circle text-red-500 mr-2"></i>';
+                        } else {
+                            optClass += "bg-gray-50 border-gray-100 text-gray-500";
+                            icon = '<span class="w-4 inline-block mr-2"></span>';
+                        }
+
+                        solutionsHTML += `<div class="${optClass} flex items-center">${icon}${opt}</div>`;
+                    });
+
+                    solutionsHTML += `
+                            </div>
+                            <div class="bg-blue-50 border border-blue-100 p-3 rounded-lg text-sm text-blue-800">
+                                <strong>Explanation:</strong> ${q.explanation}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            document.getElementById('res-score').innerText = score > 0 ? score.toFixed(2) : "0.00";
+            document.getElementById('res-attempted').innerText = attempted;
+            document.getElementById('res-correct').innerText = correct;
+            document.getElementById('res-incorrect').innerText = incorrect;
+            
+            solutionContainer.innerHTML = solutionsHTML;
+        }
+
+        async function prepareExamData() {
+            const startBtn = document.getElementById('start-btn');
+            const originalText = startBtn.innerHTML;
+            
+            try {
+                startBtn.innerHTML = 'Loading Data... <i class="fas fa-circle-notch fa-spin ml-2"></i>';
+                startBtn.disabled = true;
+                startBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                const response = await fetch('data.json');
+                if (!response.ok) {
+                    throw new Error(`Status ${response.status}`);
+                }
+                
+                const fetchedData = await response.json();
+                
+                if (fetchedData && fetchedData.sections && Array.isArray(fetchedData.sections)) {
+                    examData = fetchedData;
+                    console.log("Successfully loaded valid questions from data.json");
+                } else {
+                    throw new Error("Missing 'sections' array in data.json");
+                }
+                
+            } catch (error) {
+                console.warn('Notice: Could not load valid data.json. Falling back to default questions. Reason:', error.message);
+                examData = defaultExamData;
+            } finally {
+                startBtn.innerHTML = originalText;
+                startBtn.disabled = false;
+                startBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+
+        // Init bindings
+        document.getElementById('start-btn').addEventListener('click', initExam);
+        
+        // Load data on page load
+        prepareExamData();
+
+    </script>
+</body>
+</html>
