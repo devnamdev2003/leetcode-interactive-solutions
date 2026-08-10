@@ -61,7 +61,13 @@
                 <p class="text-blue-100">Based on Previous Year Paper (2023)</p>
             </div>
             <div class="p-6 md:p-8">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800">General Instructions:</h2>
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2"><i class="fas fa-sliders-h mr-2"></i>1. Customize Your Test</h2>
+                <div id="config-sections" class="mb-8 space-y-3">
+                    <!-- Dynamic Settings will be injected here -->
+                    <div class="text-center text-gray-500 italic py-4">Loading test configurations...</div>
+                </div>
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2"><i class="fas fa-info-circle mr-2"></i>2. General Instructions</h2>
                 <ul class="list-decimal list-inside space-y-3 text-gray-600 mb-8">
                     <li>The clock will be set at the server. The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination.</li>
                     <li>The Question Palette displayed on the right side of screen will show the status of each question using the following symbols:
@@ -235,6 +241,7 @@
 
     <script>
         let examData = null;
+        let originalExamData = null; // Store the original unmodified data
         
         // --- Data: Grouped by Section with individual time limits ---
         const defaultExamData = {
@@ -350,8 +357,88 @@
         const headerSubmitBtn = document.getElementById('header-submit-btn');
         const bottomSubmitBtn = document.getElementById('bottom-submit-btn');
 
+        function renderSettingsForm() {
+            const container = document.getElementById('config-sections');
+            if(!container || !originalExamData) return;
+            
+            let html = '';
+            originalExamData.sections.forEach((sec, idx) => {
+                const totalQs = sec.questions.length;
+                const defaultMins = Math.ceil(sec.timeInSeconds / 60);
+                
+                html += `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-xl bg-white shadow-sm hover:shadow transition-shadow">
+                    <div class="flex items-center gap-3 w-full sm:w-auto mb-3 sm:mb-0">
+                        <input type="checkbox" id="chk-sec-${idx}" checked class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
+                        <label for="chk-sec-${idx}" class="font-bold text-gray-800 cursor-pointer select-none">${sec.name}</label>
+                        <span class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium border border-blue-100">${totalQs} Qs Available</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 text-sm w-full sm:w-auto bg-gray-50 p-2 rounded-lg border">
+                        <div class="flex items-center gap-1.5 px-2">
+                            <i class="far fa-clock text-gray-400"></i>
+                            <input type="number" id="time-sec-${idx}" value="${defaultMins}" min="1" class="w-12 p-1 border rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-center font-semibold bg-white">
+                            <span class="text-gray-600 font-medium">mins</span>
+                        </div>
+                        <div class="hidden sm:block w-px h-6 bg-gray-300"></div>
+                        <div class="flex items-center gap-1.5 px-2">
+                            <span class="text-gray-600 font-medium">Qs from:</span>
+                            <input type="number" id="q-start-${idx}" value="1" min="1" max="${totalQs}" class="w-12 p-1 border rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-center font-semibold bg-white">
+                            <span class="text-gray-600 font-medium">to</span>
+                            <input type="number" id="q-end-${idx}" value="${totalQs}" min="1" max="${totalQs}" class="w-12 p-1 border rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-center font-semibold bg-white">
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
         function initExam() {
-            // Initialize user responses structure matching the sections and questions
+            // 1. Build customized examData based on user settings
+            examData = {
+                title: originalExamData.title,
+                sections: []
+            };
+
+            originalExamData.sections.forEach((sec, idx) => {
+                const isChecked = document.getElementById(`chk-sec-${idx}`).checked;
+                if (isChecked) {
+                    const timeMins = parseInt(document.getElementById(`time-sec-${idx}`).value) || 1;
+                    const qStart = parseInt(document.getElementById(`q-start-${idx}`).value) || 1;
+                    const qEnd = parseInt(document.getElementById(`q-end-${idx}`).value) || sec.questions.length;
+                    
+                    // Validate start and end indices bounds
+                    const validStart = Math.max(1, Math.min(qStart, sec.questions.length));
+                    const validEnd = Math.max(validStart, Math.min(qEnd, sec.questions.length));
+
+                    // Slice questions array (0-indexed)
+                    const selectedQs = sec.questions.slice(validStart - 1, validEnd);
+
+                    if (selectedQs.length > 0) {
+                        examData.sections.push({
+                            name: sec.name,
+                            timeInSeconds: timeMins * 60,
+                            questions: selectedQs
+                        });
+                    }
+                }
+            });
+
+            // 2. Validate at least one section is selected and has questions
+            if (examData.sections.length === 0) {
+                const startBtn = document.getElementById('start-btn');
+                const originalText = startBtn.innerHTML;
+                startBtn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> Select at least 1 section with valid Qs';
+                startBtn.classList.replace('bg-blue-600', 'bg-red-500');
+                startBtn.classList.replace('hover:bg-blue-700', 'hover:bg-red-600');
+                setTimeout(() => {
+                    startBtn.innerHTML = originalText;
+                    startBtn.classList.replace('bg-red-500', 'bg-blue-600');
+                    startBtn.classList.replace('hover:bg-red-600', 'hover:bg-blue-700');
+                }, 3500);
+                return;
+            }
+
+            // Initialize user responses structure matching the CUSTOM sections and questions
             userResponses = examData.sections.map(sec => 
                 new Array(sec.questions.length).fill(null).map(() => ({
                     selectedOption: null,
@@ -706,7 +793,7 @@
                 startBtn.disabled = true;
                 startBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
-                const response = await fetch('data.json');
+                const response = await fetch('mock-test/data.json');
                 if (!response.ok) {
                     throw new Error(`Status ${response.status}`);
                 }
@@ -714,7 +801,7 @@
                 const fetchedData = await response.json();
                 
                 if (fetchedData && fetchedData.sections && Array.isArray(fetchedData.sections)) {
-                    examData = fetchedData;
+                    originalExamData = fetchedData;
                     console.log("Successfully loaded valid questions from data.json");
                 } else {
                     throw new Error("Missing 'sections' array in data.json");
@@ -722,8 +809,9 @@
                 
             } catch (error) {
                 console.warn('Notice: Could not load valid data.json. Falling back to default questions. Reason:', error.message);
-                examData = defaultExamData;
+                originalExamData = defaultExamData;
             } finally {
+                renderSettingsForm();
                 startBtn.innerHTML = originalText;
                 startBtn.disabled = false;
                 startBtn.classList.remove('opacity-75', 'cursor-not-allowed');
