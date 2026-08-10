@@ -1,0 +1,76 @@
+{
+  "title": "IBPS SO Prelims Mock Test",
+  "sections": [
+    {
+      "name": "English Language",
+      "timeInSeconds": 300, 
+      "questions": [
+        {
+          "id": 1,
+          "direction": "Read the passage carefully and answer the question.",
+          "passage": "The sum and variation of our biological wealth, known as biodiversity, is essential to the future of this planet. The importance of our planet's biodiversity was strongly emphasized at the United Nations Biodiversity Conference in Montreal, Canada. 188 country representatives adopted an agreement to \"halt and reverse\" biodiversity loss by conserving 30% of the world's land and 30% of the world's oceans, known as the 30x30 pledge.",
+          "text": "According to the passage, the 30x30 pledge taken in the United Nations Biodiversity Conference emphasizes on which of the following agenda?",
+          "options": [
+            "Curbing and restoring the loss of our biological wealth.",
+            "Effective conservation of at least 30% of the world's lands and oceans.",
+            "Explore advanced and innovative technologies to nurture agriculture.",
+            "All members of the group will come together to take effective measures.",
+            "Only (a) and (b)"
+          ],
+          "correctAnswer": 4,
+          "explanation": "The passage clearly mentions conserving 30% of the world's land and oceans, and the overarching goal is halting/reversing biodiversity loss. Hence, both A and B are correct."
+        },
+        {
+          "id": 2,
+          "direction": "Read each sentence to find out whether there is any grammatical or idiomatic error in it. The error, if any, will be in one part of the sentence.",
+          "text": "I am looking forward (A)/ to receive back (B)/the cash from (C)/ the company today (D)/ No error (E).",
+          "options": ["A", "B", "C", "D", "No error"],
+          "correctAnswer": 1,
+          "explanation": "The correct phrase is 'looking forward to receiving'. 'To' here is a preposition, so it should be followed by a gerund (v+ing)."
+        }
+      ]
+    },
+    {
+      "name": "Reasoning",
+      "timeInSeconds": 180,
+      "questions": [
+        {
+          "id": 3,
+          "direction": "Read the statements and conclusions carefully. Decide which of the conclusions logically follows.",
+          "text": "<strong>Statements:</strong><br>All Cloud is May<br>Each May is Lotion<br>No Lotion is Motion<br><br><strong>Conclusions:</strong><br>I. No Cloud is Motion<br>II. Some May can be Motion",
+          "options": [
+            "If only conclusion I follows",
+            "If only conclusion II follows",
+            "If either conclusion I or II follows",
+            "If neither conclusion I nor II follows",
+            "If both conclusions I and II follow"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Since All Cloud is May and All May is Lotion, Cloud is inside Lotion. No Lotion is Motion, so No Cloud can be Motion (Conclusion I is True). Since No Lotion is Motion, May (which is inside Lotion) can never be Motion (Conclusion II is False)."
+        }
+      ]
+    },
+    {
+      "name": "Quantitative Aptitude",
+      "timeInSeconds": 240, 
+      "questions": [
+        {
+          "id": 4,
+          "direction": "Study the following number series carefully and answer the question.",
+          "text": "<strong>259 &nbsp;&nbsp; 674 &nbsp;&nbsp; 359 &nbsp;&nbsp; 427 &nbsp;&nbsp; 783 &nbsp;&nbsp; 921</strong><br><br>If all the digits in each number are written in descending order from left to right within the number, then which of the given numbers will become the third smallest?",
+          "options": ["359", "259", "921", "783", "None of these"],
+          "correctAnswer": 3,
+          "explanation": "Descending order of digits:<br>259 -> 952<br>674 -> 764<br>359 -> 953<br>427 -> 742<br>783 -> 873<br>921 -> 921<br>Arranging them: 742, 764, 873, 921, 952, 953. The third smallest is 873, which comes from 783."
+        },
+        {
+          "id": 5,
+          "direction": "Solve the arithmetic problem.",
+          "text": "X starts to travel from point P to point Q at a speed of 7 km/hr at 3 AM and Y starts from point Q to point P at a speed of 4 km/hr at 5 AM. If they meet at 10 AM, then find the distance between P and Q.",
+          "options": ["69 km", "96 km", "36 km", "63 km", "75 km"],
+          "correctAnswer": 0,
+          "explanation": "X travels from 3 AM to 10 AM (7 hours) at 7 km/hr. Distance = 7 * 7 = 49 km.<br>Y travels from 5 AM to 10 AM (5 hours) at 4 km/hr. Distance = 4 * 5 = 20 km.<br>Total distance P to Q = 49 + 20 = 69 km."
+        }
+      ]
+    }
+  ]
+}
