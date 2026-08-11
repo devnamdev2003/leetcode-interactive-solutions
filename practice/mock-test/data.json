@@ -1,2247 +1,359 @@
 {
-  "title": "IBPS SO Pre 2025 Memory Based Paper - 30th August 1st Shift",
+  "title": "IBPS SO Prelims Mock Test - Quantitative Aptitude",
   "sections": [
-    {
-      "name": "English Language",
-      "timeInSeconds": 1200,
-      "questions": [
-        {
-          "id": 1,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "What is the primary irony highlighted by the author regarding Company X's online game?",
-          "options": [
-            "The company’s most profitable year was also its most controversial.",
-            "A game designed for entertainment and bonding ended up fostering addiction and isolation.",
-            "The company grew financially, but its user base started declining soon after.",
-            "Parents initially appreciated the game but later demanded it be banned.",
-            "While profits surged, the company secretly planned to shut down the game."
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 2,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "What negative consequences of the game were observed in children, as per the passage?",
-          "options": [
-            "Children began losing interest in digital games and preferred outdoor activities instead.",
-            "Students became highly disciplined and responsible with their schoolwork and home routines.",
-            "Many children showed signs of addiction, poor academic performance, irritability, and spent less time with family members.",
-            "Young users formed better relationships with their teachers but struggled with peer pressure.",
-            "Children used the game as a stress-relief method and became more independent in their decision- making. 2 Adda247 App"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 3,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "What can be inferred about the survey conducted by the independent organisation?",
-          "options": [
-            "It focused solely on academic performance in urban schools.",
-            "It revealed mild concerns that were largely exaggerated by the media.",
-            "It showed that most users balanced gaming and daily life efficiently.",
-            "It confirmed widespread negative impacts, prompting a ban recommendation.",
-            "It offered technical fixes for the game's issues but no regulatory suggestions."
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 4,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "According to the passage, what role did roommates play in revealing the social effects of the game?",
-          "options": [
-            "They actively tried to prevent gaming in their homes.",
-            "They became addicted and dropped out of college.",
-            "They used the game as a bonding tool but lacked real interaction otherwise.",
-            "They encouraged younger players to limit their screen time.",
-            "They often fought over gaming equipment, causing tension."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 5,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Why did Company X's game gain global popularity so quickly after its launch?",
-          "options": [
-            "The game was unique and had no competitors in the digital market.",
-            "The company launched a global advertising campaign supported by educational institutions.",
-            "The game quickly attracted millions of users and earned substantial profits, establishing the company’s position in the gaming industry.",
-            "Parents and teachers encouraged children to use the game for both fun and learning.",
-            "The company offered the game free of cost to users during the initial launch phase."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 6,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "How did teachers contribute to the concern about the game’s impact?",
-          "options": [
-            "They partnered with the company to create school-safe gaming tools.",
-            "They observed and reported a consistent decline in student behavior and academic performance.",
-            "They welcomed the game, saying it helped students with teamwork.",
-            "They banned the use of computers in classrooms due to gaming.",
-            "They noticed students becoming physically stronger due to eye-hand coordination practice."
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 7,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Fill in the blank with the most appropriate option:",
-          "options": [
-            "downfall",
-            "shortcut",
-            "toe hold",
-            "decline",
-            "conclusion"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 8,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Choose the option that is the closest in meaning to the word \"hit\" as used in the passage:",
-          "options": [
-            "Blow",
-            "Success",
-            "Punch",
-            "Trial",
-            "Drama 3 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 9,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Choose the word that is the opposite in meaning to \"raise\" as used in the passage:",
-          "options": [
-            "Boost",
-            "Improve",
-            "Lower",
-            "distribute",
-            "Elevate"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 10,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "What was the main recommendation made by the independent organisation after analyzing the impact of the game?",
-          "options": [
-            "The organisation suggested that the game should be modified to include educational content.",
-            "The organisation recommended that the game should be banned due to its harmful effects on children and society.",
-            "The organisation advised parents to install stricter internet filters to monitor their children’s gaming habits.",
-            "The organisation proposed that the game be used as a tool for team building and school collaboration.",
-            "The organisation recommended offering rewards to children who limit their gaming time."
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "When Company X introduced its online game, the market response was immediate and overwhelming. The very next year, the company earned huge profits and quickly gained users across the globe. Reports revealed that the game generated 50 million dollars worldwide, making it one of the most successful digital launches in recent years. This sudden success was seen as a major hit, granting Company X recognition and dominance in the industry. Yet, beneath the shining surface of profits and popularity, a darker picture began to emerge. Parents started to raise concerns over the time children were spending on this game. Many young users became addicted, unable to manage their daily schedules, and their studies suffered significantly. Teachers noticed falling grades, a decline in participation, and a visible drop in discipline. At home, the situation worsened as children grew increasingly irritable, spending less time with family and showing signs of inappropriate behavior. Roommates, on the other hand, reported that their relationships remained smooth only during gaming sessions. Once the console was turned off, interactions were minimal, and genuine conversations reduced. What was marketed as a tool for entertainment and bonding ironically created isolation and dependency. Parents found themselves struggling to establish healthy routines for their children, often entering into conflicts that left family ties strained. An independent organisation decided to investigate these growing concerns and carried out a large- scale survey. The data collected and the report submitted revealed an alarming trend. The impact of the game was largely negative, with cases of extreme dependency, reduced academic achievement, and antisocial tendencies being repeatedly recorded. What initially gave the company a toe hold in the international gaming market was now turning into a nationwide social concern. The report strongly emphasized that while the company’s financial growth was undeniable, the cost to society was far greater. Addiction had begun to reshape the daily lives of thousands of children, disturbing family harmony and disrupting the overall learning environment. Based on the overwhelming findings, the organisation recommended that the game should be banned in the country. The conclusion was clear: no amount of profit could justify the erosion of discipline, values, and future prospects of the younger generation."
-        },
-        {
-          "id": 11,
-          "direction": "Choose and mark the sentence which contains no grammatical or contextual error. If all the sentences are incorrect, mark 'All are incorrect'.",
-          "text": "",
-          "options": [
-            "He insisted to go to the market even though he was not feeling well.",
-            "She said she would rather stay home than going to the party.",
-            "The manager along with his team were present at the conference.",
-            "The players were congratulated for their outstanding performance.",
-            "All are incorrect."
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 12,
-          "direction": "Choose and mark the sentence which contains no grammatical or contextual error. If all the sentences are incorrect, mark 'All are incorrect'.",
-          "text": "",
-          "options": [
-            "If he will call me, I will inform you immediately.",
-            "The police is investigating the matter seriously.",
-            "The meeting has been rescheduled due to unavoidable circumstances.",
-            "Everyone must submitted their reports by tomorrow without fail.",
-            "All are incorrect."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 13,
-          "direction": "Choose and mark the sentence which contains no grammatical or contextual error. If all the sentences are incorrect, mark 'All are incorrect'.",
-          "text": "",
-          "options": [
-            "He told me that he is living in Delhi since 2010.",
-            "The data show a remarkable increase in productivity this year.",
-            "Either the principal or the teachers is responsible for this confusion.",
-            "The book that you gave me are very interesting.",
-            "All are incorrect."
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 14,
-          "direction": "Choose and mark the sentence which contains no grammatical or contextual error. If all the sentences are incorrect, mark 'All are incorrect'.",
-          "text": "",
-          "options": [
-            "He did not attend the meeting, nor he informed anyone about his absence.",
-            "The new policy aims at improving efficiency across departments.",
-            "She is one of the student who always complete their homework.",
-            "The company have decided to expand its operations abroad.",
-            "All are incorrect. 4 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 15,
-          "direction": "Choose and mark the sentence which contains no grammatical or contextual error. If all the sentences are incorrect, mark 'All are incorrect'.",
-          "text": "",
-          "options": [
-            "Neither of the brothers were willing to take responsibility for the mistake.",
-            "The committee have submitted its report to the higher authorities.",
-            "She denied to have taken any money from the locker.",
-            "The workers demanded that their wages be increased immediately.",
-            "All are incorrect."
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 16,
-          "direction": "Choose and mark the sentence which contains no grammatical or contextual error. If all the sentences are incorrect, mark 'All are incorrect'.",
-          "text": "",
-          "options": [
-            "If I was you, I would accept the offer immediately.",
-            "She congratulated him on his promotion to the post of manager.",
-            "Each of the boys are responsible for cleaning the classroom.",
-            "The results of the survey has been published in today’s newspaper.",
-            "All are incorrect."
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 17,
-          "direction": "Choose the most suitable word from the given options to fill the respective blank.",
-          "text": "Which of the following is most suitable to fill the blank A?",
-          "options": [
-            "faced",
-            "created",
-            "ignored",
-            "welcomed",
-            "imagined"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "The nation has recently _________ (A) a surge in fake bomb threats targeting trains and flights, creating panic among passengers and disrupting essential travel services. Anonymous calls and messages falsely claimed the _________ (B) of explosives, forcing authorities to carry out emergency checks. These incidents led to delays, cancellations, and inconvenience for thousands of travelers. Union government ministers confirmed that detailed information about the threats had been _________ (C) and stressed that such false alarms are treated as serious crimes. They noted that spreading fake information not only causes fear but also _________ (D) security resources and diverts attention from genuine concerns. Investigations are underway to _________ (E) the sources of these false alerts. Early indications point to organized attempts to spread chaos. Officials assured that once the responsible organization is identified, strict punishment will be _________ (F) under existing laws. The government has also directed railways and aviation authorities to step up security measures and verify all suspicious communications without delay. While no actual explosives have been discovered, the gravity of the threats cannot be ignored. Passengers are advised to remain calm and cooperate with security checks, as the government reiterated its commitment to ensuring safety and penalizing those spreading fake threats."
-        },
-        {
-          "id": 18,
-          "direction": "Choose the most suitable word from the given options to fill the respective blank.",
-          "text": "Which of the following is most suitable to fill the blank B?",
-          "options": [
-            "growth",
-            "presence",
-            "function",
-            "arrival",
-            "reason 5 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "The nation has recently _________ (A) a surge in fake bomb threats targeting trains and flights, creating panic among passengers and disrupting essential travel services. Anonymous calls and messages falsely claimed the _________ (B) of explosives, forcing authorities to carry out emergency checks. These incidents led to delays, cancellations, and inconvenience for thousands of travelers. Union government ministers confirmed that detailed information about the threats had been _________ (C) and stressed that such false alarms are treated as serious crimes. They noted that spreading fake information not only causes fear but also _________ (D) security resources and diverts attention from genuine concerns. Investigations are underway to _________ (E) the sources of these false alerts. Early indications point to organized attempts to spread chaos. Officials assured that once the responsible organization is identified, strict punishment will be _________ (F) under existing laws. The government has also directed railways and aviation authorities to step up security measures and verify all suspicious communications without delay. While no actual explosives have been discovered, the gravity of the threats cannot be ignored. Passengers are advised to remain calm and cooperate with security checks, as the government reiterated its commitment to ensuring safety and penalizing those spreading fake threats."
-        },
-        {
-          "id": 19,
-          "direction": "Choose the most suitable word from the given options to fill the respective blank.",
-          "text": "Which of the following is most suitable to fill the blank C?",
-          "options": [
-            "invented",
-            "ignored",
-            "delayed",
-            "destroyed",
-            "received"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "The nation has recently _________ (A) a surge in fake bomb threats targeting trains and flights, creating panic among passengers and disrupting essential travel services. Anonymous calls and messages falsely claimed the _________ (B) of explosives, forcing authorities to carry out emergency checks. These incidents led to delays, cancellations, and inconvenience for thousands of travelers. Union government ministers confirmed that detailed information about the threats had been _________ (C) and stressed that such false alarms are treated as serious crimes. They noted that spreading fake information not only causes fear but also _________ (D) security resources and diverts attention from genuine concerns. Investigations are underway to _________ (E) the sources of these false alerts. Early indications point to organized attempts to spread chaos. Officials assured that once the responsible organization is identified, strict punishment will be _________ (F) under existing laws. The government has also directed railways and aviation authorities to step up security measures and verify all suspicious communications without delay. While no actual explosives have been discovered, the gravity of the threats cannot be ignored. Passengers are advised to remain calm and cooperate with security checks, as the government reiterated its commitment to ensuring safety and penalizing those spreading fake threats."
-        },
-        {
-          "id": 20,
-          "direction": "Choose the most suitable word from the given options to fill the respective blank.",
-          "text": "Which of the following is most suitable to fill the blank D?",
-          "options": [
-            "saves",
-            "collects",
-            "wastes",
-            "builds",
-            "increases"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "The nation has recently _________ (A) a surge in fake bomb threats targeting trains and flights, creating panic among passengers and disrupting essential travel services. Anonymous calls and messages falsely claimed the _________ (B) of explosives, forcing authorities to carry out emergency checks. These incidents led to delays, cancellations, and inconvenience for thousands of travelers. Union government ministers confirmed that detailed information about the threats had been _________ (C) and stressed that such false alarms are treated as serious crimes. They noted that spreading fake information not only causes fear but also _________ (D) security resources and diverts attention from genuine concerns. Investigations are underway to _________ (E) the sources of these false alerts. Early indications point to organized attempts to spread chaos. Officials assured that once the responsible organization is identified, strict punishment will be _________ (F) under existing laws. The government has also directed railways and aviation authorities to step up security measures and verify all suspicious communications without delay. While no actual explosives have been discovered, the gravity of the threats cannot be ignored. Passengers are advised to remain calm and cooperate with security checks, as the government reiterated its commitment to ensuring safety and penalizing those spreading fake threats."
-        },
-        {
-          "id": 21,
-          "direction": "Choose the most suitable word from the given options to fill the respective blank.",
-          "text": "Which of the following is most suitable to fill the blank E?",
-          "options": [
-            "confuse",
-            "mislead",
-            "identify",
-            "replace",
-            "hide"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "The nation has recently _________ (A) a surge in fake bomb threats targeting trains and flights, creating panic among passengers and disrupting essential travel services. Anonymous calls and messages falsely claimed the _________ (B) of explosives, forcing authorities to carry out emergency checks. These incidents led to delays, cancellations, and inconvenience for thousands of travelers. Union government ministers confirmed that detailed information about the threats had been _________ (C) and stressed that such false alarms are treated as serious crimes. They noted that spreading fake information not only causes fear but also _________ (D) security resources and diverts attention from genuine concerns. Investigations are underway to _________ (E) the sources of these false alerts. Early indications point to organized attempts to spread chaos. Officials assured that once the responsible organization is identified, strict punishment will be _________ (F) under existing laws. The government has also directed railways and aviation authorities to step up security measures and verify all suspicious communications without delay. While no actual explosives have been discovered, the gravity of the threats cannot be ignored. Passengers are advised to remain calm and cooperate with security checks, as the government reiterated its commitment to ensuring safety and penalizing those spreading fake threats."
-        },
-        {
-          "id": 22,
-          "direction": "Choose the most suitable word from the given options to fill the respective blank.",
-          "text": "Which of the following is most suitable to fill the blank F?",
-          "options": [
-            "ignored",
-            "enforced",
-            "avoided",
-            "delayed",
-            "reduced"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "The nation has recently _________ (A) a surge in fake bomb threats targeting trains and flights, creating panic among passengers and disrupting essential travel services. Anonymous calls and messages falsely claimed the _________ (B) of explosives, forcing authorities to carry out emergency checks. These incidents led to delays, cancellations, and inconvenience for thousands of travelers. Union government ministers confirmed that detailed information about the threats had been _________ (C) and stressed that such false alarms are treated as serious crimes. They noted that spreading fake information not only causes fear but also _________ (D) security resources and diverts attention from genuine concerns. Investigations are underway to _________ (E) the sources of these false alerts. Early indications point to organized attempts to spread chaos. Officials assured that once the responsible organization is identified, strict punishment will be _________ (F) under existing laws. The government has also directed railways and aviation authorities to step up security measures and verify all suspicious communications without delay. While no actual explosives have been discovered, the gravity of the threats cannot be ignored. Passengers are advised to remain calm and cooperate with security checks, as the government reiterated its commitment to ensuring safety and penalizing those spreading fake threats."
-        },
-        {
-          "id": 23,
-          "direction": "Connect the two sentences with the most suitable word without changing the intended meaning.",
-          "text": "(I) She saved money for several months; (II) She finally bought a new laptop.",
-          "options": [
-            "although",
-            "so",
-            "however",
-            "despite",
-            "moreover 6 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 24,
-          "direction": "Connect the two sentences with the most suitable word without changing the intended meaning.",
-          "text": "(I) He prepared well for the interview; (II) He did not get selected for the job.",
-          "options": [
-            "yet",
-            "because",
-            "therefore",
-            "moreover",
-            "hence"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 25,
-          "direction": "Connect the two sentences with the most suitable word without changing the intended meaning.",
-          "text": "(I) The shop was closed; (II) We could not buy any groceries.",
-          "options": [
-            "although",
-            "therefore",
-            "yet",
-            "despite",
-            "moreover"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 26,
-          "direction": "Rearrange the given sentences in the proper sequence to form a meaningful paragraph.",
-          "text": "(A) The development of the electronic computer began in the 20th century, with machines like ENIAC marking a significant leap. (B) Early computing devices such as the abacus and mechanical calculators laid the foundation for modern machines. (C) Over time, computers evolved rapidly, moving from bulky machines to compact, powerful personal computers. (D) In the 19th century, Charles Babbage conceptualized the Analytical Engine, often regarded as the first mechanical computer design. (E) This evolution continued into the 21st century, leading to innovations like smartphones and cloud computing.",
-          "options": [
-            "BDACE",
-            "CBADE",
-            "DCBAE",
-            "CBEAD",
-            "DBAEC"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 27,
-          "direction": "Rearrange the given sentences in the proper sequence to form a meaningful paragraph.",
-          "text": "(A) Glucose, commonly referred to as blood sugar, is the primary source of energy for the body's cells. (B) When blood sugar levels drop too low, a person may experience dizziness, confusion, and even loss of consciousness. (C) Such regulation is vital for maintaining stable blood sugar, ensuring overall health and the proper functioning of organs. (D) Conversely, consistently high blood sugar can lead to serious health issues such as nerve damage, vision problems, and diabetes. (E) The body carefully regulates these glucose levels through hormones like insulin, which enable cells to absorb sugar from the bloodstream.",
-          "options": [
-            "BCADE",
-            "ADCBE",
-            "DBCAE",
-            "AECBD",
-            "DACBE"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 28,
-          "direction": "Rearrange the remaining sentences in the proper sequence; sentence (D) is fixed as the fourth sentence.",
-          "text": "(A) Wheat thrives on a cool growing season, followed by a warm, dry period for harvest. (B) In many parts of the world, wheat is a staple food crop, cultivated extensively for its adaptability and nutritional value. (C) With the help of modern techniques like mechanized irrigation and improved seed varieties, wheat production has seen significant growth. (D) After harvesting, the grains are cleaned, stored in dry conditions, and distributed for consumption or further processing. (E) Given these requirements, farmers select suitable soils and time their sowing to secure a healthy yield.",
-          "options": [
-            "CEADB",
-            "AEBDC",
-            "ABCDE",
-            "AECDB",
-            "BAEDC"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 29,
-          "direction": "Rearrange the remaining sentences in the proper sequence; sentence (D) is fixed as the fourth sentence.",
-          "text": "(A) Technology has become a defining force of modern life, reshaping domains from communication to healthcare and beyond. (B) While it brings convenience and efficiency, it also raises concerns about privacy, mental health, and dependency. (C) As innovations continue to emerge, society must learn to balance technological advancement with human values. (D) These developments have deeply influenced human behavior, altering habits, routines, and even attention spans. (E) This rapid pace of change has introduced both opportunities and challenges into daily routines.",
-          "options": [
-            "CEADB",
-            "AEBDC",
-            "EACDB",
-            "EABDC",
-            "ACEDB 8 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 30,
-          "direction": "Identify the sentences that use the highlighted word in the same meaning as in the question statement.",
-          "text": "The teacher asked the students to show their homework notebooks. (A) They went to see a show at the theatre. (B) His paintings are on show at the gallery. (C) The wound did not show any sign of infection.",
-          "options": [
-            "Only B",
-            "Both B and C",
-            "Only C",
-            "Only A",
-            "All A,B,C"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 31,
-          "direction": "Identify the sentences that use the highlighted word in the same meaning as in the question statement.",
-          "text": "He ate the whole cake by himself. (A) The whole matter was discussed in the meeting. (B) she is missed terribly and her death has left a whole in all our lives (C) The whole class was present during the lecture.",
-          "options": [
-            "Only B",
-            "Both A and C",
-            "Only C",
-            "Only A",
-            "All A,B,C"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 32,
-          "direction": "Identify the sentences that use the highlighted word in the same meaning as in the question statement.",
-          "text": "She has a firm belief in honesty. (A) He started his own law firm in the city. (B) The ground was firm after the heavy rain. (C) The manager took a firm decision against corruption.",
-          "options": [
-            "Only B",
-            "Both A and C",
-            "Only C",
-            "Only A",
-            "All A,B,C"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 33,
-          "direction": "Find the correct combination of highlighted words that should be interchanged to make the sentence grammatically and contextually correct.",
-          "text": "The manager’s missing (A) question about the unexpected (B) report seemed to abash him completely (C), leaving him speechless (D) and visibly uncomfortable (E) in front of colleagues (F).",
-          "options": [
-            "B-F",
-            "A-B",
-            "A-B & C-D",
-            "A-F & B-E",
-            "No interchange required 9 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 34,
-          "direction": "Find the correct combination of highlighted words that should be interchanged to make the sentence grammatically and contextually correct.",
-          "text": "After (A) hours of relentless (B) rain, the storm abate (C) to began (D), allowing residents to cautiously (E) step outside and assess (F) the flood damage.",
-          "options": [
-            "C-D",
-            "A-B",
-            "A-B & C-D",
-            "A-F & B-E",
-            "No interchange required"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 35,
-          "direction": "Find the correct combination of highlighted words that should be interchanged to make the sentence grammatically and contextually correct.",
-          "text": "The monarch while (A) to abdicate (B) his throne, choosing a immense (C) life of service, decided (D) his successor (E) prepared for quieter (F) responsibility.",
-          "options": [
-            "B-F",
-            "A-B",
-            "A-D & C-F",
-            "C-F & B-E",
-            "No interchange required"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 36,
-          "direction": "Find the correct combination of highlighted words that should be interchanged to make the sentence grammatically and contextually correct.",
-          "text": "The sudden collapse (A) of a strong financial institution (B) was considered (C) an aberration (D), shaking investor confidence (E) and disrupting the otherwise stable (F) market.",
-          "options": [
-            "B-F",
-            "B-D",
-            "A-B & C-D",
-            "A-F & B-E",
-            "No interchange required"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 37,
-          "direction": "Find the correct combination of highlighted words that should be interchanged to make the sentence grammatically and contextually correct.",
-          "text": "Many voters chose (A) to abstain (B) from the election, citing participation (C) with both candidates (D), which significantly reduced (E) overall turnout and dissatisfaction (F) rates.",
-          "options": [
-            "C-F",
-            "D-F",
-            "A-B & C-D",
-            "A-F & B-E",
-            "No interchange required"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 38,
-          "direction": "Choose the correct alternative to improve the bold part of the sentence, or select 'No replacement required'.",
-          "text": "Five years later, I was eating this same dish at the same restaurant.",
-          "options": [
-            "will have been eating",
-            "has been eating",
-            "am eating",
-            "had been eating",
-            "No replacement required 10 Adda247 App"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 39,
-          "direction": "Choose the correct alternative to improve the bold part of the sentence, or select 'No replacement required'.",
-          "text": "I have been yet to go to the flower exhibition at Delhi University.",
-          "options": [
-            "have yet being",
-            "have yet",
-            "have yet been",
-            "had been yet",
-            "No replacement required"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 40,
-          "direction": "Choose the correct alternative to improve the bold part of the sentence, or select 'No replacement required'.",
-          "text": "I had not only helped her by giving hints but also with providing her links.",
-          "options": [
-            "helped her not only by",
-            "helped her not by",
-            "helped her only by",
-            "helped not only her by",
-            "No replacement required"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 41,
-          "direction": "Choose the correct alternative to improve the bold part of the sentence, or select 'No replacement required'.",
-          "text": "This secret will remain between you and I.",
-          "options": [
-            "between you and me",
-            "between I and you",
-            "between you",
-            "among you and I",
-            "No replacement required"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 42,
-          "direction": "Choose the correct alternative to improve the bold part of the sentence, or select 'No replacement required'.",
-          "text": "The train left before I reached the station.",
-          "options": [
-            "left before I had reached",
-            "left before I reach",
-            "left before I have reached",
-            "had left before I reached",
-            "No replacement required"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 43,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Why the effects of phosphorus on lake ecosystems are difficult to reverse?",
-          "options": [
-            "Phosphorus is continually supplied by natural sources like aquatic plants.",
-            "Phosphorus boosts oxygen production, which leads to microbial overgrowth.",
-            "Phosphorus reactions are neutralized quickly, masking their long-term impact.",
-            "Even after external inputs are reduced, phosphorus trapped in sediments continues to affect the ecosystem.",
-            "Chloride presence intensifies the impact of phosphorus, making it a dual threat to aquatic life."
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        },
-        {
-          "id": 44,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Why is the chloride + water reaction considered particularly disruptive to lake biodiversity?",
-          "options": [
-            "It reduces calcium levels, thereby weakening shell-forming species.",
-            "It causes rapid pH fluctuations that kill algae and fish.",
-            "It increases water salinity, which affects circulation and freshwater-adapted species.",
-            "It directly interacts with oxygen, accelerating eutrophication.",
-            "It combines with magnesium to form harmful mineral clusters."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        },
-        {
-          "id": 45,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Which of the following measures is NOT mentioned as a strategy to mitigate chemical imbalance in lakes?",
-          "options": [
-            "Creating buffer zones around farms",
-            "Improving wastewater treatment systems",
-            "Substituting road salts with organic alternatives",
-            "Using oxygenation devices to prevent fish suffocation",
-            "Monitoring chloride and phosphorus levels regularly"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        },
-        {
-          "id": 46,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Which of the following statements is/are CORRECT based on the passage? (I) The chloride + water reaction can affect the drinkability of lake water. (II) High chloride concentration leads to biodiversity decline and poor irrigation quality. (III) Phosphorus boosts plant diversity in lake ecosystems.",
-          "options": [
-            "Only (I)",
-            "Both (I) and (II)",
-            "Only (III)",
-            "Both (I) and (III)",
-            "All (I), (II) and (III) 12 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        },
-        {
-          "id": 47,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Which of the following statements is INCORRECT according to the passage?",
-          "options": [
-            "Road salts are a significant source of chloride in lakes.",
-            "Phosphorus comes solely from industrial sources and has no agricultural links.",
-            "Excess phosphorus can lead to oxygen depletion in water bodies.",
-            "Freshwater species can suffer due to changing water density.",
-            "Socioeconomic barriers can impede ecological reforms."
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        },
-        {
-          "id": 48,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Based on the passage, how does the chemical balance in lakes impact the survival of aquatic plants and animals?",
-          "options": [
-            "Species in lakes can adapt quickly to chemical imbalances caused by human intervention.",
-            "Minor fluctuations in chemicals like chloride or phosphorus help sustain aquatic food chains.",
-            "Disruptions in chemical balance can cascade through the ecosystem, affecting biodiversity and human utility.",
-            "Human influence on chemical levels in lakes has negligible impact on species survival.",
-            "Lakes with higher oxygen and chloride content support a broader range of aquatic species."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        },
-        {
-          "id": 49,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "According to the passage, why is it difficult to protect lakes from harmful chemical changes?",
-          "options": [
-            "Governments lack awareness about freshwater preservation.",
-            "Road salts have no viable alternatives in snow-heavy regions.",
-            "Human reluctance and economic dependency hinder ecological practices.",
-            "Farming practices naturally prevent phosphorus runoff.",
-            "Chloride has more environmental benefits than drawbacks."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        },
-        {
-          "id": 50,
-          "direction": "Read the following passage and answer the given questions.",
-          "text": "Choose the word that is opposite in meaning to \"lower\" as used in the passage:",
-          "options": [
-            "intensify",
-            "improve",
-            "raise",
-            "filter",
-            "enhance"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Lakes are crucial freshwater reserves that support aquatic life, agriculture, and human needs. Their long-term health depends greatly on internal chemical processes. Two significant ones are phosphorus reactions and the chloride + water reaction. Phosphorus, though essential for growth, becomes harmful when it enters lakes in excess through fertilizers, detergents, or untreated sewage. These phosphorus reactions trigger algal blooms that block sunlight and reduce oxygen. As algae decompose, oxygen levels in the lake lower, suffocating fish and disrupting biodiversity. Since phosphorus can remain trapped in sediments for years, its negative effects often persist long after the external supply is reduced. The chloride + water reaction influences lakes differently. Chloride, introduced through road salts, mining, or industrial effluents, steadily raises salinity. This alters water density and circulation, stressing species adapted to freshwater. Over time, plant diversity declines, fish populations shrink, and the water often acquires a taste unsuitable for drinking or irrigation. 11 Adda247 App Lake water naturally contains several elements vital for ecological balance. Oxygen is essential for aquatic organisms, calcium supports shell-forming species like mollusks, while sodium and magnesium maintain mineral stability. When levels of elements such as chloride or phosphorus rise unnaturally, however, the lake’s chemistry shifts in ways that damage both ecosystems and human use. Monitoring these chemical reactions helps prevent major damage. Tracking phosphorus levels makes it possible to predict algal blooms, while chloride studies guide alternatives to road salt, such as sand or organic compounds. Establishing buffer zones around farms and improving wastewater treatment can also reduce nutrient flow into lakes. Yet, implementing such measures often demands high costs or changes in established practices. Farmers may resist reducing fertilizer use, while cities in snowy regions rely heavily on road salts for safety. Balancing ecological preservation with economic and practical needs remains a challenge. If ignored, these reactions can leave lakes unsuitable for consumption, raising the risk of dehydration in communities dependent on them. Protecting the chemical balance of lakes is therefore vital not only for biodiversity but also for ensuring safe and reliable freshwater for human survival."
-        }
-      ]
-    },
-    {
-      "name": "Reasoning",
-      "timeInSeconds": 1200,
-      "questions": [
-        {
-          "id": 51,
-          "direction": "Study the number and word arrangement machine and answer the questions.",
-          "text": "What is the position of “Incumbent” in Step VI from the left end?",
-          "options": [
-            "Fourth",
-            "Fifth",
-            "None of these",
-            "Second",
-            "Third"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "A number and word arrangement machine follows these rules. Illustration:\nInput: 53 Quashing 59 Crusader 75 Stipulate 48 Enactment 22 Plummet 34 Resentment\nStep I: Resentment 53 Quashing 59 Crusader 75 Stipulate 48 Enactment Plummet 34 22\nStep II: Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 Enactment 34 22 75\nStep III: Enactment Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 22 75 34\nStep IV: Crusader Enactment Plummet Resentment 53 Quashing Stipulate 48 22 75 34 59\nStep V: Stipulate Crusader Enactment Plummet Resentment 53 Quashing 22 75 34 59 48\nStep VI: Quashing Stipulate Crusader Enactment Plummet Resentment 22 75 34 59 48 53\nInput for questions: 43 Purview 68 Chronic 73 Dismantle 47 Incumbent 38 Relegating 56 Doughty.\nWords are picked in alphabetical order and arranged at the extreme left according to the second alphabet from the left; numbers are arranged at the extreme right by picking the smallest even number and highest odd number in alternate steps."
-        },
-        {
-          "id": 52,
-          "direction": "Study the number and word arrangement machine and answer the questions.",
-          "text": "How many numbers are to the left of “Doughty” in Step III?",
-          "options": [
-            "Two",
-            "Three",
-            "One",
-            "Four",
-            "None of these"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "A number and word arrangement machine follows these rules. Illustration:\nInput: 53 Quashing 59 Crusader 75 Stipulate 48 Enactment 22 Plummet 34 Resentment\nStep I: Resentment 53 Quashing 59 Crusader 75 Stipulate 48 Enactment Plummet 34 22\nStep II: Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 Enactment 34 22 75\nStep III: Enactment Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 22 75 34\nStep IV: Crusader Enactment Plummet Resentment 53 Quashing Stipulate 48 22 75 34 59\nStep V: Stipulate Crusader Enactment Plummet Resentment 53 Quashing 22 75 34 59 48\nStep VI: Quashing Stipulate Crusader Enactment Plummet Resentment 22 75 34 59 48 53\nInput for questions: 43 Purview 68 Chronic 73 Dismantle 47 Incumbent 38 Relegating 56 Doughty.\nWords are picked in alphabetical order and arranged at the extreme left according to the second alphabet from the left; numbers are arranged at the extreme right by picking the smallest even number and highest odd number in alternate steps."
-        },
-        {
-          "id": 53,
-          "direction": "Study the number and word arrangement machine and answer the questions.",
-          "text": "Which of the following numbers will be 2nd to the left of the 3rd number from the right end in step V?",
-          "options": [
-            "38",
-            "73",
-            "47",
-            "68",
-            "None of these"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "A number and word arrangement machine follows these rules. Illustration:\nInput: 53 Quashing 59 Crusader 75 Stipulate 48 Enactment 22 Plummet 34 Resentment\nStep I: Resentment 53 Quashing 59 Crusader 75 Stipulate 48 Enactment Plummet 34 22\nStep II: Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 Enactment 34 22 75\nStep III: Enactment Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 22 75 34\nStep IV: Crusader Enactment Plummet Resentment 53 Quashing Stipulate 48 22 75 34 59\nStep V: Stipulate Crusader Enactment Plummet Resentment 53 Quashing 22 75 34 59 48\nStep VI: Quashing Stipulate Crusader Enactment Plummet Resentment 22 75 34 59 48 53\nInput for questions: 43 Purview 68 Chronic 73 Dismantle 47 Incumbent 38 Relegating 56 Doughty.\nWords are picked in alphabetical order and arranged at the extreme left according to the second alphabet from the left; numbers are arranged at the extreme right by picking the smallest even number and highest odd number in alternate steps."
-        },
-        {
-          "id": 54,
-          "direction": "Study the number and word arrangement machine and answer the questions.",
-          "text": "In which of the following step “Purview 68 47” exists in the same order?",
-          "options": [
-            "Step I",
-            "Step II",
-            "Step III",
-            "Step IV",
-            "None of these"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "A number and word arrangement machine follows these rules. Illustration:\nInput: 53 Quashing 59 Crusader 75 Stipulate 48 Enactment 22 Plummet 34 Resentment\nStep I: Resentment 53 Quashing 59 Crusader 75 Stipulate 48 Enactment Plummet 34 22\nStep II: Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 Enactment 34 22 75\nStep III: Enactment Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 22 75 34\nStep IV: Crusader Enactment Plummet Resentment 53 Quashing Stipulate 48 22 75 34 59\nStep V: Stipulate Crusader Enactment Plummet Resentment 53 Quashing 22 75 34 59 48\nStep VI: Quashing Stipulate Crusader Enactment Plummet Resentment 22 75 34 59 48 53\nInput for questions: 43 Purview 68 Chronic 73 Dismantle 47 Incumbent 38 Relegating 56 Doughty.\nWords are picked in alphabetical order and arranged at the extreme left according to the second alphabet from the left; numbers are arranged at the extreme right by picking the smallest even number and highest odd number in alternate steps."
-        },
-        {
-          "id": 55,
-          "direction": "Study the number and word arrangement machine and answer the questions.",
-          "text": "What is the sum of the numbers at the odd position in Step IV from the right end?",
-          "options": [
-            "118",
-            "126",
-            "120",
-            "134",
-            "None of these"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "A number and word arrangement machine follows these rules. Illustration:\nInput: 53 Quashing 59 Crusader 75 Stipulate 48 Enactment 22 Plummet 34 Resentment\nStep I: Resentment 53 Quashing 59 Crusader 75 Stipulate 48 Enactment Plummet 34 22\nStep II: Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 Enactment 34 22 75\nStep III: Enactment Plummet Resentment 53 Quashing 59 Crusader Stipulate 48 22 75 34\nStep IV: Crusader Enactment Plummet Resentment 53 Quashing Stipulate 48 22 75 34 59\nStep V: Stipulate Crusader Enactment Plummet Resentment 53 Quashing 22 75 34 59 48\nStep VI: Quashing Stipulate Crusader Enactment Plummet Resentment 22 75 34 59 48 53\nInput for questions: 43 Purview 68 Chronic 73 Dismantle 47 Incumbent 38 Relegating 56 Doughty.\nWords are picked in alphabetical order and arranged at the extreme left according to the second alphabet from the left; numbers are arranged at the extreme right by picking the smallest even number and highest odd number in alternate steps."
-        },
-        {
-          "id": 56,
-          "direction": "Study the following alphanumeric-symbol series carefully and answer the questions.",
-          "text": "Which of the following element is fourth to the right of 12thelement from the left end?",
-          "options": [
-            "@",
-            "O",
-            "X",
-            "6",
-            "2 14 Adda247 App"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "F M 9 0 * Y 7 U F G % $ 3 2 O 6 @ N X 4 # L 1 & Z R 6 * V S"
-        },
-        {
-          "id": 57,
-          "direction": "Study the following alphanumeric-symbol series carefully and answer the questions.",
-          "text": "How many such consonants are there each of which is immediately preceded by a symbol and immediately followed by a number?",
-          "options": [
-            "One",
-            "Four",
-            "Two",
-            "None",
-            "Five"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "F M 9 0 * Y 7 U F G % $ 3 2 O 6 @ N X 4 # L 1 & Z R 6 * V S"
-        },
-        {
-          "id": 58,
-          "direction": "Study the following alphanumeric-symbol series carefully and answer the questions.",
-          "text": "What will be the sum of 3rd odd number from left end and 2ndnumber from right end?",
-          "options": [
-            "3",
-            "4",
-            "8",
-            "7",
-            "6"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "F M 9 0 * Y 7 U F G % $ 3 2 O 6 @ N X 4 # L 1 & Z R 6 * V S"
-        },
-        {
-          "id": 59,
-          "direction": "Decide whether the data provided in statements I and II are sufficient to answer the question.",
-          "text": "Seven people-A, B, C, D, E, F and G-live on different floors of a 7-floor building but not necessarily in the same order. The ground floor is numbered 1, the floor just above it is numbered 2, and so on. Who lives three floors below A. Statement I: A lives on an even-numbered floor. E lives immediately above A. B lives on floor number 4. There are as many persons live above A as below G. Statement II: D lives on a floor immediately above G. F does not live on the topmost floor. C lives on floor number 5 below A.",
-          "options": [
-            "If the data in statement I alone are sufficient to answer the question, while the data in statement II alone are not sufficient to answer the question.",
-            "If the data in statement II alone are sufficient to answer the question, while the data in statement I alone are not sufficient to answer the question.",
-            "If the data either in statement I alone or in statement II alone are sufficient to answer the question.",
-            "If the data even in both statements I and II together are not sufficient to answer the question.",
-            "If the data in both statements I and II together are necessary to answer the question."
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "Answer choices: (a) Statement I alone is sufficient; II alone is not. (b) Statement II alone is sufficient; I alone is not. (c) Either statement I alone or statement II alone is sufficient. (d) Even both statements together are not sufficient. (e) Both statements together are necessary."
-        },
-        {
-          "id": 60,
-          "direction": "Decide whether the data provided in statements I and II are sufficient to answer the question.",
-          "text": "In a row of children facing North, where does Rajat stand in the row? Statement I: Jyoti stands 3rd from left end and 2nd to the left of Rajat who stands immediate left of the one who is 10th from the right end of the row. Statement II: There are 19 children between Rajat and Meena, and Meena is 15th from one of the ends of the row.",
-          "options": [
-            "If the data in statement I alone are sufficient to answer the question, while the data in statement II alone are not sufficient to answer the question.",
-            "If the data in statement II alone are sufficient to answer the question, while the data in statement I alone are not sufficient to answer the question.",
-            "If the data either in statement I alone or in statement II alone are sufficient to answer the question.",
-            "If the data even in both statements I and II together are not sufficient to answer the question.",
-            "If the data in both statements I and II together are necessary to answer the question."
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Answer choices: (a) Statement I alone is sufficient; II alone is not. (b) Statement II alone is sufficient; I alone is not. (c) Either statement I alone or statement II alone is sufficient. (d) Even both statements together are not sufficient. (e) Both statements together are necessary."
-        },
-        {
-          "id": 61,
-          "direction": "Decide whether the data provided in statements I and II are sufficient to answer the question.",
-          "text": "In four family members, how is Rohan related to Meena? Statement I: Rohan's father is the only brother of Meena's mother. Statement II: Meena's mother is the sister of the father of Rohan's sister. 15 Adda247 App",
-          "options": [
-            "If the data in statement I alone are sufficient to answer the question, while the data in statement II alone are not sufficient to answer the question.",
-            "If the data in statement II alone are sufficient to answer the question, while the data in statement I alone are not sufficient to answer the question.",
-            "If the data either in statement I alone or in statement II alone are sufficient to answer the question.",
-            "If the data even in both statements I and II together are not sufficient to answer the question.",
-            "If the data in both statements I and II together are necessary to answer the question."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Answer choices: (a) Statement I alone is sufficient; II alone is not. (b) Statement II alone is sufficient; I alone is not. (c) Either statement I alone or statement II alone is sufficient. (d) Even both statements together are not sufficient. (e) Both statements together are necessary."
-        },
-        {
-          "id": 62,
-          "direction": "Decide whether the data provided in statements I and II are sufficient to answer the question.",
-          "text": "Eight boxes-P, Q, R, S, T, U, V, and W-are stacked above each other but not necessarily in the same order. Statement I: Box P is immediately above box Q. Box S is immediately above box R, which is not at the bottommost position. Statement II: Box T is above box U but below box V. Box W is at the bottommost position. Box P is not at the topmost position.",
-          "options": [
-            "If the data in statement I alone are sufficient to answer the question, while the data in statement II alone are not sufficient to answer the question.",
-            "If the data in statement II alone are sufficient to answer the question, while the data in statement I alone are not sufficient to answer the question.",
-            "If the data either in statement I alone or in statement II alone are sufficient to answer the question.",
-            "If the data even in both statements I and II together are not sufficient to answer the question.",
-            "If the data in both statements I and II together are necessary to answer the question."
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Answer choices: (a) Statement I alone is sufficient; II alone is not. (b) Statement II alone is sufficient; I alone is not. (c) Either statement I alone or statement II alone is sufficient. (d) Even both statements together are not sufficient. (e) Both statements together are necessary."
-        },
-        {
-          "id": 63,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "How many boxes placed between black colour box and green colour box?",
-          "options": [
-            "As many boxes placed below box D",
-            "As many boxes placed between A and B",
-            "As many boxes placed above yellow colour box",
-            "As many boxes placed between D and G",
-            "None of these"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Seven boxes A, B, C, D, E, F and G are placed one above the other. Each has a different colour: Yellow, Brown, Pink, Green, Red, Black or Blue, and contains a different item: Balls, Pencils, Chocolate, Juice, Berry, Toys or Bottles.\nBox A is three places above the brown colour. More than three boxes are between B and the yellow colour. Blue is below the box containing Bottles and above the box containing Balls. The box containing Chocolate is just above B. Two boxes are between B and E, which contains Juice. C is red and two places above E. The brown box contains Pencil but is not B. F is above the yellow box. Black contains Toys and is below D. Green contains Berry."
-        },
-        {
-          "id": 64,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "Which of the following statement is not true?",
-          "options": [
-            "Box A is placed at the topmost position",
-            "Box E is of blue colour",
-            "Box G does not place above box F",
-            "Box C is placed just below box D",
-            "All are true"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Seven boxes A, B, C, D, E, F and G are placed one above the other. Each has a different colour: Yellow, Brown, Pink, Green, Red, Black or Blue, and contains a different item: Balls, Pencils, Chocolate, Juice, Berry, Toys or Bottles.\nBox A is three places above the brown colour. More than three boxes are between B and the yellow colour. Blue is below the box containing Bottles and above the box containing Balls. The box containing Chocolate is just above B. Two boxes are between B and E, which contains Juice. C is red and two places above E. The brown box contains Pencil but is not B. F is above the yellow box. Black contains Toys and is below D. Green contains Berry."
-        },
-        {
-          "id": 65,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "If box A and box E interchanged with each other then, how many boxes placed above box A?",
-          "options": [
-            "Four",
-            "Five",
-            "Two",
-            "Three",
-            "None 16 Adda247 App"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Seven boxes A, B, C, D, E, F and G are placed one above the other. Each has a different colour: Yellow, Brown, Pink, Green, Red, Black or Blue, and contains a different item: Balls, Pencils, Chocolate, Juice, Berry, Toys or Bottles.\nBox A is three places above the brown colour. More than three boxes are between B and the yellow colour. Blue is below the box containing Bottles and above the box containing Balls. The box containing Chocolate is just above B. Two boxes are between B and E, which contains Juice. C is red and two places above E. The brown box contains Pencil but is not B. F is above the yellow box. Black contains Toys and is below D. Green contains Berry."
-        },
-        {
-          "id": 66,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "If box D is related to bottles and box F is related to juice in the same way which of the following box is related to chocolate?",
-          "options": [
-            "G",
-            "B",
-            "C",
-            "D",
-            "F"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Seven boxes A, B, C, D, E, F and G are placed one above the other. Each has a different colour: Yellow, Brown, Pink, Green, Red, Black or Blue, and contains a different item: Balls, Pencils, Chocolate, Juice, Berry, Toys or Bottles.\nBox A is three places above the brown colour. More than three boxes are between B and the yellow colour. Blue is below the box containing Bottles and above the box containing Balls. The box containing Chocolate is just above B. Two boxes are between B and E, which contains Juice. C is red and two places above E. The brown box contains Pencil but is not B. F is above the yellow box. Black contains Toys and is below D. Green contains Berry."
-        },
-        {
-          "id": 67,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "How many boxes placed above the pink colour box?",
-          "options": [
-            "Six",
-            "Two",
-            "None",
-            "One",
-            "Three"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Seven boxes A, B, C, D, E, F and G are placed one above the other. Each has a different colour: Yellow, Brown, Pink, Green, Red, Black or Blue, and contains a different item: Balls, Pencils, Chocolate, Juice, Berry, Toys or Bottles.\nBox A is three places above the brown colour. More than three boxes are between B and the yellow colour. Blue is below the box containing Bottles and above the box containing Balls. The box containing Chocolate is just above B. Two boxes are between B and E, which contains Juice. C is red and two places above E. The brown box contains Pencil but is not B. F is above the yellow box. Black contains Toys and is below D. Green contains Berry."
-        },
-        {
-          "id": 68,
-          "direction": "Read the given family information carefully and answer the questions.",
-          "text": "If R has a daughter, then, how will N’s spouse relate to R’s daughter?",
-          "options": [
-            "Sister-in-law",
-            "Sister",
-            "Cousin",
-            "Uncle",
-            "Brother-in-law"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "In a family, D is mother-in-law of N. N’s spouse is the only paternal aunt of E. P is the mother of E’s sibling. V is the grandchild of P’s father-in-law. C is father-in-law of V’s mother, U. A is the only nephew of N’s spouse. L is paternal grandparent of A whose parent is G. R is parent of L’s son-in-law and parent of H. Gender of G and H is same but different to N’s child."
-        },
-        {
-          "id": 69,
-          "direction": "Read the given family information carefully and answer the questions.",
-          "text": "What is the relation of H with respect to E’s cousin?",
-          "options": [
-            "Father",
-            "Uncle",
-            "Aunt",
-            "Grandmother",
-            "None of the above"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "In a family, D is mother-in-law of N. N’s spouse is the only paternal aunt of E. P is the mother of E’s sibling. V is the grandchild of P’s father-in-law. C is father-in-law of V’s mother, U. A is the only nephew of N’s spouse. L is paternal grandparent of A whose parent is G. R is parent of L’s son-in-law and parent of H. Gender of G and H is same but different to N’s child."
-        },
-        {
-          "id": 70,
-          "direction": "Read the given family information carefully and answer the questions.",
-          "text": "Who among the following is A’s mother?",
-          "options": [
-            "H",
-            "G",
-            "P",
-            "V",
-            "None of the above 17 Adda247 App"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "In a family, D is mother-in-law of N. N’s spouse is the only paternal aunt of E. P is the mother of E’s sibling. V is the grandchild of P’s father-in-law. C is father-in-law of V’s mother, U. A is the only nephew of N’s spouse. L is paternal grandparent of A whose parent is G. R is parent of L’s son-in-law and parent of H. Gender of G and H is same but different to N’s child."
-        },
-        {
-          "id": 71,
-          "direction": "Read the given family information carefully and answer the questions.",
-          "text": "If V is married to S, then how will S relate to N?",
-          "options": [
-            "Brother-in-law",
-            "Daughter-in-law",
-            "Son-in-law",
-            "Sister-in-law",
-            "Father-in-law"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "In a family, D is mother-in-law of N. N’s spouse is the only paternal aunt of E. P is the mother of E’s sibling. V is the grandchild of P’s father-in-law. C is father-in-law of V’s mother, U. A is the only nephew of N’s spouse. L is paternal grandparent of A whose parent is G. R is parent of L’s son-in-law and parent of H. Gender of G and H is same but different to N’s child."
-        },
-        {
-          "id": 72,
-          "direction": "Identify which statements are implicit/course of action based on the given statement.",
-          "text": "1 million species at risk of extinction: UN. Industrial farming, fishing are factors that threaten to end existence of many species, says report. Relentless pursuit of economic growth, twinned with the impact of climate change, has put an “unprecedented” one million species at risk of extinction. Which of the following is a course of action for the following statement? (I) This is the impact of the damage done by modern civilization to the natural world. (II) Only a wide-ranging transformation of the global economic and financial system could pull ecosystems that are vital to the future of species and human communities worldwide. (III) The essential, interconnected web of life on Earth is getting smaller and increasingly frayed due to this extinction. (IV) “This loss is a direct result of human activity and constitutes a direct threat to human well-being in all regions of the world.”",
-          "options": [
-            "Only I and II are implicit",
-            "Only II is implicit",
-            "Only III and II are implicit",
-            "All are implicit",
-            "Only I, II and III are implicit"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 73,
-          "direction": "Identify what can be inferred from the given statement.",
-          "text": "Training and completing a first-time marathon reverse ageing of major blood vessels, according to a study which found that the older and slower runners benefit the most. Which of the following can be inferred from the given statement? (I) Only first-time marathon runners will get benefit from it. (II) Those who run fast gets older earlier than others. (III) Blood vessels play a major role in ageing of the person.",
-          "options": [
-            "Only I and II are implicit",
-            "Only III is implicit",
-            "Only III and II are implicit",
-            "All are implicit",
-            "None is implicit"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 74,
-          "direction": "Study the following seating information carefully and answer the questions.",
-          "text": "Who sits second to the left of the person who sits immediate left of the one who is from Hyderabad?",
-          "options": [
-            "E",
-            "G",
-            "F",
-            "C",
-            "B"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H sit around a square-shaped table. Four sit at corners facing inside and four at the middle of each side facing outside. G sits two places away from the person from Pune. The person immediately left of the Pune person is not at the middle of a side. Delhi is third to the right of G. One person sits between Delhi and Chennai. A sits immediately right of Chennai. No one sits between E and D; D sits third to the left of A. C is from Jaipur and immediately right of B. B is not at a corner. Three persons sit between Kolkata and Mumbai. Mumbai and Delhi are not immediate neighbours. B and D are not from Bengaluru. F does not sit immediately right of A."
-        },
-        {
-          "id": 75,
-          "direction": "Study the following seating information carefully and answer the questions.",
-          "text": "If A is related to Mumbai and in the same way E is related to Pune, then F is related to which among the following?",
-          "options": [
-            "Pune",
-            "Delhi",
-            "Jaipur",
-            "Chennai",
-            "Hyderabad"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H sit around a square-shaped table. Four sit at corners facing inside and four at the middle of each side facing outside. G sits two places away from the person from Pune. The person immediately left of the Pune person is not at the middle of a side. Delhi is third to the right of G. One person sits between Delhi and Chennai. A sits immediately right of Chennai. No one sits between E and D; D sits third to the left of A. C is from Jaipur and immediately right of B. B is not at a corner. Three persons sit between Kolkata and Mumbai. Mumbai and Delhi are not immediate neighbours. B and D are not from Bengaluru. F does not sit immediately right of A."
-        },
-        {
-          "id": 76,
-          "direction": "Study the following seating information carefully and answer the questions.",
-          "text": "What is the position of H with respect to the one who is from Delhi?",
-          "options": [
-            "Immediate left",
-            "Third to the right",
-            "Second to the left",
-            "Fourth to the left",
-            "Third to the left"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H sit around a square-shaped table. Four sit at corners facing inside and four at the middle of each side facing outside. G sits two places away from the person from Pune. The person immediately left of the Pune person is not at the middle of a side. Delhi is third to the right of G. One person sits between Delhi and Chennai. A sits immediately right of Chennai. No one sits between E and D; D sits third to the left of A. C is from Jaipur and immediately right of B. B is not at a corner. Three persons sit between Kolkata and Mumbai. Mumbai and Delhi are not immediate neighbours. B and D are not from Bengaluru. F does not sit immediately right of A."
-        },
-        {
-          "id": 77,
-          "direction": "Study the following seating information carefully and answer the questions.",
-          "text": "Four of the following five belong to a certain group based on their facing direction. Find the one who does not belong to the group.",
-          "options": [
-            "F",
-            "The one who is from Hyderabad",
-            "H",
-            "The one who is from Mumbai",
-            "C"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H sit around a square-shaped table. Four sit at corners facing inside and four at the middle of each side facing outside. G sits two places away from the person from Pune. The person immediately left of the Pune person is not at the middle of a side. Delhi is third to the right of G. One person sits between Delhi and Chennai. A sits immediately right of Chennai. No one sits between E and D; D sits third to the left of A. C is from Jaipur and immediately right of B. B is not at a corner. Three persons sit between Kolkata and Mumbai. Mumbai and Delhi are not immediate neighbours. B and D are not from Bengaluru. F does not sit immediately right of A."
-        },
-        {
-          "id": 78,
-          "direction": "Study the following seating information carefully and answer the questions.",
-          "text": "Who is from Bengaluru?",
-          "options": [
-            "H",
-            "A",
-            "G",
-            "E",
-            "F"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H sit around a square-shaped table. Four sit at corners facing inside and four at the middle of each side facing outside. G sits two places away from the person from Pune. The person immediately left of the Pune person is not at the middle of a side. Delhi is third to the right of G. One person sits between Delhi and Chennai. A sits immediately right of Chennai. No one sits between E and D; D sits third to the left of A. C is from Jaipur and immediately right of B. B is not at a corner. Three persons sit between Kolkata and Mumbai. Mumbai and Delhi are not immediate neighbours. B and D are not from Bengaluru. F does not sit immediately right of A."
-        },
-        {
-          "id": 79,
-          "direction": "Identify the assumption implicit in the statement.",
-          "text": "Statement: Due to the devastating floods in several states, the government has announced a special relief package for affected farmers. Which of the following is an assumption implicit in this statement?",
-          "options": [
-            "Farmers are among the worst-affected groups in flood-hit areas.",
-            "Floods are unlikely to cause damage to urban infrastructure.",
-            "Only financial relief is sufficient to rebuild the lives of flood victims.",
-            "Farmers do not have any alternative means to recover losses.",
-            "None of the above. 19 Adda247 App"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 80,
-          "direction": "Identify the assumption implicit in the statement.",
-          "text": "Statement: To reduce increasing air pollution levels in major cities, the government has decided to impose stricter emission norms for vehicles. Which of the following is an assumption implicit in this decision?",
-          "options": [
-            "Air pollution can be completely eliminated by emission norms.",
-            "Vehicular emissions are a significant contributor to rising pollution levels.",
-            "Citizens will willingly adopt cleaner alternatives without resistance.",
-            "Industrial pollution is not responsible for poor air quality in cities.",
-            "None of the above."
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 81,
-          "direction": "Read the given instructions carefully and answer the related questions.",
-          "text": "How many persons sit between M and O?",
-          "options": [
-            "Ten",
-            "Eleven",
-            "Twelve",
-            "Nine",
-            "Eight"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "A certain number of persons sit in a linear row facing north. H sits third to the right of K. B sits five places away from K. At most three persons sit between B and G, who is an immediate neighbour of K. The number of persons between G and O is two times the number between G and B. O sits fourth from the left end. One person sits between O and V. As many persons sit to the left of V as to the right of M, who sits immediately left of H. Not more than three persons sit to the right of H."
-        },
-        {
-          "id": 82,
-          "direction": "Read the given instructions carefully and answer the related questions.",
-          "text": "Who among the following sits seventh to the left of M?",
-          "options": [
-            "V",
-            "O",
-            "B",
-            "Unknown person",
-            "G"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "A certain number of persons sit in a linear row facing north. H sits third to the right of K. B sits five places away from K. At most three persons sit between B and G, who is an immediate neighbour of K. The number of persons between G and O is two times the number between G and B. O sits fourth from the left end. One person sits between O and V. As many persons sit to the left of V as to the right of M, who sits immediately left of H. Not more than three persons sit to the right of H."
-        },
-        {
-          "id": 83,
-          "direction": "Read the given instructions carefully and answer the related questions.",
-          "text": "How many persons sit in the row?",
-          "options": [
-            "15",
-            "17",
-            "13",
-            "19",
-            "14"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "A certain number of persons sit in a linear row facing north. H sits third to the right of K. B sits five places away from K. At most three persons sit between B and G, who is an immediate neighbour of K. The number of persons between G and O is two times the number between G and B. O sits fourth from the left end. One person sits between O and V. As many persons sit to the left of V as to the right of M, who sits immediately left of H. Not more than three persons sit to the right of H."
-        },
-        {
-          "id": 84,
-          "direction": "Arrange the letters as instructed and determine how many positions remain unchanged.",
-          "text": "If in the given word “CONCEPTUAL”, all the letters are arranged in alphabetical order from the right end, then the position of how many letters remain unchanged in the new arrangement?",
-          "options": [
-            "One",
-            "Two",
-            "None",
-            "Three",
-            "Four 20 Adda247 App"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 85,
-          "direction": "Determine the code for the given word using the stated examples.",
-          "text": "If ‘MUD’ is written as ‘FYS’, and ‘BAT’ is written as ‘VEH’, then how is ‘HAN’ written, also the code of “HAN” should be a meaningful word?",
-          "options": [
-            "FEN",
-            "HEN",
-            "PIG",
-            "PEN",
-            "PAN"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 86,
-          "direction": "Study the statements and conclusions and select the appropriate answer.",
-          "text": "Statements: D < H > U ≥ E > N ≥ P ≤ K ≤ R < S Conclusions: I. H > P II. P ≤ S",
-          "options": [
-            "If only conclusion I is true",
-            "If only conclusion II is true",
-            "If either conclusion I or II is true",
-            "If both conclusions I and II are true",
-            "If neither conclusion I nor II is true"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 87,
-          "direction": "Study the statements and conclusions and select the appropriate answer.",
-          "text": "Statements: P ≥ M = O < D; R > O = T; R < H Conclusions: I. H > M II. P ≥ T",
-          "options": [
-            "If only conclusion I is true",
-            "If only conclusion II is true",
-            "If either conclusion I or II is true",
-            "If both conclusions I and II are true",
-            "If neither conclusion I nor II is true"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 88,
-          "direction": "Study the statements and conclusions and select the appropriate answer.",
-          "text": "Statements: S > W ≥ T ≤ Z; K > R < J = N ≥ T Conclusions: I. Z ≥ J II. R < S",
-          "options": [
-            "If only conclusion I is true",
-            "If only conclusion II is true",
-            "If either conclusion I or II is true",
-            "If both conclusions I and II are true",
-            "If neither conclusion I nor II is true 21 Adda247 App"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 89,
-          "direction": "Study the statements and conclusions and select the appropriate answer.",
-          "text": "Statements: Y = A ≥ R < V; I = B ≤ V < L Conclusions: I. A ≥ I II. Y < B",
-          "options": [
-            "If only conclusion I is true",
-            "If only conclusion II is true",
-            "If either conclusion I or II is true",
-            "If both conclusions I and II are true",
-            "If neither conclusion I nor II is true"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 90,
-          "direction": "Apply the stated digit operation, remove repeated digits, and answer the question.",
-          "text": "In the number ‘435673538’, the digit which are less than 6 is subtracted by 2 and rest all the digits are subtracted by 1. Now remove all the repeated digits and then find the difference between sum of odd digits and sum of even digits in the new number formed after rearrangement?",
-          "options": [
-            "5",
-            "4",
-            "8",
-            "12",
-            "3"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 91,
-          "direction": "Study the following floor-and-subject information carefully and answer the questions.",
-          "text": "The number of floors above the floor on which A lives is one more than the number of floors below the floor on which the person who likes _________ lives.",
-          "options": [
-            "Mathematics",
-            "Chemistry",
-            "English",
-            "Biology",
-            "Science 22 Adda247 App"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H live on eight different floors numbered 1 to 8 and each likes a different subject: Philosophy, Chemistry, Biology, Science, English, Physics, Mathematics and Hindi. Three persons live between H and the one who likes English. At least three persons live below H. As many persons live above the one who likes English as below the one who likes Science. G likes Physics and lives on floor 2, immediately below E. More than two persons live between D and the one who likes Science. D does not like Philosophy and does not live on floor 4. Biology is two floors above D. Two persons live between Biology and Chemistry. Chemistry is immediately below C and immediately above A. A lives above F, who lives three floors below the one who likes Hindi."
-        },
-        {
-          "id": 92,
-          "direction": "Study the following floor-and-subject information carefully and answer the questions.",
-          "text": "Which subject does F like?",
-          "options": [
-            "Philosophy",
-            "English",
-            "Science",
-            "Hindi",
-            "Physics"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H live on eight different floors numbered 1 to 8 and each likes a different subject: Philosophy, Chemistry, Biology, Science, English, Physics, Mathematics and Hindi. Three persons live between H and the one who likes English. At least three persons live below H. As many persons live above the one who likes English as below the one who likes Science. G likes Physics and lives on floor 2, immediately below E. More than two persons live between D and the one who likes Science. D does not like Philosophy and does not live on floor 4. Biology is two floors above D. Two persons live between Biology and Chemistry. Chemistry is immediately below C and immediately above A. A lives above F, who lives three floors below the one who likes Hindi."
-        },
-        {
-          "id": 93,
-          "direction": "Study the following floor-and-subject information carefully and answer the questions.",
-          "text": "Who lives exactly between G and the one who likes Philosophy?",
-          "options": [
-            "B",
-            "C",
-            "The one who likes Science",
-            "F",
-            "The one who likes Biology"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H live on eight different floors numbered 1 to 8 and each likes a different subject: Philosophy, Chemistry, Biology, Science, English, Physics, Mathematics and Hindi. Three persons live between H and the one who likes English. At least three persons live below H. As many persons live above the one who likes English as below the one who likes Science. G likes Physics and lives on floor 2, immediately below E. More than two persons live between D and the one who likes Science. D does not like Philosophy and does not live on floor 4. Biology is two floors above D. Two persons live between Biology and Chemistry. Chemistry is immediately below C and immediately above A. A lives above F, who lives three floors below the one who likes Hindi."
-        },
-        {
-          "id": 94,
-          "direction": "Study the following floor-and-subject information carefully and answer the questions.",
-          "text": "Which of the following combination is correct?",
-          "options": [
-            "H - Chemistry",
-            "A - Biology",
-            "F - Physics",
-            "G - Hindi",
-            "D-Mathematics"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H live on eight different floors numbered 1 to 8 and each likes a different subject: Philosophy, Chemistry, Biology, Science, English, Physics, Mathematics and Hindi. Three persons live between H and the one who likes English. At least three persons live below H. As many persons live above the one who likes English as below the one who likes Science. G likes Physics and lives on floor 2, immediately below E. More than two persons live between D and the one who likes Science. D does not like Philosophy and does not live on floor 4. Biology is two floors above D. Two persons live between Biology and Chemistry. Chemistry is immediately below C and immediately above A. A lives above F, who lives three floors below the one who likes Hindi."
-        },
-        {
-          "id": 95,
-          "direction": "Study the following floor-and-subject information carefully and answer the questions.",
-          "text": "Which of the following statements is/are false? I. E lives on floor above D’s floor II. B likes Science III. No one lives above H",
-          "options": [
-            "Only II",
-            "Both I and III",
-            "Only I",
-            "Only III",
-            "Both II and III"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Eight persons A, B, C, D, E, F, G and H live on eight different floors numbered 1 to 8 and each likes a different subject: Philosophy, Chemistry, Biology, Science, English, Physics, Mathematics and Hindi. Three persons live between H and the one who likes English. At least three persons live below H. As many persons live above the one who likes English as below the one who likes Science. G likes Physics and lives on floor 2, immediately below E. More than two persons live between D and the one who likes Science. D does not like Philosophy and does not live on floor 4. Biology is two floors above D. Two persons live between Biology and Chemistry. Chemistry is immediately below C and immediately above A. A lives above F, who lives three floors below the one who likes Hindi."
-        },
-        {
-          "id": 96,
-          "direction": "Study the word-coding pattern and answer the question.",
-          "text": "If ‘PLAYER’ is written as ‘28’, and ‘NOISE’ is written as ‘14’, then how is ‘HOCKEY’ written?",
-          "options": [
-            "30",
-            "29",
-            "27",
-            "33",
-            "31"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": ""
-        },
-        {
-          "id": 97,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "In which direction is point T with respect to point M?",
-          "options": [
-            "North-east",
-            "North-west",
-            "South-east",
-            "South-west",
-            "North 23 Adda247 App"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Point L is 15m south of point M. Point N is 13m west of point L. Point Q is 6m east of point M. Point R is exactly between point M and point Q. Point O is 9m north of point N. Point S is 6m south of point R. Point T is 7m east of point S. Point U is 11m south of point T."
-        },
-        {
-          "id": 98,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "What is the shortest distance between point S and point L?",
-          "options": [
-            "√90 m",
-            "√91 m",
-            "8 m",
-            "12 m",
-            "9 m"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Point L is 15m south of point M. Point N is 13m west of point L. Point Q is 6m east of point M. Point R is exactly between point M and point Q. Point O is 9m north of point N. Point S is 6m south of point R. Point T is 7m east of point S. Point U is 11m south of point T."
-        },
-        {
-          "id": 99,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "Four of the following five points form a particular pattern in terms of direction and related to a group. Which one does not belong to the group?",
-          "options": [
-            "M and S",
-            "O and L",
-            "S and U",
-            "Q and T",
-            "O and T"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "Point L is 15m south of point M. Point N is 13m west of point L. Point Q is 6m east of point M. Point R is exactly between point M and point Q. Point O is 9m north of point N. Point S is 6m south of point R. Point T is 7m east of point S. Point U is 11m south of point T."
-        },
-        {
-          "id": 100,
-          "direction": "Study the following information carefully and answer the questions.",
-          "text": "What is the total distance from Point R to Point O?",
-          "options": [
-            "50 m",
-            "45 m",
-            "41 m",
-            "40 m",
-            "35 m"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Point L is 15m south of point M. Point N is 13m west of point L. Point Q is 6m east of point M. Point R is exactly between point M and point Q. Point O is 9m north of point N. Point S is 6m south of point R. Point T is 7m east of point S. Point U is 11m south of point T."
-        }
-      ]
-    },
     {
       "name": "Quantitative Aptitude",
       "timeInSeconds": 1200,
       "questions": [
         {
-          "id": 101,
-          "direction": "Read the following pie charts carefully and answer the questions.",
-          "text": "Find the difference between the total number of bracelets sold by shop I and shop III together and the total number of rings sold by shop IV.",
+          "id": 1,
+          "direction": "Solve the following arithmetic expression.",
+          "text": "48% of 750 + 36% of 500 - 240 = ?",
           "options": [
-            "20",
-            "24",
-            "22",
-            "21",
-            "25"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Pie chart I: total rings and bracelets sold by four shops = 440. Distribution: Shop I 25%, Shop II 30%, Shop III 10%, Shop IV 35%.\nPie chart II: total rings sold by the four shops = 200. Distribution: Shop I 18%, Shop II 35%, Shop III 7%, Shop IV 40%."
-        },
-        {
-          "id": 102,
-          "direction": "Read the following pie charts carefully and answer the questions.",
-          "text": "The total number of bracelets sold by shops II and IV together is what percentage more or less than the total number of rings and bracelets together sold by shop I (approx.)?",
-          "options": [
-            "5%",
-            "24%",
-            "17%",
-            "33%",
-            "12%"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Pie chart I: total rings and bracelets sold by four shops = 440. Distribution: Shop I 25%, Shop II 30%, Shop III 10%, Shop IV 35%.\nPie chart II: total rings sold by the four shops = 200. Distribution: Shop I 18%, Shop II 35%, Shop III 7%, Shop IV 40%."
-        },
-        {
-          "id": 103,
-          "direction": "Read the following pie charts carefully and answer the questions.",
-          "text": "Find the ratio between the average number of bracelets sold by shops I and III and the difference between the number of rings sold by shops II and IV.",
-          "options": [
-            "23:5",
-            "22:7",
-            "21:4",
-            "26:5",
-            "24:1"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Pie chart I: total rings and bracelets sold by four shops = 440. Distribution: Shop I 25%, Shop II 30%, Shop III 10%, Shop IV 35%.\nPie chart II: total rings sold by the four shops = 200. Distribution: Shop I 18%, Shop II 35%, Shop III 7%, Shop IV 40%."
-        },
-        {
-          "id": 104,
-          "direction": "Read the following pie charts carefully and answer the questions.",
-          "text": "If the number of rings sold by shop V is 20% more than that of shop IV and the ratio of the number of bracelets sold by shops II and V is 31:29, respectively, then the total number of rings and bracelets together sold by shop II is how many more or less than that of shop V?",
-          "options": [
-            "21",
-            "20",
-            "22",
-            "24",
-            "26"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Pie chart I: total rings and bracelets sold by four shops = 440. Distribution: Shop I 25%, Shop II 30%, Shop III 10%, Shop IV 35%.\nPie chart II: total rings sold by the four shops = 200. Distribution: Shop I 18%, Shop II 35%, Shop III 7%, Shop IV 40%."
-        },
-        {
-          "id": 105,
-          "direction": "Read the following pie charts carefully and answer the questions.",
-          "text": "The price of each ring and each bracelet sold by shop III is Rs 275 and X+180, respectively. If the total amount received by shop III to sell all the rings and bracelets is Rs 10150, then find the value of X.",
-          "options": [
-            "20",
-            "25",
-            "40",
-            "35",
-            "30 25 Adda247 App"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "Pie chart I: total rings and bracelets sold by four shops = 440. Distribution: Shop I 25%, Shop II 30%, Shop III 10%, Shop IV 35%.\nPie chart II: total rings sold by the four shops = 200. Distribution: Shop I 18%, Shop II 35%, Shop III 7%, Shop IV 40%."
-        },
-        {
-          "id": 106,
-          "direction": "Read the following pie charts carefully and answer the questions.",
-          "text": "The total number of chains sold by shop I is 20% less than the total number of rings sold by shops II and IV together. If the ratio of the total number of chains sold by shop I to II is 4:7, respectively, then find the total number of chains and bracelets sold by shop II.",
-          "options": [
-            "293",
-            "288",
-            "272",
-            "267",
-            "291"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Pie chart I: total rings and bracelets sold by four shops = 440. Distribution: Shop I 25%, Shop II 30%, Shop III 10%, Shop IV 35%.\nPie chart II: total rings sold by the four shops = 200. Distribution: Shop I 18%, Shop II 35%, Shop III 7%, Shop IV 40%."
-        },
-        {
-          "id": 107,
-          "direction": "Read the following line chart carefully and answer the questions.",
-          "text": "The number of people who purchased a Thai dish from P and R together is what percentage of the number of people who purchased a Korean dish from Q?",
-          "options": [
-            "266.67%",
-            "235%",
-            "275%",
-            "225%",
-            "250%"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "Line chart values for number of people purchasing dishes:\nHotel P — Thai 50, Korean 140.\nHotel Q — Thai 200, Korean 80.\nHotel R — Thai 150, Korean 90.\nHotel S — Thai 70, Korean 180."
-        },
-        {
-          "id": 108,
-          "direction": "Read the following line chart carefully and answer the questions.",
-          "text": "Find the ratio of the number of people who purchased a Thai dish from S to the number of people who purchased a Korean dish from P.",
-          "options": [
-            "1:2",
-            "2:1",
-            "1:3",
-            "3:2",
-            "2:5 0 50 100 150 200 250 P Q R S Thai dish Korean dish 26 Adda247 App"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Line chart values for number of people purchasing dishes:\nHotel P — Thai 50, Korean 140.\nHotel Q — Thai 200, Korean 80.\nHotel R — Thai 150, Korean 90.\nHotel S — Thai 70, Korean 180."
-        },
-        {
-          "id": 109,
-          "direction": "Read the following line chart carefully and answer the questions.",
-          "text": "The number of people who purchased a Korean dish from T is 3/5 of the number of people who purchased a Thai dish from R. If the number of people who purchased a Thai dish from T is 33.33% more than the number of people who purchased a Korean dish from S, then find the number of people who purchased a Korean and Thai dish together from T.",
-          "options": [
+            "280",
             "300",
             "320",
-            "330",
-            "310",
-            "340"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Line chart values for number of people purchasing dishes:\nHotel P — Thai 50, Korean 140.\nHotel Q — Thai 200, Korean 80.\nHotel R — Thai 150, Korean 90.\nHotel S — Thai 70, Korean 180."
-        },
-        {
-          "id": 110,
-          "direction": "Read the following line chart carefully and answer the questions.",
-          "text": "Find the average number of people who purchased Thai and Korean dishes together from P, Q, and S.",
-          "options": [
-            "220",
-            "310",
-            "240",
-            "250",
-            "290"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Line chart values for number of people purchasing dishes:\nHotel P — Thai 50, Korean 140.\nHotel Q — Thai 200, Korean 80.\nHotel R — Thai 150, Korean 90.\nHotel S — Thai 70, Korean 180."
-        },
-        {
-          "id": 111,
-          "direction": "Read the following line chart carefully and answer the questions.",
-          "text": "The number of people who purchased a Thai dish and a Korean dish together from R is what percentage more or less than the number of people who purchased a Thai dish from P and Q together?",
-          "options": [
-            "4%",
-            "2.5%",
-            "5%",
-            "3%",
-            "6%"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Line chart values for number of people purchasing dishes:\nHotel P — Thai 50, Korean 140.\nHotel Q — Thai 200, Korean 80.\nHotel R — Thai 150, Korean 90.\nHotel S — Thai 70, Korean 180."
-        },
-        {
-          "id": 112,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "The efficiency of B is two times of the efficiency of A. Both started work together and after x days A left the work. If B completed 25% of the remaining work alone in 4 days, then find the value of x?",
-          "options": [
-            "12",
-            "3",
-            "8",
-            "4",
-            "6"
-          ],
-          "correctAnswer": 4,
-          "explanation": ""
-        },
-        {
-          "id": 113,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "The cost price of a watch is Rs. 750 and a bag is Rs. 840. A shopkeeper sold the watch at profit of 20% and the bag at loss of 15%. Find the overall profit or loss received by the shopkeeper (in Rs.)?",
-          "options": [
-            "30",
-            "12",
-            "36",
-            "24",
-            "48 27 Adda247 App"
-          ],
-          "correctAnswer": 3,
-          "explanation": ""
-        },
-        {
-          "id": 114,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "The upstream speed of a boat is 15 km/hr and the ratio of time taken by the boat to cover 105 km upstream and 108 km downstream 7 : 6 respectively. Find the speed of stream (in km/hr)?",
-          "options": [
-            "3",
-            "5",
-            "4",
-            "7",
-            "1"
-          ],
-          "correctAnswer": 0,
-          "explanation": ""
-        },
-        {
-          "id": 115,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "Two cars A and B started from point X & Y respectively, and the distance between these two points is 660 km. Both cars started at 10 AM and meet at 3 PM. If speed of car A is 12 km/hr more than that of B, then find the speed of car A (in km/hr)?",
-          "options": [
-            "60",
-            "72",
-            "84",
-            "102",
-            "90"
+            "340",
+            "360"
           ],
           "correctAnswer": 1,
-          "explanation": ""
+          "explanation": "48% of 750 = 360. 36% of 500 = 180. Therefore, 360 + 180 - 240 = 300."
         },
         {
-          "id": 116,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "Abhi and Bhushan started a business with capital of Rs. 2000 & Rs. 3000 respectively. At the end of 8 months, Divya joined the business with capital of Rs. 4000. At the end of a years, the profit share of Divya is Rs. 6000. Find the total profit share of Abhi and Bhushan (in Rs.)?",
+          "id": 2,
+          "direction": "Solve the following arithmetic expression.",
+          "text": "3/5 of 450 + 25% of 320 = ?",
           "options": [
-            "Rs. 20500",
-            "Rs. 21500",
-            "Rs. 22500",
-            "Rs. 27500",
-            "Rs. 25000"
+            "320",
+            "340",
+            "350",
+            "360",
+            "370"
           ],
           "correctAnswer": 2,
-          "explanation": ""
+          "explanation": "3/5 of 450 = 270. 25% of 320 = 80. Therefore, 270 + 80 = 350."
         },
         {
-          "id": 117,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "The ratio of area of a rectangle to a square is 7 : 6 and the perimeter of the square is 96 cm. If the ratio of length to breadth of the rectangle is 21 : 8, then find the perimeter of the rectangle (in cm)?",
+          "id": 3,
+          "direction": "Solve the following ratio problem.",
+          "text": "The ratio of the incomes of A and B is 7 : 5. If their total income is Rs. 14,400, what is the income of A?",
           "options": [
-            "232",
+            "Rs. 7,200",
+            "Rs. 8,000",
+            "Rs. 8,400",
+            "Rs. 9,000",
+            "Rs. 9,600"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Total ratio = 7 + 5 = 12. A's income = 14400 × 7/12 = Rs. 8,400."
+        },
+        {
+          "id": 4,
+          "direction": "Solve the following simple interest problem.",
+          "text": "Find the simple interest on Rs. 8,000 at 7.5% per annum for 2 years.",
+          "options": [
+            "Rs. 1,000",
+            "Rs. 1,100",
+            "Rs. 1,200",
+            "Rs. 1,300",
+            "Rs. 1,400"
+          ],
+          "correctAnswer": 2,
+          "explanation": "SI = P × R × T / 100 = 8000 × 7.5 × 2 / 100 = Rs. 1,200."
+        },
+        {
+          "id": 5,
+          "direction": "Solve the following compound interest problem.",
+          "text": "What is the compound interest on Rs. 10,000 at 10% per annum for 2 years, compounded annually?",
+          "options": [
+            "Rs. 1,900",
+            "Rs. 2,000",
+            "Rs. 2,100",
+            "Rs. 2,200",
+            "Rs. 2,400"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Amount = 10000 × (110/100)^2 = Rs. 12,100. Compound Interest = 12,100 - 10,000 = Rs. 2,100."
+        },
+        {
+          "id": 6,
+          "direction": "Solve the following average problem.",
+          "text": "The average of 5 numbers is 42. If a sixth number is added, the average becomes 45. Find the sixth number.",
+          "options": [
+            "55",
             "58",
-            "116",
-            "174",
-            "46"
+            "60",
+            "62",
+            "65"
           ],
           "correctAnswer": 2,
-          "explanation": ""
+          "explanation": "Sum of first 5 numbers = 5 × 42 = 210. Sum of 6 numbers = 6 × 45 = 270. Sixth number = 270 - 210 = 60."
         },
         {
-          "id": 118,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "A vessel contains 72 liters mixture of milk and water in the ratio of 5 : 3 respectively. 40 liters mixture is taken out and x liters of pure added in the remaining mixture. If the quantity of milk becomes 7 times of the water in the final mixture, then find the value of x?",
+          "id": 7,
+          "direction": "Solve the following profit and loss problem.",
+          "text": "An article is sold for Rs. 960 at a profit of 20%. Find its cost price.",
           "options": [
-            "72",
-            "48",
-            "68",
-            "60",
-            "64 28 Adda247 App"
+            "Rs. 760",
+            "Rs. 800",
+            "Rs. 820",
+            "Rs. 840",
+            "Rs. 880"
           ],
-          "correctAnswer": 4,
-          "explanation": ""
+          "correctAnswer": 1,
+          "explanation": "SP = 120% of CP. Therefore, CP = 960 × 100/120 = Rs. 800."
         },
         {
-          "id": 119,
-          "direction": "Read the following information carefully and answer the questions.",
-          "text": "The total number of orders delivered by Zomato in A is how many more or less than the total number of orders delivered by Swiggy in C.",
+          "id": 8,
+          "direction": "Solve the following discount problem.",
+          "text": "A shopkeeper offers a discount of 20% on the marked price of an article. If the selling price is Rs. 1,440, find the marked price.",
+          "options": [
+            "Rs. 1,600",
+            "Rs. 1,700",
+            "Rs. 1,800",
+            "Rs. 1,900",
+            "Rs. 2,000"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Selling price = 80% of marked price. Marked price = 1440 × 100/80 = Rs. 1,800."
+        },
+        {
+          "id": 9,
+          "direction": "Solve the following time and distance problem.",
+          "text": "A train 180 metres long is travelling at a speed of 54 km/hr. How much time will it take to cross a pole?",
+          "options": [
+            "10 seconds",
+            "12 seconds",
+            "14 seconds",
+            "15 seconds",
+            "18 seconds"
+          ],
+          "correctAnswer": 1,
+          "explanation": "54 km/hr = 54 × 5/18 = 15 m/s. Time = Distance/Speed = 180/15 = 12 seconds."
+        },
+        {
+          "id": 10,
+          "direction": "Solve the following boat and stream problem.",
+          "text": "The downstream speed of a boat is 18 km/hr and its upstream speed is 10 km/hr. What is the speed of the boat in still water?",
+          "options": [
+            "12 km/hr",
+            "13 km/hr",
+            "14 km/hr",
+            "15 km/hr",
+            "16 km/hr"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Speed in still water = (Downstream speed + Upstream speed)/2 = (18 + 10)/2 = 14 km/hr."
+        },
+        {
+          "id": 11,
+          "direction": "Solve the following time and work problem.",
+          "text": "A can complete a work in 12 days and B can complete the same work in 18 days. In how many days will they complete the work together?",
+          "options": [
+            "6 days",
+            "7.2 days",
+            "8 days",
+            "9 days",
+            "10 days"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A's one-day work = 1/12 and B's = 1/18. Together = 1/12 + 1/18 = 5/36. Time = 36/5 = 7.2 days."
+        },
+        {
+          "id": 12,
+          "direction": "Solve the following pipes and cisterns problem.",
+          "text": "Pipe A can fill a tank in 15 minutes and Pipe B can fill it in 20 minutes. If both pipes are opened together, how long will they take to fill the tank?",
+          "options": [
+            "6 minutes",
+            "7 minutes",
+            "8 2/7 minutes",
+            "9 minutes",
+            "10 minutes"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Combined rate = 1/15 + 1/20 = 7/60. Therefore, time = 60/7 = 8 4/7 minutes."
+        },
+        {
+          "id": 13,
+          "direction": "Solve the following age problem.",
+          "text": "The present ages of A and B are in the ratio 3 : 5. If their total age is 64 years, what is the difference between their ages?",
+          "options": [
+            "12 years",
+            "14 years",
+            "16 years",
+            "18 years",
+            "20 years"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Total ratio = 8. One part = 64/8 = 8. Difference = (5 - 3) × 8 = 16 years."
+        },
+        {
+          "id": 14,
+          "direction": "Solve the following mixture problem.",
+          "text": "Milk and water are mixed in the ratio 5 : 3. If the total quantity of the mixture is 64 litres, how much milk is present?",
+          "options": [
+            "32 litres",
+            "36 litres",
+            "40 litres",
+            "42 litres",
+            "45 litres"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Total ratio = 5 + 3 = 8. Milk = 64 × 5/8 = 40 litres."
+        },
+        {
+          "id": 15,
+          "direction": "Solve the following time and distance problem.",
+          "text": "A person travels a certain distance at 45 km/hr and takes 1 hour more than when travelling at 60 km/hr. Find the distance.",
+          "options": [
+            "160 km",
+            "180 km",
+            "200 km",
+            "220 km",
+            "240 km"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Let distance be D. D/45 - D/60 = 1. Therefore, D(1/45 - 1/60) = 1. D × 1/180 = 1, so D = 180 km."
+        },
+        {
+          "id": 16,
+          "direction": "Solve the following HCF and LCM problem.",
+          "text": "The HCF of two numbers is 12 and their product is 864. If one number is 24, find the other number.",
           "options": [
             "30",
-            "20",
-            "10",
-            "15",
-            "25"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Information about total orders delivered by Zomato and Swiggy in cities A, B and C: average Zomato orders across A, B and C = 43 1/3; Swiggy in A : Zomato in B = 5:3; Swiggy in C is 20 more than Zomato in B; Zomato in A = Swiggy in B; Zomato in C = 20% of Swiggy in A; total Zomato + Swiggy in A = 150."
-        },
-        {
-          "id": 120,
-          "direction": "Read the following information carefully and answer the questions.",
-          "text": "Find the ratio of the number of orders delivered by Zomato in C to the number of orders delivered by Swiggy in A.",
-          "options": [
-            "1:5",
-            "2:7",
-            "3:4",
-            "4:1",
-            "3:8"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Information about total orders delivered by Zomato and Swiggy in cities A, B and C: average Zomato orders across A, B and C = 43 1/3; Swiggy in A : Zomato in B = 5:3; Swiggy in C is 20 more than Zomato in B; Zomato in A = Swiggy in B; Zomato in C = 20% of Swiggy in A; total Zomato + Swiggy in A = 150."
-        },
-        {
-          "id": 121,
-          "direction": "Read the following information carefully and answer the questions.",
-          "text": "The number of orders delivered by Swiggy in B is what percentage of the total number of orders delivered by Zomato and Swiggy tighter in C?",
-          "options": [
-            "33.33%",
-            "50%",
-            "12.5%",
-            "66.67%",
-            "75%"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Information about total orders delivered by Zomato and Swiggy in cities A, B and C: average Zomato orders across A, B and C = 43 1/3; Swiggy in A : Zomato in B = 5:3; Swiggy in C is 20 more than Zomato in B; Zomato in A = Swiggy in B; Zomato in C = 20% of Swiggy in A; total Zomato + Swiggy in A = 150."
-        },
-        {
-          "id": 122,
-          "direction": "Read the following information carefully and answer the questions.",
-          "text": "The number of orders delivered by Swiggy in D is average of the number of orders delivered by Zomato in A and C. If the total number of orders delivered by Zomato and Swiggy together in D is 90% more than the number of orders delivered by Zomato in B, then find the number of orders delivered by Zomato in D.",
-          "options": [
-            "78",
-            "97",
-            "79",
-            "98",
-            "74 29 Adda247 App"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Information about total orders delivered by Zomato and Swiggy in cities A, B and C: average Zomato orders across A, B and C = 43 1/3; Swiggy in A : Zomato in B = 5:3; Swiggy in C is 20 more than Zomato in B; Zomato in A = Swiggy in B; Zomato in C = 20% of Swiggy in A; total Zomato + Swiggy in A = 150."
-        },
-        {
-          "id": 123,
-          "direction": "Read the following information carefully and answer the questions.",
-          "text": "The number of orders delivered by Zomato in F is 25% less than the number of orders delivered by Swiggy in C. If the number of orders delivered by Swiggy in F is 15 less than that of B, then find the total number of orders delivered by Zomato and Swiggy together in F.",
-          "options": [
-            "105",
-            "100",
-            "95",
-            "120",
-            "90"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Information about total orders delivered by Zomato and Swiggy in cities A, B and C: average Zomato orders across A, B and C = 43 1/3; Swiggy in A : Zomato in B = 5:3; Swiggy in C is 20 more than Zomato in B; Zomato in A = Swiggy in B; Zomato in C = 20% of Swiggy in A; total Zomato + Swiggy in A = 150."
-        },
-        {
-          "id": 124,
-          "direction": "Read the following information carefully and answer the questions.",
-          "text": "Find the average number of orders delivered by Zomato and Swiggy together in B and C.",
-          "options": [
-            "105",
-            "110",
-            "90",
-            "85",
-            "80"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Information about total orders delivered by Zomato and Swiggy in cities A, B and C: average Zomato orders across A, B and C = 43 1/3; Swiggy in A : Zomato in B = 5:3; Swiggy in C is 20 more than Zomato in B; Zomato in A = Swiggy in B; Zomato in C = 20% of Swiggy in A; total Zomato + Swiggy in A = 150."
-        },
-        {
-          "id": 125,
-          "direction": "Read the following table carefully and answer the questions.",
-          "text": "Find the difference between the number of non-graduate people in A and D together and the number of females in E.",
-          "options": [
-            "25",
-            "20",
-            "35",
-            "40",
-            "45"
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Town data:\nA: total 400, males:females 3:5, graduates 290.\nB: total 250, males:females 11:14, graduates 130.\nC: total 180, males:females 5:4, graduates 120.\nD: total 360, males:females 11:7, graduates 245.\nE: total 550, males:females 6:5, graduates 305.\nTotal people = males + females; total people = graduates + non-graduates."
-        },
-        {
-          "id": 126,
-          "direction": "Read the following table carefully and answer the questions.",
-          "text": "The non-graduate people in C are what percentage of the difference between the number of males in D and E?",
-          "options": [
-            "35%",
-            "80%",
-            "75%",
-            "50%",
-            "70% 30 Adda247 App"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Town data:\nA: total 400, males:females 3:5, graduates 290.\nB: total 250, males:females 11:14, graduates 130.\nC: total 180, males:females 5:4, graduates 120.\nD: total 360, males:females 11:7, graduates 245.\nE: total 550, males:females 6:5, graduates 305.\nTotal people = males + females; total people = graduates + non-graduates."
-        },
-        {
-          "id": 127,
-          "direction": "Read the following table carefully and answer the questions.",
-          "text": "If 40% of the number of graduates are male in A, then find the difference between the number of non-graduate males and the number of graduate females in A.",
-          "options": [
-            "110",
-            "100",
-            "140",
-            "120",
-            "130"
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Town data:\nA: total 400, males:females 3:5, graduates 290.\nB: total 250, males:females 11:14, graduates 130.\nC: total 180, males:females 5:4, graduates 120.\nD: total 360, males:females 11:7, graduates 245.\nE: total 550, males:females 6:5, graduates 305.\nTotal people = males + females; total people = graduates + non-graduates."
-        },
-        {
-          "id": 128,
-          "direction": "Read the following table carefully and answer the questions.",
-          "text": "The total number of people in F is 60% that of B, and the number of females in F is 40% less than that of C. Find the average number of males in F and D.",
-          "options": [
-            "124",
-            "192",
-            "178",
-            "161",
-            "143"
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Town data:\nA: total 400, males:females 3:5, graduates 290.\nB: total 250, males:females 11:14, graduates 130.\nC: total 180, males:females 5:4, graduates 120.\nD: total 360, males:females 11:7, graduates 245.\nE: total 550, males:females 6:5, graduates 305.\nTotal people = males + females; total people = graduates + non-graduates."
-        },
-        {
-          "id": 129,
-          "direction": "Read the following table carefully and answer the questions.",
-          "text": "The ratio of non-graduate males to females in B is 7:5, respectively. The number of male graduates in B is what percentage of the total number of people in A?",
-          "options": [
-            "5%",
-            "25%",
-            "20%",
-            "15%",
-            "10%"
-          ],
-          "correctAnswer": 4,
-          "explanation": "",
-          "passage": "Town data:\nA: total 400, males:females 3:5, graduates 290.\nB: total 250, males:females 11:14, graduates 130.\nC: total 180, males:females 5:4, graduates 120.\nD: total 360, males:females 11:7, graduates 245.\nE: total 550, males:females 6:5, graduates 305.\nTotal people = males + females; total people = graduates + non-graduates."
-        },
-        {
-          "id": 130,
-          "direction": "Read the following table carefully and answer the questions.",
-          "text": "Find the ratio between the total number of females in A, D and E together to the total number of non-graduates in B and C together.",
-          "options": [
-            "33:7",
-            "32:9",
-            "31:4",
-            "34:5",
-            "36:11"
-          ],
-          "correctAnswer": 1,
-          "explanation": "",
-          "passage": "Town data:\nA: total 400, males:females 3:5, graduates 290.\nB: total 250, males:females 11:14, graduates 130.\nC: total 180, males:females 5:4, graduates 120.\nD: total 360, males:females 11:7, graduates 245.\nE: total 550, males:females 6:5, graduates 305.\nTotal people = males + females; total people = graduates + non-graduates."
-        },
-        {
-          "id": 131,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "A vessel contains 180 liters mixture of milk to water is 5 : 1. 40% of the mixture taken out and x liters of pure milk added in the mixture. If the ratio of milk to water in resultant mixture becomes 7 :1, then find value of x?",
-          "options": [
             "32",
-            "60",
-            "48",
             "36",
-            "40 31 Adda247 App"
-          ],
-          "correctAnswer": 3,
-          "explanation": ""
-        },
-        {
-          "id": 132,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "The length of train A is x+10 meters and length of train B is x+20 meters respectively. Both trains cross each other is 11/2 seconds and speed of train A is 90 km/hr. The speed of train B is 40% more than that of train A, then find the time taken by the train B to cross a 110 meters long platform (in seconds)?",
-          "options": [
-            "10",
-            "12",
-            "8",
-            "6",
-            "16"
-          ],
-          "correctAnswer": 2,
-          "explanation": ""
-        },
-        {
-          "id": 133,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "A borrowed a sum of money from B at the rate of 8% per annum on simple interest for the first four years, 10% per annum for the next six years and 12% per annum for the period beyond ten years. If he pays a total of Rs. 12160 as interest only at the end of 15 years, then how much money did A borrowed?",
-          "options": [
-            "Rs. 8000",
-            "Rs. 10000",
-            "Rs. 12000",
-            "Rs. 9000",
-            "Rs. 6000"
-          ],
-          "correctAnswer": 0,
-          "explanation": ""
-        },
-        {
-          "id": 134,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "The ratio of present age of Amit is to Manish is 3 : 2, while five years ago, Amit’s age was two times of Manish’s age at that time. Five years hence, the sum of ages of Manish and Amit is equal to Lalit’s age at that time, then find present age of Lalit?",
-          "options": [
-            "35",
-            "40",
-            "20",
-            "25",
-            "30"
-          ],
-          "correctAnswer": 4,
-          "explanation": ""
-        },
-        {
-          "id": 135,
-          "direction": "Read the question carefully and select the correct answer.",
-          "text": "The area of a rectangle is equal to area of a right-angle triangle. The breadth of the rectangle is 18 cm and the base of the triangle is 8 cm more than the length of the rectangle and height of the triangle is 3 cm more than length of the rectangle. Find length (in cm) of the rectangle (length > breadth)",
-          "options": [
-            "36",
-            "24",
-            "21",
-            "12",
-            "40"
-          ],
-          "correctAnswer": 1,
-          "explanation": ""
-        },
-        {
-          "id": 136,
-          "direction": "Determine which statement(s) are necessary/sufficient to answer the question.",
-          "text": "What is speed of train? I. The train can cross 100 m long platform in 10 sec & a trees in 5 sec. II. The train can cross another train of same length coming from opposite direction at same speed in 20 sec.",
-          "options": [
-            "Only statement II alone is sufficient to answer.",
-            "Either statement I or statement II alone is sufficient to answer.",
-            "Both statement I & II together are necessary to answer.",
-            "Only statement I alone is sufficient to answer.",
-            "Neither statement I nor statement II is sufficient to answer."
-          ],
-          "correctAnswer": 3,
-          "explanation": "",
-          "passage": "Answer choices: (a) Only statement II alone is sufficient. (b) Either statement I or statement II alone is sufficient. (c) Both statement I & II together are necessary. (d) Only statement I alone is sufficient. (e) Neither statement I nor statement II is sufficient."
-        },
-        {
-          "id": 137,
-          "direction": "Determine which statement(s) are necessary/sufficient to answer the question.",
-          "text": "In what time the tank will be filled by inlet pipes A, B & C together? I. B alone takes 10 min to fill the tank. Part of Tank filled by A in 4 min is equal to part of tank filled by C in 8 min. II. A alone & B alone can fill the tank in 10 & 12 min respectively. B & C when working together can fill tank in 6 min.",
-          "options": [
-            "Only statement II alone is sufficient to answer.",
-            "Either statement I or statement II alone is sufficient to answer.",
-            "Both statement I & II together are necessary to answer.",
-            "Only statement I alone is sufficient to answer.",
-            "Neither statement I nor statement II is sufficient to answer."
-          ],
-          "correctAnswer": 0,
-          "explanation": "",
-          "passage": "Answer choices: (a) Only statement II alone is sufficient. (b) Either statement I or statement II alone is sufficient. (c) Both statement I & II together are necessary. (d) Only statement I alone is sufficient. (e) Neither statement I nor statement II is sufficient."
-        },
-        {
-          "id": 138,
-          "direction": "The source PDF prints this probability question as Q139 before another Q139; it is normalized here to Q138 to preserve the 1-150 sequence. Determine which statement(s) are necessary/sufficient to answer the question.",
-          "text": "What is probability of drawing 2 red balls from the bag? I. There are 10 balls in the bag of which 3 are green balls which are 1 more than pink balls. II. If there would be 2 more pink balls in the bag then number of pink balls will be equal to number red balls in the bag.",
-          "options": [
-            "Only statement II alone is sufficient to answer.",
-            "Either statement I or statement II alone is sufficient to answer.",
-            "Both statement I & II together are necessary to answer.",
-            "Only statement I alone is sufficient to answer.",
-            "Neither statement I nor statement II is sufficient to answer."
-          ],
-          "correctAnswer": 2,
-          "explanation": "",
-          "passage": "Answer choices: (a) Only statement II alone is sufficient. (b) Either statement I or statement II alone is sufficient. (c) Both statement I & II together are necessary. (d) Only statement I alone is sufficient. (e) Neither statement I nor statement II is sufficient."
-        },
-        {
-          "id": 139,
-          "direction": "Find the approximate value of (?) in the following questions.",
-          "text": "189.98 + 49.96% 𝑜𝑓 539.98 + ? = 630.03",
-          "options": [
-            "190",
-            "170",
-            "120",
-            "240",
-            "200"
-          ],
-          "correctAnswer": 1,
-          "explanation": ""
-        },
-        {
-          "id": 140,
-          "direction": "Find the approximate value of (?) in the following questions.",
-          "text": "276.02 12.03 × 79.99 115.01 × ? = 31.99% of 199.98",
-          "options": [
-            "4",
-            "16",
-            "30",
-            "8",
-            "24"
-          ],
-          "correctAnswer": 0,
-          "explanation": ""
-        },
-        {
-          "id": 141,
-          "direction": "Find the approximate value of (?) in the following questions.",
-          "text": "(284.02 + 184.001 ÷ 3.997) ÷ (594.01 ÷ 9.02) = ?",
-          "options": [
-            "25",
-            "15",
-            "20",
-            "5",
-            "10"
-          ],
-          "correctAnswer": 3,
-          "explanation": ""
-        },
-        {
-          "id": 142,
-          "direction": "Find the approximate value of (?) in the following questions.",
-          "text": "684.03 + 2171.999 ÷ 5.98 + 49.98 × 5.02 = ?2",
-          "options": [
             "42",
-            "36",
-            "24",
-            "26",
-            "16 33 Adda247 App"
-          ],
-          "correctAnswer": 1,
-          "explanation": ""
-        },
-        {
-          "id": 143,
-          "direction": "Find the approximate value of (?) in the following questions.",
-          "text": "(79.97% 𝑜𝑓 250.02) 𝑜𝑓 4.99 ÷ (4.97)2 = ?",
-          "options": [
-            "40",
-            "70",
-            "90",
-            "60",
-            "20"
-          ],
-          "correctAnswer": 0,
-          "explanation": ""
-        },
-        {
-          "id": 144,
-          "direction": "Find the approximate value of (?) in the following questions.",
-          "text": "24.89% 𝑜𝑓 624.09 19.7% 𝑜𝑓 994.89 × 397.97 −19.78 = ?3−19.14 × 23.06",
-          "options": [
-            "9",
-            "13",
-            "4",
-            "19",
-            "11"
-          ],
-          "correctAnswer": 0,
-          "explanation": ""
-        },
-        {
-          "id": 145,
-          "direction": "Find the wrong number in each series.",
-          "text": "17, 35, 71, 143, 287, 575, 1150",
-          "options": [
-            "17",
-            "1150",
-            "35",
-            "143",
-            "287"
-          ],
-          "correctAnswer": 1,
-          "explanation": ""
-        },
-        {
-          "id": 146,
-          "direction": "Find the wrong number in each series.",
-          "text": "128, 32, 96, 240, 840, 3780, 20790",
-          "options": [
-            "32",
-            "96",
-            "240",
-            "840",
-            "3780"
-          ],
-          "correctAnswer": 0,
-          "explanation": ""
-        },
-        {
-          "id": 147,
-          "direction": "Find the wrong number in each series.",
-          "text": "91, 235, 163, 199, 181, 190, 187.5",
-          "options": [
-            "91",
-            "235",
-            "163",
-            "187.5",
-            "199"
-          ],
-          "correctAnswer": 3,
-          "explanation": ""
-        },
-        {
-          "id": 148,
-          "direction": "Find the wrong number in each series.",
-          "text": "15, 75, 129, 191, 243, 309, 357",
-          "options": [
-            "15",
-            "75",
-            "309",
-            "243",
-            "357 34 Adda247 App"
+            "48"
           ],
           "correctAnswer": 2,
-          "explanation": ""
+          "explanation": "Using Product = HCF × LCM, LCM = 864/12 = 72. Since 24 × other number = HCF × LCM = 864, the other number is 36."
         },
         {
-          "id": 149,
-          "direction": "Find the wrong number in each series.",
-          "text": "103, 145, 190, 247, 313, 388",
+          "id": 17,
+          "direction": "Solve the following number system problem.",
+          "text": "Find the smallest number which when divided by 12, 18 and 24 leaves a remainder of 5 in each case.",
           "options": [
-            "103",
-            "313",
-            "247",
-            "190",
-            "145"
+            "65",
+            "71",
+            "77",
+            "83",
+            "89"
           ],
-          "correctAnswer": 4,
-          "explanation": ""
+          "correctAnswer": 2,
+          "explanation": "LCM of 12, 18 and 24 = 72. Required number = 72 + 5 = 77."
         },
         {
-          "id": 150,
-          "direction": "Find the wrong number in each series.",
-          "text": "473, 406, 335, 262, 183, 99, 11",
+          "id": 18,
+          "direction": "Solve the following percentage problem.",
+          "text": "The price of an article increases from Rs. 500 to Rs. 575. What is the percentage increase?",
           "options": [
-            "99",
-            "183",
-            "335",
-            "406",
-            "473"
+            "12%",
+            "15%",
+            "18%",
+            "20%",
+            "25%"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Increase = 575 - 500 = 75. Percentage increase = 75/500 × 100 = 15%."
+        },
+        {
+          "id": 19,
+          "direction": "Solve the following income and expenditure problem.",
+          "text": "A person's monthly income is Rs. 50,000 and he saves 20% of his income. If his income increases by 10% and his expenditure increases by 5%, what will be his new monthly savings?",
+          "options": [
+            "Rs. 12,000",
+            "Rs. 13,000",
+            "Rs. 14,000",
+            "Rs. 15,000",
+            "Rs. 16,000"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Original expenditure = 80% of 50,000 = Rs. 40,000. New income = Rs. 55,000. New expenditure = 40,000 × 105/100 = Rs. 42,000. New savings = 55,000 - 42,000 = Rs. 13,000."
+        },
+        {
+          "id": 20,
+          "direction": "Study the following number series and answer the question.",
+          "text": "Find the missing number: 5, 11, 23, 47, 95, ?",
+          "options": [
+            "181",
+            "189",
+            "191",
+            "193",
+            "195"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Each number is multiplied by 2 and then 1 is added: 5 × 2 + 1 = 11, 11 × 2 + 1 = 23, and so on. Therefore, 95 × 2 + 1 = 191."
+        },
+        {
+          "id": 21,
+          "direction": "Solve the following quadratic equation.",
+          "text": "x² - 11x + 28 = 0. What are the values of x?",
+          "options": [
+            "4 and 7",
+            "3 and 8",
+            "5 and 6",
+            "2 and 14",
+            "1 and 28"
           ],
           "correctAnswer": 0,
-          "explanation": ""
+          "explanation": "x² - 11x + 28 = (x - 4)(x - 7) = 0. Therefore, x = 4 or 7."
+        },
+        {
+          "id": 22,
+          "direction": "Solve the following approximation problem.",
+          "text": "What is the approximate value of 49.98% of 800 + 24.96% of 600?",
+          "options": [
+            "520",
+            "540",
+            "550",
+            "560",
+            "580"
+          ],
+          "correctAnswer": 1,
+          "explanation": "49.98% ≈ 50% and 24.96% ≈ 25%. Therefore, 50% of 800 + 25% of 600 = 400 + 150 = 550."
+        },
+        {
+          "id": 23,
+          "direction": "Solve the following probability problem.",
+          "text": "A bag contains 5 red, 4 blue and 3 green balls. One ball is drawn at random. What is the probability that the ball is either red or blue?",
+          "options": [
+            "3/4",
+            "2/3",
+            "1/2",
+            "5/6",
+            "7/12"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Total balls = 5 + 4 + 3 = 12. Favourable balls = 5 + 4 = 9. Probability = 9/12 = 3/4."
+        },
+        {
+          "id": 24,
+          "direction": "Study the following data carefully and answer the question.",
+          "text": "<strong>Number of candidates appearing for an examination:</strong><br><br>2022: 800<br>2023: 1000<br>2024: 1200<br>2025: 1500<br><br>What is the percentage increase in the number of candidates from 2023 to 2025?",
+          "options": [
+            "40%",
+            "45%",
+            "50%",
+            "55%",
+            "60%"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Increase = 1500 - 1000 = 500. Percentage increase = 500/1000 × 100 = 50%."
+        },
+        {
+          "id": 25,
+          "direction": "Study the following data carefully and answer the question.",
+          "text": "<strong>Number of questions attempted by a student in five sections:</strong><br><br>English = 18<br>Reasoning = 22<br>Quantitative Aptitude = 25<br>General Awareness = 15<br>Professional Knowledge = 30<br><br>What percentage of the total questions attempted were from Quantitative Aptitude?",
+          "options": [
+            "20%",
+            "22.73%",
+            "25%",
+            "27.5%",
+            "30%"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Total questions attempted = 18 + 22 + 25 + 15 + 30 = 110. Quantitative Aptitude questions = 25. Percentage = 25/110 × 100 = 22.73% approximately."
         }
       ]
     }

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IBPS SO Prelims Mock Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add html2pdf.js for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -219,8 +221,14 @@
                     <!-- Solutions injected here -->
                 </div>
 
-                <div class="mt-8 text-center">
-                    <button onclick="location.reload()" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-8 rounded-lg transition shadow-md">
+                <div class="mt-8 text-center flex flex-wrap justify-center gap-4" id="result-action-buttons">
+                    <button id="download-pdf-btn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition shadow-md flex items-center gap-2 hidden">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button id="download-json-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition shadow-md flex items-center gap-2 hidden">
+                        <i class="fas fa-file-code"></i> Download JSON
+                    </button>
+                    <button onclick="location.reload()" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-6 rounded-lg transition shadow-md">
                         Take Another Test
                     </button>
                 </div>
@@ -449,7 +457,8 @@
             userResponses = examData.sections.map(sec => 
                 new Array(sec.questions.length).fill(null).map(() => ({
                     selectedOption: null,
-                    status: 'not-visited'
+                    status: 'not-visited',
+                    timeTaken: 0 // Track time taken in seconds
                 }))
             );
 
@@ -652,11 +661,16 @@
             timerInterval = setInterval(() => {
                 if (isPaused) return; // Skip the countdown logic if the test is paused
                 
+                // Increment time taken for the currently active question
+                if (userResponses[currentSectionIndex] && userResponses[currentSectionIndex][currentQuestionIndex]) {
+                    userResponses[currentSectionIndex][currentQuestionIndex].timeTaken++;
+                }
+
                 timeRemaining--;
                 let m = Math.floor(timeRemaining / 60);
                 let s = timeRemaining % 60;
                 timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                
+
                 if(timeRemaining <= 60 && timeRemaining > 0) {
                     timerEl.classList.add('animate-pulse');
                 }
@@ -820,6 +834,89 @@
             document.getElementById('res-incorrect').innerText = incorrect;
             
             solutionContainer.innerHTML = solutionsHTML;
+
+            // Generate Detailed JSON Result Data
+            const finalResultJSON = {
+                examTitle: examData.title,
+                timestamp: new Date().toISOString(),
+                summary: {
+                    totalScore: score > 0 ? parseFloat(score.toFixed(2)) : 0.00,
+                    attempted: attempted,
+                    correct: correct,
+                    incorrect: incorrect
+                },
+                sections: examData.sections.map((sec, secIdx) => ({
+                    sectionName: sec.name,
+                    questions: sec.questions.map((q, qIdx) => {
+                        const res = userResponses[secIdx][qIdx];
+                        return {
+                            questionId: q.id,
+                            direction: q.direction || null,
+                            passage: q.passage || null,
+                            questionText: q.text,
+                            options: q.options,
+                            correctAnswerIndex: q.correctAnswer,
+                            correctAnswerText: q.options[q.correctAnswer],
+                            userAnswerIndex: res.selectedOption,
+                            userAnswerText: res.selectedOption !== null ? q.options[res.selectedOption] : "UNATTEMPTED",
+                            isCorrect: res.selectedOption === q.correctAnswer,
+                            timeTakenSeconds: res.timeTaken
+                        };
+                    })
+                }))
+            };
+
+            // Setup JSON Download Button
+            const downloadBtn = document.getElementById('download-json-btn');
+            downloadBtn.classList.remove('hidden');
+            downloadBtn.onclick = () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalResultJSON, null, 4));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "exam_result.json");
+                document.body.appendChild(downloadAnchorNode); // required for Firefox
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            };
+
+            // Setup PDF Download Button
+            const pdfBtn = document.getElementById('download-pdf-btn');
+            pdfBtn.classList.remove('hidden');
+            pdfBtn.onclick = () => {
+                // Change button text to show loading state
+                const originalText = pdfBtn.innerHTML;
+                pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+                pdfBtn.disabled = true;
+
+                // Temporarily hide the action buttons so they don't appear in the downloaded PDF
+                const buttonsDiv = document.getElementById('result-action-buttons');
+                buttonsDiv.style.display = 'none';
+
+                // Select the element to convert to PDF (the main white card in the result screen)
+                const element = document.querySelector('#result-screen .max-w-4xl');
+                
+                // Configure html2pdf options
+                const opt = {
+                    margin:       0.5,
+                    filename:     'exam_result_detailed.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                // Generate and save PDF, then restore the buttons
+                html2pdf().set(opt).from(element).save().then(() => {
+                    buttonsDiv.style.display = 'flex';
+                    pdfBtn.innerHTML = originalText;
+                    pdfBtn.disabled = false;
+                }).catch(err => {
+                    console.error("PDF generation failed", err);
+                    buttonsDiv.style.display = 'flex';
+                    pdfBtn.innerHTML = originalText;
+                    pdfBtn.disabled = false;
+                    alert("Failed to generate PDF. Please try again.");
+                });
+            };
         }
 
         async function prepareExamData() {
