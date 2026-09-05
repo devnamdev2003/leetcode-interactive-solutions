@@ -1,359 +1,362 @@
 {
-  "title": "IBPS SO Prelims Mock Test - Quantitative Aptitude",
+  "title": "IBPS SO Prelims Mock Test - Verbal Ability - Mock 1",
   "sections": [
     {
-      "name": "Quantitative Aptitude",
+      "name": "English Language",
       "timeInSeconds": 1200,
       "questions": [
         {
           "id": 1,
-          "direction": "Solve the following arithmetic expression.",
-          "text": "48% of 750 + 36% of 500 - 240 = ?",
+          "direction": "Read the passage carefully and answer the question.",
+          "passage": "The rapid expansion of digital payments has transformed the way consumers and businesses conduct transactions. While digital platforms offer convenience and speed, their growing use has also increased concerns regarding cybersecurity and data privacy. Experts argue that technological advancement alone cannot guarantee secure transactions. Users must also adopt responsible practices, such as using strong passwords, enabling two-factor authentication and avoiding suspicious links. Financial institutions, meanwhile, need to strengthen their security infrastructure and educate customers about emerging threats.",
+          "text": "Which of the following can be most appropriately inferred from the passage?",
           "options": [
-            "280",
-            "300",
-            "320",
-            "340",
-            "360"
+            "Digital payments are likely to completely replace cash transactions.",
+            "Cybersecurity can be ensured solely through advanced technology.",
+            "Both service providers and users have responsibilities in maintaining digital payment security.",
+            "Users should avoid digital payment platforms because they are inherently unsafe.",
+            "Financial institutions are primarily responsible for all cybersecurity failures."
           ],
-          "correctAnswer": 1,
-          "explanation": "48% of 750 = 360. 36% of 500 = 180. Therefore, 360 + 180 - 240 = 300."
+          "correctAnswer": 2,
+          "explanation": "The passage states that users must adopt responsible practices while financial institutions must strengthen security and educate customers. Therefore, both users and service providers share responsibility."
         },
         {
           "id": 2,
-          "direction": "Solve the following arithmetic expression.",
-          "text": "3/5 of 450 + 25% of 320 = ?",
+          "direction": "Read the passage carefully and answer the question.",
+          "passage": "Urban transport systems are under increasing pressure as cities expand and private vehicle ownership rises. Merely widening roads may provide temporary relief but often encourages greater dependence on private vehicles. A sustainable solution requires investment in reliable public transportation, safe pedestrian infrastructure and efficient cycling networks. Such measures can reduce congestion while also lowering pollution and improving accessibility for people who cannot afford private vehicles.",
+          "text": "According to the passage, which of the following is NOT mentioned as a benefit of sustainable urban transport?",
           "options": [
-            "320",
-            "340",
-            "350",
-            "360",
-            "370"
+            "Reduction in traffic congestion",
+            "Lower pollution levels",
+            "Improved accessibility",
+            "Reduction in dependence on private vehicles",
+            "Increase in private vehicle ownership"
           ],
-          "correctAnswer": 2,
-          "explanation": "3/5 of 450 = 270. 25% of 320 = 80. Therefore, 270 + 80 = 350."
+          "correctAnswer": 4,
+          "explanation": "The passage mentions reducing congestion, lowering pollution, improving accessibility and reducing dependence on private vehicles. It does not mention an increase in private vehicle ownership as a benefit."
         },
         {
           "id": 3,
-          "direction": "Solve the following ratio problem.",
-          "text": "The ratio of the incomes of A and B is 7 : 5. If their total income is Rs. 14,400, what is the income of A?",
+          "direction": "Read the passage carefully and answer the question.",
+          "passage": "Many organizations have adopted hybrid work models after observing that flexibility can improve employee satisfaction. However, flexibility does not automatically lead to higher productivity. Without clear communication, measurable goals and effective collaboration tools, employees may struggle to coordinate their work. Managers therefore need to focus less on physical presence and more on outcomes, while ensuring that employees have adequate support.",
+          "text": "What is the central idea of the passage?",
           "options": [
-            "Rs. 7,200",
-            "Rs. 8,000",
-            "Rs. 8,400",
-            "Rs. 9,000",
-            "Rs. 9,600"
+            "Employees are always more productive when working from home.",
+            "Physical presence is essential for effective management.",
+            "Hybrid work can be beneficial, but its success depends on effective management and support.",
+            "Organizations should completely abandon office-based work.",
+            "Employee satisfaction has no relationship with workplace flexibility."
           ],
           "correctAnswer": 2,
-          "explanation": "Total ratio = 7 + 5 = 12. A's income = 14400 × 7/12 = Rs. 8,400."
+          "explanation": "The passage acknowledges the benefits of flexibility but emphasizes that hybrid work requires communication, measurable goals, collaboration tools and managerial support."
         },
         {
           "id": 4,
-          "direction": "Solve the following simple interest problem.",
-          "text": "Find the simple interest on Rs. 8,000 at 7.5% per annum for 2 years.",
+          "direction": "Identify the part of the sentence that contains an error.",
+          "text": "The committee has decided (A)/ to postpone the meeting (B)/ because several members was unavailable (C)/ at the scheduled time. (D)/ No error (E)",
           "options": [
-            "Rs. 1,000",
-            "Rs. 1,100",
-            "Rs. 1,200",
-            "Rs. 1,300",
-            "Rs. 1,400"
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
           ],
           "correctAnswer": 2,
-          "explanation": "SI = P × R × T / 100 = 8000 × 7.5 × 2 / 100 = Rs. 1,200."
+          "explanation": "The subject 'several members' is plural, so 'was' should be replaced with 'were'."
         },
         {
           "id": 5,
-          "direction": "Solve the following compound interest problem.",
-          "text": "What is the compound interest on Rs. 10,000 at 10% per annum for 2 years, compounded annually?",
+          "direction": "Identify the part of the sentence that contains an error.",
+          "text": "Neither the manager nor his assistants (A)/ was willing to take responsibility (B)/ for the delay caused by the technical issue. (C)/ No error (D)",
           "options": [
-            "Rs. 1,900",
-            "Rs. 2,000",
-            "Rs. 2,100",
-            "Rs. 2,200",
-            "Rs. 2,400"
+            "A",
+            "B",
+            "C",
+            "D"
           ],
-          "correctAnswer": 2,
-          "explanation": "Amount = 10000 × (110/100)^2 = Rs. 12,100. Compound Interest = 12,100 - 10,000 = Rs. 2,100."
+          "correctAnswer": 1,
+          "explanation": "With 'neither...nor', the verb agrees with the subject nearer to it. 'Assistants' is plural, so 'was' should be 'were'."
         },
         {
           "id": 6,
-          "direction": "Solve the following average problem.",
-          "text": "The average of 5 numbers is 42. If a sixth number is added, the average becomes 45. Find the sixth number.",
+          "direction": "Identify the part of the sentence that contains an error.",
+          "text": "The report, along with several supporting documents, (A)/ were submitted to the committee (B)/ before the deadline expired. (C)/ No error (D)",
           "options": [
-            "55",
-            "58",
-            "60",
-            "62",
-            "65"
+            "A",
+            "B",
+            "C",
+            "D"
           ],
-          "correctAnswer": 2,
-          "explanation": "Sum of first 5 numbers = 5 × 42 = 210. Sum of 6 numbers = 6 × 45 = 270. Sixth number = 270 - 210 = 60."
+          "correctAnswer": 1,
+          "explanation": "The main subject is 'The report', which is singular. The phrase 'along with several supporting documents' does not change the subject. Therefore, 'were' should be 'was'."
         },
         {
           "id": 7,
-          "direction": "Solve the following profit and loss problem.",
-          "text": "An article is sold for Rs. 960 at a profit of 20%. Find its cost price.",
+          "direction": "Choose the word that best replaces the underlined phrase.",
+          "text": "The management decided to <strong>look into</strong> the matter before taking disciplinary action.",
           "options": [
-            "Rs. 760",
-            "Rs. 800",
-            "Rs. 820",
-            "Rs. 840",
-            "Rs. 880"
+            "ignore",
+            "investigate",
+            "announce",
+            "postpone",
+            "summarize"
           ],
           "correctAnswer": 1,
-          "explanation": "SP = 120% of CP. Therefore, CP = 960 × 100/120 = Rs. 800."
+          "explanation": "'Look into' means to investigate or examine something carefully."
         },
         {
           "id": 8,
-          "direction": "Solve the following discount problem.",
-          "text": "A shopkeeper offers a discount of 20% on the marked price of an article. If the selling price is Rs. 1,440, find the marked price.",
+          "direction": "Choose the word that is most similar in meaning to the given word.",
+          "text": "<strong>PRUDENT</strong>",
           "options": [
-            "Rs. 1,600",
-            "Rs. 1,700",
-            "Rs. 1,800",
-            "Rs. 1,900",
-            "Rs. 2,000"
+            "Reckless",
+            "Cautious",
+            "Arrogant",
+            "Impulsive",
+            "Rigid"
           ],
-          "correctAnswer": 2,
-          "explanation": "Selling price = 80% of marked price. Marked price = 1440 × 100/80 = Rs. 1,800."
+          "correctAnswer": 1,
+          "explanation": "Prudent means acting with care and good judgment. 'Cautious' is the closest synonym."
         },
         {
           "id": 9,
-          "direction": "Solve the following time and distance problem.",
-          "text": "A train 180 metres long is travelling at a speed of 54 km/hr. How much time will it take to cross a pole?",
+          "direction": "Choose the word that is most opposite in meaning to the given word.",
+          "text": "<strong>RELUCTANT</strong>",
           "options": [
-            "10 seconds",
-            "12 seconds",
-            "14 seconds",
-            "15 seconds",
-            "18 seconds"
+            "Unwilling",
+            "Hesitant",
+            "Eager",
+            "Doubtful",
+            "Uncertain"
           ],
-          "correctAnswer": 1,
-          "explanation": "54 km/hr = 54 × 5/18 = 15 m/s. Time = Distance/Speed = 180/15 = 12 seconds."
+          "correctAnswer": 2,
+          "explanation": "Reluctant means unwilling or hesitant. 'Eager' is its opposite."
         },
         {
           "id": 10,
-          "direction": "Solve the following boat and stream problem.",
-          "text": "The downstream speed of a boat is 18 km/hr and its upstream speed is 10 km/hr. What is the speed of the boat in still water?",
+          "direction": "Fill in the blank with the most appropriate word.",
+          "text": "The new policy was introduced to ______ transparency in the recruitment process.",
           "options": [
-            "12 km/hr",
-            "13 km/hr",
-            "14 km/hr",
-            "15 km/hr",
-            "16 km/hr"
+            "diminish",
+            "enhance",
+            "conceal",
+            "obstruct",
+            "undermine"
           ],
-          "correctAnswer": 2,
-          "explanation": "Speed in still water = (Downstream speed + Upstream speed)/2 = (18 + 10)/2 = 14 km/hr."
+          "correctAnswer": 1,
+          "explanation": "'Enhance' means to improve or increase the quality or value of something. It fits the context of increasing transparency."
         },
         {
           "id": 11,
-          "direction": "Solve the following time and work problem.",
-          "text": "A can complete a work in 12 days and B can complete the same work in 18 days. In how many days will they complete the work together?",
+          "direction": "Fill in the blank with the most appropriate word.",
+          "text": "Despite several warnings, the employee continued to ______ the importance of following security protocols.",
           "options": [
-            "6 days",
-            "7.2 days",
-            "8 days",
-            "9 days",
-            "10 days"
+            "underestimate",
+            "emphasize",
+            "acknowledge",
+            "recognize",
+            "appreciate"
           ],
-          "correctAnswer": 1,
-          "explanation": "A's one-day work = 1/12 and B's = 1/18. Together = 1/12 + 1/18 = 5/36. Time = 36/5 = 7.2 days."
+          "correctAnswer": 0,
+          "explanation": "The context indicates that the employee failed to recognize the importance. Therefore, 'underestimate' is the appropriate word."
         },
         {
           "id": 12,
-          "direction": "Solve the following pipes and cisterns problem.",
-          "text": "Pipe A can fill a tank in 15 minutes and Pipe B can fill it in 20 minutes. If both pipes are opened together, how long will they take to fill the tank?",
+          "direction": "Fill in the blank with the most appropriate word.",
+          "text": "The sudden decline in demand forced the company to ______ its expansion plans.",
           "options": [
-            "6 minutes",
-            "7 minutes",
-            "8 2/7 minutes",
-            "9 minutes",
-            "10 minutes"
+            "accelerate",
+            "reconsider",
+            "celebrate",
+            "implement",
+            "approve"
           ],
-          "correctAnswer": 2,
-          "explanation": "Combined rate = 1/15 + 1/20 = 7/60. Therefore, time = 60/7 = 8 4/7 minutes."
+          "correctAnswer": 1,
+          "explanation": "'Reconsider' means to think again about a decision or plan, which fits the context."
         },
         {
           "id": 13,
-          "direction": "Solve the following age problem.",
-          "text": "The present ages of A and B are in the ratio 3 : 5. If their total age is 64 years, what is the difference between their ages?",
+          "direction": "Rearrange the following sentences to form a coherent paragraph.",
+          "text": "A. As a result, many organizations are investing heavily in employee training.<br>B. Cybersecurity threats have become increasingly sophisticated in recent years.<br>C. Human error remains one of the most common causes of security breaches.<br>D. Technical safeguards alone, therefore, cannot completely eliminate the risk.<br>E. Employees need to understand how their everyday actions can expose an organization to threats.",
           "options": [
-            "12 years",
-            "14 years",
-            "16 years",
-            "18 years",
-            "20 years"
+            "BCADE",
+            "BCEAD",
+            "CBADE",
+            "BEACD",
+            "BCDEA"
           ],
-          "correctAnswer": 2,
-          "explanation": "Total ratio = 8. One part = 64/8 = 8. Difference = (5 - 3) × 8 = 16 years."
+          "correctAnswer": 0,
+          "explanation": "B introduces the issue, C identifies human error, A gives the resulting organizational response, D provides the conclusion about technical safeguards, and E explains what employees need to understand. Hence B-C-A-D-E."
         },
         {
           "id": 14,
-          "direction": "Solve the following mixture problem.",
-          "text": "Milk and water are mixed in the ratio 5 : 3. If the total quantity of the mixture is 64 litres, how much milk is present?",
+          "direction": "Rearrange the following sentences to form a coherent paragraph.",
+          "text": "A. This has made it easier for small businesses to reach customers beyond their local markets.<br>B. E-commerce platforms have significantly changed the retail landscape.<br>C. However, increased competition has also forced sellers to improve pricing and customer service.<br>D. Consumers can now compare products from multiple sellers within minutes.<br>E. Consequently, businesses need to adapt continuously to remain competitive.",
           "options": [
-            "32 litres",
-            "36 litres",
-            "40 litres",
-            "42 litres",
-            "45 litres"
+            "BADCE",
+            "BCADE",
+            "BDCAE",
+            "ABDEC",
+            "BCDAE"
           ],
           "correctAnswer": 2,
-          "explanation": "Total ratio = 5 + 3 = 8. Milk = 64 × 5/8 = 40 litres."
+          "explanation": "B introduces e-commerce, D explains a consumer benefit, C introduces the resulting competition, A explains another consequence for small businesses, and E concludes with the need to adapt. Therefore B-D-C-A-E."
         },
         {
           "id": 15,
-          "direction": "Solve the following time and distance problem.",
-          "text": "A person travels a certain distance at 45 km/hr and takes 1 hour more than when travelling at 60 km/hr. Find the distance.",
+          "direction": "Choose the most appropriate word to fill the blank.",
+          "text": "The proposal was initially rejected because the committee found it financially ______ and operationally difficult to implement.",
           "options": [
-            "160 km",
-            "180 km",
-            "200 km",
-            "220 km",
-            "240 km"
+            "viable",
+            "feasible",
+            "unreasonable",
+            "practical",
+            "sustainable"
           ],
-          "correctAnswer": 1,
-          "explanation": "Let distance be D. D/45 - D/60 = 1. Therefore, D(1/45 - 1/60) = 1. D × 1/180 = 1, so D = 180 km."
+          "correctAnswer": 2,
+          "explanation": "The sentence indicates that the proposal was rejected because it was financially unsuitable. 'Unreasonable' best fits the negative context."
         },
         {
           "id": 16,
-          "direction": "Solve the following HCF and LCM problem.",
-          "text": "The HCF of two numbers is 12 and their product is 864. If one number is 24, find the other number.",
+          "direction": "Read the passage carefully and answer the question.",
+          "passage": "Artificial intelligence is increasingly being used to automate repetitive tasks across industries. This does not necessarily mean that human workers will become irrelevant. In many cases, automation changes the nature of work by reducing routine responsibilities and allowing employees to focus on judgment, creativity and interpersonal tasks. However, workers may need to acquire new skills to adapt to these changing requirements.",
+          "text": "Which of the following is most strongly supported by the passage?",
           "options": [
-            "30",
-            "32",
-            "36",
-            "42",
-            "48"
+            "AI will eliminate all forms of human employment.",
+            "Automation can change job responsibilities without necessarily eliminating human workers.",
+            "Creative work will eventually be performed entirely by AI.",
+            "Workers do not need to acquire new skills because AI handles routine tasks.",
+            "AI adoption is limited to the technology industry."
           ],
-          "correctAnswer": 2,
-          "explanation": "Using Product = HCF × LCM, LCM = 864/12 = 72. Since 24 × other number = HCF × LCM = 864, the other number is 36."
+          "correctAnswer": 1,
+          "explanation": "The passage explicitly states that automation can reduce routine responsibilities while allowing humans to focus on judgment, creativity and interpersonal work."
         },
         {
           "id": 17,
-          "direction": "Solve the following number system problem.",
-          "text": "Find the smallest number which when divided by 12, 18 and 24 leaves a remainder of 5 in each case.",
+          "direction": "Read the passage carefully and answer the question.",
+          "passage": "Financial literacy enables individuals to make informed decisions about saving, borrowing and investing. Yet access to financial information alone is not sufficient. Individuals must also understand how to evaluate risks, compare alternatives and plan according to their financial circumstances. Schools and financial institutions can play an important role by providing practical education rather than merely presenting theoretical concepts.",
+          "text": "Which of the following can be inferred from the passage?",
           "options": [
-            "65",
-            "71",
-            "77",
-            "83",
-            "89"
+            "Financial information is unnecessary for making financial decisions.",
+            "Financial literacy should focus only on investment strategies.",
+            "Practical financial education may be more useful than information without guidance on its application.",
+            "Schools should stop teaching financial concepts.",
+            "Financial institutions should make investment decisions on behalf of individuals."
           ],
           "correctAnswer": 2,
-          "explanation": "LCM of 12, 18 and 24 = 72. Required number = 72 + 5 = 77."
+          "explanation": "The passage contrasts access to information with the ability to evaluate risks and apply knowledge practically. Therefore, practical financial education is emphasized."
         },
         {
           "id": 18,
-          "direction": "Solve the following percentage problem.",
-          "text": "The price of an article increases from Rs. 500 to Rs. 575. What is the percentage increase?",
+          "direction": "Choose the most appropriate phrase to complete the sentence.",
+          "text": "The CEO's decision to step down came as a surprise, ______ several analysts had predicted leadership changes earlier.",
           "options": [
-            "12%",
-            "15%",
-            "18%",
-            "20%",
-            "25%"
+            "because",
+            "although",
+            "unless",
+            "so that",
+            "whereas"
           ],
           "correctAnswer": 1,
-          "explanation": "Increase = 575 - 500 = 75. Percentage increase = 75/500 × 100 = 15%."
+          "explanation": "The sentence contrasts the surprise with the fact that analysts had predicted leadership changes. 'Although' correctly expresses this contrast."
         },
         {
           "id": 19,
-          "direction": "Solve the following income and expenditure problem.",
-          "text": "A person's monthly income is Rs. 50,000 and he saves 20% of his income. If his income increases by 10% and his expenditure increases by 5%, what will be his new monthly savings?",
+          "direction": "Choose the grammatically correct sentence.",
+          "text": "Select the correct sentence.",
           "options": [
-            "Rs. 12,000",
-            "Rs. 13,000",
-            "Rs. 14,000",
-            "Rs. 15,000",
-            "Rs. 16,000"
+            "Each of the employees have submitted their report.",
+            "Each of the employees has submitted his or her report.",
+            "Each of the employees have submitted his report.",
+            "Each employees has submitted their reports.",
+            "Each of employees have submitted his or her report."
           ],
           "correctAnswer": 1,
-          "explanation": "Original expenditure = 80% of 50,000 = Rs. 40,000. New income = Rs. 55,000. New expenditure = 40,000 × 105/100 = Rs. 42,000. New savings = 55,000 - 42,000 = Rs. 13,000."
+          "explanation": "'Each' is singular and therefore takes the singular verb 'has'. The correct sentence is 'Each of the employees has submitted his or her report.'"
         },
         {
           "id": 20,
-          "direction": "Study the following number series and answer the question.",
-          "text": "Find the missing number: 5, 11, 23, 47, 95, ?",
+          "direction": "Choose the grammatically correct sentence.",
+          "text": "Select the correct sentence.",
           "options": [
-            "181",
-            "189",
-            "191",
-            "193",
-            "195"
+            "No sooner the meeting had started than the lights went out.",
+            "No sooner had the meeting started when the lights went out.",
+            "No sooner had the meeting started than the lights went out.",
+            "No sooner did the meeting started than the lights went out.",
+            "No sooner had the meeting start than the lights went out."
           ],
           "correctAnswer": 2,
-          "explanation": "Each number is multiplied by 2 and then 1 is added: 5 × 2 + 1 = 11, 11 × 2 + 1 = 23, and so on. Therefore, 95 × 2 + 1 = 191."
+          "explanation": "The correct construction is 'No sooner had + subject + past participle + than'. Therefore, option C is correct."
         },
         {
           "id": 21,
-          "direction": "Solve the following quadratic equation.",
-          "text": "x² - 11x + 28 = 0. What are the values of x?",
+          "direction": "Choose the most appropriate word to fill the blank.",
+          "text": "The report was criticized for being ______, as it presented several claims without sufficient evidence.",
           "options": [
-            "4 and 7",
-            "3 and 8",
-            "5 and 6",
-            "2 and 14",
-            "1 and 28"
+            "comprehensive",
+            "substantiated",
+            "ambiguous",
+            "unsubstantiated",
+            "conclusive"
           ],
-          "correctAnswer": 0,
-          "explanation": "x² - 11x + 28 = (x - 4)(x - 7) = 0. Therefore, x = 4 or 7."
+          "correctAnswer": 3,
+          "explanation": "'Unsubstantiated' means not supported by evidence, which directly matches the context."
         },
         {
           "id": 22,
-          "direction": "Solve the following approximation problem.",
-          "text": "What is the approximate value of 49.98% of 800 + 24.96% of 600?",
+          "direction": "Choose the most appropriate word to fill the blank.",
+          "text": "The management's decision to ______ the outdated software was welcomed by employees who had struggled with frequent system failures.",
           "options": [
-            "520",
-            "540",
-            "550",
-            "560",
-            "580"
+            "retain",
+            "replace",
+            "preserve",
+            "restore",
+            "ignore"
           ],
           "correctAnswer": 1,
-          "explanation": "49.98% ≈ 50% and 24.96% ≈ 25%. Therefore, 50% of 800 + 25% of 600 = 400 + 150 = 550."
+          "explanation": "Since the software is outdated and causes failures, management would replace it. Therefore, 'replace' is correct."
         },
         {
           "id": 23,
-          "direction": "Solve the following probability problem.",
-          "text": "A bag contains 5 red, 4 blue and 3 green balls. One ball is drawn at random. What is the probability that the ball is either red or blue?",
+          "direction": "Read the passage carefully and answer the question.",
+          "passage": "Remote banking has expanded access to financial services, particularly for customers living far from physical branches. Nevertheless, digital exclusion remains a concern. Elderly customers, people with limited digital skills and those living in areas with poor internet connectivity may find online services difficult to use. Banks therefore need to combine digital innovation with accessible alternatives and customer support.",
+          "text": "What is the primary concern highlighted in the passage?",
           "options": [
-            "3/4",
-            "2/3",
-            "1/2",
-            "5/6",
-            "7/12"
+            "Banks are closing branches too slowly.",
+            "Digital banking is reducing the number of financial services available.",
+            "Some groups may be unable to benefit fully from digital banking because of digital or infrastructural limitations.",
+            "Customers prefer physical branches over online services.",
+            "Internet connectivity has improved equally across all regions."
           ],
-          "correctAnswer": 0,
-          "explanation": "Total balls = 5 + 4 + 3 = 12. Favourable balls = 5 + 4 = 9. Probability = 9/12 = 3/4."
+          "correctAnswer": 2,
+          "explanation": "The passage highlights digital exclusion among elderly customers, people with limited digital skills and people in areas with poor connectivity."
         },
         {
           "id": 24,
-          "direction": "Study the following data carefully and answer the question.",
-          "text": "<strong>Number of candidates appearing for an examination:</strong><br><br>2022: 800<br>2023: 1000<br>2024: 1200<br>2025: 1500<br><br>What is the percentage increase in the number of candidates from 2023 to 2025?",
+          "direction": "Identify the part of the sentence that contains an error.",
+          "text": "Having completed the project ahead of schedule, (A)/ the team was praised by the manager (B)/ for their efficiency and commitment. (C)/ No error (D)",
           "options": [
-            "40%",
-            "45%",
-            "50%",
-            "55%",
-            "60%"
+            "A",
+            "B",
+            "C",
+            "D"
           ],
           "correctAnswer": 2,
-          "explanation": "Increase = 1500 - 1000 = 500. Percentage increase = 500/1000 × 100 = 50%."
+          "explanation": "In traditional formal grammar, the singular noun 'team' should be referred to consistently. 'For its efficiency and commitment' is preferred."
         },
         {
           "id": 25,
-          "direction": "Study the following data carefully and answer the question.",
-          "text": "<strong>Number of questions attempted by a student in five sections:</strong><br><br>English = 18<br>Reasoning = 22<br>Quantitative Aptitude = 25<br>General Awareness = 15<br>Professional Knowledge = 30<br><br>What percentage of the total questions attempted were from Quantitative Aptitude?",
+          "direction": "Choose the word that is most similar in meaning to the given word.",
+          "text": "<strong>MITIGATE</strong>",
           "options": [
-            "20%",
-            "22.73%",
-            "25%",
-            "27.5%",
-            "30%"
+            "Aggravate",
+            "Intensify",
+            "Alleviate",
+            "Provoke",
+            "Accelerate"
           ],
-          "correctAnswer": 1,
-          "explanation": "Total questions attempted = 18 + 22 + 25 + 15 + 30 = 110. Quantitative Aptitude questions = 25. Percentage = 25/110 × 100 = 22.73% approximately."
+          "correctAnswer": 2,
+          "explanation": "Mitigate means to make something less severe, serious or painful. 'Alleviate' is the closest synonym."
         }
       ]
     }
